@@ -1,22 +1,17 @@
-import { DM_Sans, JetBrains_Mono, Outfit } from "next/font/google";
+import { Montserrat, Poppins } from "next/font/google";
 
-export const outfit = Outfit({
-  variable: "--font-outfit",
+/** Headings: matches mera-coach-app Montserrat weights. */
+export const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
   display: "swap",
-  weight: ["500", "600", "700", "800"],
+  weight: ["600", "700", "800"],
 });
 
-export const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+/** Body: matches mera-coach-app Poppins weights. */
+export const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "500", "600"],
-});
-
-export const mono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500"],
+  weight: ["400", "500", "600", "700"],
 });

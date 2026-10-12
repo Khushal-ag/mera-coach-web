@@ -1,11 +1,10 @@
 {
-  "name": "nextjs-template",
+  "name": "mera-coach-web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "author": {
-    "name": "Khushal Agarwal",
-    "email": "starkhush5@gmail.com"
+    "name": "Hench Solutions"
   },
   "engines": {
     "node": ">=20.20.2"

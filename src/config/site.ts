@@ -1,85 +1,91 @@
 /**
- * Site configuration. Customize this file for your project.
- *
- * This is the single source for:
- * - Site name, description, and SEO (metadata, Open Graph, Twitter)
- * - Canonical URL (use NEXT_PUBLIC_SITE_URL in .env for different environments)
- * - Author/creator and links (GitHub, social, repo)
- * - robots.txt and sitemap.xml
- *
- * After forking: update name, description, url, authors, links, twitter, ogImage, and keywords.
+ * Mera Coach public website configuration.
+ * URLs come from the typed env module (`src/config/env.ts`).
  */
 
-const baseUrl =
-  (
-    typeof process.env.NEXT_PUBLIC_SITE_URL === "string" &&
-    process.env.NEXT_PUBLIC_SITE_URL.length > 0
-  ) ?
-    process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")
-  : "https://nextjs-template.khushalagarwal.tech";
+import { env } from "@/config/env";
 
 export const siteConfig = {
-  /** Site name (used in metadata, OG, title template) */
-  name: "Next.js Starter Template",
-  /** Short name (PWA manifest, app name) */
-  shortName: "Next.js Template",
-  /** Site description (meta description, OG, Twitter) */
+  name: "Mera Coach",
+  shortName: "Mera Coach",
   description:
-    "Opinionated Next.js 16 starter with TypeScript, Tailwind CSS v4, light/dark/system themes, ESLint 10, Prettier, Husky, and SEO defaults. Start on product work.",
-  /** Canonical base URL (no trailing slash). Override with NEXT_PUBLIC_SITE_URL. */
-  url: baseUrl,
-  /** Contact / team email */
-  email: { team: "starkhush5@gmail.com" },
+    "Mera Coach is an online platform for health and wellness coaches, fitness coaches, and dieticians to manage clients with ease, and for people to find a coach.",
+  url: env.siteUrl,
+  apiBaseUrl: env.apiBaseUrl,
+  email: { team: "Contact@mera-coach.com" },
 
-  /** Authors (metadata, JSON-LD). Update for your project. */
-  authors: [
-    { name: "Khushal Agarwal", url: "https://portfolio.khushalagarwal.tech" },
-  ],
+  authors: [{ name: "Hench Solutions", url: env.siteUrl }],
+  creator: "Hench Solutions",
+  publisher: "Hench Solutions",
 
-  /** Creator and publisher (metadata) */
-  creator: "Khushal Agarwal",
-  publisher: "Khushal Agarwal",
-
-  /** SEO keywords */
   keywords: [
-    "nextjs",
-    "next.js 16",
-    "react 19",
-    "typescript",
-    "tailwind css",
-    "tailwind v4",
-    "next-themes",
-    "dark mode",
-    "eslint",
-    "prettier",
-    "husky",
-    "starter template",
-    "boilerplate",
-    "create-next-app",
+    "health coach",
+    "wellness coach",
+    "fitness coach",
+    "dietician",
+    "mera coach",
+    "client management",
+    "coaching platform",
   ],
 
-  /** Social and project links. repo = this project’s repo; templateRepo = “use this template” / create-next-app URL. */
   links: {
-    instagram: "https://www.instagram.com/starkhush/",
-    github: "https://github.com/Khushal-ag",
-    /** Main repo (e.g. your app after fork) */
-    repo: "https://github.com/Khushal-ag/nextjs-template",
-    /** Template repo URL for “clone / use this template” (create-next-app). Change if you publish your own template. */
-    templateRepo: "https://github.com/Khushal-ag/nextjs-template",
-    /** Footer link label (e.g. "username@github") */
-    githubDisplay: "Khushal-ag@github",
+    home: "/",
+    coaches: "/coach",
+    services: "/services",
+    register: "/register",
+    coachLogin: "/coach-login",
+    memberLogin: "/member-login",
+    premium: "/premium",
+    premiumSuccess: "/premium/success",
+    feedback: "/feedback",
+    terms: "/terms",
+    privacy: "/privacy",
   },
 
-  /** Twitter card handle and site */
+  nav: [
+    { label: "Home", href: "/" },
+    { label: "Find A Coach", href: "/coach" },
+    { label: "Services", href: "/services" },
+    { label: "Join us", href: "/register" },
+  ] as const,
+
+  /** App store / deep-link placeholders — update when store URLs are final. */
+  app: {
+    /** Marketing copy points clients here; CRM lives in the native app. */
+    handoffLabel: "Open the Mera Coach app",
+  },
+
   twitter: {
-    handle: "@starkhush",
-    site: "@starkhush",
+    handle: "",
+    site: "",
   },
 
-  /** OG image URL (absolute). Default: {url}/og.png */
-  ogImage: `${baseUrl}/og.png`,
+  /** Brand assets under `public/` (generated from app `logo-mark` + `mc-images`). */
+  brand: {
+    logoMark: "/mc-images/logo-mark.png",
+    logoFull: "/mc-images/logo-full.png",
+    wordmark: "/mc-images/meracoach.png",
+  },
 
-  /** robots.txt: index and follow */
+  /** Open Graph / Twitter share image (1200×630). */
+  ogImage: {
+    url: "/mc-images/og-image.png",
+    width: 1200,
+    height: 630,
+    alt: "Mera Coach — find health & wellness coaches",
+  },
+
+  icons: {
+    favicon: "/favicon.ico",
+    favicon16: "/favicon-16x16.png",
+    favicon32: "/favicon-32x32.png",
+    apple: "/apple-touch-icon.png",
+    icon192: "/icon-192.png",
+    icon512: "/icon-512.png",
+  },
+
+  themeColor: "#004B3E",
+
   robots: {
     index: true,
     follow: true,

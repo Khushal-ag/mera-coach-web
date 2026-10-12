@@ -1,21 +1,26 @@
 import Link from "next/link";
 
+import type { Metadata } from "next";
+
+import { StatusHomeLink, StatusPanel } from "@/components/status-panel";
+import { siteConfig } from "@/config/site";
+
+export const metadata: Metadata = {
+  title: "Page not found",
+  robots: { index: false, follow: true },
+};
+
 export default function NotFound() {
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-paper px-6 text-center text-ink">
-      <p className="font-mono text-sm text-ink-muted">404</p>
-      <h1 className="font-display text-2xl font-bold tracking-tight">
-        Page not found
-      </h1>
-      <p className="max-w-sm text-sm text-ink-muted">
-        The page you requested does not exist or has been moved.
-      </p>
-      <Link
-        href="/"
-        className="mt-2 border-b border-accent text-sm font-semibold text-ink underline-offset-4 hover:bg-accent-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-      >
-        Back to home
+    <StatusPanel
+      code="404"
+      title="Page not found"
+      description="The page you requested does not exist or has been moved. Head home or browse coaches on Mera Coach."
+    >
+      <StatusHomeLink />
+      <Link href={siteConfig.links.coaches} className="mc-btn-secondary">
+        Find a coach
       </Link>
-    </main>
+    </StatusPanel>
   );
 }

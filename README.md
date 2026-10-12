@@ -1,115 +1,74 @@
-<div align="center">
+# mera-coach-web
 
-# Next.js Starter Template
+Public marketing and checkout website for **Mera Coach**, built with Next.js 16 (App Router), TypeScript, Tailwind CSS v4, and Bun.
 
-**Lean starter for Next.js 16.** Clone it, set the theme, edit `site.ts`.
-
-[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38BDF8?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-b8d40f?style=flat-square)](LICENSE)
-
-<br />
-
-<img src="./public/og.png" alt="Next.js Starter Template — soft-technical landing with slate studio plane and chartreuse accent" width="100%" />
-
-</div>
-
-<br />
-
-```
-Next 16 · React 19 · Tailwind 4 · TypeScript
-App Router · Cache Components · React Compiler
-light · dark · system  ·  MIT
-```
+- Legacy port source: `../mera-coach-web-old` (ASP.NET `MVDUSA`)
+- Design tokens: `../mera-coach-app` (`src/constants/theme.ts`)
+- API: `../meracoachapi`
 
 ## Quick start
 
 ```bash
-bunx create-next-app -e "https://github.com/Khushal-ag/nextjs-template" <project-name>
-```
-
-Or clone the repo:
-
-```bash
+cd mera-coach-web
 bun install
+cp .env.example .env.local
+# edit NEXT_PUBLIC_API_BASE_URL if needed
 bun dev
 ```
 
-Then open [localhost:3000](http://localhost:3000) and edit `src/config/site.ts`.
+Open [http://localhost:3000](http://localhost:3000).
 
-| Step | Command | What it does |
-| ---- | ------- | ------------ |
-| 01 | `bun install` | Dependencies + Husky hooks |
-| 02 | `bun dev` | Turbopack, Cache Components on |
-| 03 | `bun run validate` | Lint, types, Prettier, production build |
-
-> Node.js ≥ 20.20.2. Prefers [bun](https://bun.sh/); npm, yarn, and pnpm work too (drop `bun.lock` first).
-
-## What's included
-
-| | |
+| Variable | Purpose |
 | --- | --- |
-| **Routing** | App Router, Cache Components, React Compiler |
-| **Style** | Tailwind v4, CSS variables, theme switcher |
-| **Quality** | ESLint 10, Prettier, Husky, lint-staged |
-| **SEO** | Metadata, OG/Twitter, JSON-LD, robots, sitemap |
+| `NEXT_PUBLIC_SITE_URL` | Canonical site URL (no trailing slash). Defaults to `https://mera-coach.com` |
+| `NEXT_PUBLIC_API_BASE_URL` | meracoachapi origin (no trailing slash). **Required** for API-backed pages |
+| `NEXT_PUBLIC_IMAGE_HOSTS` | Optional extra `next/image` remote hostnames |
 
-Also ships: `error.tsx`, `loading.tsx`, `not-found.tsx`, PWA manifest icons, and security headers in `next.config.ts`.
+Razorpay **key id / secret** live on the API. The website receives `keyId` from `POST /v1/Coach/premium-order`.
 
-## Theme
+## Architecture
 
-Soft-technical tokens: warm paper, deep slate, chartreuse accent. Outfit + DM Sans on the page; JetBrains Mono in the studio.
+```
+src/
+  app/                 # routes (Server Components by default)
+  components/          # site shell + feature forms + ui/
+  config/env.ts        # typed public env
+  config/site.ts       # marketing config from env
+  lib/api/             # feature API modules (client, coach, auth, premium, feedback)
+  types/               # shared response/request types
+  styles/globals.css   # app design tokens as CSS variables
+```
 
-Light, dark, and system modes via `next-themes`. Toggle lives in the header / studio. Tokens sit in `src/styles/globals.css` (`:root` + `.dark`). Preference persists in `localStorage`.
+## Main routes
 
-Keep the toggle, restyle the variables, or remove `client-components.tsx` if you drop theming entirely.
+| Route | Notes |
+| --- | --- |
+| `/` | Marketing home |
+| `/coach` | Public coach directory (+ city filters) |
+| `/coach/[code]` | Profile + enquiry |
+| `/services` | Services marketing |
+| `/register` | Coach registration |
+| `/coach-login` | Auth handoff (CRM in app) |
+| `/premium` | Plans + Razorpay (`?coachId=&coachCode=` from app `buildCoachPaymentUrl`) |
+| `/premium/success` | Post-confirm return page |
+| `/feedback` | `?coachCode=&clientCode=` |
+| `/terms` `/privacy` | Legal |
+
+See `PORTING.md` for the full legacy inventory.
+
+## Verify flows
+
+1. **Find coach** → `/coach` → open a profile → submit enquiry (API must be up).
+2. **Register** → `/register` → check welcome email / then `/coach-login`.
+3. **Premium** → from app Pay Now or `/premium?coachId=…&coachCode=…` → pick plan → Razorpay → `/premium/success`.
+4. **Feedback** → `/feedback?coachCode=…&clientCode=…`.
 
 ## Scripts
 
 | Script | Description |
-| ------ | ----------- |
-| `dev` | Dev server (Turbopack) |
-| `build` | Production build |
-| `start` | Serve production build |
-| `preview` | Build and serve |
-| `lint` | ESLint + TypeScript |
-| `lint:fix` | ESLint with auto-fix |
-| `type-check` | TypeScript only |
-| `fmt` / `fmt:check` | Prettier write / check |
-| `validate` | Lint + format check + build |
-| `ui` | shadcn CLI |
-| `clean` / `cleani` | Clear `.next` / reinstall |
-
-## Structure
-
-```
-src/
-├── app/                 # Routes, layout, SEO (robots, sitemap)
-├── components/          # Shared UI (theme provider)
-├── config/site.ts       # Name, URL, SEO, links — edit after fork
-├── lib/                 # Utilities, fonts
-└── styles/globals.css   # Design tokens + Tailwind @theme
-```
-
-## Customize
-
-1. Update `package.json`, `README.md`, and `LICENSE`
-2. Edit `src/config/site.ts` (name, description, URL, authors, links)
-3. Replace `src/app/page.tsx` with your product
-4. Set `NEXT_PUBLIC_SITE_URL` in `.env` when needed (see `.env.example`)
-5. For remote `next/image` hosts: `NEXT_PUBLIC_IMAGE_HOSTS=images.example.com,cdn.example.org`
-
-## License
-
-MIT. See [LICENSE](LICENSE).
-
----
-
-<div align="center">
-
-[GitHub](https://github.com/Khushal-ag/nextjs-template)
-·
-[Khushal-ag](https://github.com/Khushal-ag)
-
-</div>
+| --- | --- |
+| `bun dev` | Dev server (Turbopack) |
+| `bun run build` | Production build |
+| `bun run lint` | ESLint + TypeScript |
+| `bun run type-check` | `tsc --noEmit` |
+| `bun run validate` | Lint, format check, and build |

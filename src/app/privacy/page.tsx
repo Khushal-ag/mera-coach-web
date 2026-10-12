@@ -1,0 +1,74 @@
+import type { Metadata } from "next";
+
+import { PageHero } from "@/components/page-hero";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "How Mera Coach collects and uses personal information.",
+};
+
+export default function PrivacyPage() {
+  return (
+    <>
+      <PageHero
+        crumbs={[{ label: "Home", href: "/" }, { label: "Privacy" }]}
+        title="Privacy Policy"
+        subtitle="How we collect, use, and protect information on Mera Coach."
+      />
+      <section className="bg-paper py-14">
+        <div className="container max-w-3xl space-y-6 text-sm leading-relaxed text-ink-muted">
+          <p>
+            Hench Solutions operates Mera Coach. This policy explains what we
+            collect when you use the website, API-backed forms, and related app
+            experiences.
+          </p>
+          <h2 className="font-display text-xl font-bold text-ink">
+            Information we collect
+          </h2>
+          <ul className="list-disc space-y-2 pl-5">
+            <li>
+              Coach registration details (name, mobile, email, business and
+              address fields you submit).
+            </li>
+            <li>
+              Enquiry and feedback form data (name, contact, ratings, comments).
+            </li>
+            <li>
+              Premium checkout identifiers (coach ID or code, plan selection,
+              payment confirmation references from Razorpay). Card data is
+              handled by Razorpay, not stored by this website.
+            </li>
+            <li>
+              Technical logs such as IP address and basic request metadata for
+              security and abuse prevention.
+            </li>
+          </ul>
+          <h2 className="font-display text-xl font-bold text-ink">
+            How we use it
+          </h2>
+          <p>
+            We use data to operate coach discovery, registration, enquiries,
+            feedback, and premium billing; to send transactional email such as
+            welcome credentials and enquiry notices; and to improve reliability
+            and security.
+          </p>
+          <h2 className="font-display text-xl font-bold text-ink">Sharing</h2>
+          <p>
+            We share data with service providers required to run the product
+            (hosting, email, payment). Enquiry details are shared with the coach
+            you contact. We do not sell personal information.
+          </p>
+          <h2 className="font-display text-xl font-bold text-ink">
+            Your choices
+          </h2>
+          <p>
+            Contact Contact@mera-coach.com to request access, correction, or
+            deletion where applicable. Coaches can update profile visibility and
+            details through the app after signing in.
+          </p>
+          <p className="text-xs text-ink-muted">Last updated: October 2026</p>
+        </div>
+      </section>
+    </>
+  );
+}

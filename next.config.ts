@@ -6,19 +6,19 @@ const imageHostnames = (process.env.NEXT_PUBLIC_IMAGE_HOSTS ?? "")
   .map((host) => host.trim())
   .filter(Boolean);
 
-/** Sensible CSP for a static marketing/template site without breaking Next.js. */
+/** CSP for marketing site + Razorpay Checkout + API calls. */
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https:",
+  "connect-src 'self' https: https://api.razorpay.com https://lumberjack.razorpay.com",
+  "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
-  // Avoid forcing HTTPS upgrade during local http:// development.
   ...(isProd ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
@@ -51,23 +51,24 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Next.js 16.4 recommends Cache Components for new apps (create-next-app default).
   cacheComponents: true,
   partialPrefetching: true,
-  // Always-on React Compiler; Rust path via Turbopack when available.
   reactCompiler: true,
   experimental: {
     turbopackRustReactCompiler: true,
   },
-  // Keep remote images opt-in. Add comma-separated hosts via NEXT_PUBLIC_IMAGE_HOSTS.
-  ...(imageHostnames.length > 0 && {
-    images: {
-      remotePatterns: imageHostnames.map((hostname) => ({
-        protocol: "https",
+  images: {
+    remotePatterns: [
+      ...imageHostnames.map((hostname) => ({
+        protocol: "https" as const,
         hostname,
       })),
-    },
-  }),
+      {
+        protocol: "https",
+        hostname: "mera-coach.com",
+      },
+    ],
+  },
   async headers() {
     return [
       {

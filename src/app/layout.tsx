@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from "next";
 
 import "@/styles/globals.css";
 
-import { TailwindIndicator } from "@/components/tailwind-indicator";
-import { ThemeProvider } from "@/components/theme-provider";
+import { SiteShell } from "@/components/site-shell";
 import { siteConfig } from "@/config/site";
 import * as fonts from "@/lib/fonts";
 import { cn } from "@/lib/utils";
@@ -19,28 +18,19 @@ const jsonLd = {
       url: siteConfig.url,
       inLanguage: "en-US",
       publisher: {
-        "@type": "Person",
-        name: siteConfig.creator,
-        url: siteConfig.authors[0]?.url,
+        "@type": "Organization",
+        name: siteConfig.publisher,
+        url: siteConfig.url,
       },
     },
     {
-      "@type": "SoftwareApplication",
+      "@type": "Organization",
       name: siteConfig.name,
-      applicationCategory: "DeveloperApplication",
-      operatingSystem: "Any",
       url: siteConfig.url,
       description: siteConfig.description,
-      offers: {
-        "@type": "Offer",
-        price: "0",
-        priceCurrency: "USD",
-      },
-      author: {
-        "@type": "Person",
-        name: siteConfig.creator,
-        url: siteConfig.authors[0]?.url,
-      },
+      email: siteConfig.email.team,
+      logo: `${siteConfig.url}${siteConfig.brand.logoMark}`,
+      image: `${siteConfig.url}${siteConfig.ogImage.url}`,
     },
   ],
 };
@@ -51,28 +41,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body
         className={cn(
-          fonts.outfit.variable,
-          fonts.dmSans.variable,
-          fonts.mono.variable,
+          fonts.montserrat.variable,
+          fonts.poppins.variable,
           "min-h-dvh scroll-smooth font-sans antialiased",
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          />
-          {children}
-          <TailwindIndicator />
-        </ThemeProvider>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <SiteShell>{children}</SiteShell>
       </body>
     </html>
   );
@@ -84,17 +65,14 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  colorScheme: "light dark",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f1eb" },
-    { media: "(prefers-color-scheme: dark)", color: "#12141a" },
-  ],
+  colorScheme: "light",
+  themeColor: siteConfig.themeColor,
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: siteConfig.name,
+    default: "Welcome - Mera Coach",
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
@@ -119,15 +97,15 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteConfig.url,
-    title: siteConfig.name,
+    title: "mera-coach.com | Find Health Coach – Wellness Coach",
     description: siteConfig.description,
     siteName: siteConfig.name,
     images: [
       {
-        url: siteConfig.ogImage,
-        width: 1200,
-        height: 630,
-        alt: siteConfig.name,
+        url: siteConfig.ogImage.url,
+        width: siteConfig.ogImage.width,
+        height: siteConfig.ogImage.height,
+        alt: siteConfig.ogImage.alt,
       },
     ],
   },
@@ -135,28 +113,35 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
-    site: siteConfig.twitter.site,
-    creator: siteConfig.twitter.handle,
-    images: [siteConfig.ogImage],
+    images: [siteConfig.ogImage.url],
   },
   icons: {
     icon: [
-      { rel: "icon", url: "/favicon.ico" },
+      { url: siteConfig.icons.favicon, sizes: "any" },
       {
-        rel: "icon",
-        url: "/icon-192.png",
+        url: siteConfig.icons.favicon16,
+        sizes: "16x16",
+        type: "image/png",
+      },
+      {
+        url: siteConfig.icons.favicon32,
+        sizes: "32x32",
+        type: "image/png",
+      },
+      {
+        url: siteConfig.icons.icon192,
         sizes: "192x192",
         type: "image/png",
       },
       {
-        rel: "icon",
-        url: "/icon-512.png",
+        url: siteConfig.icons.icon512,
         sizes: "512x512",
         type: "image/png",
       },
     ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+    apple: [{ url: siteConfig.icons.apple, sizes: "180x180" }],
+    shortcut: [siteConfig.icons.favicon],
   },
   manifest: "/site.webmanifest",
-  category: "technology",
+  category: "health",
 };
