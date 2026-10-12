@@ -14,7 +14,8 @@ export const metadata = publicPageMetadata({
 export default function CoachLoginPage() {
   return (
     <AuthShell
-      layout="split"
+      layout="single"
+      panel="light"
       image={photography.authLogin}
       imageAlt="Someone walking into a neighbourhood gym at dusk"
       crumbs={[{ label: "Home", href: "/" }, { label: "Coach Login" }]}
@@ -25,13 +26,6 @@ export default function CoachLoginPage() {
         </>
       }
       subtitle="Sign in to manage clients, leads, packages, and your public profile, plus Premium checkout."
-      sideTitle={
-        <>
-          Welcome back,{" "}
-          <span className="text-[color:var(--mc-brand-coach)]">Coach</span>
-        </>
-      }
-      sideBody="One login for your coaching on the web: dashboard, clients, events, and your public profile."
       panelHeading="Sign in"
       panelSubheading="Enter your credentials to continue"
     >
@@ -42,9 +36,9 @@ export default function CoachLoginPage() {
             aria-busy="true"
             aria-label="Loading sign in"
           >
-            <div className="h-11 animate-pulse rounded-[10px] bg-white/15" />
-            <div className="h-11 animate-pulse rounded-[10px] bg-white/15" />
-            <div className="h-12 animate-pulse rounded-full bg-white/20" />
+            <div className="h-11 animate-pulse rounded-[10px] bg-line" />
+            <div className="h-11 animate-pulse rounded-[10px] bg-line" />
+            <div className="h-12 animate-pulse rounded-full bg-line" />
           </div>
         }
       >

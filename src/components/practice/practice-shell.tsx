@@ -174,11 +174,6 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
       <p className="truncate text-sm font-semibold text-white">
         {session.fullName}
       </p>
-      {session.coachCode ?
-        <p className="mt-0.5 truncate text-xs text-white/70">
-          {session.coachCode}
-        </p>
-      : null}
     </div>
   );
 
@@ -223,7 +218,6 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                 </p>
                 <p className="truncate text-xs text-white/70">
                   {session.fullName}
-                  {session.coachCode ? `, ${session.coachCode}` : ""}
                 </p>
               </div>
             </div>

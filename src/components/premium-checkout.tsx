@@ -110,9 +110,8 @@ async function lookupCoach(params: {
   }
 }
 
-function fallbackCoachLabel(coachCode: string): string {
-  const code = coachCode.trim();
-  return code ? `Coach ${code}` : "Your coach account";
+function fallbackCoachLabel(): string {
+  return "Your coach account";
 }
 
 export function PremiumCheckout({
@@ -183,7 +182,7 @@ export function PremiumCheckout({
         setResolvedCoach({
           coachId: initialCoachId > 0 ? initialCoachId : 0,
           coachCode: code,
-          coachName: fallbackCoachLabel(code),
+          coachName: fallbackCoachLabel(),
           photo: "",
         });
         setShowCodeEntry(false);
@@ -228,7 +227,7 @@ export function PremiumCheckout({
     setResolvedCoach({
       coachId: 0,
       coachCode: code,
-      coachName: fallbackCoachLabel(code),
+      coachName: fallbackCoachLabel(),
       photo: "",
     });
     setCoachId(0);
@@ -457,17 +456,6 @@ export function PremiumCheckout({
             <p className="truncate font-display text-lg font-bold text-ink">
               {resolvedCoach.coachName}
             </p>
-            {(
-              resolvedCoach.coachCode &&
-              resolvedCoach.coachName ===
-                fallbackCoachLabel(resolvedCoach.coachCode)
-            ) ?
-              null
-            : resolvedCoach.coachCode ?
-              <p className="truncate text-xs text-ink-muted">
-                {resolvedCoach.coachCode}
-              </p>
-            : null}
           </div>
           <button
             type="button"

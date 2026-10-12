@@ -113,8 +113,13 @@ export function CoachEnquiryForm({
         />
       }
 
-      <button type="submit" disabled={busy} className="mc-btn-primary w-full">
-        {busy ? "Sending…" : "Send my request (it's free)"}
+      <button
+        type="submit"
+        disabled={busy}
+        aria-busy={busy}
+        className="mc-btn-primary w-full"
+      >
+        {busy ? "Sending enquiry" : "Send my request (it's free)"}
       </button>
 
       {message ?

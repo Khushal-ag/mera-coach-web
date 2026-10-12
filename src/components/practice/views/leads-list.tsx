@@ -19,6 +19,7 @@ export function LeadsListView() {
   const { session } = useAuth();
   const [leads, setLeads] = useState<EnquiryLead[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -58,6 +59,8 @@ export function LeadsListView() {
           l.id === lead.id ? { ...l, isContacted: !l.isContacted } : l,
         ),
       );
+      setError(null);
+      setNotice(lead.isContacted ? "Lead reopened." : "Marked as contacted.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update lead.");
     } finally {
@@ -72,6 +75,8 @@ export function LeadsListView() {
       setLeads((prev) =>
         (prev ?? []).map((l) => (l.id === lead.id ? { ...l, notes } : l)),
       );
+      setError(null);
+      setNotice("Notes saved.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save notes.");
     } finally {
@@ -96,6 +101,9 @@ export function LeadsListView() {
       />
       {error ?
         <AlertBanner tone="error">{error}</AlertBanner>
+      : null}
+      {notice ?
+        <AlertBanner tone="success">{notice}</AlertBanner>
       : null}
 
       {leads == null ?
@@ -199,7 +207,7 @@ export function LeadsListView() {
                         onClick={() => void toggleContacted(lead)}
                       >
                         {savingId === lead.id ?
-                          "Saving…"
+                          "Saving"
                         : lead.isContacted ?
                           "Reopen"
                         : "Mark contacted"}

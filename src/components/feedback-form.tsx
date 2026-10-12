@@ -85,7 +85,7 @@ export function FeedbackForm({
               disabled={locked || busy}
               className={`size-11 rounded-full text-lg transition ${
                 value <= rating ?
-                  "bg-mc-brand-coach text-white"
+                  "bg-mc-brand-coach text-ink"
                 : "bg-line text-ink-muted hover:bg-mc-secondary-light"
               } disabled:opacity-60`}
               aria-label={`${value} star${value === 1 ? "" : "s"}`}
@@ -108,10 +108,11 @@ export function FeedbackForm({
       <button
         type="submit"
         disabled={busy || locked}
+        aria-busy={busy}
         className="mc-btn-primary w-full sm:w-auto"
       >
         {busy ?
-          "Submitting…"
+          "Submitting feedback"
         : locked ?
           "Submitted"
         : "Submit feedback"}

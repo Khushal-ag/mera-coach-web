@@ -197,9 +197,6 @@ async function CoachDirectoryBody({
       error instanceof Error ? error.message : "Could not load coaches.";
   }
 
-  const categoryLabel =
-    categories.find((c) => c.code === category)?.label ?? "All categories";
-
   return (
     <div className="min-w-0">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -245,78 +242,95 @@ async function CoachDirectoryBody({
         </form>
       </div>
 
-      {/* Filter row — city / category / rating / sort */}
-      <form
-        action="/coach"
-        className="mt-6 grid gap-3 border-y border-line bg-surface/80 py-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4"
-      >
-        {search ?
-          <input type="hidden" name="search" value={search} />
-        : null}
-        <label className="block text-xs font-semibold text-ink-muted">
-          Serving city
-          <select
-            name="city"
-            defaultValue={city ?? ""}
-            className="mc-field mt-1.5 min-h-11 w-full rounded-[10px] px-3 text-sm text-ink"
-          >
-            <option value="">All cities</option>
-            {cities.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
+      <div className="mt-8 space-y-5">
+        <div>
+          <p className="text-xs font-semibold text-ink-muted">Category</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <FilterChip
+              href={buildQuery({ ...dirParams, category: undefined })}
+              active={!category}
+            >
+              All
+            </FilterChip>
+            {categories.map((item) => (
+              <FilterChip
+                key={item.code}
+                href={buildQuery({ ...dirParams, category: item.code })}
+                active={category === item.code}
+              >
+                {shortCategoryLabel(item.label)}
+              </FilterChip>
             ))}
-          </select>
-        </label>
-        <label className="block text-xs font-semibold text-ink-muted">
-          Category
-          <select
-            name="category"
-            defaultValue={category ?? ""}
-            className="mc-field mt-1.5 min-h-11 w-full rounded-[10px] px-3 text-sm text-ink"
-          >
-            <option value="">All categories</option>
-            {categories.map((c) => (
-              <option key={c.code} value={c.code}>
-                {shortCategoryLabel(c.label)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block text-xs font-semibold text-ink-muted">
-          Rating
-          <select
-            name="rating"
-            defaultValue={ratingLabel}
-            className="mc-field mt-1.5 min-h-11 w-full rounded-[10px] px-3 text-sm text-ink"
-          >
-            {RATING_FILTER_OPTIONS.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block text-xs font-semibold text-ink-muted">
-          Sort by
-          <select
-            name="sort"
-            defaultValue={sortLabel}
-            className="mc-field mt-1.5 min-h-11 w-full rounded-[10px] px-3 text-sm text-ink"
-          >
-            {SORT_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="flex flex-wrap items-end gap-2 sm:col-span-2 lg:col-span-4">
+          </div>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold text-ink-muted">Rating</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {RATING_FILTER_OPTIONS.map((rating) => (
+                <FilterChip
+                  key={rating}
+                  href={buildQuery({ ...dirParams, rating })}
+                  active={ratingLabel === rating}
+                >
+                  {rating}
+                </FilterChip>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-ink-muted">Sort</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {SORT_OPTIONS.map((sort) => (
+                <FilterChip
+                  key={sort}
+                  href={buildQuery({ ...dirParams, sort })}
+                  active={sortLabel === sort}
+                >
+                  {sort}
+                </FilterChip>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <form
+          action="/coach"
+          className="flex flex-col gap-3 border-y border-line py-4 sm:flex-row sm:items-end"
+        >
+          {search ?
+            <input type="hidden" name="search" value={search} />
+          : null}
+          {category ?
+            <input type="hidden" name="category" value={category} />
+          : null}
+          {ratingLabel !== RATING_FILTER_OPTIONS[0] ?
+            <input type="hidden" name="rating" value={ratingLabel} />
+          : null}
+          {sortLabel !== SORT_OPTIONS[0] ?
+            <input type="hidden" name="sort" value={sortLabel} />
+          : null}
+          <label className="block min-w-0 flex-1 text-xs font-semibold text-ink-muted">
+            Serving city
+            <select
+              name="city"
+              defaultValue={city ?? ""}
+              className="mc-field mt-1.5 min-h-11 w-full text-sm text-ink"
+            >
+              <option value="">All cities</option>
+              {cities.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </label>
           <button
             type="submit"
             className="mc-btn-primary min-h-11 px-5 text-sm"
           >
-            Apply filters
+            Apply city
           </button>
           {hasFilters ?
             <Link
@@ -326,18 +340,8 @@ async function CoachDirectoryBody({
               Clear filters
             </Link>
           : null}
-          <p className="ms-auto text-xs text-ink-muted">
-            {[
-              category ? shortCategoryLabel(categoryLabel) : "All categories",
-              city || null,
-              ratingLabel !== RATING_FILTER_OPTIONS[0] ? ratingLabel : null,
-              sortLabel,
-            ]
-              .filter(Boolean)
-              .join(", ")}
-          </p>
-        </div>
-      </form>
+        </form>
+      </div>
 
       {!hasFilters && topRated.length > 0 ?
         <section className="mt-10">
@@ -365,22 +369,26 @@ async function CoachDirectoryBody({
           We could not load coaches right now. Please refresh and try again.
         </AlertBanner>
       : coaches.length === 0 ?
-        <div className="mt-10 max-w-xl border-t border-[color:var(--mc-secondary)]/15 pt-8">
+        <div className="mt-10 rounded-[var(--radius-md)] border border-dashed border-line bg-surface px-6 py-10 sm:px-8">
           <h3 className="font-display text-xl font-bold text-ink sm:text-2xl">
             No coaches match yet
           </h3>
-          <p className="mt-3 text-sm leading-relaxed text-ink-muted">
+          <p className="mt-3 max-w-lg text-sm leading-relaxed text-ink-muted">
             Try another city, category, or keyword. New personal trainers go
             public as they join.
           </p>
-          <Link
-            href="/register"
-            className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-mc-brand-coach"
-          >
-            Are you a coach? Start here
-          </Link>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            {hasFilters ?
+              <Link href="/coach" className="mc-btn-secondary w-full sm:w-auto">
+                Clear filters
+              </Link>
+            : null}
+            <Link href="/register" className="mc-btn-primary w-full sm:w-auto">
+              Are you a coach? Start here
+            </Link>
+          </div>
         </div>
-      : <div className="mt-8 space-y-4">
+      : <div className="mt-8 grid gap-4 lg:grid-cols-2">
           {coaches.map((coach) => (
             <CoachResultCard key={coach.coachId} coach={coach} />
           ))}
@@ -473,6 +481,30 @@ function DirectoryFallback() {
   );
 }
 
+function FilterChip({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "true" : undefined}
+      className={
+        active ?
+          "inline-flex min-h-8 items-center rounded-full bg-mc-secondary px-3 text-xs font-bold text-white"
+        : "inline-flex min-h-8 items-center rounded-full bg-surface px-3 text-xs font-bold text-mc-secondary ring-1 ring-line hover:bg-[color:var(--mc-secondary-light)]"
+      }
+    >
+      {children}
+    </Link>
+  );
+}
+
 function CoachResultCard({ coach }: { coach: CoachPublicListItem }) {
   const href =
     coach.coachCode ?
@@ -488,12 +520,12 @@ function CoachResultCard({ coach }: { coach: CoachPublicListItem }) {
   const bio = (coach.tagline || coach.coachDesc || "").trim();
 
   return (
-    <article className="overflow-hidden rounded-[var(--radius-md)] border border-[color:var(--mc-secondary)]/12 bg-surface p-4 shadow-[0_8px_24px_rgba(0,75,62,0.06)] transition hover:shadow-[0_12px_28px_rgba(0,75,62,0.1)] sm:p-5">
+    <Link href={href} className="mc-card flex h-full flex-col p-4 sm:p-5">
       <div className="flex gap-4">
         <div className="relative size-20 shrink-0 overflow-hidden rounded-full ring-1 ring-[color:var(--mc-secondary)]/15 sm:size-[5.5rem]">
           <CoachPhoto
             src={photo}
-            alt={coach.coachName}
+            alt=""
             className="object-cover"
             sizes="88px"
           />
@@ -516,7 +548,7 @@ function CoachResultCard({ coach }: { coach: CoachPublicListItem }) {
               </span>
             : null}
             {coach.experienceYears > 0 ?
-              <span>{coach.experienceYears} Yrs</span>
+              <span>{coach.experienceYears} yrs</span>
             : null}
             {coach.city_Cd ?
               <span className="inline-flex min-w-0 items-center gap-1">
@@ -528,12 +560,6 @@ function CoachResultCard({ coach }: { coach: CoachPublicListItem }) {
               </span>
             : null}
           </div>
-          <Link
-            href={href}
-            className="mt-3 inline-flex min-h-10 items-center justify-center rounded-full bg-mc-brand-coach px-4 text-xs font-bold text-white transition hover:brightness-105 active:scale-[0.98]"
-          >
-            View Profile
-          </Link>
         </div>
       </div>
       {bio ?
@@ -542,16 +568,16 @@ function CoachResultCard({ coach }: { coach: CoachPublicListItem }) {
       {tags.length > 0 ?
         <div className="mt-3 flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full border border-[color:var(--mc-secondary)]/20 bg-[color:var(--mc-explore-canvas)] px-2.5 py-1 text-[11px] font-semibold text-mc-secondary-dark"
-            >
+            <span key={tag} className="mc-chip">
               {tag}
             </span>
           ))}
         </div>
       : null}
-    </article>
+      <span className="mt-4 text-sm font-bold text-[color:var(--mc-brand-coach)]">
+        View profile
+      </span>
+    </Link>
   );
 }
 
@@ -563,10 +589,7 @@ function TopRatedCard({ coach }: { coach: CoachPublicListItem }) {
   const photo = resolveCoachPhotoUrl(coach);
 
   return (
-    <Link
-      href={href}
-      className="w-40 shrink-0 rounded-[var(--radius-md)] border border-line bg-surface p-3 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-    >
+    <Link href={href} className="mc-card w-40 shrink-0 p-3 text-center">
       <div className="relative mx-auto size-16 overflow-hidden rounded-full">
         <CoachPhoto
           src={photo}

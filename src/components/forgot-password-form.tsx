@@ -92,7 +92,7 @@ export function ForgotPasswordForm() {
           label="Reset code"
           autoComplete="one-time-code"
           required
-          tone="dark"
+          tone="light"
           value={token}
           onChange={(e) => setToken(e.target.value)}
           disabled={busy}
@@ -102,7 +102,7 @@ export function ForgotPasswordForm() {
           type="password"
           autoComplete="new-password"
           required
-          tone="dark"
+          tone="light"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           disabled={busy}
@@ -112,7 +112,7 @@ export function ForgotPasswordForm() {
           type="password"
           autoComplete="new-password"
           required
-          tone="dark"
+          tone="light"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           disabled={busy}
@@ -120,13 +120,14 @@ export function ForgotPasswordForm() {
         <button
           type="submit"
           disabled={busy}
+          aria-busy={busy}
           className="mc-btn-primary mt-1 w-full"
         >
-          {busy ? "Updating…" : "Update password"}
+          {busy ? "Updating password" : "Update password"}
         </button>
         <button
           type="button"
-          className="w-full text-sm font-semibold text-white/75 underline-offset-2 hover:underline"
+          className="w-full text-sm font-semibold text-mc-secondary underline-offset-2 hover:underline"
           disabled={busy}
           onClick={() => {
             setError(null);
@@ -136,10 +137,10 @@ export function ForgotPasswordForm() {
         >
           Back to email / mobile
         </button>
-        <p className="border-t border-white/10 pt-5 text-center text-sm text-white/70">
+        <p className="border-t border-line pt-5 text-center text-sm text-ink-muted">
           <Link
             href="/coach-login"
-            className="font-semibold text-[color:var(--mc-brand-coach)] transition-colors hover:brightness-110"
+            className="font-semibold text-mc-brand-coach hover:underline"
           >
             Back to sign in
           </Link>
@@ -157,7 +158,7 @@ export function ForgotPasswordForm() {
         label="Email or mobile"
         required
         autoComplete="username"
-        tone="dark"
+        tone="light"
         value={userName}
         onChange={(e) => setUserName(e.target.value)}
         disabled={busy}
@@ -165,14 +166,15 @@ export function ForgotPasswordForm() {
       <button
         type="submit"
         disabled={busy}
+        aria-busy={busy}
         className="mc-btn-primary mt-1 w-full"
       >
-        {busy ? "Sending…" : "Send reset code"}
+        {busy ? "Sending code" : "Send reset code"}
       </button>
-      <p className="border-t border-white/10 pt-5 text-center text-sm text-white/70">
+      <p className="border-t border-line pt-5 text-center text-sm text-ink-muted">
         <Link
           href="/coach-login"
-          className="font-semibold text-[color:var(--mc-brand-coach)] transition-colors hover:brightness-110"
+          className="font-semibold text-mc-brand-coach hover:underline"
         >
           Back to sign in
         </Link>

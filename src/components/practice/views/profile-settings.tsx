@@ -49,6 +49,57 @@ async function copyText(url: string) {
   }
 }
 
+type ProfileDraft = {
+  coachName: string;
+  businessName: string;
+  tagline: string;
+  coachDesc: string;
+  coachTypeCode: string;
+  serviceCodes: string[];
+  locality: string;
+  addLine: string;
+  city: string;
+  stateCd: string;
+  countryCd: string;
+  pinCode: string;
+  mobile: string;
+  email: string;
+  localLanguage: string;
+  experienceYears: string;
+  happyClients: string;
+  certifications: string;
+  bmiTemplate: string;
+  dietTemplate: string;
+  logoPick: boolean;
+  photoPick: boolean;
+};
+
+function profileDraftKey(draft: ProfileDraft) {
+  return JSON.stringify({
+    ...draft,
+    coachName: draft.coachName.trim(),
+    businessName: draft.businessName.trim(),
+    tagline: draft.tagline.trim(),
+    coachDesc: draft.coachDesc.trim(),
+    coachTypeCode: draft.coachTypeCode.trim(),
+    serviceCodes: [...draft.serviceCodes].sort(),
+    locality: draft.locality.trim(),
+    addLine: draft.addLine.trim(),
+    city: draft.city.trim(),
+    stateCd: draft.stateCd.trim(),
+    countryCd: draft.countryCd.trim(),
+    pinCode: draft.pinCode.trim(),
+    mobile: draft.mobile.trim(),
+    email: draft.email.trim(),
+    localLanguage: draft.localLanguage.trim(),
+    experienceYears: String(Number(draft.experienceYears) || 0),
+    happyClients: String(Number(draft.happyClients) || 0),
+    certifications: String(Number(draft.certifications) || 0),
+    bmiTemplate: draft.bmiTemplate.trim(),
+    dietTemplate: draft.dietTemplate.trim(),
+  });
+}
+
 export function ProfileSettingsView() {
   const { session, logout } = useAuth();
   const [profile, setProfile] = useState<CoachProfile | null>(null);
@@ -56,6 +107,7 @@ export function ProfileSettingsView() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [savedKey, setSavedKey] = useState("");
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
   const [categories, setCategories] = useState<MasterOption[]>([]);
@@ -134,6 +186,61 @@ export function ProfileSettingsView() {
     ],
   );
 
+  const profileDirty = useMemo(() => {
+    if (!profile || !savedKey) return false;
+    return (
+      profileDraftKey({
+        coachName,
+        businessName,
+        tagline,
+        coachDesc,
+        coachTypeCode,
+        serviceCodes,
+        locality,
+        addLine,
+        city,
+        stateCd,
+        countryCd,
+        pinCode,
+        mobile,
+        email,
+        localLanguage,
+        experienceYears,
+        happyClients,
+        certifications,
+        bmiTemplate,
+        dietTemplate,
+        logoPick: Boolean(logoPick),
+        photoPick: Boolean(photoPick),
+      }) !== savedKey
+    );
+  }, [
+    profile,
+    savedKey,
+    coachName,
+    businessName,
+    tagline,
+    coachDesc,
+    coachTypeCode,
+    serviceCodes,
+    locality,
+    addLine,
+    city,
+    stateCd,
+    countryCd,
+    pinCode,
+    mobile,
+    email,
+    localLanguage,
+    experienceYears,
+    happyClients,
+    certifications,
+    bmiTemplate,
+    dietTemplate,
+    logoPick,
+    photoPick,
+  ]);
+
   useEffect(() => {
     void fetchCoachCategories().then(setCategories);
   }, []);
@@ -199,6 +306,37 @@ export function ProfileSettingsView() {
           setDietTemplate(p.dietChartTemplate ?? "");
           setLogoUrl(p.logo_Url ?? null);
           setProfilePicUrl(p.profile_Pic_Url ?? null);
+          setSavedKey(
+            profileDraftKey({
+              coachName: p.coachName ?? "",
+              businessName: p.businessName ?? "",
+              tagline: p.tagline ?? "",
+              coachDesc: p.coachDesc ?? "",
+              coachTypeCode: p.coachTypeCode ?? "",
+              serviceCodes: p.serviceCodes ?? [],
+              locality: p.locality ?? "",
+              addLine: p.add_Line ?? "",
+              city: p.city_Cd ?? "",
+              stateCd: p.state_Cd ?? "",
+              countryCd: p.country_Cd || "IN",
+              pinCode: p.pinCode ?? "",
+              mobile: p.mobile ?? "",
+              email: p.email ?? session?.email ?? "",
+              localLanguage: p.localLanguage ?? "",
+              experienceYears:
+                p.experienceYears != null ? String(p.experienceYears) : "",
+              happyClients:
+                p.happyClientCount != null ? String(p.happyClientCount) : "",
+              certifications:
+                p.certificationCount != null ?
+                  String(p.certificationCount)
+                : "",
+              bmiTemplate: p.bmiReportTemplate ?? "",
+              dietTemplate: p.dietChartTemplate ?? "",
+              logoPick: false,
+              photoPick: false,
+            }),
+          );
         }
         if (offer) {
           setPremiumLabel(
@@ -313,7 +451,7 @@ export function ProfileSettingsView() {
   }
 
   async function save() {
-    if (!profile) return;
+    if (!profile || !profileDirty) return;
     setBusy(true);
     setError(null);
     setMessage(null);
@@ -356,6 +494,32 @@ export function ProfileSettingsView() {
         : prev,
       );
       setMessage("Profile saved.");
+      setSavedKey(
+        profileDraftKey({
+          coachName,
+          businessName,
+          tagline,
+          coachDesc,
+          coachTypeCode,
+          serviceCodes,
+          locality,
+          addLine,
+          city,
+          stateCd,
+          countryCd,
+          pinCode,
+          mobile,
+          email,
+          localLanguage,
+          experienceYears,
+          happyClients,
+          certifications,
+          bmiTemplate,
+          dietTemplate,
+          logoPick: false,
+          photoPick: false,
+        }),
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save profile.");
     } finally {
@@ -449,27 +613,40 @@ export function ProfileSettingsView() {
         </div>
       : null}
 
-      <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          className="mc-btn-primary"
-          disabled={!publicUrl}
-          onClick={() => void shareProfile()}
-        >
-          {shareFeedback ?? "Share profile"}
-        </button>
-        {session?.coachCode || profile?.coachCode ?
-          <Link
-            href={`/coach/${encodeURIComponent(session?.coachCode || profile?.coachCode || "")}`}
-            className="mc-btn-secondary"
-            target="_blank"
+      <div className="mc-panel space-y-4 p-4 sm:p-5">
+        <div>
+          <p className="text-sm font-semibold text-ink">Public profile link</p>
+          <p className="mt-1 text-sm text-ink-muted">
+            Copy this link when you want clients to open your page.
+          </p>
+          {publicUrl ?
+            <p className="mt-2 truncate text-sm font-medium text-ink">
+              {publicUrl}
+            </p>
+          : null}
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            className="mc-btn-primary"
+            disabled={!publicUrl}
+            onClick={() => void shareProfile()}
           >
-            View public page
+            {shareFeedback ?? "Copy link"}
+          </button>
+          {session?.coachCode || profile?.coachCode ?
+            <Link
+              href={`/coach/${encodeURIComponent(session?.coachCode || profile?.coachCode || "")}`}
+              className="mc-btn-secondary"
+              target="_blank"
+            >
+              View public page
+            </Link>
+          : null}
+          <Link href="/dashboard/profile/password" className="mc-btn-secondary">
+            Change password
           </Link>
-        : null}
-        <Link href="/dashboard/profile/password" className="mc-btn-secondary">
-          Change password
-        </Link>
+        </div>
       </div>
 
       {!profile ?
@@ -630,9 +807,10 @@ export function ProfileSettingsView() {
           <button
             type="submit"
             className="mc-btn-primary w-full"
-            disabled={busy}
+            disabled={busy || !profileDirty}
+            aria-busy={busy}
           >
-            {busy ? "Saving…" : "Save profile"}
+            {busy ? "Saving" : "Save profile"}
           </button>
         </form>
       }

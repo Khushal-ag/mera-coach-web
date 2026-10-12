@@ -30,14 +30,41 @@ function emptyPackage(): CoachPackage {
   };
 }
 
+function savablePackages(list: CoachPackage[]): CoachPackage[] {
+  return list
+    .map((pkg) => ({
+      ...pkg,
+      name: pkg.name.trim(),
+      price: pkg.price.trim(),
+      duration: pkg.duration.trim(),
+      description: pkg.description.trim(),
+      imageUrl: pkg.imageUrl?.trim() || undefined,
+    }))
+    .filter((pkg) => pkg.name);
+}
+
+function packagesKey(list: CoachPackage[]) {
+  return JSON.stringify(
+    savablePackages(list).map((pkg) => ({
+      name: pkg.name,
+      price: pkg.price,
+      duration: pkg.duration,
+      description: pkg.description,
+      imageUrl: pkg.imageUrl ?? "",
+    })),
+  );
+}
+
 export function PackagesListView() {
   const { session } = useAuth();
   const [profile, setProfile] = useState<CoachProfile | null>(null);
   const [packages, setPackages] = useState<CoachPackage[]>([]);
+  const [baseline, setBaseline] = useState("[]");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const dirty = !loading && !!profile && packagesKey(packages) !== baseline;
 
   useEffect(() => {
     let cancelled = false;
@@ -45,7 +72,9 @@ export function PackagesListView() {
       .then((p) => {
         if (cancelled || !p) return;
         setProfile(p);
-        setPackages(p.packages ?? []);
+        const next = p.packages ?? [];
+        setPackages(next);
+        setBaseline(packagesKey(next));
       })
       .catch((err) => {
         if (!cancelled)
@@ -61,24 +90,22 @@ export function PackagesListView() {
     };
   }, [session?.coachId]);
 
+  function edit(updater: (prev: CoachPackage[]) => CoachPackage[]) {
+    setMessage(null);
+    setPackages(updater);
+  }
+
   async function save() {
-    if (!profile) return;
+    if (!profile || !dirty) return;
+    const cleaned = savablePackages(packages);
+    if (packagesKey(cleaned) === baseline) return;
     setBusy(true);
     setError(null);
     setMessage(null);
     try {
-      const cleaned = packages
-        .map((p) => ({
-          ...p,
-          name: p.name.trim(),
-          price: p.price.trim(),
-          duration: p.duration.trim(),
-          description: p.description.trim(),
-          imageUrl: p.imageUrl?.trim() || undefined,
-        }))
-        .filter((p) => p.name);
       await saveCoachPackagesEvents({ profile, packages: cleaned });
       setPackages(cleaned);
+      setBaseline(packagesKey(cleaned));
       setMessage("Packages saved. They appear on your public profile.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save packages.");
@@ -87,20 +114,28 @@ export function PackagesListView() {
     }
   }
 
+  function addPackage() {
+    if (packages.length >= MAX_COACH_PACKAGES) return;
+    edit((prev) => [...prev, emptyPackage()]);
+  }
+
   return (
     <div className="mx-auto max-w-6xl">
       <PracticePageHeader
         title="Packages"
         description={`Up to ${MAX_COACH_PACKAGES} offers on your public coach page.`}
         action={
-          <button
-            type="button"
-            className="mc-btn-primary"
-            disabled={busy || loading || !profile}
-            onClick={() => void save()}
-          >
-            {busy ? "Saving…" : "Save packages"}
-          </button>
+          dirty ?
+            <button
+              type="button"
+              className="mc-btn-primary"
+              disabled={busy}
+              aria-busy={busy}
+              onClick={() => void save()}
+            >
+              {busy ? "Saving" : "Save packages"}
+            </button>
+          : null
         }
       />
 
@@ -117,6 +152,15 @@ export function PackagesListView() {
         <PracticeEmpty
           title="No packages yet"
           body="Add a package clients can see on your public profile."
+          action={
+            <button
+              type="button"
+              className="mc-btn-primary"
+              onClick={addPackage}
+            >
+              Add package
+            </button>
+          }
         />
       : null}
 
@@ -131,7 +175,7 @@ export function PackagesListView() {
                 type="button"
                 className="text-sm font-semibold text-[color:var(--mc-destructive)]"
                 onClick={() =>
-                  setPackages((prev) => prev.filter((p) => p.id !== pkg.id))
+                  edit((prev) => prev.filter((p) => p.id !== pkg.id))
                 }
               >
                 Remove
@@ -147,7 +191,7 @@ export function PackagesListView() {
                   disabled={busy}
                   onError={setError}
                   onChange={(imageUrl) =>
-                    setPackages((prev) =>
+                    edit((prev) =>
                       prev.map((p) =>
                         p.id === pkg.id ?
                           { ...p, imageUrl: imageUrl || undefined }
@@ -161,7 +205,7 @@ export function PackagesListView() {
                 label="Name"
                 value={pkg.name}
                 onChange={(e) =>
-                  setPackages((prev) =>
+                  edit((prev) =>
                     prev.map((p) =>
                       p.id === pkg.id ? { ...p, name: e.target.value } : p,
                     ),
@@ -172,7 +216,7 @@ export function PackagesListView() {
                 label="Price"
                 value={pkg.price}
                 onChange={(e) =>
-                  setPackages((prev) =>
+                  edit((prev) =>
                     prev.map((p) =>
                       p.id === pkg.id ? { ...p, price: e.target.value } : p,
                     ),
@@ -183,7 +227,7 @@ export function PackagesListView() {
                 label="Duration / sessions"
                 value={pkg.duration}
                 onChange={(e) =>
-                  setPackages((prev) =>
+                  edit((prev) =>
                     prev.map((p) =>
                       p.id === pkg.id ? { ...p, duration: e.target.value } : p,
                     ),
@@ -194,7 +238,7 @@ export function PackagesListView() {
                 label="Description"
                 value={pkg.description}
                 onChange={(e) =>
-                  setPackages((prev) =>
+                  edit((prev) =>
                     prev.map((p) =>
                       p.id === pkg.id ?
                         { ...p, description: e.target.value }
@@ -208,11 +252,11 @@ export function PackagesListView() {
         ))}
       </div>
 
-      {!loading && packages.length < MAX_COACH_PACKAGES ?
+      {!loading && packages.length > 0 && packages.length < MAX_COACH_PACKAGES ?
         <button
           type="button"
           className="mc-btn-secondary mt-4"
-          onClick={() => setPackages((prev) => [...prev, emptyPackage()])}
+          onClick={addPackage}
         >
           Add package
         </button>

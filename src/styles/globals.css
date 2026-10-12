@@ -26,7 +26,11 @@
   --mc-accent-ink: #11523c;
   --mc-explore-canvas: #f8f7f2;
   --mc-destructive: #dc2626;
+  --mc-destructive-soft: #fef2f2;
   --mc-online: #22c55e;
+  --mc-whatsapp: #25d366;
+  --mc-disabled-bg: #e8ece9;
+  --mc-greeting: #5a9a8c;
 
   --ink: #1c1c1c;
   --ink-muted: #6b756f;
@@ -127,6 +131,24 @@
   a {
     text-underline-offset: 0.18em;
   }
+
+  a[href],
+  button:not(:disabled),
+  summary,
+  select:not(:disabled),
+  label[for],
+  [role="button"]:not([aria-disabled="true"]),
+  [role="link"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  input:disabled,
+  textarea:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
 }
 
 @layer components {
@@ -166,9 +188,14 @@
     transform: scale(0.98);
   }
 
-  .mc-btn-primary:disabled {
+  .mc-btn-primary:disabled,
+  .mc-btn-secondary:disabled,
+  .mc-btn-ghost:disabled,
+  .mc-btn-outline-on-dark:disabled {
+    cursor: not-allowed;
     opacity: 0.6;
     transform: none;
+    filter: none;
   }
 
   .mc-btn-outline-on-dark {
@@ -281,7 +308,7 @@
 
   .mc-field:disabled {
     cursor: not-allowed;
-    background-color: var(--paper-elevated);
+    background-color: var(--mc-disabled-bg);
     color: var(--ink-muted);
     opacity: 0.72;
   }
@@ -412,14 +439,14 @@
 
   .mc-banner-error {
     border-color: color-mix(in oklab, var(--mc-destructive) 35%, transparent);
-    background-color: #fef2f2;
+    background-color: var(--mc-destructive-soft);
     color: var(--mc-destructive);
   }
 
   .mc-banner-success {
-    border-color: color-mix(in oklab, var(--mc-online) 40%, transparent);
-    background-color: #f0fdf4;
-    color: #166534;
+    border-color: color-mix(in oklab, var(--mc-secondary) 40%, transparent);
+    background-color: var(--mc-secondary-light);
+    color: var(--mc-accent-ink);
   }
 
   .mc-banner-info {
@@ -551,7 +578,7 @@
       165deg,
       var(--mc-home-canvas) 0%,
       var(--mc-header-bottom) 55%,
-      #012820 100%
+      var(--mc-splash) 100%
     );
   }
 

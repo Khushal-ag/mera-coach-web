@@ -105,7 +105,9 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
     }
   }
 
-  async function onSubmit(formData: FormData) {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
     setStatus("loading");
     setMessage(null);
 
@@ -242,7 +244,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
   const busy = status === "loading";
 
   return (
-    <form action={onSubmit} className="space-y-5">
+    <form onSubmit={(event) => void onSubmit(event)} className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           name="coachName"
@@ -345,14 +347,6 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
         placeholder="Tell clients about your coaching style…"
       />
 
-      <button
-        type="submit"
-        disabled={busy}
-        className="mc-btn-primary w-full sm:w-auto"
-      >
-        {busy ? "Submitting…" : "Create coach account"}
-      </button>
-
       {message ?
         <AlertBanner tone={status === "success" ? "success" : "error"}>
           {message}{" "}
@@ -371,6 +365,15 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
           : null}
         </AlertBanner>
       : null}
+
+      <button
+        type="submit"
+        disabled={busy}
+        aria-busy={busy}
+        className="mc-btn-primary w-full"
+      >
+        {busy ? "Creating account" : "Create coach account"}
+      </button>
 
       <span className="sr-only" aria-hidden>
         Max image bytes {REGISTER_IMAGE_MAX_BYTES}

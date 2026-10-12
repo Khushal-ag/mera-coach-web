@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AuthShell } from "@/components/auth-shell";
+import { photography } from "@/config/photography";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
@@ -12,7 +13,10 @@ export const metadata = publicPageMetadata({
 export default function MemberLoginPage() {
   return (
     <AuthShell
-      layout="split"
+      layout="single"
+      panel="light"
+      image={photography.authLogin}
+      imageAlt="Someone walking into a neighbourhood gym at dusk"
       crumbs={[{ label: "Home", href: "/" }, { label: "Member Login" }]}
       title={
         <>
@@ -21,33 +25,20 @@ export default function MemberLoginPage() {
         </>
       }
       subtitle="Client access now lives in the Mera Coach mobile app."
-      sideTitle={
-        <>
-          Your coaching,{" "}
-          <span className="text-[color:var(--mc-brand-coach)]">on the go</span>
-        </>
-      }
-      sideBody="If your coach invited you, open the Mera Coach app with the credentials they shared. This website is for discovering coaches and coach registration."
+      panelHeading="Open the app"
+      panelSubheading="Plans, check-ins, and progress stay with your coach in the app."
     >
       <div className="space-y-5">
-        <div>
-          <h2 className="font-display text-2xl font-bold tracking-tight">
-            Open the app
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-white/70">
-            Legacy website member login is being replaced by the native Mera
-            Coach experience. Continue in the app for plans, check-ins, and
-            progress with your coach.
-          </p>
-        </div>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Link href="/coach" className="mc-btn-primary w-full sm:w-auto">
+        <p className="text-sm leading-relaxed text-ink-muted">
+          Website member login is now the Mera Coach app. If your coach invited
+          you, open the app with the credentials they shared. This website is
+          for discovering coaches and coach registration.
+        </p>
+        <div className="flex flex-col gap-3">
+          <Link href="/coach" className="mc-btn-primary w-full">
             Find a Coach
           </Link>
-          <Link
-            href="/coach-login"
-            className="mc-btn-outline-on-dark w-full sm:w-auto"
-          >
+          <Link href="/coach-login" className="mc-btn-secondary w-full">
             Coach Login
           </Link>
         </div>

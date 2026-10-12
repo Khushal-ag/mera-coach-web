@@ -32,14 +32,43 @@ function emptyEvent(): CoachEvent {
   };
 }
 
+function savableEvents(list: CoachEvent[]): CoachEvent[] {
+  return list
+    .map((evt) => ({
+      ...evt,
+      title: evt.title.trim(),
+      date: evt.date.trim(),
+      time: evt.time.trim(),
+      location: evt.location.trim(),
+      link: evt.link.trim(),
+      imageUrl: evt.imageUrl?.trim() || undefined,
+    }))
+    .filter((evt) => evt.title);
+}
+
+function eventsKey(list: CoachEvent[]) {
+  return JSON.stringify(
+    savableEvents(list).map((evt) => ({
+      title: evt.title,
+      date: evt.date,
+      time: evt.time,
+      location: evt.location,
+      link: evt.link,
+      imageUrl: evt.imageUrl ?? "",
+    })),
+  );
+}
+
 export function EventsListView() {
   const { session } = useAuth();
   const [profile, setProfile] = useState<CoachProfile | null>(null);
   const [events, setEvents] = useState<CoachEvent[]>([]);
+  const [baseline, setBaseline] = useState("[]");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const dirty = !loading && !!profile && eventsKey(events) !== baseline;
 
   useEffect(() => {
     let cancelled = false;
@@ -47,7 +76,9 @@ export function EventsListView() {
       .then((p) => {
         if (cancelled || !p) return;
         setProfile(p);
-        setEvents(p.events ?? []);
+        const next = p.events ?? [];
+        setEvents(next);
+        setBaseline(eventsKey(next));
       })
       .catch((err) => {
         if (!cancelled)
@@ -63,25 +94,22 @@ export function EventsListView() {
     };
   }, [session?.coachId]);
 
+  function edit(updater: (prev: CoachEvent[]) => CoachEvent[]) {
+    setMessage(null);
+    setEvents(updater);
+  }
+
   async function save() {
-    if (!profile) return;
+    if (!profile || !dirty) return;
+    const cleaned = savableEvents(events);
+    if (eventsKey(cleaned) === baseline) return;
     setBusy(true);
     setError(null);
     setMessage(null);
     try {
-      const cleaned = events
-        .map((e) => ({
-          ...e,
-          title: e.title.trim(),
-          date: e.date.trim(),
-          time: e.time.trim(),
-          location: e.location.trim(),
-          link: e.link.trim(),
-          imageUrl: e.imageUrl?.trim() || undefined,
-        }))
-        .filter((e) => e.title);
       await saveCoachPackagesEvents({ profile, events: cleaned });
       setEvents(cleaned);
+      setBaseline(eventsKey(cleaned));
       setMessage("Events saved. Upcoming ones show on your public profile.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save events.");
@@ -90,20 +118,28 @@ export function EventsListView() {
     }
   }
 
+  function addEvent() {
+    if (events.length >= MAX_COACH_EVENTS) return;
+    edit((prev) => [...prev, emptyEvent()]);
+  }
+
   return (
     <div className="mx-auto max-w-6xl">
       <PracticePageHeader
         title="Events"
         description={`Up to ${MAX_COACH_EVENTS} events for your public showcase.`}
         action={
-          <button
-            type="button"
-            className="mc-btn-primary"
-            disabled={busy || loading || !profile}
-            onClick={() => void save()}
-          >
-            {busy ? "Saving…" : "Save events"}
-          </button>
+          dirty ?
+            <button
+              type="button"
+              className="mc-btn-primary"
+              disabled={busy}
+              aria-busy={busy}
+              onClick={() => void save()}
+            >
+              {busy ? "Saving" : "Save events"}
+            </button>
+          : null
         }
       />
 
@@ -122,6 +158,11 @@ export function EventsListView() {
           imageAlt="Three people stretching together in a park"
           title="No events yet"
           body="Add workshops or community sessions for your public page."
+          action={
+            <button type="button" className="mc-btn-primary" onClick={addEvent}>
+              Add event
+            </button>
+          }
         />
       : null}
 
@@ -136,7 +177,7 @@ export function EventsListView() {
                 type="button"
                 className="text-sm font-semibold text-[color:var(--mc-destructive)]"
                 onClick={() =>
-                  setEvents((prev) => prev.filter((e) => e.id !== evt.id))
+                  edit((prev) => prev.filter((e) => e.id !== evt.id))
                 }
               >
                 Remove
@@ -152,7 +193,7 @@ export function EventsListView() {
                   disabled={busy}
                   onError={setError}
                   onChange={(imageUrl) =>
-                    setEvents((prev) =>
+                    edit((prev) =>
                       prev.map((row) =>
                         row.id === evt.id ?
                           { ...row, imageUrl: imageUrl || undefined }
@@ -166,7 +207,7 @@ export function EventsListView() {
                 label="Title"
                 value={evt.title}
                 onChange={(e) =>
-                  setEvents((prev) =>
+                  edit((prev) =>
                     prev.map((row) =>
                       row.id === evt.id ?
                         { ...row, title: e.target.value }
@@ -180,7 +221,7 @@ export function EventsListView() {
                 value={evt.date}
                 placeholder="YYYY-MM-DD"
                 onChange={(e) =>
-                  setEvents((prev) =>
+                  edit((prev) =>
                     prev.map((row) =>
                       row.id === evt.id ?
                         { ...row, date: e.target.value }
@@ -193,7 +234,7 @@ export function EventsListView() {
                 label="Time"
                 value={evt.time}
                 onChange={(e) =>
-                  setEvents((prev) =>
+                  edit((prev) =>
                     prev.map((row) =>
                       row.id === evt.id ?
                         { ...row, time: e.target.value }
@@ -206,7 +247,7 @@ export function EventsListView() {
                 label="Location"
                 value={evt.location}
                 onChange={(e) =>
-                  setEvents((prev) =>
+                  edit((prev) =>
                     prev.map((row) =>
                       row.id === evt.id ?
                         { ...row, location: e.target.value }
@@ -220,7 +261,7 @@ export function EventsListView() {
                 value={evt.link}
                 className="sm:col-span-2"
                 onChange={(e) =>
-                  setEvents((prev) =>
+                  edit((prev) =>
                     prev.map((row) =>
                       row.id === evt.id ?
                         { ...row, link: e.target.value }
@@ -234,11 +275,11 @@ export function EventsListView() {
         ))}
       </div>
 
-      {!loading && events.length < MAX_COACH_EVENTS ?
+      {!loading && events.length > 0 && events.length < MAX_COACH_EVENTS ?
         <button
           type="button"
           className="mc-btn-secondary mt-4"
-          onClick={() => setEvents((prev) => [...prev, emptyEvent()])}
+          onClick={addEvent}
         >
           Add event
         </button>

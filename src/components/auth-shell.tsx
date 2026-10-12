@@ -15,8 +15,8 @@ export function AuthShell({
   panelHeading,
   panelSubheading,
   children,
-  layout = "split",
-  panel = "dark",
+  layout = "single",
+  panel = "light",
   image,
   imageAlt = "",
   className,
@@ -26,7 +26,7 @@ export function AuthShell({
   crumbs?: Crumb[];
   sideTitle?: React.ReactNode;
   sideBody?: React.ReactNode;
-  /** Desktop-only heading inside the form panel (split layout). */
+  /** Heading inside the form card. Hidden on small split layouts, where the page title already shows. */
   panelHeading?: React.ReactNode;
   panelSubheading?: React.ReactNode;
   children: React.ReactNode;
@@ -111,7 +111,7 @@ export function AuthShell({
             "motion-rise motion-rise-delay-2 mt-6 sm:mt-8",
             panel === "light" ? "mc-auth-card-light" : "mc-auth-card",
             layout === "split" ?
-              "mx-auto grid w-full max-w-[48rem] lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
+              "mx-auto grid w-full max-w-3xl lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
             : "mx-auto w-full max-w-3xl",
           )}
         >
@@ -136,13 +136,14 @@ export function AuthShell({
 
           <div
             className={cn(
-              "p-5 sm:p-7",
-              layout === "single" && "sm:p-8",
+              "p-5 sm:p-8",
               panel === "light" ? "mc-auth-panel-light" : "mc-auth-panel",
             )}
           >
-            {layout === "split" && panelHeading ?
-              <div className="mb-6 hidden lg:block">
+            {panelHeading ?
+              <div
+                className={cn("mb-6", layout === "split" && "hidden lg:block")}
+              >
                 <h2
                   className={cn(
                     "font-display text-2xl font-bold tracking-tight",

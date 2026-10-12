@@ -95,8 +95,13 @@ export function ChangePasswordView() {
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
         />
-        <button type="submit" className="mc-btn-primary w-full" disabled={busy}>
-          {busy ? "Saving…" : "Update password"}
+        <button
+          type="submit"
+          className="mc-btn-primary w-full"
+          disabled={busy || !currentPassword || !newPassword || !confirm}
+          aria-busy={busy}
+        >
+          {busy ? "Updating password" : "Update password"}
         </button>
       </form>
     </div>

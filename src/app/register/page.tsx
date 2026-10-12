@@ -31,15 +31,9 @@ export default function RegisterPage() {
         </>
       }
       subtitle="Get found by clients. Build your public profile on Mera Coach."
+      panelHeading="Create your coach account"
+      panelSubheading="Tell us about your coaching. We review new coaches before listing."
     >
-      <div className="mb-6">
-        <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
-          Create your coach account
-        </h2>
-        <p className="mt-1.5 text-sm text-ink-muted">
-          Tell us about your coaching. We review new coaches before listing.
-        </p>
-      </div>
       <Suspense fallback={<RegisterFieldsSkeleton />}>
         <RegisterFormLoader />
       </Suspense>

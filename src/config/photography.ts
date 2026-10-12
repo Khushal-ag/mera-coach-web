@@ -1,6 +1,7 @@
 /**
  * One photograph per surface. Do not point a second page at the same file.
- * Coach login and forgot-password share `authLogin` because they are one door.
+ * Coach login, forgot password, and member login share `authLogin`
+ * because they are one door. Register uses its own photograph.
  */
 export const photography = {
   homeHero: "/mc-images/home-hero.jpg",

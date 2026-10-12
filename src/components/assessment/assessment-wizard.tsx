@@ -904,7 +904,7 @@ export function AssessmentWizard({
             onClick={() => void onNext()}
           >
             {saving ?
-              "Saving…"
+              "Saving"
             : phase.id === "complete" || isLastContent ?
               phase.id === "complete" ?
                 "Open client"

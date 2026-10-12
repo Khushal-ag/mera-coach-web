@@ -12,7 +12,8 @@ export const metadata = publicPageMetadata({
 export default function ForgotPasswordPage() {
   return (
     <AuthShell
-      layout="split"
+      layout="single"
+      panel="light"
       image={photography.authLogin}
       imageAlt="Someone walking into a neighbourhood gym at dusk"
       crumbs={[
@@ -27,15 +28,8 @@ export default function ForgotPasswordPage() {
         </>
       }
       subtitle="Enter the email or mobile you use to sign in, then confirm with the reset code."
-      sideTitle={
-        <>
-          Reset access to your{" "}
-          <span className="text-[color:var(--mc-brand-coach)]">coaching</span>
-        </>
-      }
-      sideBody="Same flow as the app: request a code, set a new password, then sign in on the web dashboard."
       panelHeading="Reset password"
-      panelSubheading="Code is sent when the account matches"
+      panelSubheading="A code is sent when the account matches"
     >
       <ForgotPasswordForm />
     </AuthShell>

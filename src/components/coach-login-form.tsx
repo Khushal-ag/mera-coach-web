@@ -28,7 +28,9 @@ export function CoachLoginForm() {
     router.replace(nextPath);
   }, [ready, session, router, nextPath]);
 
-  async function onSubmit(formData: FormData) {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
     setStatus("loading");
     setMessage(null);
     try {
@@ -52,7 +54,7 @@ export function CoachLoginForm() {
 
   if (!ready) {
     return (
-      <p className="text-sm text-white/65" aria-live="polite">
+      <p className="text-sm text-ink-muted" aria-live="polite">
         Checking session…
       </p>
     );
@@ -61,10 +63,10 @@ export function CoachLoginForm() {
   if (session) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-white/75">Opening your coach dashboard…</p>
+        <p className="text-sm text-ink-muted">Opening your coach dashboard…</p>
         <button
           type="button"
-          className="text-sm font-semibold text-white/70 underline-offset-2 hover:underline"
+          className="text-sm font-semibold text-mc-secondary underline-offset-2 hover:underline"
           onClick={() => void logout()}
         >
           Log out instead
@@ -74,13 +76,15 @@ export function CoachLoginForm() {
   }
 
   return (
-    <form action={onSubmit} className="space-y-5">
+    <form onSubmit={(event) => void onSubmit(event)} className="space-y-5">
+      {message ?
+        <AlertBanner tone="error">{message}</AlertBanner>
+      : null}
       <TextField
         name="userName"
         label="Email or mobile"
         required
         autoComplete="username"
-        tone="dark"
         placeholder="you@example.com"
         disabled={status === "loading"}
       />
@@ -90,14 +94,13 @@ export function CoachLoginForm() {
         type="password"
         required
         autoComplete="current-password"
-        tone="dark"
         placeholder="••••••••"
         disabled={status === "loading"}
       />
       <div className="flex justify-end">
         <Link
           href="/forgot-password"
-          className="text-sm font-semibold text-white/75 underline-offset-2 hover:text-white hover:underline"
+          className="text-sm font-semibold text-mc-secondary underline-offset-2 hover:underline"
         >
           Forgot password?
         </Link>
@@ -105,20 +108,17 @@ export function CoachLoginForm() {
       <button
         type="submit"
         disabled={status === "loading"}
+        aria-busy={status === "loading"}
         className="mc-btn-primary mt-1 w-full"
       >
-        {status === "loading" ? "Signing in…" : "Sign in"}
+        {status === "loading" ? "Signing in" : "Sign in"}
       </button>
 
-      {message ?
-        <AlertBanner tone="error">{message}</AlertBanner>
-      : null}
-
-      <p className="border-t border-white/10 pt-5 text-center text-sm text-white/70">
+      <p className="border-t border-line pt-5 text-center text-sm text-ink-muted">
         New here?{" "}
         <Link
           href="/register"
-          className="font-semibold text-[color:var(--mc-brand-coach)] transition-colors hover:brightness-110"
+          className="font-semibold text-mc-brand-coach hover:underline"
         >
           Register as a coach
         </Link>

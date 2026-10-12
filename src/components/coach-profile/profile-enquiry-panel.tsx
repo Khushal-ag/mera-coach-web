@@ -43,7 +43,7 @@ export function ProfileEnquiryPanel({
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-[#128C7E] hover:underline"
+              className="font-semibold text-[color:var(--mc-whatsapp)] hover:underline"
             >
               Message on WhatsApp
             </a>
