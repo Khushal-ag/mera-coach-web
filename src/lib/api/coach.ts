@@ -11,6 +11,9 @@ import type {
 
 import { apiFetch } from "@/lib/api/client";
 import { pick } from "@/lib/api/normalize";
+import { parseCoachEvents, pickEventsRaw } from "@/lib/coach/events";
+import { parseCoachPackages, pickPackagesRaw } from "@/lib/coach/packages";
+import { normalizeCoachMobile } from "@/lib/coach/whatsapp";
 
 /** Map a public coach list payload whether nested keys are camel or Pascal. */
 export function normalizePublicList(
@@ -67,16 +70,25 @@ export function normalizePublicList(
 function normalizeProfile(payload: unknown): CoachProfile | null {
   if (!payload || typeof payload !== "object") return null;
   const r = payload as Record<string, unknown>;
+  const packages = parseCoachPackages(pickPackagesRaw(r));
+  const events = parseCoachEvents(pickEventsRaw(r));
+  const mobileRaw = pick<string | number | null>(r, "mobile", "Mobile");
+  const mobile = normalizeCoachMobile(mobileRaw) || null;
   return {
     coachId: Number(pick(r, "coachId", "CoachId") ?? 0),
     coachCode: String(pick(r, "coachCode", "CoachCode") ?? ""),
     coachName: String(pick(r, "coachName", "CoachName") ?? ""),
     businessName:
       pick<string | null>(r, "businessName", "BusinessName") ?? null,
+    coachTypeCode:
+      pick<string | null>(r, "coachTypeCode", "CoachTypeCode") ?? null,
     coachTypeName:
       pick<string | null>(r, "coachTypeName", "CoachTypeName") ?? null,
     city_Cd: pick<string | null>(r, "city_Cd", "City_Cd") ?? null,
     state_Cd: pick<string | null>(r, "state_Cd", "State_Cd") ?? null,
+    country_Cd: pick<string | null>(r, "country_Cd", "Country_Cd") ?? null,
+    locality: pick<string | null>(r, "locality", "Locality") ?? null,
+    add_Line: pick<string | null>(r, "add_Line", "Add_Line") ?? null,
     tagline: pick<string | null>(r, "tagline", "Tagline") ?? null,
     coachDesc: pick<string | null>(r, "coachDesc", "CoachDesc") ?? null,
     profile_Pic_Url:
@@ -88,12 +100,20 @@ function normalizeProfile(payload: unknown): CoachProfile | null {
     happyClientCount: Number(
       pick(r, "happyClientCount", "HappyClientCount") ?? 0,
     ),
+    certificationCount: Number(
+      pick(r, "certificationCount", "CertificationCount") ?? 0,
+    ),
+    localLanguage:
+      pick<string | null>(r, "localLanguage", "LocalLanguage") ?? null,
     rating: Number(pick(r, "rating", "Rating") ?? 0),
     reviewCount: Number(pick(r, "reviewCount", "ReviewCount") ?? 0),
     isProfileVisible: Boolean(
       pick(r, "isProfileVisible", "IsProfileVisible") ?? true,
     ),
     email: pick<string | null>(r, "email", "Email") ?? null,
+    mobile,
+    packages: packages.length ? packages : undefined,
+    events: events.length ? events : undefined,
   };
 }
 

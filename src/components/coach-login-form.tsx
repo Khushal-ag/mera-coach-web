@@ -40,7 +40,7 @@ export function CoachLoginForm() {
       );
       setStatus("success");
       setMessage(
-        "Signed in. Coach CRM lives in the Mera Coach app. Open the app to manage clients. Premium checkout is available on this website.",
+        "Signed in. Open the Mera Coach app to manage clients. You can also continue to Premium checkout on this website.",
       );
     } catch (error) {
       setStatus("error");

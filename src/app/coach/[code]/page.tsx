@@ -1,13 +1,27 @@
-import Image from "next/image";
-import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import type { Metadata } from "next";
 
 import type { CoachProfile } from "@/types/coach";
 
-import { CoachEnquiryForm } from "@/components/coach-enquiry-form";
+import { MobileEnquiryBar } from "@/components/coach-profile/mobile-enquiry-bar";
+import { ProfileAbout } from "@/components/coach-profile/profile-about";
+import { ProfileEnquiryPanel } from "@/components/coach-profile/profile-enquiry-panel";
+import { ProfileEvents } from "@/components/coach-profile/profile-events";
+import { ProfileExpertise } from "@/components/coach-profile/profile-expertise";
+import { ProfileHero } from "@/components/coach-profile/profile-hero";
+import { ProfilePackages } from "@/components/coach-profile/profile-packages";
+import { ProfileStats } from "@/components/coach-profile/profile-stats";
 import { fetchCoachProfile, isApiSuccess } from "@/lib/api";
+import { getUpcomingCoachEvents } from "@/lib/coach/events";
+import { buildPublicProfileStats } from "@/lib/coach/public-stats";
+import {
+  buildEnquiryLookingForOptions,
+  splitServiceNames,
+} from "@/lib/coach/services";
+import { whatsAppUrlFromMobile } from "@/lib/coach/whatsapp";
+import { COACH_PHOTO_FALLBACK, resolveMediaUrl } from "@/lib/media/media-url";
 
 type Params = Promise<{ code: string }>;
 
@@ -22,6 +36,40 @@ async function loadCoach(code: string): Promise<CoachProfile | null> {
   return response.responseObj;
 }
 
+function buildLocationLabel(coach: CoachProfile): string | null {
+  const parts = [
+    coach.locality?.trim(),
+    coach.city_Cd?.trim(),
+    coach.state_Cd?.trim(),
+  ].filter(Boolean);
+  if (!parts.length) return null;
+  // Avoid "Mumbai · Mumbai"
+  const unique: string[] = [];
+  for (const part of parts) {
+    if (!unique.some((u) => u.toLowerCase() === part!.toLowerCase())) {
+      unique.push(part!);
+    }
+  }
+  return unique.join(" · ");
+}
+
+function buildLocationDetail(coach: CoachProfile): string | null {
+  const parts = [
+    coach.add_Line?.trim(),
+    coach.locality?.trim(),
+    [coach.city_Cd?.trim(), coach.state_Cd?.trim()].filter(Boolean).join(", "),
+    coach.country_Cd?.trim(),
+  ].filter(Boolean);
+  if (!parts.length) return null;
+  const unique: string[] = [];
+  for (const part of parts) {
+    if (!unique.some((u) => u.toLowerCase() === part!.toLowerCase())) {
+      unique.push(part!);
+    }
+  }
+  return unique.join(" · ");
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -31,17 +79,48 @@ export async function generateMetadata({
   try {
     const coach = await loadCoach(code);
     if (!coach) return { title: "Coach" };
+    const photo =
+      resolveMediaUrl(coach.profile_Pic_Url || coach.logo_Url) ||
+      COACH_PHOTO_FALLBACK;
+    const category = coach.coachTypeName?.trim();
+    const city = coach.city_Cd?.trim();
+    const description =
+      coach.tagline?.trim() ||
+      coach.coachDesc?.trim()?.slice(0, 160) ||
+      [coach.coachName, category, city ? `in ${city}` : null, "on Mera Coach"]
+        .filter(Boolean)
+        .join(" · ");
+    const titleParts = [coach.coachName, category].filter(Boolean);
     return {
-      title: coach.coachName,
-      description:
-        coach.tagline || coach.coachDesc || `${coach.coachName} on Mera Coach`,
+      title: titleParts.join(" · "),
+      description,
+      openGraph: {
+        title: coach.coachName,
+        description,
+        type: "profile",
+        images: [{ url: photo, alt: coach.coachName }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: coach.coachName,
+        description,
+        images: [photo],
+      },
     };
   } catch {
     return { title: "Coach" };
   }
 }
 
-export default async function CoachProfilePage({ params }: { params: Params }) {
+export default function CoachProfilePage({ params }: { params: Params }) {
+  return (
+    <Suspense fallback={<CoachProfileFallback />}>
+      <CoachProfileBody params={params} />
+    </Suspense>
+  );
+}
+
+async function CoachProfileBody({ params }: { params: Params }) {
   const { code } = await params;
   let coach: CoachProfile | null = null;
   try {
@@ -51,125 +130,101 @@ export default async function CoachProfilePage({ params }: { params: Params }) {
   }
   if (!coach) notFound();
 
-  const photo =
-    coach.profile_Pic_Url?.trim() ||
-    coach.logo_Url?.trim() ||
-    "/mc-images/services-1.jpg";
+  const tags = splitServiceNames(coach.serviceNames);
+  const packages = coach.packages ?? [];
+  const events = getUpcomingCoachEvents(coach.events ?? []);
+  const whatsappUrl = whatsAppUrlFromMobile(coach.mobile);
+  const locationLabel = buildLocationLabel(coach);
+  const locationDetail = buildLocationDetail(coach);
+  const stats = buildPublicProfileStats({
+    clientCount: coach.happyClientCount,
+    experience: coach.experienceYears ?? 0,
+    servicesCount: tags.length,
+    rating: coach.rating ?? 0,
+    reviews: coach.reviewCount ?? 0,
+    certificationCount: coach.certificationCount,
+  });
+  const lookingForOptions = buildEnquiryLookingForOptions({
+    packageNames: packages.map((p) => p.name),
+    serviceNames: coach.serviceNames,
+  });
+  const bio = coach.coachDesc?.trim() || null;
+  const firstName = coach.coachName.trim().split(/\s+/)[0] || coach.coachName;
 
   return (
     <>
-      <section className="mc-gradient-header relative overflow-x-clip py-12 text-white sm:py-16 lg:py-24">
-        <div className="relative z-10 container grid items-center gap-6 text-center md:grid-cols-[200px_1fr] md:gap-8 md:text-left">
-          <div className="relative mx-auto size-36 overflow-hidden rounded-full border-4 border-[color:var(--mc-brand-coach)] sm:size-44 md:mx-0">
-            <Image
-              src={photo}
-              alt={coach.coachName}
-              fill
-              className="object-cover"
-              sizes="176px"
-              unoptimized={photo.startsWith("http")}
-              priority
+      <ProfileHero
+        coach={coach}
+        whatsappUrl={whatsappUrl}
+        locationLabel={locationLabel}
+      />
+      <ProfileStats stats={stats} />
+
+      <section className="bg-[color:var(--mc-explore-canvas)] pt-10 pb-28 sm:pt-12 lg:pt-14 lg:pb-16">
+        <div className="container grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-start lg:gap-12">
+          <div className="min-w-0 space-y-10 sm:space-y-12">
+            <ProfileAbout
+              coachName={firstName}
+              bio={bio}
+              language={coach.localLanguage?.trim() || null}
+              locationDetail={locationDetail}
             />
+            <ProfileExpertise tags={tags} />
+            <ProfilePackages packages={packages} coachName={firstName} />
+            <ProfileEvents events={events} />
           </div>
-          <div className="min-w-0">
-            <p className="flex flex-wrap items-center justify-center gap-y-1 text-sm text-white/70 md:justify-start">
-              <Link
-                href="/coach"
-                className="inline-flex min-h-11 items-center hover:text-[color:var(--mc-brand-coach)]"
-              >
-                Find A Coach
-              </Link>
-              <span className="mx-1.5 text-white/40" aria-hidden>
-                ›
-              </span>
-              <span>Profile</span>
-            </p>
-            <h1 className="mt-2 font-display text-3xl font-bold tracking-tight break-words sm:text-4xl lg:text-5xl">
-              {coach.coachName}
-            </h1>
-            <p className="mt-2 text-[color:var(--mc-brand-coach)]">
-              {coach.coachTypeName || "Health & Wellness Coach"}
-              {coach.city_Cd ? ` · ${coach.city_Cd}` : ""}
-            </p>
-            {coach.tagline ?
-              <p className="mt-4 max-w-2xl text-sm text-white/85 sm:text-base">
-                {coach.tagline}
-              </p>
-            : null}
-          </div>
+
+          <ProfileEnquiryPanel
+            coachCode={coach.coachCode}
+            coachName={coach.coachName}
+            lookingForOptions={lookingForOptions}
+            whatsappUrl={whatsappUrl}
+          />
         </div>
       </section>
 
-      <section className="bg-paper py-10 sm:py-14 lg:py-16">
-        <div className="container grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:gap-10">
-          <div className="min-w-0 space-y-8">
-            <div>
-              <h2 className="font-display text-2xl font-bold">About</h2>
-              <div className="mt-2 h-1 w-12 bg-mc-brand-coach" aria-hidden />
-              <p className="mt-4 text-sm leading-relaxed whitespace-pre-line text-ink-muted sm:text-base">
-                {coach.coachDesc?.trim() ||
-                  "This coach has not added a long description yet."}
-              </p>
-            </div>
-
-            {(coach.serviceNames ||
-              coach.experienceYears ||
-              coach.happyClientCount) && (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                {coach.experienceYears ?
-                  <Stat
-                    label="Years experience"
-                    value={String(coach.experienceYears)}
-                  />
-                : null}
-                {coach.happyClientCount ?
-                  <Stat
-                    label="Happy clients"
-                    value={String(coach.happyClientCount)}
-                  />
-                : null}
-                {coach.rating ?
-                  <Stat
-                    label="Rating"
-                    value={`${coach.rating.toFixed(1)} (${coach.reviewCount ?? 0})`}
-                  />
-                : null}
-              </div>
-            )}
-
-            {coach.serviceNames ?
-              <div>
-                <h3 className="font-display text-xl font-bold">Services</h3>
-                <p className="mt-2 break-words text-ink-muted">
-                  {coach.serviceNames}
-                </p>
-              </div>
-            : null}
-          </div>
-
-          <div id="contact" className="mc-card bg-paper-elevated p-5 sm:p-8">
-            <h2 className="font-display text-xl font-bold sm:text-2xl">
-              Start My Transformation
-            </h2>
-            <p className="mt-2 text-sm text-ink-muted">
-              Send an enquiry to {coach.coachName}. They will get notified by
-              email.
-            </p>
-            <div className="mt-6">
-              <CoachEnquiryForm coachCode={coach.coachCode} />
-            </div>
-          </div>
-        </div>
-      </section>
+      <MobileEnquiryBar
+        coachFirstName={firstName}
+        coachName={coach.coachName}
+        whatsappUrl={whatsappUrl}
+      />
     </>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function CoachProfileFallback() {
   return (
-    <div className="rounded-[10px] border border-line bg-surface p-4">
-      <p className="text-xs tracking-wide text-ink-muted uppercase">{label}</p>
-      <p className="mt-1 font-display text-xl font-bold">{value}</p>
-    </div>
+    <>
+      <section className="bg-[color:var(--mc-explore-canvas)] pt-5 pb-8 sm:pt-7 sm:pb-10">
+        <div className="container">
+          <div className="mb-4 h-4 w-40 animate-pulse rounded bg-[color:var(--mc-header-bottom)]/30" />
+          <div className="overflow-hidden rounded-[1.35rem] border border-[color:var(--mc-secondary)]/12 bg-surface sm:rounded-[1.75rem]">
+            <div className="grid lg:grid-cols-[minmax(0,16.5rem)_minmax(0,1fr)]">
+              <div className="hidden min-h-[21rem] animate-pulse bg-line lg:block" />
+              <div className="flex gap-4 px-4 py-5 sm:px-8 sm:py-8">
+                <div className="size-[5.5rem] shrink-0 animate-pulse rounded-2xl bg-line sm:size-[6.75rem] lg:hidden" />
+                <div className="min-w-0 flex-1 space-y-3">
+                  <div className="h-5 w-36 animate-pulse rounded-full bg-line" />
+                  <div className="h-8 w-48 animate-pulse rounded bg-line" />
+                  <div className="h-4 w-40 animate-pulse rounded bg-line" />
+                  <div className="mt-3 h-11 w-40 animate-pulse rounded-full bg-line" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="bg-[color:var(--mc-explore-canvas)] py-10 sm:py-14">
+        <div
+          className="container space-y-4"
+          aria-busy="true"
+          aria-label="Loading coach profile"
+        >
+          <div className="h-6 w-32 animate-pulse rounded bg-line" />
+          <div className="h-4 w-full max-w-2xl animate-pulse rounded bg-line" />
+          <div className="h-4 w-full max-w-xl animate-pulse rounded bg-line" />
+        </div>
+      </section>
+    </>
   );
 }

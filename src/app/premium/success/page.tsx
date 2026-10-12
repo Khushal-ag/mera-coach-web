@@ -2,8 +2,10 @@ import Link from "next/link";
 
 import type { Metadata } from "next";
 
+import { AppHandoffCta } from "@/components/app-handoff-cta";
 import { PageHero } from "@/components/page-hero";
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { premiumPaidDeepLink } from "@/lib/app-deep-link";
 
 export const metadata: Metadata = {
   title: "Premium activated",
@@ -15,6 +17,8 @@ type SearchParams = Promise<{
   orderId?: string;
   plan?: string;
   periodEnd?: string;
+  coachId?: string;
+  coachCode?: string;
 }>;
 
 export default async function PremiumSuccessPage({
@@ -31,6 +35,11 @@ export default async function PremiumSuccessPage({
         year: "numeric",
       })
     : null;
+  const coachLabel = params.coachCode?.trim() || null;
+  const fromApp =
+    Boolean(params.coachId && Number(params.coachId) > 0) ||
+    Boolean(coachLabel);
+  const openAppHref = premiumPaidDeepLink();
 
   return (
     <>
@@ -41,7 +50,7 @@ export default async function PremiumSuccessPage({
           { label: "Success" },
         ]}
         title="Premium activated"
-        subtitle="Thank you. Your payment was confirmed and premium access is ready in the Mera Coach app."
+        subtitle="Thank you. Your payment was confirmed — no website login needed. Premium is ready in the Mera Coach app."
       />
 
       <section className="bg-paper py-14">
@@ -50,7 +59,8 @@ export default async function PremiumSuccessPage({
             {params.plan ?
               <>
                 <strong>{params.plan}</strong> is active
-                {periodLabel ? ` through ${periodLabel}` : ""}.
+                {periodLabel ? ` through ${periodLabel}` : ""}
+                {coachLabel ? ` for ${coachLabel}` : ""}.
               </>
             : "Your premium plan is active."}
           </AlertBanner>
@@ -64,23 +74,35 @@ export default async function PremiumSuccessPage({
             </p>
           : null}
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Link href="/premium" className="mc-btn-secondary w-full sm:w-auto">
-              Back to plans
-            </Link>
-            <Link
-              href="/coach-login"
-              className="mc-btn-primary w-full sm:w-auto"
-            >
-              Coach login
-            </Link>
-          </div>
+          <AppHandoffCta
+            href={openAppHref}
+            autoRedirectMs={fromApp ? 2800 : 0}
+            hint="You do not need to sign in on this website. If premium is not showing yet, pull to refresh your profile in the app."
+          />
 
-          <p className="text-sm text-ink-muted">
-            Open the Mera Coach app to manage clients with your premium
-            features. If the app still shows the paywall, pull to refresh your
-            profile.
-          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {fromApp ?
+              <Link
+                href={
+                  coachLabel || params.coachId ?
+                    `/premium?${new URLSearchParams({
+                      ...(params.coachId ? { coachId: params.coachId } : {}),
+                      ...(coachLabel ? { coachCode: coachLabel } : {}),
+                    }).toString()}`
+                  : "/premium"
+                }
+                className="mc-btn-secondary w-full sm:w-auto"
+              >
+                Back to plans
+              </Link>
+            : <Link
+                href="/premium"
+                className="mc-btn-secondary w-full sm:w-auto"
+              >
+                Back to plans
+              </Link>
+            }
+          </div>
         </div>
       </section>
     </>

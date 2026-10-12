@@ -33,9 +33,10 @@ export default function TermsPage() {
           <h2 className="font-display text-xl font-bold text-ink">Premium</h2>
           <p>
             Premium subscriptions for coaches are sold on this website. Prices
-            and plan duration are always provided by the live API at checkout.
-            Payments are processed by Razorpay. Chargebacks or disputes should
-            be raised through Razorpay and support at Contact@mera-coach.com.
+            and plan duration are confirmed at checkout. Payments are processed
+            securely by our payment partner. Chargebacks or disputes should be
+            raised through the payment partner and support at
+            Contact@mera-coach.com.
           </p>
           <h2 className="font-display text-xl font-bold text-ink">Content</h2>
           <p>

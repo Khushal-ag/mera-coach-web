@@ -19,7 +19,7 @@ export default function PrivacyPage() {
         <div className="container max-w-3xl space-y-6 text-sm leading-relaxed text-ink-muted">
           <p>
             Hench Solutions operates Mera Coach. This policy explains what we
-            collect when you use the website, API-backed forms, and related app
+            collect when you use the website, online forms, and related app
             experiences.
           </p>
           <h2 className="font-display text-xl font-bold text-ink">
@@ -34,9 +34,10 @@ export default function PrivacyPage() {
               Enquiry and feedback form data (name, contact, ratings, comments).
             </li>
             <li>
-              Premium checkout identifiers (coach ID or code, plan selection,
-              payment confirmation references from Razorpay). Card data is
-              handled by Razorpay, not stored by this website.
+              Premium checkout details (coach account reference, plan selection,
+              and payment confirmation references from our payment partner).
+              Card data is handled by the payment partner, not stored by this
+              website.
             </li>
             <li>
               Technical logs such as IP address and basic request metadata for

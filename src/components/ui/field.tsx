@@ -147,3 +147,58 @@ export function TextAreaField({
     </FieldShell>
   );
 }
+
+type SelectProps = Omit<
+  React.ComponentPropsWithoutRef<"select">,
+  "className"
+> & {
+  label: React.ReactNode;
+  hint?: React.ReactNode;
+  error?: React.ReactNode;
+  tone?: Tone;
+  className?: string;
+  inputClassName?: string;
+  children: React.ReactNode;
+};
+
+export function SelectField({
+  label,
+  hint,
+  error,
+  tone = "light",
+  className,
+  inputClassName,
+  id,
+  required,
+  children,
+  ...props
+}: SelectProps) {
+  const fieldId =
+    id ?? (typeof props.name === "string" ? props.name : undefined);
+  return (
+    <FieldShell
+      label={label}
+      htmlFor={fieldId}
+      required={required}
+      hint={hint}
+      error={error}
+      tone={tone}
+      className={className}
+    >
+      <select
+        id={fieldId}
+        required={required}
+        aria-invalid={error ? true : undefined}
+        className={cn(
+          "mc-field",
+          tone === "dark" && "mc-field-dark",
+          error && "mc-field-error",
+          inputClassName,
+        )}
+        {...props}
+      >
+        {children}
+      </select>
+    </FieldShell>
+  );
+}

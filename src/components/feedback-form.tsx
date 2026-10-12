@@ -4,7 +4,9 @@ import { useState } from "react";
 
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextAreaField } from "@/components/ui/field";
+import { siteConfig } from "@/config/site";
 import { firstApiError, isApiSuccess, submitFeedback } from "@/lib/api";
+import { appHomeDeepLink } from "@/lib/app-deep-link";
 
 export function FeedbackForm({
   coachCode,
@@ -26,8 +28,8 @@ export function FeedbackForm({
   if (!coachCode || !clientCode) {
     return (
       <AlertBanner tone="error">
-        Open this page with <code>coachCode</code> and <code>clientCode</code>{" "}
-        query parameters from your coach&apos;s feedback link.
+        This feedback link is incomplete. Open the link your coach shared so we
+        know who you are leaving feedback for.
       </AlertBanner>
     );
   }
@@ -118,6 +120,20 @@ export function FeedbackForm({
         <AlertBanner tone={status === "success" ? "success" : "error"}>
           {message}
         </AlertBanner>
+      : null}
+
+      {status === "success" ?
+        <div className="pt-1">
+          <a
+            href={appHomeDeepLink()}
+            className="mc-btn-secondary inline-flex w-full sm:w-auto"
+          >
+            Done — {siteConfig.app.handoffLabel}
+          </a>
+          <p className="mt-2 text-xs text-ink-muted">
+            Optional. No website login needed — you can close this page.
+          </p>
+        </div>
       : null}
     </form>
   );

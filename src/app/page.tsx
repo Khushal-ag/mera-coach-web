@@ -59,7 +59,15 @@ const testimonials = [
 export default function HomePage() {
   return (
     <>
-      <section className="relative isolate flex min-h-[92dvh] items-center justify-center overflow-hidden bg-mc-home text-white">
+      <section className="relative isolate flex min-h-[min(92dvh,56rem)] items-end overflow-hidden bg-mc-home text-white sm:min-h-[92dvh]">
+        <Image
+          src="/mc-images/coachbg.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
         <video
           className="absolute inset-0 size-full object-cover"
           autoPlay
@@ -70,34 +78,44 @@ export default function HomePage() {
         >
           <source src="/mc-video/pexels-2022395.mp4" type="video/mp4" />
         </video>
-        <div className="mc-hero-scrim absolute inset-0" aria-hidden />
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-[color:var(--mc-home-canvas)]/88 via-[color:var(--mc-header-bottom)]/45 to-transparent"
+          aria-hidden
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-[color:var(--mc-home-canvas)]/85 via-[color:var(--mc-home-canvas)]/25 to-[color:var(--mc-home-canvas)]/30"
+          aria-hidden
+        />
 
-        <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center px-4 py-16 text-center sm:py-24">
-          <Image
-            src="/mc-images/meracoach.png"
-            alt="Mera Coach"
-            width={220}
-            height={220}
-            className="motion-rise h-auto w-32 object-contain sm:w-40 md:w-52"
-            priority
-          />
-          <h1 className="motion-rise motion-rise-delay-1 mt-6 font-display text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
-            <span className="text-[color:var(--mc-brand-mera-on-dark)]">
-              Mera
-            </span>{" "}
-            <span className="text-[color:var(--mc-brand-coach)]">Coach</span>
-          </h1>
-          <p className="motion-rise motion-rise-delay-2 mt-5 max-w-xl text-sm leading-relaxed text-white/90 sm:text-base md:text-lg">
-            Manage clients, track progress, and build your coaching brand in one
-            platform built for health and wellness professionals.
-          </p>
-          <div className="motion-rise motion-rise-delay-3 mt-8 flex w-full max-w-sm flex-col gap-3 sm:max-w-none sm:flex-row sm:justify-center">
-            <Link href="/register" className="mc-btn-primary w-full sm:w-auto">
-              Start as a Coach
-            </Link>
-            <Link href="/coach" className="mc-btn-ghost w-full sm:w-auto">
-              Find a Coach
-            </Link>
+        <div className="relative z-10 container w-full pt-24 pb-12 sm:pt-28 sm:pb-16 lg:pb-20">
+          <div className="max-w-2xl">
+            <h1 className="motion-rise font-display text-[2.15rem] leading-[1.12] font-extrabold tracking-tight text-balance text-white sm:text-5xl lg:text-6xl">
+              Grow your{" "}
+              <span className="text-[color:var(--mc-brand-coach)]">
+                coaching
+              </span>{" "}
+              business with mera{" "}
+              <span className="text-[color:var(--mc-brand-coach)]">coach</span>
+            </h1>
+            <div
+              className="mt-3 h-1 w-16 rounded-full bg-[color:var(--mc-brand-coach)] sm:mt-4 sm:w-20"
+              aria-hidden
+            />
+            <p className="motion-rise motion-rise-delay-1 mt-5 max-w-lg text-sm leading-relaxed text-white/85 sm:text-base md:text-lg">
+              Manage clients, track progress, and build a brand clients trust —
+              one platform for health and wellness coaches.
+            </p>
+            <div className="motion-rise motion-rise-delay-2 mt-8 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:flex-wrap">
+              <Link
+                href="/register"
+                className="mc-btn-primary w-full sm:w-auto"
+              >
+                Start as a Coach
+              </Link>
+              <Link href="/coach" className="mc-btn-ghost w-full sm:w-auto">
+                Find a Coach
+              </Link>
+            </div>
           </div>
         </div>
       </section>

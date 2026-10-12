@@ -32,7 +32,7 @@ export default function RegisterPage() {
           Create your coach account
         </h2>
         <p className="mt-1.5 text-sm text-ink-muted">
-          Tell us about yourself — we review new coaches before listing.
+          Tell us about yourself. We review new coaches before listing.
         </p>
       </div>
       <RegisterForm />

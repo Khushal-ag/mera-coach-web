@@ -12,7 +12,7 @@ import { fetchPremiumPlans, firstApiError, isApiSuccess } from "@/lib/api";
 export const metadata: Metadata = {
   title: "Premium",
   description:
-    "Upgrade your Mera Coach account with premium plans. Checkout stays on the website via Razorpay.",
+    "Upgrade your Mera Coach account with premium plans. Secure checkout stays on the website.",
 };
 
 type SearchParams = Promise<{
@@ -56,12 +56,12 @@ export default async function PremiumPage({
             <span className="text-[color:var(--mc-brand-coach)]">Premium</span>
           </>
         }
-        subtitle="Payment stays on the website. Open this page from the app Pay Now button, choose a plan, and complete checkout with Razorpay. Prices always come from the live API."
+        subtitle="No website login required. Open this from the app Pay Now button, choose a plan, and pay securely. Premium applies to the coach from your app link."
       />
 
       <section className="bg-paper py-10 sm:py-14 lg:py-16">
         <div className="container max-w-3xl">
-          <div className="mc-card p-5 sm:p-8">
+          <div className="mc-card min-w-0 p-4 sm:p-8">
             {errorMessage ?
               <AlertBanner tone="error" className="mb-6">
                 {errorMessage}
@@ -76,13 +76,15 @@ export default async function PremiumPage({
             />
           </div>
           <p className="mt-6 text-center text-sm text-ink-muted">
-            Need an account first?{" "}
+            New here?{" "}
             <Link
               href="/register"
               className="font-semibold text-mc-brand-coach"
             >
               Register as a coach
             </Link>
+            {" · "}
+            Checkout does not use coach login.
           </p>
         </div>
       </section>

@@ -31,10 +31,12 @@ function normalizeCatalog(raw: unknown): CoachPremiumCatalog {
     } satisfies CoachCatalogPlan;
   });
   const promoRaw = pick<Record<string, unknown> | null>(root, "promo", "Promo");
+  const promoCode =
+    promoRaw ? String(pick(promoRaw, "code", "Code") ?? "").trim() : "";
   const promo: CoachSuggestedPromo | null =
-    promoRaw ?
+    promoRaw && promoCode ?
       {
-        code: String(pick(promoRaw, "code", "Code") ?? ""),
+        code: promoCode,
         description: String(pick(promoRaw, "description", "Description") ?? ""),
         discountType: String(
           pick(promoRaw, "discountType", "DiscountType") ?? "",

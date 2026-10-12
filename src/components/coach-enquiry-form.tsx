@@ -3,10 +3,22 @@
 import { useState } from "react";
 
 import { AlertBanner } from "@/components/ui/alert-banner";
-import { TextAreaField, TextField } from "@/components/ui/field";
+import { SelectField, TextAreaField, TextField } from "@/components/ui/field";
 import { firstApiError, isApiSuccess, submitCoachEnquiry } from "@/lib/api";
 
-export function CoachEnquiryForm({ coachCode }: { coachCode: string }) {
+type CoachEnquiryFormProps = {
+  coachCode: string;
+  coachName?: string;
+  lookingForOptions?: string[];
+  defaultLookingFor?: string;
+};
+
+export function CoachEnquiryForm({
+  coachCode,
+  coachName,
+  lookingForOptions,
+  defaultLookingFor,
+}: CoachEnquiryFormProps) {
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
@@ -31,7 +43,11 @@ export function CoachEnquiryForm({ coachCode }: { coachCode: string }) {
         return;
       }
       setStatus("success");
-      setMessage("Enquiry sent. The coach will get in touch soon.");
+      setMessage(
+        coachName ?
+          `Enquiry sent. ${coachName} will get in touch soon.`
+        : "Enquiry sent. The coach will get in touch soon.",
+      );
     } catch (error) {
       setStatus("error");
       setMessage(
@@ -41,6 +57,7 @@ export function CoachEnquiryForm({ coachCode }: { coachCode: string }) {
   }
 
   const busy = status === "loading";
+  const useSelect = Boolean(lookingForOptions && lookingForOptions.length > 0);
 
   return (
     <form action={onSubmit} className="space-y-4">
@@ -50,6 +67,7 @@ export function CoachEnquiryForm({ coachCode }: { coachCode: string }) {
         required
         placeholder="Full name"
         disabled={busy}
+        autoComplete="name"
       />
       <TextField
         name="clientMobile"
@@ -57,7 +75,9 @@ export function CoachEnquiryForm({ coachCode }: { coachCode: string }) {
         required
         placeholder="10-digit mobile"
         type="tel"
+        inputMode="numeric"
         disabled={busy}
+        autoComplete="tel"
       />
       <TextField
         name="clientEmail"
@@ -65,18 +85,35 @@ export function CoachEnquiryForm({ coachCode }: { coachCode: string }) {
         placeholder="you@example.com"
         type="email"
         disabled={busy}
+        autoComplete="email"
       />
-      <TextAreaField
-        name="lookingFor"
-        label="I'm looking for"
-        required
-        rows={3}
-        placeholder="Weight loss, nutrition plan, strength training…"
-        disabled={busy}
-      />
+      {useSelect ?
+        <SelectField
+          name="lookingFor"
+          label="Enquiring for"
+          required
+          disabled={busy}
+          defaultValue={defaultLookingFor || lookingForOptions![0]}
+        >
+          {lookingForOptions!.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </SelectField>
+      : <TextAreaField
+          name="lookingFor"
+          label="I'm looking for"
+          required
+          rows={3}
+          placeholder="Weight loss, nutrition plan, strength training…"
+          disabled={busy}
+          defaultValue={defaultLookingFor}
+        />
+      }
 
       <button type="submit" disabled={busy} className="mc-btn-primary w-full">
-        {busy ? "Sending…" : "Submit enquiry"}
+        {busy ? "Sending…" : "Send my request (it's free)"}
       </button>
 
       {message ?

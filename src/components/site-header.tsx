@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Menu, X } from "lucide-react";
 
+import { BrandLockup } from "@/components/brand-lockup";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
@@ -50,23 +50,11 @@ export function SiteHeader() {
       <div className="relative container flex items-center justify-between gap-3 py-3 sm:gap-4">
         <Link
           href="/"
-          className="flex min-h-11 min-w-0 items-center gap-2.5 font-display text-base font-bold tracking-tight text-white sm:text-lg"
+          className="flex min-h-11 min-w-0 items-center"
           onClick={() => setOpen(false)}
+          aria-label={siteConfig.name}
         >
-          <Image
-            src="/mc-images/meracoach.png"
-            alt=""
-            width={36}
-            height={36}
-            className="size-9 shrink-0 object-contain"
-            priority
-          />
-          <span className="truncate">
-            <span className="text-[color:var(--mc-brand-mera-on-dark)]">
-              Mera
-            </span>{" "}
-            <span className="text-[color:var(--mc-brand-coach)]">Coach</span>
-          </span>
+          <BrandLockup variant="nav" priority />
         </Link>
 
         <button

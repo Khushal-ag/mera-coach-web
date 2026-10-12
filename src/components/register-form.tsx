@@ -280,8 +280,7 @@ export function RegisterForm() {
           />
         </div>
         <p className="mt-2 text-xs text-ink-muted">
-          Optional. Files are uploaded after your account is created (same
-          Document API as the app).
+          Optional. Photos upload after your account is created.
         </p>
       </div>
 

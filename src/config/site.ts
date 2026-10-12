@@ -49,10 +49,13 @@ export const siteConfig = {
     { label: "Join us", href: "/register" },
   ] as const,
 
-  /** App store / deep-link placeholders — update when store URLs are final. */
+  /**
+   * Native app handoff. Scheme matches mera-coach-app `app.json` → expo.scheme.
+   * Build URLs with `appDeepLink` / `premiumPaidDeepLink` in `@/lib/app-deep-link`.
+   */
   app: {
-    /** Marketing copy points clients here; CRM lives in the native app. */
-    handoffLabel: "Open the Mera Coach app",
+    scheme: "meracoach",
+    handoffLabel: "Open Mera Coach app",
   },
 
   twitter: {
@@ -60,11 +63,10 @@ export const siteConfig = {
     site: "",
   },
 
-  /** Brand assets under `public/` (generated from app `logo-mark` + `mc-images`). */
+  /** Brand assets — same as mera-coach-app `assets/brand`. */
   brand: {
     logoMark: "/mc-images/logo-mark.png",
     logoFull: "/mc-images/logo-full.png",
-    wordmark: "/mc-images/meracoach.png",
   },
 
   /** Open Graph / Twitter share image (1200×630). */

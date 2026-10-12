@@ -4,8 +4,7 @@
  * See `.env.example` for documented keys.
  */
 
-function readPublic(name: string): string | undefined {
-  const value = process.env[name];
+function readPublic(value: string | undefined): string | undefined {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
@@ -15,15 +14,17 @@ function stripTrailingSlash(url: string) {
   return url.replace(/\/$/, "");
 }
 
+// Access NEXT_PUBLIC_* with static property names so Next can inline them
+// into both server and client bundles (dynamic process.env[name] is not inlined).
 const siteUrl = stripTrailingSlash(
-  readPublic("NEXT_PUBLIC_SITE_URL") ?? "https://mera-coach.com",
+  readPublic(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://mera-coach.com",
 );
 
 const apiBaseUrl = stripTrailingSlash(
-  readPublic("NEXT_PUBLIC_API_BASE_URL") ?? "",
+  readPublic(process.env.NEXT_PUBLIC_API_BASE_URL) ?? "",
 );
 
-const imageHosts = (readPublic("NEXT_PUBLIC_IMAGE_HOSTS") ?? "")
+const imageHosts = (readPublic(process.env.NEXT_PUBLIC_IMAGE_HOSTS) ?? "")
   .split(",")
   .map((host) => host.trim())
   .filter(Boolean);

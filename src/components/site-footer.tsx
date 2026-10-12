@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { BrandLockup } from "@/components/brand-lockup";
 import { siteConfig } from "@/config/site";
 
 export function SiteFooter() {
@@ -7,12 +8,7 @@ export function SiteFooter() {
     <footer className="bg-[color:var(--mc-header-bottom)] text-white">
       <div className="container grid gap-10 py-10 sm:py-12 md:grid-cols-3 md:items-start md:gap-8">
         <div>
-          <p className="font-display text-xl font-bold tracking-tight sm:text-2xl">
-            <span className="text-[color:var(--mc-brand-mera-on-dark)]">
-              Mera
-            </span>{" "}
-            <span className="text-[color:var(--mc-brand-coach)]">Coach</span>
-          </p>
+          <BrandLockup variant="nav" className="text-xl sm:text-2xl" />
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/65">
             Online platform for health and wellness coaches, fitness coaches,
             and dieticians to manage clients easily.

@@ -30,14 +30,39 @@ export type CoachPublicPagedResult = {
   totalPages: number;
 };
 
+/** Coach-defined offer shown on the public digital profile. */
+export type CoachPackage = {
+  id: string;
+  name: string;
+  price: string;
+  duration: string;
+  description: string;
+  imageUrl?: string;
+};
+
+/** Coach-hosted event for public showcase. */
+export type CoachEvent = {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  link: string;
+  imageUrl?: string;
+};
+
 export type CoachProfile = {
   coachId: number;
   coachCode: string;
   coachName: string;
   businessName?: string | null;
+  coachTypeCode?: string | null;
   coachTypeName?: string | null;
   city_Cd?: string | null;
   state_Cd?: string | null;
+  country_Cd?: string | null;
+  locality?: string | null;
+  add_Line?: string | null;
   tagline?: string | null;
   coachDesc?: string | null;
   profile_Pic_Url?: string | null;
@@ -45,10 +70,16 @@ export type CoachProfile = {
   serviceNames?: string | null;
   experienceYears?: number;
   happyClientCount?: number;
+  certificationCount?: number;
+  localLanguage?: string | null;
   rating?: number;
   reviewCount?: number;
   isProfileVisible?: boolean;
   email?: string | null;
+  /** Present on profile-by-id; used for WhatsApp CTA. */
+  mobile?: string | null;
+  packages?: CoachPackage[];
+  events?: CoachEvent[];
 };
 
 export type CoachRegisterResult = {

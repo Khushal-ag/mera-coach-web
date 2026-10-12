@@ -6,7 +6,6 @@ import { StatusHomeLink, StatusPanel } from "@/components/status-panel";
 import { siteConfig } from "@/config/site";
 
 export default function Error({
-  error,
   reset,
 }: {
   error: Error & { digest?: string };
@@ -16,10 +15,7 @@ export default function Error({
     <StatusPanel
       code="Error"
       title="Something went wrong"
-      description={
-        error.message?.trim() ||
-        "An unexpected error occurred. You can try again or return home."
-      }
+      description="An unexpected error occurred. You can try again or return home."
     >
       <button type="button" onClick={reset} className="mc-btn-primary">
         Try again
