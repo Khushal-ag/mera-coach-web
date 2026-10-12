@@ -8,17 +8,14 @@ export function ProfileEvents({ events }: { events: CoachEvent[] }) {
 
   return (
     <section>
-      <SectionHeading eyebrow="Upcoming" title="Events & sessions" />
-      <ul className="space-y-3">
+      <SectionHeading title="Events & sessions" />
+      <ul className="divide-y divide-[color:var(--mc-secondary)]/12 overflow-hidden rounded-[var(--radius-md)] border border-[color:var(--mc-secondary)]/12 bg-surface">
         {events.map((event) => {
           const when = [formatEventDateLabel(event.date), event.time.trim()]
             .filter(Boolean)
             .join(" · ");
           return (
-            <li
-              key={event.id}
-              className="rounded-[1.1rem] border border-[color:var(--mc-secondary)]/12 bg-surface px-4 py-4 sm:px-5"
-            >
+            <li key={event.id} className="px-4 py-4 sm:px-5">
               <h3 className="font-display text-base font-bold text-mc-accent-ink sm:text-lg">
                 {event.title}
               </h3>
@@ -37,7 +34,7 @@ export function ProfileEvents({ events }: { events: CoachEvent[] }) {
                   rel="noopener noreferrer"
                   className="mt-2 inline-flex min-h-10 items-center text-sm font-semibold text-mc-brand-coach hover:brightness-110"
                 >
-                  Open details →
+                  Open details
                 </a>
               : null}
             </li>

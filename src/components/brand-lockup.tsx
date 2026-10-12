@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 
 /**
  * Single brand system for the site.
- * - `nav`: mark + typed wordmark (mint/orange on dark chrome) — one lockup
+ * - `nav`: mark + typed wordmark (mint/orange on dark chrome)
+ * - `workspace`: mark + teal/orange wordmark for light SaaS chrome
  * - `full`: app `logo-full` asset for light / marketing surfaces
  * - `mark`: icon only when space is tight
  */
@@ -14,7 +15,7 @@ export function BrandLockup({
   className,
   priority,
 }: {
-  variant?: "nav" | "full" | "mark";
+  variant?: "nav" | "workspace" | "full" | "mark";
   className?: string;
   priority?: boolean;
 }) {
@@ -44,6 +45,11 @@ export function BrandLockup({
     );
   }
 
+  const meraClass =
+    variant === "workspace" ?
+      "text-[color:var(--mc-secondary)]"
+    : "text-[color:var(--mc-brand-mera-on-dark)]";
+
   return (
     <span
       className={cn(
@@ -60,7 +66,7 @@ export function BrandLockup({
         priority={priority}
       />
       <span className="truncate">
-        <span className="text-[color:var(--mc-brand-mera-on-dark)]">Mera</span>{" "}
+        <span className={meraClass}>Mera</span>{" "}
         <span className="text-[color:var(--mc-brand-coach)]">Coach</span>
       </span>
     </span>

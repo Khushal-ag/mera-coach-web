@@ -128,10 +128,10 @@ export function FeedbackForm({
             href={appHomeDeepLink()}
             className="mc-btn-secondary inline-flex w-full sm:w-auto"
           >
-            Done — {siteConfig.app.handoffLabel}
+            Done - {siteConfig.app.handoffLabel}
           </a>
           <p className="mt-2 text-xs text-ink-muted">
-            Optional. No website login needed — you can close this page.
+            Optional. No website login needed. You can close this page.
           </p>
         </div>
       : null}

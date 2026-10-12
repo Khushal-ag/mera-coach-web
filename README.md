@@ -48,7 +48,8 @@ src/
 | `/coach/[code]` | Profile + enquiry |
 | `/services` | Services marketing |
 | `/register` | Coach registration |
-| `/coach-login` | Auth handoff (CRM in app) |
+| `/coach-login` | Coach login → `/dashboard` |
+| `/dashboard` | Authenticated coach practice (clients, leads, packages, events, profile) |
 | `/premium` | Plans + Razorpay (`?coachId=&coachCode=` from app `buildCoachPaymentUrl`) |
 | `/premium/success` | Post-confirm return page |
 | `/feedback` | `?coachCode=&clientCode=` |

@@ -13,7 +13,7 @@ type FieldShellProps = {
   children: React.ReactNode;
 };
 
-export function FieldShell({
+function FieldShell({
   label,
   htmlFor,
   required,

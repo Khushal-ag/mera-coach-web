@@ -18,7 +18,7 @@ export function ProfileAbout({
 
   return (
     <section>
-      <SectionHeading eyebrow="About" title={`Meet ${coachName}`}>
+      <SectionHeading title={`Meet ${coachName}`}>
         {hasMeta ?
           [locationDetail, language ? `Languages: ${language}` : null]
             .filter(Boolean)

@@ -42,9 +42,26 @@ export function firstApiError(
   return response?.errorObj?.[0]?.errorMessage ?? null;
 }
 
+/** errorCode 1 = no records — empty success (same as mera-coach-app). */
+const API_ERROR_NO_RECORDS = 1;
+
+export function isNoRecordsResponse(
+  response: GenericResponse<unknown> | null | undefined,
+) {
+  const entries = response?.errorObj ?? [];
+  if (entries.length === 0) return false;
+  return (
+    entries.every((e) => {
+      const code = Number(e.errorCode);
+      return code === API_ERROR_NO_RECORDS || code === 0;
+    }) && entries.some((e) => Number(e.errorCode) === API_ERROR_NO_RECORDS)
+  );
+}
+
 export function isApiSuccess(
   response: GenericResponse<unknown> | null | undefined,
 ) {
+  if (isNoRecordsResponse(response)) return true;
   const code = response?.errorObj?.[0]?.errorCode;
   return code === undefined || code === 0;
 }

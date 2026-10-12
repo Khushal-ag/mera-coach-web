@@ -14,7 +14,7 @@ export function ProfilePackages({ packages, coachName }: ProfilePackagesProps) {
 
   return (
     <section>
-      <SectionHeading eyebrow="Offers" title="Coaching packages">
+      <SectionHeading title="Coaching packages">
         Choose a starting point, or tell {coachName} what you need in the
         enquiry form.
       </SectionHeading>
@@ -24,7 +24,7 @@ export function ProfilePackages({ packages, coachName }: ProfilePackagesProps) {
           return (
             <li
               key={pkg.id}
-              className="overflow-hidden rounded-[1.25rem] border border-[color:var(--mc-secondary)]/12 bg-surface shadow-[0_8px_24px_rgba(17,104,92,0.05)]"
+              className="overflow-hidden rounded-[var(--radius-md)] border border-[color:var(--mc-secondary)]/12 bg-surface shadow-[0_8px_24px_rgba(17,104,92,0.05)]"
             >
               <div
                 className={image ? "grid sm:grid-cols-[9.5rem_1fr]" : "grid"}
@@ -51,7 +51,7 @@ export function ProfilePackages({ packages, coachName }: ProfilePackagesProps) {
                     : null}
                   </div>
                   {pkg.duration ?
-                    <p className="mt-1 text-xs font-medium tracking-wide text-mc-secondary uppercase">
+                    <p className="mt-1 text-xs font-medium text-mc-secondary">
                       {pkg.duration}
                     </p>
                   : null}
@@ -64,7 +64,7 @@ export function ProfilePackages({ packages, coachName }: ProfilePackagesProps) {
                     href="#enquiry"
                     className="mt-3 inline-flex min-h-10 w-fit items-center text-sm font-semibold text-mc-secondary hover:text-mc-secondary-dark"
                   >
-                    Enquire about this →
+                    Enquire about this
                   </a>
                 </div>
               </div>

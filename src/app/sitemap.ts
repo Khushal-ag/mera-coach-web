@@ -5,6 +5,7 @@ import { siteConfig } from "@/config/site";
 const routes = [
   "",
   "/coach",
+  "/bmi",
   "/services",
   "/register",
   "/coach-login",

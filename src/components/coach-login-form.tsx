@@ -1,51 +1,76 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
+import { useAuth } from "@/components/auth-provider";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextField } from "@/components/ui/field";
-import { firstApiError, isApiSuccess, loginCoach } from "@/lib/api";
+import { loginCoach } from "@/lib/api/auth";
 
-const TOKEN_KEY = "mc_coach_token";
+function safeNextPath(raw: string | null): string {
+  if (!raw) return "/dashboard";
+  if (!raw.startsWith("/") || raw.startsWith("//")) return "/dashboard";
+  return raw;
+}
 
 export function CoachLoginForm() {
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "error"
-  >("idle");
+  const { session, ready, setSession, logout } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = safeNextPath(searchParams.get("next"));
+  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
-  const [premiumHref, setPremiumHref] = useState("/premium");
+
+  useEffect(() => {
+    if (!ready || !session) return;
+    router.replace(nextPath);
+  }, [ready, session, router, nextPath]);
 
   async function onSubmit(formData: FormData) {
     setStatus("loading");
     setMessage(null);
     try {
-      const response = await loginCoach({
+      const result = await loginCoach({
         userName: String(formData.get("userName") ?? "").trim(),
         password: String(formData.get("password") ?? ""),
       });
-      if (!isApiSuccess(response) || !response.responseObj?.token) {
+      if (!result.session) {
         setStatus("error");
-        setMessage(firstApiError(response) ?? "Login failed.");
+        setMessage(result.error ?? "Login failed.");
         return;
       }
-      window.localStorage.setItem(TOKEN_KEY, response.responseObj.token);
-      const id = response.responseObj.coachId;
-      const code = response.responseObj.coachCode?.trim();
-      const premiumQs = new URLSearchParams();
-      if (id && id > 0) premiumQs.set("coachId", String(id));
-      if (code) premiumQs.set("coachCode", code);
-      setPremiumHref(
-        premiumQs.toString() ? `/premium?${premiumQs.toString()}` : "/premium",
-      );
-      setStatus("success");
-      setMessage(
-        "Signed in. Open the Mera Coach app to manage clients. You can also continue to Premium checkout on this website.",
-      );
+      setSession(result.session);
+      setStatus("idle");
+      router.replace(nextPath);
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Login failed.");
     }
+  }
+
+  if (!ready) {
+    return (
+      <p className="text-sm text-white/65" aria-live="polite">
+        Checking session…
+      </p>
+    );
+  }
+
+  if (session) {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-white/75">Opening your coach dashboard…</p>
+        <button
+          type="button"
+          className="text-sm font-semibold text-white/70 underline-offset-2 hover:underline"
+          onClick={() => void logout()}
+        >
+          Log out instead
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -69,6 +94,14 @@ export function CoachLoginForm() {
         placeholder="••••••••"
         disabled={status === "loading"}
       />
+      <div className="flex justify-end">
+        <Link
+          href="/forgot-password"
+          className="text-sm font-semibold text-white/75 underline-offset-2 hover:text-white hover:underline"
+        >
+          Forgot password?
+        </Link>
+      </div>
       <button
         type="submit"
         disabled={status === "loading"}
@@ -78,43 +111,18 @@ export function CoachLoginForm() {
       </button>
 
       {message ?
-        <AlertBanner
-          tone={status === "success" ? "success" : "error"}
-          className={
-            status === "success" ?
-              "border-white/20 bg-white/10 text-white"
-            : undefined
-          }
-        >
-          {message}
-        </AlertBanner>
+        <AlertBanner tone="error">{message}</AlertBanner>
       : null}
 
-      {status === "success" ?
-        <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:flex-wrap">
-          <Link
-            href={premiumHref}
-            className="mc-btn-outline-on-dark w-full justify-center text-xs sm:w-auto"
-          >
-            Go to Premium
-          </Link>
-          <Link
-            href="/register"
-            className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-white/30 px-4 text-xs font-bold text-white transition hover:bg-white/10 sm:w-auto"
-          >
-            Not registered?
-          </Link>
-        </div>
-      : <p className="border-t border-white/10 pt-5 text-center text-sm text-white/70">
-          New here?{" "}
-          <Link
-            href="/register"
-            className="font-semibold text-[color:var(--mc-brand-coach)] transition-colors hover:brightness-110"
-          >
-            Register as a coach
-          </Link>
-        </p>
-      }
+      <p className="border-t border-white/10 pt-5 text-center text-sm text-white/70">
+        New here?{" "}
+        <Link
+          href="/register"
+          className="font-semibold text-[color:var(--mc-brand-coach)] transition-colors hover:brightness-110"
+        >
+          Register as a coach
+        </Link>
+      </p>
     </form>
   );
 }

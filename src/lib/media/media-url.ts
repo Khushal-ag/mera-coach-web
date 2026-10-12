@@ -10,7 +10,7 @@
 
 import { env } from "@/config/env";
 
-export const COACH_PHOTO_FALLBACK = "/mc-images/services-1.jpg";
+export const COACH_PHOTO_FALLBACK = "/mc-images/coach-avatar-fallback.jpg";
 
 function isAbsoluteUrl(url: string): boolean {
   return (

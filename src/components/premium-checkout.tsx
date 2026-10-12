@@ -165,11 +165,8 @@ export function PremiumCheckout({
     if (!fromApp) return;
     let cancelled = false;
 
-    // Seed deep-link identity so order creation works even when the public
-    // profile is hidden (profile-by-id returns 404 for private coaches).
-    if (initialCoachId > 0) setCoachId(initialCoachId);
-    if (initialCoachCode.trim()) setCoachCode(initialCoachCode.trim());
-
+    // Identity is seeded from props via useState (+ page remount key).
+    // Lookup still enriches display when the public profile is available.
     void lookupCoach({
       coachId: initialCoachId > 0 ? initialCoachId : undefined,
       coachCode: initialCoachCode.trim() || undefined,
@@ -448,8 +445,8 @@ export function PremiumCheckout({
       />
 
       {resolvedCoach ?
-        <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-line bg-surface/80 p-3 sm:p-4">
-          <div className="relative size-12 shrink-0 overflow-hidden rounded-full ring-1 ring-line">
+        <div className="flex min-w-0 items-center gap-3 rounded-[var(--radius-md)] border border-[color:var(--mc-secondary)]/15 bg-[color:var(--mc-explore-canvas)] p-3 sm:p-4">
+          <div className="relative size-12 shrink-0 overflow-hidden rounded-full ring-1 ring-[color:var(--mc-secondary)]/20">
             <CoachPhoto
               src={resolvedCoach.photo}
               alt={resolvedCoach.coachName}
@@ -458,7 +455,7 @@ export function PremiumCheckout({
             />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold tracking-wide text-mc-secondary uppercase">
+            <p className="text-xs font-semibold text-mc-secondary">
               Paying for
             </p>
             <p className="truncate font-display text-lg font-bold text-ink">
@@ -528,17 +525,17 @@ export function PremiumCheckout({
                 key={plan.planId}
                 type="button"
                 onClick={() => setPlanId(String(plan.planId))}
-                className={`min-h-11 min-w-0 rounded-2xl border p-4 text-left transition sm:p-5 ${
+                className={`min-h-11 min-w-0 rounded-[var(--radius-md)] border p-4 text-left transition active:scale-[0.99] sm:p-5 ${
                   active ?
-                    "border-mc-brand-coach bg-surface shadow-lg ring-2 ring-mc-brand-coach/25"
-                  : "border-line bg-surface/80 hover:border-mc-secondary/40"
+                    "border-mc-brand-coach bg-surface shadow-[0_12px_28px_rgba(244,127,30,0.16)] ring-2 ring-mc-brand-coach/25"
+                  : "border-[color:var(--mc-secondary)]/15 bg-[color:var(--mc-explore-canvas)] hover:border-mc-secondary/40"
                 }`}
               >
-                <p className="text-xs font-semibold tracking-wide text-mc-secondary uppercase">
+                <p className="text-xs font-semibold text-mc-secondary">
                   {plan.durationMonths}{" "}
                   {plan.durationMonths === 1 ? "month" : "months"}
                 </p>
-                <h3 className="mt-1 truncate font-display text-xl font-bold">
+                <h3 className="mt-1 truncate font-display text-xl font-bold text-ink">
                   {plan.planName}
                 </h3>
                 <p className="mt-3 font-display text-2xl font-bold sm:text-3xl">
@@ -592,8 +589,8 @@ export function PremiumCheckout({
       />
 
       {quote && selected ?
-        <div className="min-w-0 rounded-2xl border border-line bg-surface/80 p-4 sm:p-5">
-          <p className="text-xs font-semibold tracking-wide text-mc-secondary uppercase">
+        <div className="min-w-0 rounded-[var(--radius-md)] border border-[color:var(--mc-secondary)]/15 bg-[color:var(--mc-explore-canvas)] p-4 sm:p-5">
+          <p className="text-xs font-semibold text-mc-secondary">
             Price breakdown
           </p>
           <dl className="mt-3 space-y-2 text-sm">

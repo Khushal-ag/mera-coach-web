@@ -41,8 +41,6 @@ export const env = {
   imageHosts,
 } as const;
 
-export type Env = typeof env;
-
 export function assertApiBaseUrl(): string {
   if (!env.apiBaseUrl) {
     throw new Error(

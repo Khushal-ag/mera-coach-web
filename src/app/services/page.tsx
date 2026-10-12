@@ -8,60 +8,51 @@ import { PageHero } from "@/components/page-hero";
 export const metadata: Metadata = {
   title: "Services",
   description:
-    "Power your coaching services with exercise programs, nutrition plans, client management, and branded landing pages on Mera Coach.",
+    "Power your personal training practice with exercise programs, nutrition plans, client management, and a public coach page on Mera Coach.",
 };
 
-const offerCards = [
+const featuredOfferings = [
   {
-    tag: "Fitness",
-    title: "Exercise Program",
-    image: "/mc-images/services-1.jpg",
+    title: "Exercise programs",
     body: "Structured workout plans tailored to fitness level. Build strength, endurance, and performance with proven training methods.",
+    image: "/mc-images/coachloginbg.jpg",
+    imageAlt: "Trainer spotting a client during a strength session",
   },
   {
-    tag: "Nutrition",
-    title: "Nutrition Plans",
-    image: "/mc-images/services-2.jpg",
-    body: "Personalized meal plans and dietary guidance to fuel the body, improve gut health, and optimize daily energy.",
-  },
-  {
-    tag: "Wellness",
-    title: "Diet Program",
-    image: "/mc-images/services-3.jpg",
-    body: "Science-backed diet programs for weight management, digestive health, heart health, and skin wellness.",
+    title: "Nutrition plans",
+    body: "Personalized meal plans and dietary guidance that fuel training, recovery, and everyday energy.",
+    image: "/mc-images/coach-guidance.jpg",
+    imageAlt: "Coach guiding a client through a training set",
   },
 ] as const;
 
-const manageCards = [
+const practiceOps = [
   {
-    tag: "Profiles",
-    title: "Detailed Client Profiles",
-    body: "Maintain comprehensive profiles for every client including personal details, health history, preferences, and coaching notes.",
+    title: "Detailed client profiles",
+    body: "Personal details, health history, preferences, and coaching notes in one profile.",
   },
   {
-    tag: "Assessments",
-    title: "Health Data & Assessments",
-    body: "Record vital health metrics, body assessments, and fitness evaluations for a complete wellness picture.",
+    title: "Health data and assessments",
+    body: "Vital metrics, body assessments, and fitness evaluations for a complete picture.",
   },
   {
-    tag: "Tracking",
-    title: "Reports & Recommendations",
-    body: "Store structured reports and personalized recommendations that guide clients at every stage.",
+    title: "Reports and recommendations",
+    body: "Structured reports that guide clients at every stage of the program.",
   },
 ] as const;
 
-const progressCards = [
+const progressPoints = [
   {
-    title: "Visual Progress Tracking",
-    body: "Present progress through charts and timelines that make improvements tangible and motivating.",
+    title: "Visual progress",
+    body: "Charts and timelines that make improvements tangible.",
   },
   {
-    title: "Goal Setting & Milestones",
-    body: "Define clear goals and celebrate milestones to keep clients engaged throughout the program.",
+    title: "Goals and milestones",
+    body: "Clear targets that keep clients engaged.",
   },
   {
-    title: "Continuous Engagement",
-    body: "Maintain regular touchpoints and check-ins that drive measurable improvements.",
+    title: "Steady engagement",
+    body: "Regular check-ins that drive measurable change.",
   },
 ] as const;
 
@@ -69,183 +60,197 @@ export default function ServicesPage() {
   return (
     <>
       <PageHero
+        variant="photo"
         crumbs={[{ label: "Home", href: "/" }, { label: "Services" }]}
         title={
           <>
-            Power{" "}
+            Power your{" "}
             <span className="text-[color:var(--mc-brand-coach)]">
-              Your Coaching Services
+              coaching practice
             </span>
           </>
         }
-        subtitle="Mera Coach helps you offer structured, personalized, and trackable health services to your clients."
+        subtitle="Exercise, nutrition, and client tools for personal trainers who train people one-to-one."
       />
 
-      <section className="bg-paper-elevated py-12 sm:py-16 lg:py-20">
+      {/* Two split features max, then a full-bleed diet band (breaks zigzag) */}
+      <section className="bg-paper-elevated py-16 sm:py-20 lg:py-24">
         <div className="container">
-          <SectionHeader
-            title={
-              <>
-                Offer{" "}
-                <span className="text-mc-brand-coach">
-                  Complete Coaching Services
-                </span>
-              </>
-            }
-            subtitle="Design and deliver multiple health and wellness services:"
-          />
-          <div className="mt-8 grid gap-6 sm:mt-10 sm:grid-cols-2 md:grid-cols-3">
-            {offerCards.map((card) => (
-              <article key={card.title} className="mc-card">
-                <div className="relative aspect-[16/10]">
-                  <Image
-                    src={card.image}
-                    alt={card.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                  <span className="absolute top-3 left-3 rounded-full bg-mc-header-bottom/80 px-3 py-1 text-xs font-semibold text-white">
-                    {card.tag}
-                  </span>
-                </div>
-                <div className="p-5">
-                  <h3 className="font-display text-xl font-bold">
-                    {card.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-ink-muted">
-                    {card.body}
-                  </p>
-                  <Link
-                    href="/coach"
-                    className="mt-4 inline-flex text-sm font-semibold text-mc-brand-coach hover:text-mc-primary"
+          <h2 className="max-w-xl font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl lg:text-4xl">
+            Coaching you deliver in person
+          </h2>
+          <p className="mt-3 max-w-[50ch] text-sm leading-relaxed text-ink-muted sm:text-base">
+            Design and deliver fitness and nutrition programs from one place,
+            then stay close to each client.
+          </p>
+
+          <div className="mt-12 space-y-14 sm:mt-16 sm:space-y-20">
+            {featuredOfferings.map((item, index) => {
+              const reverse = index % 2 === 1;
+              return (
+                <article
+                  key={item.title}
+                  className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14"
+                >
+                  <div
+                    className={`relative aspect-[16/11] overflow-hidden rounded-[var(--radius-lg)] ${
+                      reverse ? "lg:order-2" : ""
+                    }`}
                   >
-                    Find a Coach
-                  </Link>
-                </div>
-              </article>
-            ))}
+                    <Image
+                      src={item.image}
+                      alt={item.imageAlt}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      priority={index === 0}
+                    />
+                  </div>
+                  <div className={reverse ? "lg:order-1" : undefined}>
+                    <h3 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+                      {item.title}
+                    </h3>
+                    <div
+                      className="mt-3 h-1 w-12 rounded-full bg-mc-brand-coach"
+                      aria-hidden
+                    />
+                    <p className="mt-4 max-w-[48ch] text-sm leading-relaxed text-ink-muted sm:text-base">
+                      {item.body}
+                    </p>
+                    <Link
+                      href="/coach"
+                      className="mt-6 inline-flex min-h-11 items-center text-sm font-semibold text-mc-brand-coach hover:brightness-95"
+                    >
+                      Find a Coach
+                    </Link>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      <section className="mc-gradient-header py-12 text-white sm:py-16 lg:py-20">
-        <div className="container">
-          <SectionHeader
-            light
-            title={
-              <>
-                Manage Every Client{" "}
-                <span className="text-[color:var(--mc-brand-coach)]">
-                  Professionally
-                </span>
-              </>
-            }
-            subtitle="Handle your coaching practice with clarity and efficiency:"
+      <section className="relative isolate overflow-hidden py-20 text-white sm:py-24">
+        <Image
+          src="/mc-images/coaching-session.jpg"
+          alt=""
+          fill
+          className="object-cover"
+          sizes="100vw"
+        />
+        <div
+          className="absolute inset-0 bg-[color:var(--mc-header-bottom)]/82"
+          aria-hidden
+        />
+        <div className="relative z-10 container max-w-2xl">
+          <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+            Diet programs with your coach
+          </h2>
+          <div
+            className="mt-3 h-1 w-12 rounded-full bg-mc-brand-coach"
+            aria-hidden
           />
-          <div className="mt-8 grid gap-6 sm:mt-10 sm:grid-cols-2 md:grid-cols-3">
-            {manageCards.map((card) => (
-              <article
-                key={card.title}
-                className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+          <p className="mt-4 max-w-[48ch] text-sm leading-relaxed text-white/85 sm:text-base">
+            Multi-meal diet plans for weight goals, training fuel, and recovery,
+            built with the same coach who trains you.
+          </p>
+          <Link href="/coach" className="mc-btn-primary mt-8 w-full sm:w-auto">
+            Find a Coach
+          </Link>
+        </div>
+      </section>
+
+      {/* Ops: dense list on brand band (different layout family) */}
+      <section className="mc-gradient-header py-16 text-white sm:py-20 lg:py-24">
+        <div className="container grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+          <div>
+            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+              Manage every client professionally
+            </h2>
+            <p className="mt-4 max-w-[40ch] text-sm leading-relaxed text-white/75 sm:text-base">
+              Run your coaching practice with clarity, from first assessment to
+              follow-up.
+            </p>
+            <Link
+              href="/register"
+              className="mc-btn-primary mt-8 w-full sm:w-auto"
+            >
+              Start as a Coach
+            </Link>
+          </div>
+          <ul className="divide-y divide-white/15 border-y border-white/15">
+            {practiceOps.map((item) => (
+              <li
+                key={item.title}
+                className="py-6 first:pt-0 last:pb-0 sm:py-7"
               >
-                <span className="text-xs font-semibold tracking-wide text-[color:var(--mc-brand-coach)] uppercase">
-                  {card.tag}
-                </span>
-                <h3 className="mt-3 font-display text-xl font-bold">
-                  {card.title}
+                <h3 className="font-display text-xl font-bold">{item.title}</h3>
+                <p className="mt-2 max-w-[48ch] text-sm leading-relaxed text-white/70">
+                  {item.body}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="bg-mc-accent-ink py-16 text-white sm:py-20 lg:py-24">
+        <div className="container">
+          <h2 className="max-w-xl font-display text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+            Show progress. Build trust.
+          </h2>
+          <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-white/75 sm:text-base">
+            Help clients stay motivated with clear signals of improvement.
+          </p>
+          <div className="mt-10 grid gap-8 border-t border-white/15 pt-10 sm:mt-12 sm:grid-cols-3 sm:gap-10 sm:pt-12">
+            {progressPoints.map((item) => (
+              <div key={item.title}>
+                <h3 className="font-display text-lg font-bold sm:text-xl">
+                  {item.title}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-white/70">
-                  {card.body}
+                  {item.body}
                 </p>
-                <Link
-                  href="/register"
-                  className="mt-4 inline-flex text-sm font-semibold text-[color:var(--mc-brand-coach)] hover:brightness-110"
-                >
-                  Get Started
-                </Link>
-              </article>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-mc-accent-ink py-12 text-white sm:py-16 lg:py-20">
-        <div className="container">
-          <SectionHeader
-            light
-            title={
-              <>
-                Show Progress,{" "}
-                <span className="text-[color:var(--mc-brand-coach)]">
-                  Build Trust
-                </span>
-              </>
-            }
-            subtitle="Help your clients stay motivated and committed:"
-          />
-          <div className="mt-8 grid gap-6 sm:mt-10 sm:grid-cols-2 md:grid-cols-3">
-            {progressCards.map((card) => (
-              <article
-                key={card.title}
-                className="rounded-2xl border border-white/10 bg-white/5 p-6"
+      <section className="relative overflow-hidden bg-paper-elevated py-16 sm:py-20 lg:py-24">
+        <div className="relative container grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
+          <div>
+            <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl lg:text-4xl">
+              Turn coaching into a practice
+            </h2>
+            <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-ink-muted sm:text-base">
+              Grow beyond one-on-one sessions with a branded page, lead capture,
+              and premium tools.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link
+                href="/register"
+                className="mc-btn-primary w-full sm:w-auto"
               >
-                <h3 className="font-display text-xl font-bold">{card.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">
-                  {card.body}
-                </p>
-              </article>
-            ))}
+                Start as a Coach
+              </Link>
+              <Link href="/bmi" className="mc-btn-secondary w-full sm:w-auto">
+                Check your BMI
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
-
-      <section className="bg-paper-elevated py-12 sm:py-16 lg:py-20">
-        <div className="container text-center">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl lg:text-4xl">
-            Turn{" "}
-            <span className="text-mc-brand-coach">Services into Business</span>
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-ink-muted sm:text-base">
-            Grow beyond one-on-one coaching with branded pages, lead capture,
-            and premium tools that help you scale your practice.
-          </p>
-          <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <Link href="/register" className="mc-btn-primary w-full sm:w-auto">
-              Register Coach
-            </Link>
-            <Link href="/premium" className="mc-btn-secondary w-full sm:w-auto">
-              View Premium
-            </Link>
+          <div className="relative aspect-[5/4] overflow-hidden rounded-[var(--radius-lg)]">
+            <Image
+              src="/mc-images/coach-client-pair.jpg"
+              alt="Coach and client after a training walk"
+              fill
+              className="object-cover object-[center_30%]"
+              sizes="(max-width: 1024px) 100vw, 40vw"
+            />
           </div>
         </div>
       </section>
     </>
-  );
-}
-
-function SectionHeader({
-  title,
-  subtitle,
-  light = false,
-}: {
-  title: React.ReactNode;
-  subtitle: string;
-  light?: boolean;
-}) {
-  return (
-    <div className="max-w-3xl">
-      <h2
-        className={`font-display text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl ${
-          light ? "text-white" : "text-ink"
-        }`}
-      >
-        {title}
-      </h2>
-      <div className="mt-3 h-1 w-16 bg-mc-brand-coach" aria-hidden />
-      <p className={`mt-4 ${light ? "text-white/75" : "text-ink-muted"}`}>
-        {subtitle}
-      </p>
-    </div>
   );
 }

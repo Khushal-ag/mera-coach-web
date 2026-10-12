@@ -5,10 +5,7 @@ import { cn } from "@/lib/utils";
 
 type Crumb = { label: string; href?: string };
 
-/**
- * Photographic auth layout inspired by the legacy coach-login page:
- * full-bleed gym photo + brand teal scrim + elevated glass card.
- */
+/** Full-bleed gym photo + brand teal scrim + elevated auth panel. */
 export function AuthShell({
   title,
   subtitle,
@@ -39,7 +36,7 @@ export function AuthShell({
   return (
     <section
       className={cn(
-        "relative isolate min-h-[80dvh] overflow-x-clip py-10 text-white sm:py-14 lg:py-20",
+        "relative isolate flex min-h-[calc(100dvh-4.25rem)] flex-col overflow-x-clip py-10 text-white sm:py-14 lg:py-16",
         className,
       )}
     >
@@ -53,7 +50,7 @@ export function AuthShell({
       />
       <div className="mc-auth-scrim absolute inset-0" aria-hidden />
 
-      <div className="relative z-10 container">
+      <div className="relative z-10 container flex flex-1 flex-col justify-center">
         {crumbs && crumbs.length > 0 ?
           <p className="motion-rise flex flex-wrap items-center gap-y-1 text-sm text-white/70">
             {crumbs.map((crumb, index) => (
@@ -88,6 +85,10 @@ export function AuthShell({
           <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
             {title}
           </h1>
+          <div
+            className="mt-3 h-1 w-14 rounded-full bg-[color:var(--mc-brand-coach)]"
+            aria-hidden
+          />
           {subtitle ?
             <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
               {subtitle}
@@ -99,28 +100,23 @@ export function AuthShell({
           className={cn(
             "motion-rise motion-rise-delay-2 mt-6 sm:mt-8",
             panel === "light" ? "mc-auth-card-light" : "mc-auth-card",
-            layout === "split" ? "grid lg:grid-cols-2" : "mx-auto max-w-3xl",
+            layout === "split" ?
+              "mx-auto grid w-full max-w-[48rem] lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
+            : "mx-auto w-full max-w-3xl",
           )}
         >
           {layout === "split" ?
-            <aside className="mc-auth-side relative hidden flex-col justify-center overflow-hidden p-8 sm:p-10 lg:flex">
-              <div
-                className="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-white/10 blur-2xl"
-                aria-hidden
-              />
-              <div
-                className="pointer-events-none absolute -bottom-20 -left-10 size-56 rounded-full bg-[color:var(--mc-brand-coach)]/20 blur-3xl"
-                aria-hidden
-              />
+            <aside className="mc-auth-side relative hidden min-h-[22rem] flex-col justify-center overflow-hidden p-7 sm:p-8 lg:flex">
               <div className="relative z-10">
-                <p className="text-xs font-semibold tracking-[0.14em] text-white/65 uppercase">
-                  Coach portal
-                </p>
-                <h2 className="mt-3 font-display text-3xl font-bold tracking-tight">
+                <h2 className="font-display text-2xl font-bold tracking-tight xl:text-3xl">
                   {sideTitle ?? title}
                 </h2>
+                <div
+                  className="mt-3 h-1 w-14 rounded-full bg-[color:var(--mc-brand-coach)]"
+                  aria-hidden
+                />
                 {(sideBody ?? subtitle) ?
-                  <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/85">
+                  <p className="mt-4 max-w-[22ch] text-sm leading-relaxed text-white/85 xl:max-w-xs">
                     {sideBody ?? subtitle}
                   </p>
                 : null}
@@ -130,8 +126,8 @@ export function AuthShell({
 
           <div
             className={cn(
-              "p-5 sm:p-8",
-              layout === "single" && "sm:p-10",
+              "p-5 sm:p-7",
+              layout === "single" && "sm:p-8",
               panel === "light" ? "mc-auth-panel-light" : "mc-auth-panel",
             )}
           >

@@ -1,12 +1,18 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import type { PickedImage } from "@/components/media/image-picker";
+import type { MasterOption } from "@/lib/api";
+
+import { ImagePicker } from "@/components/media/image-picker";
 import { AlertBanner } from "@/components/ui/alert-banner";
-import { TextAreaField, TextField } from "@/components/ui/field";
+import { SelectField, TextAreaField, TextField } from "@/components/ui/field";
+import { usePinLocationLookup } from "@/hooks/use-pin-location-lookup";
 import {
+  fetchCoachCategories,
   firstApiError,
   isApiSuccess,
   registerCoach,
@@ -15,17 +21,11 @@ import {
 } from "@/lib/api";
 import {
   fileToBase64DataUrl,
-  REGISTER_IMAGE_ACCEPT,
   REGISTER_IMAGE_MAX_BYTES,
   validateRegisterImage,
 } from "@/lib/media/image-file";
 
 type ImageSlot = "logo" | "photo";
-
-type PickedImage = {
-  file: File;
-  previewUrl: string;
-};
 
 export function RegisterForm() {
   const router = useRouter();
@@ -35,8 +35,26 @@ export function RegisterForm() {
   const [message, setMessage] = useState<string | null>(null);
   const [logo, setLogo] = useState<PickedImage | null>(null);
   const [photo, setPhoto] = useState<PickedImage | null>(null);
+  const [categories, setCategories] = useState<MasterOption[]>([]);
+  const [coachTypeCode, setCoachTypeCode] = useState("");
+  const [pin, setPin] = useState("");
+  const [city, setCity] = useState("");
+  const [stateCd, setStateCd] = useState("");
   const logoRef = useRef<PickedImage | null>(null);
   const photoRef = useRef<PickedImage | null>(null);
+
+  const pinLookup = usePinLocationLookup(pin, "IN", (loc) => {
+    if (loc.city) setCity(loc.city);
+    if (loc.state) setStateCd(loc.state);
+  });
+
+  useEffect(() => {
+    void fetchCoachCategories().then((opts) => {
+      setCategories(opts);
+      const only = opts.length === 1 ? opts[0] : undefined;
+      if (only) setCoachTypeCode(only.code);
+    });
+  }, []);
 
   useEffect(() => {
     logoRef.current = logo;
@@ -106,10 +124,16 @@ export function RegisterForm() {
     const coachName = String(formData.get("coachName") ?? "").trim();
     const mobile = String(formData.get("mobile") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
+    const category = coachTypeCode.trim();
 
     if (!coachName || !mobile || !email) {
       setStatus("error");
       setMessage("Coach name, mobile, and email are required.");
+      return;
+    }
+    if (!category) {
+      setStatus("error");
+      setMessage("Please select a coach category.");
       return;
     }
 
@@ -138,12 +162,12 @@ export function RegisterForm() {
         businessName:
           String(formData.get("businessName") ?? "").trim() || undefined,
         add_Line: String(formData.get("address") ?? "").trim() || undefined,
-        city_Cd: String(formData.get("city") ?? "").trim() || undefined,
-        state_Cd: String(formData.get("state") ?? "").trim() || undefined,
-        pinCode: String(formData.get("pin") ?? "").trim() || undefined,
+        city_Cd: city.trim() || undefined,
+        state_Cd: stateCd.trim() || undefined,
+        pinCode: pin.trim() || undefined,
         coachDesc:
           String(formData.get("description") ?? "").trim() || undefined,
-        coachTypeCode: "HEALTH",
+        coachTypeCode: category,
       });
 
       if (!isApiSuccess(response)) {
@@ -201,13 +225,13 @@ export function RegisterForm() {
           if (!isApiSuccess(mediaRes)) {
             mediaWarning =
               firstApiError(mediaRes) ??
-              "Account created, but profile images could not be saved. You can add them later in the app.";
+              "Account created, but profile images could not be saved. You can add them later from Profile.";
           }
         } catch (error) {
           mediaWarning =
             error instanceof Error ?
               `Account created, but image upload failed: ${error.message}`
-            : "Account created, but image upload failed. You can add photos later in the app.";
+            : "Account created, but image upload failed. You can add photos later from Profile.";
         }
       }
 
@@ -253,10 +277,51 @@ export function RegisterForm() {
           type="email"
           disabled={busy}
         />
-        <TextField name="pin" label="PIN code" disabled={busy} />
-        <TextField name="state" label="State" disabled={busy} />
-        <TextField name="city" label="City" disabled={busy} />
-        <TextField name="address" label="Address" disabled={busy} />
+        <SelectField
+          label="Coach category"
+          name="coachTypeCode"
+          required
+          disabled={busy}
+          value={coachTypeCode}
+          onChange={(e) => setCoachTypeCode(e.target.value)}
+        >
+          <option value="">Select category</option>
+          {categories.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.label}
+            </option>
+          ))}
+        </SelectField>
+        <TextField
+          name="pin"
+          label="PIN code"
+          disabled={busy}
+          value={pin}
+          inputMode="numeric"
+          onChange={(e) => setPin(e.target.value)}
+          hint={pinLookup.lookingUp ? "Looking up city…" : undefined}
+          error={pinLookup.error || undefined}
+        />
+        <TextField
+          name="state"
+          label="State"
+          disabled={busy}
+          value={stateCd}
+          onChange={(e) => setStateCd(e.target.value)}
+        />
+        <TextField
+          name="city"
+          label="City"
+          disabled={busy}
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+        />
+        <TextField
+          name="address"
+          label="Address"
+          disabled={busy}
+          className="sm:col-span-2"
+        />
       </div>
 
       <div>
@@ -319,85 +384,9 @@ export function RegisterForm() {
         </AlertBanner>
       : null}
 
-      {/* Keep max size in the DOM for accessibility / tooling; unused at runtime. */}
       <span className="sr-only" aria-hidden>
         Max image bytes {REGISTER_IMAGE_MAX_BYTES}
       </span>
     </form>
-  );
-}
-
-function ImagePicker({
-  label,
-  hint,
-  value,
-  onChange,
-  disabled,
-}: {
-  label: string;
-  hint: string;
-  value: PickedImage | null;
-  onChange: (file: File | null) => void;
-  disabled?: boolean;
-}) {
-  const inputId = useId();
-
-  return (
-    <div className="block">
-      <span className="mc-field-label">{label}</span>
-      <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 shadow-sm">
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-mc-secondary-light/40 ring-1 ring-mc-secondary/15">
-          {value ?
-            // eslint-disable-next-line @next/next/no-img-element -- local blob preview
-            <img
-              src={value.previewUrl}
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          : <span className="flex h-full w-full items-center justify-center text-[10px] font-semibold tracking-wide text-mc-secondary uppercase">
-              Add
-            </span>
-          }
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm text-ink">
-            {value ? value.file.name : "No file chosen"}
-          </p>
-          <p className="mt-0.5 text-xs text-ink-muted">{hint}</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <label
-              htmlFor={inputId}
-              className={`inline-flex min-h-11 cursor-pointer items-center rounded-lg bg-mc-header-bottom px-3 text-xs font-semibold text-white ${
-                disabled ? "pointer-events-none opacity-60" : "hover:opacity-90"
-              }`}
-            >
-              Choose
-            </label>
-            {value ?
-              <button
-                type="button"
-                disabled={disabled}
-                onClick={() => onChange(null)}
-                className="inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold text-mc-destructive hover:underline disabled:opacity-60"
-              >
-                Remove
-              </button>
-            : null}
-          </div>
-          <input
-            id={inputId}
-            type="file"
-            accept={REGISTER_IMAGE_ACCEPT}
-            disabled={disabled}
-            className="sr-only"
-            onChange={(e) => {
-              const file = e.target.files?.[0] ?? null;
-              onChange(file);
-              e.target.value = "";
-            }}
-          />
-        </div>
-      </div>
-    </div>
   );
 }

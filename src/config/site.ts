@@ -9,29 +9,34 @@ export const siteConfig = {
   name: "Mera Coach",
   shortName: "Mera Coach",
   description:
-    "Mera Coach is an online platform for health and wellness coaches, fitness coaches, and dieticians to manage clients with ease, and for people to find a coach.",
+    "Get found by clients. Run the practice that follows. Mera Coach connects personal trainers and coaches with clients, and gives coaches the tools to manage the relationship.",
   url: env.siteUrl,
   apiBaseUrl: env.apiBaseUrl,
-  email: { team: "Contact@mera-coach.com" },
+  /** Public contact + app-aligned support (`hello@mera-coach.com`). */
+  email: {
+    team: "Contact@mera-coach.com",
+    support: "hello@mera-coach.com",
+  },
 
   authors: [{ name: "Hench Solutions", url: env.siteUrl }],
   creator: "Hench Solutions",
   publisher: "Hench Solutions",
 
   keywords: [
-    "health coach",
-    "wellness coach",
+    "personal trainer",
     "fitness coach",
-    "dietician",
-    "mera coach",
+    "find a coach",
+    "coaching practice",
     "client management",
-    "coaching platform",
+    "mera coach",
+    "dietician",
   ],
 
   links: {
     home: "/",
     coaches: "/coach",
     services: "/services",
+    bmi: "/bmi",
     register: "/register",
     coachLogin: "/coach-login",
     memberLogin: "/member-login",
@@ -45,6 +50,7 @@ export const siteConfig = {
   nav: [
     { label: "Home", href: "/" },
     { label: "Find A Coach", href: "/coach" },
+    { label: "BMI", href: "/bmi" },
     { label: "Services", href: "/services" },
     { label: "Join us", href: "/register" },
   ] as const,
@@ -74,7 +80,7 @@ export const siteConfig = {
     url: "/mc-images/og-image.png",
     width: 1200,
     height: 630,
-    alt: "Mera Coach — find health & wellness coaches",
+    alt: "Mera Coach - find your personal coach",
   },
 
   icons: {
@@ -93,5 +99,3 @@ export const siteConfig = {
     follow: true,
   },
 };
-
-export type SiteConfig = typeof siteConfig;

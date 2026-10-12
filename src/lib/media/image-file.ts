@@ -7,7 +7,7 @@ export const REGISTER_IMAGE_MAX_BYTES = 2 * 1024 * 1024; // 2 MB
 
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
 
-export type ImageValidationError = {
+type ImageValidationError = {
   message: string;
 };
 

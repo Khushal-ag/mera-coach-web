@@ -24,7 +24,7 @@ export function PageHero({
   return (
     <section
       className={cn(
-        "relative overflow-x-clip py-12 text-white sm:py-16 lg:py-20",
+        "relative overflow-x-clip py-12 text-white sm:py-14 lg:py-16",
         variant === "gradient" && "mc-gradient-header",
         variant === "photo" && "bg-mc-home",
         className,
@@ -37,7 +37,7 @@ export function PageHero({
             alt=""
             fill
             sizes="100vw"
-            className="object-cover object-[center_30%]"
+            className="object-cover object-[center_28%]"
             priority
           />
           <div className="mc-auth-scrim absolute inset-0" aria-hidden />
@@ -78,11 +78,15 @@ export function PageHero({
             ))}
           </p>
         : null}
-        <h1 className="mt-3 max-w-3xl font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+        <h1 className="mt-3 max-w-3xl font-display text-3xl font-bold tracking-tight text-balance sm:text-4xl lg:text-5xl">
           {title}
         </h1>
+        <div
+          className="motion-underline mt-3 h-1 w-14 origin-left rounded-full bg-[color:var(--mc-brand-coach)] sm:mt-4"
+          aria-hidden
+        />
         {subtitle ?
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base lg:text-lg">
+          <p className="mt-4 max-w-[52ch] text-sm leading-relaxed text-white/80 sm:text-base lg:text-lg">
             {subtitle}
           </p>
         : null}

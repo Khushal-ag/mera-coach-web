@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import type { Metadata } from "next";
 
 import { AuthShell } from "@/components/auth-shell";
@@ -19,18 +21,26 @@ export default function CoachLoginPage() {
           <span className="text-[color:var(--mc-brand-coach)]">Login</span>
         </>
       }
-      subtitle="Sign in with the email or mobile and password from registration. Day-to-day coaching continues in the Mera Coach mobile app."
+      subtitle="Sign in to manage clients, leads, packages, and your public profile — plus Premium checkout."
       sideTitle={
         <>
           Welcome back,{" "}
           <span className="text-[color:var(--mc-brand-coach)]">Coach</span>
         </>
       }
-      sideBody="Use this portal for discovery, registration, and premium checkout. Manage clients and sessions in the Mera Coach app."
+      sideBody="One login for your practice on the web: dashboard, clients, events, and profile sharing."
       panelHeading="Sign in"
       panelSubheading="Enter your credentials to continue"
     >
-      <CoachLoginForm />
+      <Suspense
+        fallback={
+          <p className="text-sm text-white/65" aria-live="polite">
+            Loading…
+          </p>
+        }
+      >
+        <CoachLoginForm />
+      </Suspense>
     </AuthShell>
   );
 }

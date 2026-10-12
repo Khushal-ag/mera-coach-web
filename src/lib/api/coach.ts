@@ -16,9 +16,7 @@ import { parseCoachPackages, pickPackagesRaw } from "@/lib/coach/packages";
 import { normalizeCoachMobile } from "@/lib/coach/whatsapp";
 
 /** Map a public coach list payload whether nested keys are camel or Pascal. */
-export function normalizePublicList(
-  payload: unknown,
-): CoachPublicPagedResult | null {
+function normalizePublicList(payload: unknown): CoachPublicPagedResult | null {
   if (!payload || typeof payload !== "object") return null;
   const root = payload as Record<string, unknown>;
   const itemsRaw = (pick<unknown[]>(root, "items", "Items") ?? []) as unknown[];
@@ -122,6 +120,8 @@ export async function fetchPublicCoaches(params?: {
   city?: string;
   coachTypeCode?: string;
   minRating?: number;
+  /** Server sort: rating (default) | reviews | experience — same as app. */
+  sortBy?: "rating" | "reviews" | "experience";
   page?: number;
   pageSize?: number;
 }) {
@@ -131,15 +131,51 @@ export async function fetchPublicCoaches(params?: {
   if (params?.coachTypeCode) query.set("coachTypeCode", params.coachTypeCode);
   if (params?.minRating != null)
     query.set("minRating", String(params.minRating));
+  if (params?.sortBy && params.sortBy !== "rating")
+    query.set("sortBy", params.sortBy);
   query.set("page", String(params?.page ?? 1));
   query.set("pageSize", String(params?.pageSize ?? 12));
   const response = await apiFetch<unknown>(`/v1/Coach/public?${query}`, {
     next: { revalidate: 60 },
+    skipAuth: true,
   });
   return {
     ...response,
     responseObj: normalizePublicList(response.responseObj),
   } satisfies GenericResponse<CoachPublicPagedResult>;
+}
+
+type BmiLeadInput = {
+  clientName: string;
+  clientMobile: string;
+  gender?: string;
+  age?: number | null;
+  heightCm?: number;
+  weightKg?: number;
+  bmiValue?: number;
+  bmiCategory?: string;
+};
+
+/** Public BMI lead capture — `POST /v1/Coach/bmi-lead` (same as app). */
+export async function submitBmiLead(
+  params: BmiLeadInput,
+): Promise<GenericResponse<object>> {
+  return apiFetch<object>("/v1/Coach/bmi-lead", {
+    method: "POST",
+    body: JSON.stringify({
+      clientName: params.clientName,
+      clientMobile: params.clientMobile,
+      ...(params.gender ? { gender: params.gender } : {}),
+      ...(params.age != null ? { age: params.age } : {}),
+      ...(params.heightCm != null ? { heightCm: params.heightCm } : {}),
+      ...(params.weightKg != null ? { weightKg: params.weightKg } : {}),
+      ...(params.bmiValue != null && params.bmiValue > 0 ?
+        { bmiValue: params.bmiValue }
+      : {}),
+      ...(params.bmiCategory ? { bmiCategory: params.bmiCategory } : {}),
+    }),
+    skipAuth: true,
+  });
 }
 
 /** Distinct cities for Find-a-Coach filters. */

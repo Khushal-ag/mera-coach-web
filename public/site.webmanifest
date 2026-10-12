@@ -1,7 +1,7 @@
 {
   "name": "Mera Coach",
   "short_name": "Mera Coach",
-  "description": "Online platform for health & wellness coaches to manage clients and grow their practice.",
+  "description": "Get found by clients. Run the practice that follows. Find a personal coach or grow your coaching business.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

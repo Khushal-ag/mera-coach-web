@@ -5,7 +5,7 @@ export function ProfileExpertise({ tags }: { tags: string[] }) {
 
   return (
     <section>
-      <SectionHeading eyebrow="Expertise" title="What I specialise in" />
+      <SectionHeading title="What I specialise in" />
       <ul className="flex flex-wrap gap-2.5">
         {tags.map((tag) => (
           <li

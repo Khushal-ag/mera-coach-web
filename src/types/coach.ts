@@ -78,6 +78,11 @@ export type CoachProfile = {
   email?: string | null;
   /** Present on profile-by-id; used for WhatsApp CTA. */
   mobile?: string | null;
+  pinCode?: string | null;
+  serviceCodes?: string[];
+  bmiReportTemplate?: string | null;
+  dietChartTemplate?: string | null;
+  missingPublicFields?: string[];
   packages?: CoachPackage[];
   events?: CoachEvent[];
 };

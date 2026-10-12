@@ -97,7 +97,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteConfig.url,
-    title: "mera-coach.com | Find Health Coach – Wellness Coach",
+    title: "mera-coach.com | Find Health Coach - Wellness Coach",
     description: siteConfig.description,
     siteName: siteConfig.name,
     images: [

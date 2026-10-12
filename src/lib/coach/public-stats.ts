@@ -9,17 +9,14 @@ export type PublicStatItem = {
   label: string;
 };
 
-export function shouldShowPublicClientCount(
+function shouldShowPublicClientCount(
   count: number | null | undefined,
 ): boolean {
   return count != null && count > 0;
 }
 
 /** Formula ratings are not client reviews. */
-export function shouldShowPublicRating(
-  _rating: number,
-  _reviews: number,
-): boolean {
+function shouldShowPublicRating(_rating: number, _reviews: number): boolean {
   return false;
 }
 

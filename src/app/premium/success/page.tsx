@@ -50,10 +50,10 @@ export default async function PremiumSuccessPage({
           { label: "Success" },
         ]}
         title="Premium activated"
-        subtitle="Thank you. Your payment was confirmed — no website login needed. Premium is ready in the Mera Coach app."
+        subtitle="Payment confirmed. Premium is active for Add Client and practice tools on web and in the app."
       />
 
-      <section className="bg-paper py-14">
+      <section className="bg-[color:var(--mc-explore-canvas)] py-14">
         <div className="container max-w-xl space-y-6">
           <AlertBanner tone="success">
             {params.plan ?

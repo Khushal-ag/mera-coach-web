@@ -2,10 +2,10 @@
  * Native app deep links. Scheme must match mera-coach-app `app.json` → expo.scheme.
  */
 
-export const APP_SCHEME = "meracoach";
+const APP_SCHEME = "meracoach";
 
 /** Build a `meracoach://…` URL (path without leading slash). */
-export function appDeepLink(
+function appDeepLink(
   path = "",
   query?: Record<string, string | undefined | null>,
 ): string {

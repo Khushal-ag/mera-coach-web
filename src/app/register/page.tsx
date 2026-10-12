@@ -8,7 +8,7 @@ import { RegisterForm } from "@/components/register-form";
 export const metadata: Metadata = {
   title: "Coach Registration",
   description:
-    "Join Mera Coach's network of certified health and wellness coaches.",
+    "Join Mera Coach as a personal trainer or coach. Get found by clients and run the practice that follows.",
 };
 
 export default function RegisterPage() {
@@ -25,14 +25,14 @@ export default function RegisterPage() {
           </span>
         </>
       }
-      subtitle="Join our network of certified health and wellness coaches."
+      subtitle="Get found by clients. Build your coaching practice on Mera Coach."
     >
       <div className="mb-6">
         <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
           Create your coach account
         </h2>
         <p className="mt-1.5 text-sm text-ink-muted">
-          Tell us about yourself. We review new coaches before listing.
+          Tell us about your practice. We review new coaches before listing.
         </p>
       </div>
       <RegisterForm />

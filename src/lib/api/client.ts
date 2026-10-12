@@ -3,11 +3,14 @@ import type { GenericResponse } from "@/lib/api/types";
 import { assertApiBaseUrl } from "@/config/env";
 import { normalizeApiBody } from "@/lib/api/normalize";
 import { ApiRequestError } from "@/lib/api/types";
+import { clearSession, getCurrentToken } from "@/lib/auth/session";
 
 export type ApiFetchOptions = RequestInit & {
   /** Override Next.js fetch caching. Defaults to no-store for mutations and dynamic lists. */
   next?: NextFetchRequestConfig;
   cache?: RequestCache;
+  /** Skip Authorization even if a coach session exists (rare). */
+  skipAuth?: boolean;
 };
 
 function apiUrl(path: string) {
@@ -17,19 +20,22 @@ function apiUrl(path: string) {
 }
 
 /**
- * Typed fetch wrapper for meracoachapi.
- * Public marketing GETs may pass `next: { revalidate }` for ISR-style caching.
+ * Typed fetch wrapper for meracoachapi (direct browser/server → API).
+ * When a coach JWT is in session, sends `Authorization: Bearer …` like the Expo app.
  */
 export async function apiFetch<T>(
   path: string,
   init?: ApiFetchOptions,
 ): Promise<GenericResponse<T>> {
-  const { next, cache, headers, ...rest } = init ?? {};
+  const { next, cache, headers, skipAuth, ...rest } = init ?? {};
+  const token = skipAuth ? null : getCurrentToken();
+
   const res = await fetch(apiUrl(path), {
     ...rest,
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(headers ?? {}),
     },
     ...(next ? { next } : {}),
@@ -43,6 +49,10 @@ export async function apiFetch<T>(
     body = normalizeApiBody<T>(await res.json());
   } catch {
     body = null;
+  }
+
+  if (res.status === 401 && typeof window !== "undefined") {
+    clearSession();
   }
 
   if (!res.ok) {

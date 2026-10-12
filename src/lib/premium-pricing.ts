@@ -23,13 +23,8 @@ export function formatInr(amount: number): string {
   return `${negative ? "-" : ""}₹${grouped}${showFrac ? `.${frac}` : ""}`;
 }
 
-export function roundMoney(value: number): number {
+function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
-}
-
-export function planMonthlyRate(plan: CoachCatalogPlan): number {
-  const months = plan.durationMonths > 0 ? plan.durationMonths : 1;
-  return plan.basePrice / months;
 }
 
 export function planPayableMonthly(plan: CoachCatalogPlan): number {
@@ -56,7 +51,7 @@ export function planDiscountOffPercent(plan: CoachCatalogPlan): number | null {
   return fromPrices;
 }
 
-export type CheckoutQuote = {
+type CheckoutQuote = {
   /** Plan list price before plan discount (BasePrice). */
   originalAmount: number;
   /** Plan customer price before promo (FinalPrice). */

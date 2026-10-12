@@ -19,6 +19,8 @@ export type CoachSuggestedPromo = {
 export type CoachPremiumCatalog = {
   plans: CoachCatalogPlan[];
   promo?: CoachSuggestedPromo | null;
+  /** Optional feature bullets from the catalog (app Subscription screen). */
+  features?: string[];
 };
 
 export type CoachPremiumOrder = {

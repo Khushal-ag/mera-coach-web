@@ -46,7 +46,12 @@ function normalizeCatalog(raw: unknown): CoachPremiumCatalog {
         ),
       }
     : null;
-  return { plans, promo };
+  const featuresRaw = pick<unknown[]>(root, "features", "Features");
+  const features =
+    Array.isArray(featuresRaw) ?
+      featuresRaw.map((f) => String(f).trim()).filter(Boolean)
+    : undefined;
+  return { plans, promo, features };
 }
 
 function normalizeOrder(raw: unknown): CoachPremiumOrder | null {

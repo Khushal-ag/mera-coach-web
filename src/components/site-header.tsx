@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 
 import { Menu, X } from "lucide-react";
 
+import { useAuth } from "@/components/auth-provider";
 import { BrandLockup } from "@/components/brand-lockup";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
@@ -16,20 +17,29 @@ function isNavActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function premiumHref(session: { coachId: number; coachCode: string }) {
+  const qs = new URLSearchParams();
+  if (session.coachId > 0) qs.set("coachId", String(session.coachId));
+  if (session.coachCode) qs.set("coachCode", session.coachCode);
+  return qs.toString() ? `/premium?${qs.toString()}` : "/premium";
+}
+
 export function SiteHeader() {
   const pathname = usePathname();
+  const { session, ready, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const [openForPath, setOpenForPath] = useState(pathname);
   const navId = useId();
 
-  // Close the drawer when the route changes (render-time adjust, not an effect).
   if (openForPath !== pathname) {
     setOpenForPath(pathname);
     if (open) setOpen(false);
   }
 
   const onCoachLogin = isNavActive(pathname, "/coach-login");
+  const onDashboard = isNavActive(pathname, "/dashboard");
   const onRegister = isNavActive(pathname, "/register");
+  const signedIn = ready && !!session;
 
   useEffect(() => {
     if (!open) return;
@@ -47,7 +57,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[color:var(--mc-header-bottom)]/95 text-white backdrop-blur-md">
-      <div className="relative container flex items-center justify-between gap-3 py-3 sm:gap-4">
+      <div className="relative container flex h-16 items-center justify-between gap-3 lg:h-[4.25rem]">
         <Link
           href="/"
           className="flex min-h-11 min-w-0 items-center"
@@ -77,15 +87,16 @@ export function SiteHeader() {
             open ? "block" : "hidden lg:flex",
           )}
         >
-          <ul className="flex flex-col gap-1 lg:mx-auto lg:flex-row lg:items-center lg:gap-1 xl:gap-5">
+          <ul className="flex flex-col gap-1 lg:mx-auto lg:flex-row lg:items-center lg:gap-1">
             {siteConfig.nav.map((item) => {
+              if (signedIn && item.href === "/register") return null;
               const active = isNavActive(pathname, item.href);
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
                     className={cn(
-                      "flex min-h-11 items-center rounded-[10px] px-3 py-2 text-sm font-medium transition-colors lg:rounded-none lg:px-2",
+                      "flex min-h-11 items-center rounded-[10px] px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors lg:min-h-0 lg:rounded-none lg:px-3 lg:py-1",
                       active ?
                         "bg-white/10 text-[color:var(--mc-brand-coach)] lg:bg-transparent"
                       : "text-white/80 hover:bg-white/5 hover:text-[color:var(--mc-brand-coach)] lg:hover:bg-transparent",
@@ -100,31 +111,69 @@ export function SiteHeader() {
             })}
           </ul>
 
-          <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4 sm:flex-row lg:ms-auto lg:mt-0 lg:border-0 lg:pt-0">
-            <Link
-              href="/register"
-              className={cn(
-                "min-h-11 w-full justify-center px-4 text-sm sm:w-auto",
-                onRegister ? "mc-btn-primary" : "mc-btn-outline-on-dark",
-              )}
-              aria-current={onRegister ? "page" : undefined}
-              onClick={() => setOpen(false)}
-            >
-              Register Coach
-            </Link>
-            <Link
-              href="/coach-login"
-              className={cn(
-                "min-h-11 w-full justify-center px-4 text-sm sm:w-auto",
-                onRegister ? "mc-btn-outline-on-dark" : "mc-btn-primary",
-                onCoachLogin &&
-                  "ring-2 ring-[color:var(--mc-brand-coach)]/40 ring-offset-2 ring-offset-[color:var(--mc-header-bottom)]",
-              )}
-              aria-current={onCoachLogin ? "page" : undefined}
-              onClick={() => setOpen(false)}
-            >
-              Coach Login
-            </Link>
+          <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4 sm:flex-row sm:flex-wrap sm:items-center lg:ms-auto lg:mt-0 lg:shrink-0 lg:border-0 lg:pt-0">
+            {signedIn && session ?
+              <>
+                <p className="max-w-[12rem] truncate text-sm font-semibold text-white/90 sm:max-w-[10rem] lg:max-w-[9rem]">
+                  {session.fullName}
+                </p>
+                <Link
+                  href={premiumHref(session)}
+                  className="mc-btn-outline-on-dark min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto"
+                  onClick={() => setOpen(false)}
+                >
+                  Premium
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className={cn(
+                    "mc-btn-outline-on-dark min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto",
+                    onDashboard &&
+                      "ring-2 ring-[color:var(--mc-brand-coach)]/40 ring-offset-2 ring-offset-[color:var(--mc-header-bottom)]",
+                  )}
+                  aria-current={onDashboard ? "page" : undefined}
+                  onClick={() => setOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  className="mc-btn-primary min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto"
+                  onClick={() => {
+                    setOpen(false);
+                    void logout();
+                  }}
+                >
+                  Logout
+                </button>
+              </>
+            : <>
+                <Link
+                  href="/register"
+                  className={cn(
+                    "min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto",
+                    onRegister ? "mc-btn-primary" : "mc-btn-outline-on-dark",
+                  )}
+                  aria-current={onRegister ? "page" : undefined}
+                  onClick={() => setOpen(false)}
+                >
+                  Start as a Coach
+                </Link>
+                <Link
+                  href="/coach-login"
+                  className={cn(
+                    "min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto",
+                    onRegister ? "mc-btn-outline-on-dark" : "mc-btn-primary",
+                    onCoachLogin &&
+                      "ring-2 ring-[color:var(--mc-brand-coach)]/40 ring-offset-2 ring-offset-[color:var(--mc-header-bottom)]",
+                  )}
+                  aria-current={onCoachLogin ? "page" : undefined}
+                  onClick={() => setOpen(false)}
+                >
+                  Coach Login
+                </Link>
+              </>
+            }
           </div>
         </nav>
       </div>

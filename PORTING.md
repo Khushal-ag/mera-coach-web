@@ -19,7 +19,8 @@
 - [x] `/coach` Find a Coach (API list + city chips via `/v1/Coach/public-cities`)
 - [x] `/coach/[code]` Coach public profile + enquiry form
 - [x] `/register` Coach registration (API `/v1/Coach/save`)
-- [x] `/coach-login` Coach login (API; CRM remains in mobile app)
+- [x] `/coach-login` Coach login (direct meracoachapi `/v1/Auth/login` + Bearer in sessionStorage)
+- [x] `/dashboard` Coach practice MVP (clients, leads, packages, events, profile essentials)
 - [x] `/member-login` Placeholder pointing clients to the app
 - [x] `/premium` Plans + Razorpay checkout (`premium-plans` / `premium-order` / `premium-confirm`)
 - [x] `/premium/success` Post-checkout confirmation (app deep-link return friendly)
@@ -63,6 +64,6 @@
 ## Not porting (by design)
 
 - Festava pixel-perfect CSS parity
-- Session-based Web Forms CRM dashboards
+- Next.js BFF / proxy routes that duplicate meracoachapi (call the .NET API directly)
 - Direct SQL / `appSetting.xml` secrets (use meracoachapi)
-- App-side subscription paywall UI (web only hosts checkout)
+- App-side subscription paywall UI (web hosts checkout; practice CRM uses the same API)
