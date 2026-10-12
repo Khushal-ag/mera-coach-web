@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 import type { PickedImage } from "@/components/media/image-picker";
-import type { MasterOption } from "@/lib/api";
+import type { MasterOption } from "@/lib/api/master";
 import type { CoachProfile } from "@/types/coach";
 
 import { useAuth } from "@/components/auth-provider";
@@ -16,14 +16,13 @@ import { AlertBanner } from "@/components/ui/alert-banner";
 import { SelectField, TextAreaField, TextField } from "@/components/ui/field";
 import { env } from "@/config/env";
 import { usePinLocationLookup } from "@/hooks/use-pin-location-lookup";
+import { updateCoachMedia } from "@/lib/api/coach";
+import { uploadDocument } from "@/lib/api/document";
 import {
   fetchCoachCategories,
   fetchServicesForCategory,
-  firstApiError,
-  isApiSuccess,
-  updateCoachMedia,
-} from "@/lib/api";
-import { uploadDocument } from "@/lib/api/document";
+} from "@/lib/api/master";
+import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import {
   fetchAuthedCoachProfile,
   fetchCoachPremiumOffer,

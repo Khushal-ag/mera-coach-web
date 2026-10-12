@@ -144,6 +144,14 @@ async function CoachDirectoryBody({
   let totalCount = 0;
   let totalPages = 1;
   let errorMessage: string | null = null;
+  const hasFilters = !!(
+    search ||
+    city ||
+    category ||
+    ratingLabel !== RATING_FILTER_OPTIONS[0] ||
+    sortLabel !== SORT_OPTIONS[0]
+  );
+  const reuseListForTop = !hasFilters && page === 1;
 
   try {
     const [listRes, citiesRes, cats, topRes] = await Promise.all([
@@ -158,7 +166,9 @@ async function CoachDirectoryBody({
       }),
       fetchPublicCities({ coachTypeCode: category }),
       fetchCoachCategories(),
-      fetchPublicCoaches({ sortBy: "rating", page: 1, pageSize: 6 }),
+      hasFilters || reuseListForTop ?
+        Promise.resolve(null)
+      : fetchPublicCoaches({ sortBy: "rating", page: 1, pageSize: 6 }),
     ]);
 
     if (cats.length > 0) categories = cats;
@@ -175,8 +185,10 @@ async function CoachDirectoryBody({
       cities = citiesRes.responseObj ?? [];
     }
 
-    if (isApiSuccess(topRes)) {
-      topRated = (topRes.responseObj?.items ?? [])
+    const topSource =
+      reuseListForTop && isApiSuccess(listRes) ? listRes : topRes;
+    if (topSource && isApiSuccess(topSource)) {
+      topRated = (topSource.responseObj?.items ?? [])
         .filter((c) => c.rating > 0)
         .slice(0, 6);
     }
@@ -187,13 +199,6 @@ async function CoachDirectoryBody({
 
   const categoryLabel =
     categories.find((c) => c.code === category)?.label ?? "All categories";
-  const hasFilters = !!(
-    search ||
-    city ||
-    category ||
-    ratingLabel !== RATING_FILTER_OPTIONS[0] ||
-    sortLabel !== SORT_OPTIONS[0]
-  );
 
   return (
     <div className="min-w-0">

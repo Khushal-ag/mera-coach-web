@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tailwind-animate";
 
 /*
   Mera Coach brand tokens — ported from mera-coach-app/src/constants/theme.ts
@@ -396,8 +395,7 @@
       transform 0.2s ease;
   }
 
-  a.mc-card:hover,
-  .mc-card-interactive:hover {
+  a.mc-card:hover {
     border-color: color-mix(in oklab, var(--mc-secondary) 28%, var(--line));
     box-shadow: 0 14px 32px
       color-mix(in oklab, var(--mc-header-bottom) 12%, transparent);
@@ -557,15 +555,6 @@
     );
   }
 
-  .mc-hero-scrim {
-    background: linear-gradient(
-      180deg,
-      rgba(3, 61, 40, 0.55) 0%,
-      rgba(0, 75, 62, 0.35) 45%,
-      rgba(1, 40, 32, 0.78) 100%
-    );
-  }
-
   /* Auth / photo heroes: brand teal wash over coaching photography */
   .mc-auth-scrim {
     background:
@@ -675,10 +664,6 @@
     animation-delay: 0.16s;
   }
 
-  .motion-rise-delay-3 {
-    animation-delay: 0.24s;
-  }
-
   .motion-underline {
     animation: underline-grow 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
   }
@@ -741,7 +726,6 @@
     }
 
     a.mc-card:hover,
-    .mc-card-interactive:hover,
     a.mc-stat:hover,
     a.mc-stat:active,
     .mc-press:active {

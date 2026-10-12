@@ -55,8 +55,6 @@ src/
 | `/feedback` | `?coachCode=&clientCode=` |
 | `/terms` `/privacy` | Legal |
 
-See `PORTING.md` for the full legacy inventory.
-
 ## Verify flows
 
 1. **Find coach** → `/coach` → open a profile → submit enquiry (API must be up).

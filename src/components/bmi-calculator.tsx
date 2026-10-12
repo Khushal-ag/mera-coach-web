@@ -6,7 +6,8 @@ import { CheckCircle2 } from "lucide-react";
 
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextField } from "@/components/ui/field";
-import { firstApiError, isApiSuccess, submitBmiLead } from "@/lib/api";
+import { submitBmiLead } from "@/lib/api/coach";
+import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { formatBmi, getBmi, getBmiCategory } from "@/lib/bmi";
 
 /**

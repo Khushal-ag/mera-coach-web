@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { siteConfig } from "@/config/site";
@@ -46,8 +47,7 @@ export function StatusPanel({
       />
 
       <div className="relative z-10 mx-auto flex w-full max-w-md flex-col items-center gap-4">
-        {/* eslint-disable-next-line @next/next/no-img-element -- status surfaces may render outside next/image context */}
-        <img
+        <Image
           src={siteConfig.brand.logoMark}
           alt=""
           width={56}

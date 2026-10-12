@@ -9,13 +9,9 @@ import type { CoachCatalogPlan, CoachSuggestedPromo } from "@/types/premium";
 import { CoachPhoto } from "@/components/coach-photo";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextField } from "@/components/ui/field";
-import {
-  confirmPremiumOrder,
-  createPremiumOrder,
-  fetchCoachProfile,
-  firstApiError,
-  isApiSuccess,
-} from "@/lib/api";
+import { fetchCoachProfile } from "@/lib/api/coach";
+import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
+import { confirmPremiumOrder, createPremiumOrder } from "@/lib/api/premium";
 import { resolveCoachPhotoUrl } from "@/lib/media/media-url";
 import {
   formatInr,

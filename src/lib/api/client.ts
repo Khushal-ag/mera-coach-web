@@ -5,7 +5,7 @@ import { normalizeApiBody } from "@/lib/api/normalize";
 import { ApiRequestError } from "@/lib/api/types";
 import { clearSession, getCurrentToken } from "@/lib/auth/session";
 
-export type ApiFetchOptions = RequestInit & {
+type ApiFetchOptions = RequestInit & {
   /**
    * Public GETs pass `next.revalidate` and `skipAuth` so they can be cached.
    * Authenticated calls omit `next` and use `cache: "no-store"`.

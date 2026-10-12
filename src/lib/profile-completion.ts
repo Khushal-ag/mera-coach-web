@@ -6,7 +6,7 @@ type ProfileCompletionItem = {
   done: boolean;
 };
 
-export type ProfileCompletionInput = {
+type ProfileCompletionInput = {
   coachName?: string | null;
   coachTypeCode?: string | null;
   city_Cd?: string | null;
@@ -23,7 +23,7 @@ export type ProfileCompletionInput = {
   missingPublicFields?: string[] | null;
 };
 
-export type ProfileCompletion = {
+type ProfileCompletion = {
   percent: number;
   items: ProfileCompletionItem[];
   isPublicReady: boolean;

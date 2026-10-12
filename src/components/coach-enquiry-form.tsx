@@ -4,7 +4,8 @@ import { useState } from "react";
 
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { SelectField, TextAreaField, TextField } from "@/components/ui/field";
-import { firstApiError, isApiSuccess, submitCoachEnquiry } from "@/lib/api";
+import { submitCoachEnquiry } from "@/lib/api/coach";
+import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 
 type CoachEnquiryFormProps = {
   coachCode: string;

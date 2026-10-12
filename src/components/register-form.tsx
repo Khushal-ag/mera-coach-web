@@ -5,19 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import type { PickedImage } from "@/components/media/image-picker";
-import type { MasterOption } from "@/lib/api";
+import type { MasterOption } from "@/lib/api/master";
 
 import { ImagePicker } from "@/components/media/image-picker";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { SelectField, TextAreaField, TextField } from "@/components/ui/field";
 import { usePinLocationLookup } from "@/hooks/use-pin-location-lookup";
-import {
-  firstApiError,
-  isApiSuccess,
-  registerCoach,
-  updateCoachMedia,
-  uploadCoachDocument,
-} from "@/lib/api";
+import { registerCoach, updateCoachMedia } from "@/lib/api/coach";
+import { uploadCoachDocument } from "@/lib/api/document";
+import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import {
   fileToBase64DataUrl,
   REGISTER_IMAGE_MAX_BYTES,

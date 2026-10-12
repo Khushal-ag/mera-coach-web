@@ -72,7 +72,7 @@ export async function fetchServicesForCategory(
   }
 }
 
-export type LocationByPin = {
+type LocationByPin = {
   pinCode: string;
   city: string;
   state: string;

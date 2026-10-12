@@ -8,7 +8,7 @@ import { hashPassword } from "@/lib/auth/hash";
 import { saveSession } from "@/lib/auth/session";
 import { sessionFromLoginResult } from "@/lib/auth/session-from-login";
 
-export type WebLoginResult = {
+type WebLoginResult = {
   error: string | null;
   session: CoachSession | null;
 };

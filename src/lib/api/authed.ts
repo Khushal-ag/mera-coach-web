@@ -6,7 +6,7 @@ import {
 } from "@/lib/api/normalize";
 import { ApiRequestError } from "@/lib/api/types";
 
-export type AuthedFetchOptions = {
+type AuthedFetchOptions = {
   method?: string;
   body?: unknown;
   searchParams?: Record<string, string | number | undefined | null>;

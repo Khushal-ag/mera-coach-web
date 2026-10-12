@@ -5,7 +5,8 @@ import { useState } from "react";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextAreaField } from "@/components/ui/field";
 import { siteConfig } from "@/config/site";
-import { firstApiError, isApiSuccess, submitFeedback } from "@/lib/api";
+import { submitFeedback } from "@/lib/api/feedback";
+import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { appHomeDeepLink } from "@/lib/app-deep-link";
 
 export function FeedbackForm({
