@@ -1,5 +1,6 @@
 import { AuthShell } from "@/components/auth-shell";
 import { ForgotPasswordForm } from "@/components/forgot-password-form";
+import { photography } from "@/config/photography";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
@@ -12,6 +13,8 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell
       layout="split"
+      image={photography.authLogin}
+      imageAlt="Someone walking into a neighbourhood gym at dusk"
       crumbs={[
         { label: "Home", href: "/" },
         { label: "Coach Login", href: "/coach-login" },

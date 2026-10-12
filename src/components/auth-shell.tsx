@@ -17,6 +17,8 @@ export function AuthShell({
   children,
   layout = "split",
   panel = "dark",
+  image,
+  imageAlt = "",
   className,
 }: {
   title: React.ReactNode;
@@ -31,24 +33,32 @@ export function AuthShell({
   layout?: "split" | "single";
   /** Dark glass for short auth; light elevated for longer register forms. */
   panel?: "dark" | "light";
+  /** Page-specific photograph. Omit for a plain brand gradient. */
+  image?: string;
+  imageAlt?: string;
   className?: string;
 }) {
   return (
     <section
       className={cn(
         "relative isolate flex min-h-[calc(100dvh-4.25rem)] flex-col overflow-x-clip py-10 text-white sm:py-14 lg:py-16",
+        !image && "mc-gradient-header",
         className,
       )}
     >
-      <Image
-        src="/mc-images/coachloginbg.jpg"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover object-center"
-      />
-      <div className="mc-auth-scrim absolute inset-0" aria-hidden />
+      {image ?
+        <>
+          <Image
+            src={image}
+            alt={imageAlt}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <div className="mc-auth-scrim absolute inset-0" aria-hidden />
+        </>
+      : null}
 
       <div className="relative z-10 container flex flex-1 flex-col justify-center">
         {crumbs && crumbs.length > 0 ?

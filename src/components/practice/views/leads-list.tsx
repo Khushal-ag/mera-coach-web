@@ -11,6 +11,7 @@ import {
   PracticeRosterSkeleton,
 } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { photography } from "@/config/photography";
 import { fetchEnquiryLeads, updateEnquiryLead } from "@/lib/api/practice";
 import { cn } from "@/lib/utils";
 
@@ -101,6 +102,8 @@ export function LeadsListView() {
         <PracticeRosterSkeleton rows={5} />
       : !leads.length ?
         <PracticeEmpty
+          image={photography.emptyLeads}
+          imageAlt="A coach holding a phone between sessions"
           title="No leads yet"
           body="When someone enquires on your public page, they show up here."
           href="/dashboard/profile"

@@ -6,9 +6,9 @@ import { Check, Crown } from "lucide-react";
 
 import type { CoachCatalogPlan, CoachSuggestedPromo } from "@/types/premium";
 
-import { PageHero } from "@/components/page-hero";
 import { PremiumCheckoutAuth } from "@/components/premium-checkout-auth";
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { photography } from "@/config/photography";
 import { fetchPremiumPlans, firstApiError, isApiSuccess } from "@/lib/api";
 import { publicPageMetadata } from "@/lib/seo";
 
@@ -40,25 +40,35 @@ export default function PremiumPage({
 }) {
   return (
     <>
-      <PageHero
-        variant="photo"
-        crumbs={[{ label: "Home", href: "/" }, { label: "Premium" }]}
-        title={
-          <>
+      <section className="bg-[color:var(--mc-explore-canvas)] py-10 sm:py-14 lg:py-16">
+        <div className="container max-w-6xl">
+          <p className="flex flex-wrap items-center gap-y-1 text-sm text-ink-muted">
+            <Link
+              href="/"
+              className="inline-flex min-h-11 items-center hover:text-mc-brand-coach"
+            >
+              Home
+            </Link>
+            <span className="mx-1.5 text-ink-muted/50" aria-hidden>
+              ›
+            </span>
+            <span>Premium</span>
+          </p>
+          <h1 className="mt-3 max-w-[16em] font-display text-4xl leading-[1.08] font-bold tracking-tight text-balance text-ink sm:text-5xl">
             Grow your coaching business with{" "}
             <span className="text-[color:var(--mc-brand-coach)]">
               Mera Coach
             </span>
-          </>
-        }
-        subtitle="All the tools you need. One simple plan. No limits. Just focus on your clients."
-      />
-
-      <section className="bg-[color:var(--mc-explore-canvas)] py-12 sm:py-16 lg:py-20">
-        <div className="container max-w-6xl">
-          <Suspense fallback={<PremiumCatalogSkeleton />}>
-            <PremiumCatalog searchParams={searchParams} />
-          </Suspense>
+          </h1>
+          <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-ink-muted sm:text-base">
+            All the tools you need. One simple plan. No limits. Just focus on
+            your clients.
+          </p>
+          <div className="mt-10">
+            <Suspense fallback={<PremiumCatalogSkeleton />}>
+              <PremiumCatalog searchParams={searchParams} />
+            </Suspense>
+          </div>
         </div>
       </section>
     </>
@@ -103,28 +113,15 @@ async function PremiumCatalog({
   return (
     <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-12">
       <aside className="space-y-6">
-        <div className="relative hidden overflow-hidden rounded-[var(--radius-lg)] lg:block">
-          <div className="relative aspect-[4/5]">
+        <div className="overflow-hidden rounded-[var(--radius-lg)]">
+          <div className="relative aspect-[16/10] lg:aspect-[3/4]">
             <Image
-              src="/mc-images/coach-guidance.jpg"
-              alt="Personal trainer coaching a client in the gym"
+              src={photography.premium}
+              alt="Coach and client stretching in a quiet studio"
               fill
-              className="object-cover object-[center_15%]"
-              sizes="400px"
+              className="object-cover object-[center_40%]"
+              sizes="(max-width: 1024px) 100vw, 400px"
             />
-            <div
-              className="absolute inset-0 bg-gradient-to-t from-[color:var(--mc-header-bottom)]/80 via-transparent to-transparent"
-              aria-hidden
-            />
-            <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-              <p className="font-display text-xl font-bold">
-                Focus on your clients
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-white/80">
-                Unlimited client management, packages, and the profile tools
-                that grow your coaching business.
-              </p>
-            </div>
           </div>
         </div>
 
@@ -203,7 +200,7 @@ function PremiumCatalogSkeleton() {
       aria-label="Loading Premium"
     >
       <div className="space-y-6">
-        <div className="hidden aspect-[4/5] animate-pulse rounded-[var(--radius-lg)] bg-line lg:block" />
+        <div className="aspect-[16/10] animate-pulse rounded-[var(--radius-lg)] bg-line lg:aspect-[3/4]" />
         <div className="h-72 animate-pulse rounded-[var(--radius-md)] bg-line" />
       </div>
       <div className="h-[28rem] animate-pulse rounded-[var(--radius-md)] bg-line" />

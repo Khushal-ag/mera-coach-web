@@ -15,6 +15,7 @@ import {
   PracticeSearch,
 } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { photography } from "@/config/photography";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import { fetchClientList } from "@/lib/api/practice";
 import { cn } from "@/lib/utils";
@@ -125,6 +126,8 @@ export function ClientsListView() {
         <PracticeRosterSkeleton />
       : !rows?.length ?
         <PracticeEmpty
+          image={search.trim() ? undefined : photography.emptyClients}
+          imageAlt="A folded towel and a closed notebook on a gym bench"
           title={search.trim() ? "No matches" : "No clients yet"}
           body={
             search.trim() ?

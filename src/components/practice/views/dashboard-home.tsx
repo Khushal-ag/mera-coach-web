@@ -15,10 +15,10 @@ import { useAuth } from "@/components/auth-provider";
 import {
   PracticeEmpty,
   PracticePageHeader,
-  practicePhotos,
   PracticeRosterSkeleton,
 } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { photography } from "@/config/photography";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import {
   fetchClientList,
@@ -113,7 +113,7 @@ export function DashboardHomeView() {
     <div className="mx-auto max-w-6xl">
       <PracticePageHeader
         variant="band"
-        image={practicePhotos.overview}
+        image={photography.practiceHero}
         title="Dashboard"
         description={`${greetingFor()}, ${firstName}. What needs attention with your clients today.`}
         action={
@@ -267,6 +267,8 @@ export function DashboardHomeView() {
               <PracticeRosterSkeleton rows={4} />
             : openLeads.length === 0 ?
               <PracticeEmpty
+                image={photography.emptyLeads}
+                imageAlt="A coach holding a phone between sessions"
                 title="No open enquiries"
                 body="Share your public profile so new clients can reach you."
                 href={
@@ -327,6 +329,8 @@ export function DashboardHomeView() {
             <PracticeRosterSkeleton rows={5} />
           : recentClients.length === 0 ?
             <PracticeEmpty
+              image={photography.emptyClients}
+              imageAlt="A folded towel and a closed notebook on a gym bench"
               title="No clients yet"
               body="Use Add client above to start an assessment."
             />

@@ -498,12 +498,13 @@ export function AssessmentWizard({
             return (
               <li
                 key={p.id}
+                aria-current={active ? "step" : undefined}
                 className={
                   active ?
-                    "rounded-full bg-[color:var(--mc-secondary)] px-3 py-1 text-xs font-semibold text-white"
+                    "rounded-full bg-[color:var(--mc-secondary)] px-3.5 py-1.5 text-xs font-semibold text-white"
                   : done ?
-                    "rounded-full bg-[color:var(--mc-secondary-light)] px-3 py-1 text-xs font-semibold text-[color:var(--mc-secondary-dark)]"
-                  : "rounded-full bg-paper-elevated px-3 py-1 text-xs font-medium text-ink-muted"
+                    "rounded-full bg-[color:var(--mc-secondary-light)] px-3.5 py-1.5 text-xs font-semibold text-[color:var(--mc-secondary-dark)]"
+                  : "rounded-full bg-paper-elevated px-3.5 py-1.5 text-xs font-medium text-ink-muted"
 
                 }
               >
@@ -519,7 +520,7 @@ export function AssessmentWizard({
         </div>
       : null}
 
-      <div className="mc-panel p-5 sm:p-6">
+      <div className="mc-panel p-6 sm:p-8">
         {phase.id !== "complete" ?
           <h2 className="mb-5 font-display text-lg font-bold text-ink">
             {phase.label}

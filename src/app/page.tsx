@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { photography } from "@/config/photography";
 import { siteConfig } from "@/config/site";
 import { publicPageMetadata } from "@/lib/seo";
 
@@ -63,38 +64,23 @@ const testimonials = [
 export default function HomePage() {
   return (
     <>
-      {/* Full-bleed hero: brand signal + one headline + one line + CTAs */}
-      <section className="relative isolate flex min-h-[100dvh] items-end overflow-hidden bg-mc-home text-white sm:min-h-[min(92dvh,52rem)]">
+      <section className="relative isolate flex min-h-[calc(100dvh-4.25rem)] items-end overflow-hidden bg-mc-home text-white">
         <Image
-          src="/mc-images/coachbg.jpg"
-          alt=""
+          src={photography.homeHero}
+          alt="Coach spotting a squat in a neighbourhood gym"
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
-        />
-        <video
-          className="absolute inset-0 size-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="/mc-images/coachbg.jpg"
-        >
-          <source src="/mc-video/pexels-2022395.mp4" type="video/mp4" />
-        </video>
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-[color:var(--mc-home-canvas)]/92 via-[color:var(--mc-header-bottom)]/55 to-transparent"
-          aria-hidden
+          className="object-cover object-[28%_center]"
         />
         <div
-          className="absolute inset-0 bg-gradient-to-t from-[color:var(--mc-home-canvas)]/90 via-transparent to-[color:var(--mc-home-canvas)]/40"
+          className="absolute inset-0 bg-gradient-to-t from-[color:var(--mc-home-canvas)]/92 via-[color:var(--mc-home-canvas)]/28 to-transparent"
           aria-hidden
         />
 
-        <div className="relative z-10 container w-full pt-20 pb-12 sm:pt-24 sm:pb-16 lg:pb-20">
-          <div className="max-w-xl">
-            <h1 className="motion-rise font-display text-[2.15rem] leading-[1.12] font-extrabold tracking-tight text-balance text-white sm:text-5xl lg:text-[3.35rem]">
+        <div className="relative z-10 container w-full pt-8 pb-10 sm:pb-14">
+          <div className="max-w-3xl">
+            <h1 className="motion-rise max-w-[20em] font-display text-[1.7rem] leading-[1.12] font-extrabold tracking-tight text-white sm:text-5xl lg:text-[3.15rem]">
               Grow your{" "}
               <span className="text-[color:var(--mc-brand-coach)]">
                 coaching
@@ -106,10 +92,10 @@ export default function HomePage() {
               className="motion-rise motion-rise-delay-1 motion-underline mt-4 h-1 w-16 origin-left rounded-full bg-[color:var(--mc-brand-coach)] sm:w-20"
               aria-hidden
             />
-            <p className="motion-rise motion-rise-delay-1 mt-5 max-w-[36ch] text-sm leading-relaxed text-white/85 sm:text-base md:text-lg">
+            <p className="motion-rise motion-rise-delay-1 mt-4 max-w-[36ch] text-sm leading-relaxed text-white/90 sm:text-base">
               Get found by clients. Grow your coaching business.
             </p>
-            <div className="motion-rise motion-rise-delay-2 mt-8 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:flex-wrap">
+            <div className="motion-rise motion-rise-delay-2 mt-6 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:flex-wrap">
               <Link
                 href="/register"
                 className="mc-btn-primary w-full sm:w-auto"
@@ -124,10 +110,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Coach ↔ client bridge: denser story under the hero */}
-      <section className="bg-paper py-14 sm:py-16 lg:py-20">
-        <div className="container grid items-start gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
-          <div className="motion-reveal">
+      <section className="bg-paper py-16 sm:py-20 lg:py-24">
+        <div className="container grid items-start gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+          <div>
             <h2 className="max-w-md font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-[2.6rem] lg:leading-[1.1]">
               Personal training that connects coach and client
             </h2>
@@ -136,29 +121,9 @@ export default function HomePage() {
               brings people in, and tools that keep clients and coaching on
               track.
             </p>
-            <div className="mt-8 grid gap-3 sm:grid-cols-2">
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[var(--radius-md)]">
-                <Image
-                  src="/mc-images/coach-guidance.jpg"
-                  alt="Personal trainer guiding a client through a shoulder press"
-                  fill
-                  className="object-cover object-[center_20%]"
-                  sizes="(max-width: 640px) 100vw, 280px"
-                />
-              </div>
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[var(--radius-md)] sm:mt-8">
-                <Image
-                  src="/mc-images/coach-client-pair.jpg"
-                  alt="Coach and client walking together after training"
-                  fill
-                  className="object-cover object-[center_25%]"
-                  sizes="(max-width: 640px) 100vw, 280px"
-                />
-              </div>
-            </div>
           </div>
 
-          <ol className="motion-reveal space-y-0 border-t border-[color:var(--mc-secondary)]/15">
+          <ol className="border-t border-[color:var(--mc-secondary)]/15">
             {bridgeSteps.map((step) => (
               <li
                 key={step.title}
@@ -176,24 +141,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Coaching tools: asymmetric photo + stacked list */}
-      <section className="bg-paper-elevated py-14 sm:py-16 lg:py-20">
-        <div className="container grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
-          <div className="motion-reveal relative order-2 aspect-[4/5] overflow-hidden rounded-[var(--radius-lg)] lg:order-1 lg:aspect-[5/6]">
+      <section className="bg-paper-elevated py-16 sm:py-20 lg:py-24">
+        <div className="container grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+          <div className="motion-reveal relative aspect-[4/5] overflow-hidden rounded-[var(--radius-lg)] lg:aspect-[4/5]">
             <Image
-              src="/mc-images/coaching-session.jpg"
-              alt="Coach cueing a client on a cable machine"
+              src={photography.homeFloor}
+              alt="Coach and client talking between sets"
               fill
-              className="object-cover object-center"
-              sizes="(max-width: 1024px) 100vw, 48vw"
-            />
-            <div
-              className="absolute inset-0 bg-gradient-to-t from-[color:var(--mc-header-bottom)]/50 via-transparent to-transparent"
-              aria-hidden
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 42vw"
             />
           </div>
 
-          <div className="motion-reveal order-1 lg:order-2">
+          <div>
             <h2 className="max-w-md font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
               Built for personal trainers and coaches
             </h2>
@@ -202,7 +162,7 @@ export default function HomePage() {
               brings leads in.
             </p>
 
-            <ul className="mt-8 space-y-0 border-t border-[color:var(--mc-secondary)]/15">
+            <ul className="mt-8 border-t border-[color:var(--mc-secondary)]/15">
               {coachingPoints.map((item) => (
                 <li
                   key={item.title}
@@ -221,22 +181,18 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Where web and app fit */}
-      <section className="bg-[color:var(--mc-explore-canvas)] py-14 sm:py-16 lg:py-20">
+      <section className="bg-[color:var(--mc-explore-canvas)] py-16 sm:py-20 lg:py-24">
         <div className="container">
-          <div className="motion-reveal max-w-2xl">
-            <h2 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-[2.6rem] lg:leading-[1.1]">
-              Discover on the web. Coach on web or app.
-            </h2>
-            <p className="mt-4 max-w-[52ch] text-sm leading-relaxed text-ink-muted sm:text-base">
-              Get listed, get found, manage your clients, and upgrade your
-              subscription — on the website. The app stays with you on the
-              floor.
-            </p>
-          </div>
+          <h2 className="max-w-2xl font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-[2.6rem] lg:leading-[1.1]">
+            Discover on the web. Coach on web or app.
+          </h2>
+          <p className="mt-4 max-w-[52ch] text-sm leading-relaxed text-ink-muted sm:text-base">
+            Get listed, get found, manage your clients, and upgrade your
+            subscription on the website. The app stays with you on the floor.
+          </p>
 
-          <div className="motion-reveal mt-10 grid gap-6 lg:grid-cols-2 lg:gap-10">
-            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[color:var(--mc-header-bottom)] p-7 text-white sm:p-9">
+          <div className="mt-10 grid gap-6 lg:grid-cols-2 lg:gap-8">
+            <div className="rounded-[var(--radius-lg)] bg-[color:var(--mc-header-bottom)] p-7 text-white sm:p-9">
               <p className="font-display text-2xl font-bold">On the website</p>
               <ul className="mt-5 space-y-3 text-sm leading-relaxed text-white/80 sm:text-base">
                 <li>Register, publish, and share your coach profile</li>
@@ -259,99 +215,60 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="relative min-h-[16rem] overflow-hidden rounded-[var(--radius-lg)]">
-              <Image
-                src="/mc-images/coachloginbg.jpg"
-                alt="Personal training session in a gym"
-                fill
-                className="object-cover object-center"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-              <div
-                className="absolute inset-0 bg-gradient-to-t from-[color:var(--mc-header-bottom)]/85 via-[color:var(--mc-header-bottom)]/35 to-transparent"
-                aria-hidden
-              />
-              <div className="absolute inset-x-0 bottom-0 p-7 text-white sm:p-9">
-                <p className="font-display text-2xl font-bold">In the app</p>
-                <p className="mt-3 max-w-[36ch] text-sm leading-relaxed text-white/85 sm:text-base">
-                  The same coaching on your phone — plus BMI checkups and diet
+            <div className="flex flex-col justify-between rounded-[var(--radius-lg)] border border-[color:var(--mc-secondary)]/15 bg-surface p-7 sm:p-9">
+              <div>
+                <p className="font-display text-2xl font-bold text-ink">
+                  In the app
+                </p>
+                <p className="mt-4 max-w-[36ch] text-sm leading-relaxed text-ink-muted sm:text-base">
+                  The same coaching on your phone, plus BMI checkups and diet
                   plans where you train.
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Find a coach */}
-      <section className="relative overflow-hidden bg-paper py-14 sm:py-16 lg:py-20">
-        <div className="container grid items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
-          <div className="motion-reveal">
-            <h2 className="max-w-lg font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
-              Find your personal coach
-            </h2>
-            <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-ink-muted sm:text-base">
-              Browse public profiles free, send an enquiry, and start training
-              with a coach who fits your goals.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link href="/coach" className="mc-btn-primary w-full sm:w-auto">
-                Find a Coach
-              </Link>
-              <Link href="/bmi" className="mc-btn-secondary w-full sm:w-auto">
-                Check your BMI
+              <Link
+                href="/services"
+                className="mt-8 inline-flex min-h-11 items-center text-sm font-semibold text-mc-brand-coach"
+              >
+                See what coaches use
               </Link>
             </div>
           </div>
-          <div className="motion-reveal relative mx-auto aspect-[5/4] w-full max-w-xl overflow-hidden rounded-[var(--radius-lg)] shadow-[0_24px_48px_rgba(0,75,62,0.14)]">
-            <Image
-              src="/mc-images/coach-guidance.jpg"
-              alt="Coach working one-to-one with a client"
-              fill
-              className="object-cover object-[center_15%]"
-              sizes="(max-width: 768px) 100vw, 520px"
-            />
+        </div>
+      </section>
+
+      <section className="bg-paper py-16 sm:py-20 lg:py-24">
+        <div className="container max-w-3xl">
+          <h2 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
+            Find your personal coach
+          </h2>
+          <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-ink-muted sm:text-base">
+            Browse public profiles free, send an enquiry, and start training
+            with a coach who fits your goals.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <Link href="/coach" className="mc-btn-primary w-full sm:w-auto">
+              Find a Coach
+            </Link>
+            <Link href="/bmi" className="mc-btn-secondary w-full sm:w-auto">
+              Check your BMI
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Atmosphere band */}
-      <section className="mc-gradient-hero py-14 text-white sm:py-16 lg:py-20">
-        <div className="container">
-          <div className="motion-reveal max-w-2xl">
-            <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
-              Train together. Build trust.
-            </h2>
-            <p className="mt-4 max-w-[48ch] text-sm leading-relaxed text-white/75 sm:text-base">
-              One-to-one coaching sessions, progress you can see, and tools for
-              you and your clients.
-            </p>
-          </div>
-          <div className="motion-reveal mt-10 grid gap-3 sm:mt-12 sm:grid-cols-[1.4fr_1fr] sm:gap-4">
-            <div className="relative aspect-[16/10] overflow-hidden rounded-[var(--radius-md)] sm:aspect-[2/1]">
-              <Image
-                src="/mc-images/coaching-session.jpg"
-                alt="Coach cueing a client on a cable machine"
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 100vw, 60vw"
-              />
-            </div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-md)] sm:aspect-auto sm:min-h-full">
-              <Image
-                src="/mc-images/coach-client-pair.jpg"
-                alt="Coach and client walking together after training"
-                fill
-                className="object-cover object-[center_25%]"
-                sizes="(max-width: 640px) 100vw, 35vw"
-              />
-            </div>
-          </div>
+      <section className="mc-gradient-hero py-16 text-white sm:py-20">
+        <div className="container max-w-3xl">
+          <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
+            Train together. Build trust.
+          </h2>
+          <p className="mt-4 max-w-[48ch] text-sm leading-relaxed text-white/75 sm:text-base">
+            One-to-one coaching sessions, progress you can see, and tools for
+            you and your clients.
+          </p>
         </div>
       </section>
 
-      {/* Social proof */}
-      <section className="bg-paper-elevated py-14 sm:py-16 lg:py-20">
+      <section className="bg-paper-elevated py-16 sm:py-20 lg:py-24">
         <div className="container">
           <h2 className="motion-reveal max-w-xl font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl lg:text-4xl">
             Trusted by coaches
@@ -379,8 +296,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mc-gradient-cta py-14 text-center text-white sm:py-16">
-        <div className="motion-reveal container">
+      <section className="mc-gradient-cta py-16 text-center text-white sm:py-20">
+        <div className="container">
           <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
             Ready to grow your coaching business?
           </h2>

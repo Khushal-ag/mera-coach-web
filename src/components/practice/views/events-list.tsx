@@ -13,6 +13,7 @@ import {
 } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextField } from "@/components/ui/field";
+import { photography } from "@/config/photography";
 import {
   fetchAuthedCoachProfile,
   saveCoachPackagesEvents,
@@ -117,6 +118,8 @@ export function EventsListView() {
         <PracticeRosterSkeleton rows={3} />
       : !events.length ?
         <PracticeEmpty
+          image={photography.emptyEvents}
+          imageAlt="Three people stretching together in a park"
           title="No events yet"
           body="Add workshops or community sessions for your public page."
         />

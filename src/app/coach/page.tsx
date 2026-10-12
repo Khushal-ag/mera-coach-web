@@ -7,8 +7,8 @@ import { MapPin, Star } from "lucide-react";
 import type { CoachPublicListItem } from "@/types/coach";
 
 import { CoachPhoto } from "@/components/coach-photo";
-import { PageHero } from "@/components/page-hero";
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { photography } from "@/config/photography";
 import {
   fetchCoachCategories,
   fetchPublicCities,
@@ -72,11 +72,29 @@ export default function CoachDirectoryPage({
 }) {
   return (
     <>
-      <PageHero
-        variant="photo"
-        title="Find your coach"
-        subtitle="Browse public profiles free. Compare specialties and enquire when you are ready to train."
-      />
+      <section className="bg-paper">
+        <div className="container grid items-center gap-8 py-10 sm:py-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-12 lg:py-14">
+          <div>
+            <h1 className="max-w-[10em] font-display text-4xl leading-[1.08] font-bold tracking-tight text-balance text-ink sm:text-5xl lg:text-6xl">
+              Find your coach
+            </h1>
+            <p className="mt-4 max-w-[36ch] text-sm leading-relaxed text-ink-muted sm:text-base">
+              Browse public profiles free. Compare specialties and enquire when
+              you are ready to train.
+            </p>
+          </div>
+          <div className="relative aspect-[16/10] overflow-hidden rounded-[var(--radius-lg)]">
+            <Image
+              src={photography.findCoach}
+              alt="Coach and client reviewing a training plan"
+              fill
+              priority
+              className="object-cover object-[center_40%]"
+              sizes="(max-width: 1024px) 100vw, 56vw"
+            />
+          </div>
+        </div>
+      </section>
 
       <section className="bg-[color:var(--mc-explore-canvas)] py-12 sm:py-16 lg:py-20">
         <div className="container">
@@ -342,31 +360,20 @@ async function CoachDirectoryBody({
           We could not load coaches right now. Please refresh and try again.
         </AlertBanner>
       : coaches.length === 0 ?
-        <div className="mt-10 grid max-w-2xl gap-6 border-t border-[color:var(--mc-secondary)]/15 pt-8 sm:grid-cols-[9rem_1fr] sm:items-center">
-          <div className="relative mx-auto aspect-square w-28 overflow-hidden rounded-full border border-[color:var(--mc-secondary)]/15 sm:mx-0 sm:w-full">
-            <Image
-              src="/mc-images/coach-avatar-fallback.jpg"
-              alt=""
-              fill
-              className="object-cover"
-              sizes="112px"
-            />
-          </div>
-          <div>
-            <h3 className="font-display text-xl font-bold text-ink sm:text-2xl">
-              No coaches match yet
-            </h3>
-            <p className="mt-3 text-sm leading-relaxed text-ink-muted">
-              Try another city, category, or keyword. New personal trainers go
-              public as they join.
-            </p>
-            <Link
-              href="/register"
-              className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-mc-brand-coach"
-            >
-              Are you a coach? Start here
-            </Link>
-          </div>
+        <div className="mt-10 max-w-xl border-t border-[color:var(--mc-secondary)]/15 pt-8">
+          <h3 className="font-display text-xl font-bold text-ink sm:text-2xl">
+            No coaches match yet
+          </h3>
+          <p className="mt-3 text-sm leading-relaxed text-ink-muted">
+            Try another city, category, or keyword. New personal trainers go
+            public as they join.
+          </p>
+          <Link
+            href="/register"
+            className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-mc-brand-coach"
+          >
+            Are you a coach? Start here
+          </Link>
         </div>
       : <div className="mt-8 space-y-4">
           {coaches.map((coach) => (

@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { AuthShell } from "@/components/auth-shell";
 import { RegisterForm } from "@/components/register-form";
+import { photography } from "@/config/photography";
 import { fetchCoachCategories } from "@/lib/api/master";
 import { publicPageMetadata } from "@/lib/seo";
 
@@ -18,6 +19,8 @@ export default function RegisterPage() {
     <AuthShell
       layout="single"
       panel="light"
+      image={photography.authRegister}
+      imageAlt="Coach setting dumbbells on a rack before a session"
       crumbs={[{ label: "Home", href: "/" }, { label: "Register" }]}
       title={
         <>

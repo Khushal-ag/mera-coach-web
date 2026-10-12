@@ -1,58 +1,38 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
 type Crumb = { label: string; href?: string };
 
+/** Typographic brand header for legal and confirmation pages. Marketing pages compose their own photography. */
 export function PageHero({
   title,
   subtitle,
   crumbs,
   className,
   children,
-  variant = "gradient",
 }: {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   crumbs?: Crumb[];
   className?: string;
   children?: React.ReactNode;
-  /** `photo` uses coachloginbg + teal scrim; default remains the brand gradient. */
-  variant?: "gradient" | "photo";
 }) {
   return (
     <section
       className={cn(
-        "relative overflow-x-clip py-12 text-white sm:py-14 lg:py-16",
-        variant === "gradient" && "mc-gradient-header",
-        variant === "photo" && "bg-mc-home",
+        "mc-gradient-header relative overflow-x-clip py-12 text-white sm:py-14 lg:py-16",
         className,
       )}
     >
-      {variant === "photo" ?
-        <>
-          <Image
-            src="/mc-images/coachloginbg.jpg"
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover object-[center_28%]"
-            priority
-          />
-          <div className="mc-auth-scrim absolute inset-0" aria-hidden />
-        </>
-      : <>
-          <div
-            className="pointer-events-none absolute -top-16 -right-20 size-72 rounded-full bg-white/5 blur-2xl"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute -bottom-24 -left-10 size-80 rounded-full bg-[color:var(--mc-brand-coach)]/10 blur-3xl"
-            aria-hidden
-          />
-        </>
-      }
+      <div
+        className="pointer-events-none absolute -top-16 -right-20 size-72 rounded-full bg-white/5 blur-2xl"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -bottom-24 -left-10 size-80 rounded-full bg-[color:var(--mc-brand-coach)]/10 blur-3xl"
+        aria-hidden
+      />
       <div className="relative z-10 container">
         {crumbs && crumbs.length > 0 ?
           <p className="flex flex-wrap items-center gap-y-1 text-sm text-white/70">

@@ -3,36 +3,24 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
-/** Coaching photography. Used once, on the dashboard overview. */
-export const practicePhotos = {
-  overview: "/mc-images/coaching-session.jpg",
-  clients: "/mc-images/coach-client-pair.jpg",
-  leads: "/mc-images/coachloginbg.jpg",
-  checkups: "/mc-images/coach-guidance.jpg",
-  packages: "/mc-images/coachbg.jpg",
-  events: "/mc-images/coaching-session.jpg",
-  profile: "/mc-images/coach-guidance.jpg",
-  password: "/mc-images/coachloginbg.jpg",
-  addClient: "/mc-images/coach-client-pair.jpg",
-} as const;
-
 export function PracticePageHeader({
   title,
   description,
   action,
   className,
-  image = practicePhotos.overview,
+  image,
   variant = "work",
 }: {
   title: string;
   description?: string;
   action?: React.ReactNode;
   className?: string;
+  /** Required when `variant` is `band`. One dashboard photograph, not a shared wallpaper. */
   image?: string;
   /** `band` is the overview only. Working pages stay typographic. */
   variant?: "work" | "band";
 }) {
-  if (variant === "band") {
+  if (variant === "band" && image) {
     return (
       <header
         className={cn(
@@ -40,20 +28,20 @@ export function PracticePageHeader({
           className,
         )}
       >
-        <div className="relative min-h-[7.5rem] sm:min-h-[8.5rem]">
+        <div className="relative min-h-[13rem] sm:min-h-[16rem]">
           <Image
             src={image}
-            alt=""
+            alt="Coach writing notes between sets"
             fill
             priority
             sizes="(max-width: 1024px) 100vw, 72rem"
-            className="object-cover object-[center_30%]"
+            className="object-cover object-[center_42%]"
           />
           <div
             className="absolute inset-0 bg-gradient-to-r from-[color:var(--mc-header-bottom)]/94 via-[color:var(--mc-header-bottom)]/70 to-[color:var(--mc-header-top)]/35"
             aria-hidden
           />
-          <div className="relative flex min-h-[7.5rem] flex-col justify-end gap-4 px-5 py-5 sm:min-h-[8.5rem] sm:flex-row sm:items-end sm:justify-between sm:px-7 sm:py-6">
+          <div className="relative flex min-h-[13rem] flex-col justify-end gap-4 px-5 py-5 sm:min-h-[16rem] sm:flex-row sm:items-end sm:justify-between sm:px-7 sm:py-6">
             <div className="max-w-[62ch] min-w-0">
               <h1 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
                 {title}
@@ -103,6 +91,8 @@ export function PracticeEmpty({
   href,
   cta,
   action,
+  image,
+  imageAlt = "",
 }: {
   title: string;
   body: string;
@@ -110,20 +100,40 @@ export function PracticeEmpty({
   cta?: string;
   action?: React.ReactNode;
   image?: string;
+  imageAlt?: string;
 }) {
   return (
-    <div className="rounded-[var(--radius-md)] border border-dashed border-line bg-surface px-6 py-10 sm:px-8">
-      <p className="font-display text-xl font-bold text-ink">{title}</p>
-      <p className="mt-2 max-w-[42ch] text-sm leading-relaxed text-ink-muted">
-        {body}
-      </p>
-      {action ?
-        <div className="mt-5">{action}</div>
-      : href && cta ?
-        <Link href={href} className="mc-btn-primary mt-5 w-fit">
-          {cta}
-        </Link>
-      : null}
+    <div className="overflow-hidden rounded-[var(--radius-md)] border border-dashed border-line bg-surface">
+      <div
+        className={
+          image ? "grid sm:grid-cols-[7.75rem_minmax(0,1fr)]" : undefined
+        }
+      >
+        {image ?
+          <div className="relative h-32 sm:h-auto sm:min-h-32">
+            <Image
+              src={image}
+              alt={imageAlt}
+              fill
+              className="object-cover"
+              sizes="140px"
+            />
+          </div>
+        : null}
+        <div className="px-6 py-8 sm:px-8">
+          <p className="font-display text-xl font-bold text-ink">{title}</p>
+          <p className="mt-2 max-w-[42ch] text-sm leading-relaxed text-ink-muted">
+            {body}
+          </p>
+          {action ?
+            <div className="mt-5">{action}</div>
+          : href && cta ?
+            <Link href={href} className="mc-btn-primary mt-5 w-fit">
+              {cta}
+            </Link>
+          : null}
+        </div>
+      </div>
     </div>
   );
 }
