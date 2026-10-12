@@ -80,6 +80,13 @@ export function restoreSession(): CoachSession | null {
   }
 }
 
+/** Restore from sessionStorage and notify subscribers. */
+export function reloadSession(): CoachSession | null {
+  const session = restoreSession();
+  notify();
+  return session;
+}
+
 export function clearSession(): void {
   current = null;
   if (canUseStorage()) {

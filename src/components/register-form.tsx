@@ -12,7 +12,6 @@ import { AlertBanner } from "@/components/ui/alert-banner";
 import { SelectField, TextAreaField, TextField } from "@/components/ui/field";
 import { usePinLocationLookup } from "@/hooks/use-pin-location-lookup";
 import {
-  fetchCoachCategories,
   firstApiError,
   isApiSuccess,
   registerCoach,
@@ -27,7 +26,7 @@ import {
 
 type ImageSlot = "logo" | "photo";
 
-export function RegisterForm() {
+export function RegisterForm({ categories }: { categories: MasterOption[] }) {
   const router = useRouter();
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
@@ -35,8 +34,9 @@ export function RegisterForm() {
   const [message, setMessage] = useState<string | null>(null);
   const [logo, setLogo] = useState<PickedImage | null>(null);
   const [photo, setPhoto] = useState<PickedImage | null>(null);
-  const [categories, setCategories] = useState<MasterOption[]>([]);
-  const [coachTypeCode, setCoachTypeCode] = useState("");
+  const [coachTypeCode, setCoachTypeCode] = useState(() =>
+    categories.length === 1 ? (categories[0]?.code ?? "") : "",
+  );
   const [pin, setPin] = useState("");
   const [city, setCity] = useState("");
   const [stateCd, setStateCd] = useState("");
@@ -47,14 +47,6 @@ export function RegisterForm() {
     if (loc.city) setCity(loc.city);
     if (loc.state) setStateCd(loc.state);
   });
-
-  useEffect(() => {
-    void fetchCoachCategories().then((opts) => {
-      setCategories(opts);
-      const only = opts.length === 1 ? opts[0] : undefined;
-      if (only) setCoachTypeCode(only.code);
-    });
-  }, []);
 
   useEffect(() => {
     logoRef.current = logo;

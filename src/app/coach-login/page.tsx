@@ -1,14 +1,14 @@
 import { Suspense } from "react";
 
-import type { Metadata } from "next";
-
 import { AuthShell } from "@/components/auth-shell";
 import { CoachLoginForm } from "@/components/coach-login-form";
+import { publicPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
   title: "Coach Login",
   description: "Sign in to your Mera Coach coach account.",
-};
+  path: "/coach-login",
+});
 
 export default function CoachLoginPage() {
   return (
@@ -28,7 +28,7 @@ export default function CoachLoginPage() {
           <span className="text-[color:var(--mc-brand-coach)]">Coach</span>
         </>
       }
-      sideBody="One login for your practice on the web: dashboard, clients, events, and profile sharing."
+      sideBody="One login for your coaching on the web: dashboard, clients, events, and your public profile."
       panelHeading="Sign in"
       panelSubheading="Enter your credentials to continue"
     >

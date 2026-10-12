@@ -1,15 +1,17 @@
+import { Suspense } from "react";
 import Link from "next/link";
-
-import type { Metadata } from "next";
 
 import { AuthShell } from "@/components/auth-shell";
 import { RegisterForm } from "@/components/register-form";
+import { fetchCoachCategories } from "@/lib/api/master";
+import { publicPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
   title: "Coach Registration",
   description:
-    "Join Mera Coach as a personal trainer or coach. Get found by clients and run the practice that follows.",
-};
+    "Join Mera Coach as a personal trainer or coach. Get found by clients and grow your coaching business.",
+  path: "/register",
+});
 
 export default function RegisterPage() {
   return (
@@ -25,17 +27,19 @@ export default function RegisterPage() {
           </span>
         </>
       }
-      subtitle="Get found by clients. Build your coaching practice on Mera Coach."
+      subtitle="Get found by clients. Build your public profile on Mera Coach."
     >
       <div className="mb-6">
         <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
           Create your coach account
         </h2>
         <p className="mt-1.5 text-sm text-ink-muted">
-          Tell us about your practice. We review new coaches before listing.
+          Tell us about your coaching. We review new coaches before listing.
         </p>
       </div>
-      <RegisterForm />
+      <Suspense fallback={<RegisterFieldsSkeleton />}>
+        <RegisterFormLoader />
+      </Suspense>
       <p className="mt-6 text-sm text-ink-muted">
         Already registered?{" "}
         <Link
@@ -46,5 +50,27 @@ export default function RegisterPage() {
         </Link>
       </p>
     </AuthShell>
+  );
+}
+
+async function RegisterFormLoader() {
+  const categories = await fetchCoachCategories();
+  return <RegisterForm categories={categories} />;
+}
+
+function RegisterFieldsSkeleton() {
+  return (
+    <div
+      className="space-y-4"
+      aria-busy="true"
+      aria-label="Loading registration"
+    >
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div
+          key={index}
+          className="h-11 animate-pulse rounded-[10px] bg-line"
+        />
+      ))}
+    </div>
   );
 }

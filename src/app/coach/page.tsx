@@ -4,8 +4,6 @@ import Link from "next/link";
 
 import { MapPin, Star } from "lucide-react";
 
-import type { Metadata } from "next";
-
 import type { CoachPublicListItem } from "@/types/coach";
 
 import { CoachPhoto } from "@/components/coach-photo";
@@ -27,12 +25,14 @@ import {
   SORT_OPTIONS,
 } from "@/lib/coach/directory";
 import { resolveCoachPhotoUrl } from "@/lib/media/media-url";
+import { publicPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
   title: "Find A Coach",
   description:
     "Find your personal coach on Mera Coach. Browse public profiles, compare specialties, and send an enquiry.",
-};
+  path: "/coach",
+});
 
 type SearchParams = Promise<{
   search?: string;

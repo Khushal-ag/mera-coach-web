@@ -1,18 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import type { Metadata } from "next";
-
 import { siteConfig } from "@/config/site";
+import { publicPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "Welcome - Mera Coach",
-  },
+export const metadata = publicPageMetadata({
+  title: "Welcome - Mera Coach",
   description: siteConfig.description,
-};
+  path: "/",
+  absolute: true,
+});
 
-const practicePoints = [
+const coachingPoints = [
   {
     title: "Manage clients",
     body: "Profiles, notes, and plans in one place so you coach with clarity.",
@@ -41,15 +40,15 @@ const bridgeSteps = [
     body: "Serious leads reach you from the public listing and app.",
   },
   {
-    title: "Run the practice",
-    body: "Manage clients, packages, and events on web or in the app.",
+    title: "Coach your clients",
+    body: "Manage clients, packages, and events on the web or in the app.",
   },
 ] as const;
 
 const testimonials = [
   {
     quote:
-      "Client notes and progress finally live in one workflow. My practice feels sharper.",
+      "Client notes and progress finally live in one place. My coaching business feels sharper.",
     name: "Priya Sharma",
     role: "Personal Trainer",
   },
@@ -108,7 +107,7 @@ export default function HomePage() {
               aria-hidden
             />
             <p className="motion-rise motion-rise-delay-1 mt-5 max-w-[36ch] text-sm leading-relaxed text-white/85 sm:text-base md:text-lg">
-              Get found by clients. Run the practice that follows.
+              Get found by clients. Grow your coaching business.
             </p>
             <div className="motion-rise motion-rise-delay-2 mt-8 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:flex-wrap">
               <Link
@@ -134,7 +133,8 @@ export default function HomePage() {
             </h2>
             <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-ink-muted sm:text-base">
               Mera Coach is built for the relationship: a public profile that
-              brings people in, and practice tools that keep coaching on track.
+              brings people in, and tools that keep clients and coaching on
+              track.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               <div className="relative aspect-[4/5] overflow-hidden rounded-[var(--radius-md)]">
@@ -176,7 +176,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Practice tools: asymmetric photo + stacked list */}
+      {/* Coaching tools: asymmetric photo + stacked list */}
       <section className="bg-paper-elevated py-14 sm:py-16 lg:py-20">
         <div className="container grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div className="motion-reveal relative order-2 aspect-[4/5] overflow-hidden rounded-[var(--radius-lg)] lg:order-1 lg:aspect-[5/6]">
@@ -203,7 +203,7 @@ export default function HomePage() {
             </p>
 
             <ul className="mt-8 space-y-0 border-t border-[color:var(--mc-secondary)]/15">
-              {practicePoints.map((item) => (
+              {coachingPoints.map((item) => (
                 <li
                   key={item.title}
                   className="border-b border-[color:var(--mc-secondary)]/15 py-4 sm:py-5"
@@ -229,8 +229,9 @@ export default function HomePage() {
               Discover on the web. Coach on web or app.
             </h2>
             <p className="mt-4 max-w-[52ch] text-sm leading-relaxed text-ink-muted sm:text-base">
-              Get listed, get found, run your client practice, and upgrade
-              Premium — on the website. The app stays with you on the floor.
+              Get listed, get found, manage your clients, and upgrade your
+              subscription — on the website. The app stays with you on the
+              floor.
             </p>
           </div>
 
@@ -273,8 +274,8 @@ export default function HomePage() {
               <div className="absolute inset-x-0 bottom-0 p-7 text-white sm:p-9">
                 <p className="font-display text-2xl font-bold">In the app</p>
                 <p className="mt-3 max-w-[36ch] text-sm leading-relaxed text-white/85 sm:text-base">
-                  The same practice on your phone — plus BMI checkups and diet
-                  wizards where you train.
+                  The same coaching on your phone — plus BMI checkups and diet
+                  plans where you train.
                 </p>
               </div>
             </div>
@@ -322,8 +323,8 @@ export default function HomePage() {
               Train together. Build trust.
             </h2>
             <p className="mt-4 max-w-[48ch] text-sm leading-relaxed text-white/75 sm:text-base">
-              One-to-one coaching sessions, progress you can see, and a practice
-              tools stack for you and your clients.
+              One-to-one coaching sessions, progress you can see, and tools for
+              you and your clients.
             </p>
           </div>
           <div className="motion-reveal mt-10 grid gap-3 sm:mt-12 sm:grid-cols-[1.4fr_1fr] sm:gap-4">

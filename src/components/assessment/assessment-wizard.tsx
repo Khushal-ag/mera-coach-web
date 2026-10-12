@@ -11,6 +11,7 @@ import type {
   GeneratedDietPlan,
 } from "@/types/practice";
 
+import { PracticePageHeader } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { SelectField, TextAreaField, TextField } from "@/components/ui/field";
 import {
@@ -129,22 +130,22 @@ function ChipMulti({
 function DietPlanView({ plan }: { plan: GeneratedDietPlan }) {
   return (
     <div className="space-y-4">
-      <dl className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-[10px] border border-line bg-paper-elevated/60 p-3">
-          <dt className="text-xs text-ink-muted">Daily target</dt>
-          <dd className="font-display text-lg font-bold tabular-nums">
+      <dl className="mc-stat-strip">
+        <div className="mc-stat">
+          <dt className="text-xs font-medium text-ink-muted">Daily target</dt>
+          <dd className="font-display text-2xl font-bold text-ink tabular-nums">
             {plan.summary.dailyCalTarget || "-"} kcal
           </dd>
         </div>
-        <div className="rounded-[10px] border border-line bg-paper-elevated/60 p-3">
-          <dt className="text-xs text-ink-muted">BMI category</dt>
-          <dd className="font-display text-lg font-bold">
+        <div className="mc-stat">
+          <dt className="text-xs font-medium text-ink-muted">BMI category</dt>
+          <dd className="font-display text-2xl font-bold text-ink">
             {plan.summary.bmiCategory || "-"}
           </dd>
         </div>
-        <div className="rounded-[10px] border border-line bg-paper-elevated/60 p-3">
-          <dt className="text-xs text-ink-muted">BMI</dt>
-          <dd className="font-display text-lg font-bold tabular-nums">
+        <div className="mc-stat">
+          <dt className="text-xs font-medium text-ink-muted">BMI</dt>
+          <dd className="font-display text-2xl font-bold text-ink tabular-nums">
             {plan.summary.bmi ? formatBmi(plan.summary.bmi) : "-"}
           </dd>
         </div>
@@ -180,15 +181,18 @@ function DietPlanView({ plan }: { plan: GeneratedDietPlan }) {
           : null}
         </div>
       )}
-      <ul className="divide-y divide-line rounded-[var(--radius-sm)] border border-line">
+      <ul className="grid gap-3">
         {plan.weeklyPlan.map((meal, i) => (
-          <li key={`${meal.mealType}-${i}`} className="px-4 py-3">
+          <li
+            key={`${meal.mealType}-${i}`}
+            className="rounded-[var(--radius-sm)] border border-line px-4 py-3"
+          >
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <p className="font-semibold text-ink">{meal.mealType}</p>
               <p className="text-xs text-ink-muted">
                 {meal.mealTime}
                 {meal.calMin || meal.calMax ?
-                  ` · ${meal.calMin}-${meal.calMax} kcal`
+                  `, ${meal.calMin}-${meal.calMax} kcal`
                 : ""}
               </p>
             </div>
@@ -481,34 +485,33 @@ export function AssessmentWizard({
 
   return (
     <div className="mx-auto max-w-3xl">
-      <header className="mb-6">
-        <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-          {title}
-        </h1>
-        <ol className="mt-4 flex flex-wrap gap-2" aria-label="Wizard steps">
-          {phases
-            .filter((p) => p.id !== "complete")
-            .map((p, i) => {
-              const active = phases[step]?.id === p.id;
-              const done = i < step;
-              return (
-                <li
-                  key={p.id}
-                  className={
-                    active ?
-                      "rounded-full bg-[color:var(--mc-secondary)] px-3 py-1 text-xs font-semibold text-white"
-                    : done ?
-                      "rounded-full bg-[color:var(--mc-secondary-light)] px-3 py-1 text-xs font-semibold text-[color:var(--mc-secondary-dark)]"
-                    : "rounded-full bg-paper-elevated px-3 py-1 text-xs font-medium text-ink-muted"
+      <PracticePageHeader
+        title={title}
+        description="Fill each section, then save it on the client."
+      />
+      <ol className="mb-6 flex flex-wrap gap-2" aria-label="Wizard steps">
+        {phases
+          .filter((p) => p.id !== "complete")
+          .map((p, i) => {
+            const active = phases[step]?.id === p.id;
+            const done = i < step;
+            return (
+              <li
+                key={p.id}
+                className={
+                  active ?
+                    "rounded-full bg-[color:var(--mc-secondary)] px-3 py-1 text-xs font-semibold text-white"
+                  : done ?
+                    "rounded-full bg-[color:var(--mc-secondary-light)] px-3 py-1 text-xs font-semibold text-[color:var(--mc-secondary-dark)]"
+                  : "rounded-full bg-paper-elevated px-3 py-1 text-xs font-medium text-ink-muted"
 
-                  }
-                >
-                  {p.label}
-                </li>
-              );
-            })}
-        </ol>
-      </header>
+                }
+              >
+                {p.label}
+              </li>
+            );
+          })}
+      </ol>
 
       {error ?
         <div className="mb-4">
@@ -516,7 +519,12 @@ export function AssessmentWizard({
         </div>
       : null}
 
-      <div className="rounded-[var(--radius-md)] border border-line bg-surface p-5 sm:p-6">
+      <div className="mc-panel p-5 sm:p-6">
+        {phase.id !== "complete" ?
+          <h2 className="mb-5 font-display text-lg font-bold text-ink">
+            {phase.label}
+          </h2>
+        : null}
         {phase.id === "identity" ?
           <div className="space-y-4">
             <TextField
@@ -760,7 +768,7 @@ export function AssessmentWizard({
               <p className="text-sm text-ink-muted">
                 Height, weight, age, and gender are needed to compute BMI.
               </p>
-            : <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            : <dl className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
                 {(
                   [
                     ["BMI", formatBmi(metrics.bmi)],
@@ -771,13 +779,21 @@ export function AssessmentWizard({
                     ["Resting metabolism", `${metrics.restingMetabolism} kcal`],
                     ["Body age", `${metrics.bodyAge} yrs`],
                   ] as const
-                ).map(([label, value]) => (
+                ).map(([label, value], index) => (
                   <div
                     key={label}
-                    className="rounded-[10px] border border-line bg-paper-elevated/50 p-3"
+                    className={index === 0 ? "sm:col-span-2" : undefined}
                   >
-                    <dt className="text-xs text-ink-muted">{label}</dt>
-                    <dd className="mt-1 font-display text-lg font-bold text-ink">
+                    <dt className="text-xs font-medium text-ink-muted">
+                      {label}
+                    </dt>
+                    <dd
+                      className={
+                        index === 0 ?
+                          "mt-1 font-display text-3xl font-bold text-ink tabular-nums"
+                        : "mt-1 text-sm font-semibold text-ink"
+                      }
+                    >
                       {value}
                     </dd>
                   </div>

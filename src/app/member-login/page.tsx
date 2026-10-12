@@ -1,13 +1,13 @@
 import Link from "next/link";
 
-import type { Metadata } from "next";
-
 import { AuthShell } from "@/components/auth-shell";
+import { publicPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
   title: "Member Login",
   description: "Member access for Mera Coach clients.",
-};
+  path: "/member-login",
+});
 
 export default function MemberLoginPage() {
   return (

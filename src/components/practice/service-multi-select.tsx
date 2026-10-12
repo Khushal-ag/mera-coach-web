@@ -38,12 +38,17 @@ export function ServiceMultiSelect({
         <p className="mc-field-hint mb-2">{hint}</p>
       : null}
       {loading ?
-        <p className="text-sm text-ink-muted">Loading services…</p>
+        <div className="space-y-2" aria-busy="true">
+          <span className="sr-only">Loading services</span>
+          <div className="mc-skeleton h-8 w-full" />
+          <div className="mc-skeleton h-8 w-4/5" />
+          <div className="mc-skeleton h-8 w-3/5" />
+        </div>
       : !options.length ?
         <p className="text-sm text-ink-muted">
           Choose a coach category to load services.
         </p>
-      : <ul className="mt-1 max-h-56 space-y-2 overflow-y-auto rounded-xl border border-line bg-paper-elevated/40 p-3">
+      : <ul className="mt-1 max-h-56 space-y-2 overflow-y-auto rounded-[var(--radius-sm)] border border-line bg-surface p-3">
           {options.map((opt) => (
             <li key={opt.code}>
               <label className="flex cursor-pointer items-start gap-2.5 text-sm text-ink">

@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
-
 import { PageHero } from "@/components/page-hero";
+import { publicPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
   title: "Privacy Policy",
   description: "How Mera Coach collects and uses personal information.",
-};
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

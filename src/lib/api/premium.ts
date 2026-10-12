@@ -79,7 +79,9 @@ function normalizeOrder(raw: unknown): CoachPremiumOrder | null {
 
 export async function fetchPremiumPlans() {
   const response = await apiFetch<unknown>("/v1/Coach/premium-plans", {
+    // Public plan catalog. Checkout mutations stay uncached.
     next: { revalidate: 120 },
+    skipAuth: true,
   });
   return {
     ...response,

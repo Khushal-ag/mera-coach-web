@@ -43,14 +43,10 @@ export function pickEventsRaw(raw: Record<string, unknown>): unknown {
 /** Upcoming first (by date), then undated; past dates excluded when date parses. */
 export function getUpcomingCoachEvents(
   events: CoachEvent[],
+  startOfTodayMs: number,
   limit = PUBLIC_UPCOMING_EVENTS,
-  now = new Date(),
 ): CoachEvent[] {
-  const startOfToday = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-  ).getTime();
+  const startOfToday = startOfTodayMs;
 
   const withSort = events.map((event, index) => {
     const ts = parseEventDateMs(event.date);

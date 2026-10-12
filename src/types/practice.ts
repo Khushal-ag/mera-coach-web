@@ -1,4 +1,4 @@
-/** Authenticated coach practice shapes (Client + Coach CRM endpoints). */
+/** Authenticated coach area shapes (client and coach endpoints). */
 
 import type { MealSlotId } from "@/data/lifestyle-options";
 

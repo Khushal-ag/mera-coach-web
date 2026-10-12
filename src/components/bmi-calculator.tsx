@@ -83,7 +83,7 @@ export function BmiCalculator() {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-start lg:gap-10">
-      <div className="rounded-[var(--radius-md)] border border-line bg-surface p-5 sm:p-7">
+      <div className="mc-panel p-5 sm:p-7">
         <h2 className="font-display text-xl font-bold text-ink sm:text-2xl">
           Calculate BMI
         </h2>
@@ -152,10 +152,7 @@ export function BmiCalculator() {
         </dl>
       </div>
 
-      <form
-        onSubmit={(e) => void onSubmit(e)}
-        className="rounded-[var(--radius-md)] border border-line bg-surface p-5 sm:p-7"
-      >
+      <form onSubmit={(e) => void onSubmit(e)} className="mc-panel p-5 sm:p-7">
         <h2 className="font-display text-xl font-bold text-ink sm:text-2xl">
           Talk to a coach
         </h2>

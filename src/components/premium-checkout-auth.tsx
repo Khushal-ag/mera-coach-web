@@ -1,9 +1,24 @@
 "use client";
 
+import dynamic from "next/dynamic";
+
 import type { CoachCatalogPlan, CoachSuggestedPromo } from "@/types/premium";
 
 import { useAuth } from "@/components/auth-provider";
-import { PremiumCheckout } from "@/components/premium-checkout";
+
+const PremiumCheckout = dynamic(
+  () =>
+    import("@/components/premium-checkout").then((mod) => mod.PremiumCheckout),
+  {
+    loading: () => (
+      <div className="space-y-3" aria-busy="true" aria-label="Loading checkout">
+        <div className="h-8 w-40 animate-pulse rounded bg-line" />
+        <div className="h-24 animate-pulse rounded-[var(--radius-md)] bg-line" />
+        <div className="h-12 animate-pulse rounded-full bg-line" />
+      </div>
+    ),
+  },
+);
 
 type Props = {
   plans: CoachCatalogPlan[];

@@ -22,6 +22,8 @@ export async function fetchFeedbackContext(params: {
   const query = new URLSearchParams(params);
   const response = await apiFetch<unknown>(
     `/v1/Coach/feedback-context?${query}`,
+    // Names on a private feedback link. Do not cache across requests.
+    { cache: "no-store", skipAuth: true },
   );
   return {
     ...response,

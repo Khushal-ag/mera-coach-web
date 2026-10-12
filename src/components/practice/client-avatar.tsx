@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useState } from "react";
 
 import { Camera } from "lucide-react";
 
+import { CoachPhoto } from "@/components/coach-photo";
 import { listDocuments, uploadDocument } from "@/lib/api/document";
 import {
   fileToBase64DataUrl,
@@ -96,13 +97,12 @@ export function ClientAvatar({
 
   return (
     <div className="relative shrink-0">
-      <div className="relative size-20 overflow-hidden rounded-full bg-paper-elevated ring-2 ring-line">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={src}
-          alt=""
-          className={`h-full w-full object-cover ${loading || busy ? "opacity-60" : ""}`}
-        />
+      <div
+        className={`relative size-20 overflow-hidden rounded-full bg-paper-elevated ring-2 ring-line ${
+          loading || busy ? "opacity-60" : ""
+        }`}
+      >
+        <CoachPhoto src={src} alt="" sizes="80px" className="object-cover" />
       </div>
       <label
         htmlFor={inputId}

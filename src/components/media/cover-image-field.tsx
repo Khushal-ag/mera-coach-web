@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 
 import type { CoachDocType } from "@/types/document";
 
+import { MediaPreview } from "@/components/media/media-preview";
 import { uploadDocument } from "@/lib/api/document";
 import {
   fileToBase64DataUrl,
@@ -76,8 +77,7 @@ export function CoverImageField({
       <div className="mt-1 flex flex-wrap items-center gap-3">
         <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-xl bg-paper-elevated ring-1 ring-line">
           {preview ?
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={preview} alt="" className="h-full w-full object-cover" />
+            <MediaPreview src={preview} sizes="128px" />
           : <span className="flex h-full w-full items-center justify-center text-[10px] font-semibold text-ink-muted uppercase">
               Cover
             </span>

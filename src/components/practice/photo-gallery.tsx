@@ -6,6 +6,7 @@ import { ImagePlus, Trash2 } from "lucide-react";
 
 import type { DocumentListItem } from "@/types/document";
 
+import { MediaPreview } from "@/components/media/media-preview";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import {
   deleteDocument,
@@ -124,9 +125,9 @@ export function PhotoGallery({
   }
 
   return (
-    <section className="rounded-[var(--radius-sm)] border border-line bg-surface">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3">
-        <h2 className="font-display text-sm font-bold text-ink">{title}</h2>
+    <section className="mc-panel">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
+        <h2 className="font-display text-base font-bold text-ink">{title}</h2>
         <label className="mc-btn-secondary !min-h-9 cursor-pointer px-3 text-sm">
           <ImagePlus className="size-4" aria-hidden />
           {busy ? "Working…" : "Upload"}
@@ -148,26 +149,36 @@ export function PhotoGallery({
           <AlertBanner tone="error">{error}</AlertBanner>
         : null}
         {loading ?
-          <p className="text-sm text-ink-muted">Loading photos…</p>
+          <div
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4"
+            aria-busy="true"
+          >
+            <span className="sr-only">Loading photos</span>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="mc-skeleton aspect-square" />
+            ))}
+          </div>
         : items.length === 0 ?
-          <p className="text-sm text-ink-muted">{emptyHint}</p>
+          <p className="max-w-[36ch] text-sm leading-relaxed text-ink-muted">
+            {emptyHint}
+          </p>
         : <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {items.map((item) => {
               const src = resolveMediaUrl(item.filePath);
               return (
                 <li
                   key={item.docId}
-                  className="group relative overflow-hidden rounded-[10px] border border-line bg-paper-elevated"
+                  className="group relative overflow-hidden rounded-[var(--radius-sm)] border border-line bg-paper-elevated"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={src}
-                    alt=""
-                    className="aspect-square w-full object-cover"
-                  />
+                  <div className="relative aspect-square">
+                    <MediaPreview
+                      src={src}
+                      sizes="(max-width: 640px) 45vw, 220px"
+                    />
+                  </div>
                   <button
                     type="button"
-                    className="absolute top-2 right-2 inline-flex size-8 items-center justify-center rounded-full bg-ink/70 text-white opacity-0 transition group-hover:opacity-100 focus:opacity-100"
+                    className="mc-press absolute top-2 right-2 inline-flex size-8 items-center justify-center rounded-full bg-[color:var(--ink)] text-white opacity-100 transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
                     aria-label="Delete photo"
                     disabled={busy}
                     onClick={() => void onDelete(item.docId)}

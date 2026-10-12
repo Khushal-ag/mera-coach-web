@@ -136,6 +136,7 @@ export async function fetchPublicCoaches(params?: {
   query.set("page", String(params?.page ?? 1));
   query.set("pageSize", String(params?.pageSize ?? 12));
   const response = await apiFetch<unknown>(`/v1/Coach/public?${query}`, {
+    // Public directory. Anonymous so the response can be cached.
     next: { revalidate: 60 },
     skipAuth: true,
   });
@@ -191,7 +192,7 @@ export async function fetchPublicCities(params?: {
   const qs = query.toString();
   const response = await apiFetch<unknown>(
     `/v1/Coach/public-cities${qs ? `?${qs}` : ""}`,
-    { next: { revalidate: 300 } },
+    { next: { revalidate: 300 }, skipAuth: true },
   );
   const raw = response.responseObj;
   let cities: string[] = [];
@@ -228,7 +229,9 @@ export async function fetchCoachProfile(params: {
   }
   if (params.coachCode) query.set("coachCode", params.coachCode);
   const response = await apiFetch<unknown>(`/v1/Coach/profile-by-id?${query}`, {
+    // Public profile. Do not attach a coach session — that would skip the cache.
     next: { revalidate: 60 },
+    skipAuth: true,
   });
   return {
     ...response,

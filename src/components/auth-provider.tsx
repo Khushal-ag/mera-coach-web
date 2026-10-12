@@ -4,9 +4,8 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useState,
+  useSyncExternalStore,
 } from "react";
 
 import type { CoachSession } from "@/lib/auth/types";
@@ -15,6 +14,7 @@ import {
   clearSession,
   getSession,
   saveSession as persistSession,
+  reloadSession,
   restoreSession,
   subscribeToAuthSession,
 } from "@/lib/auth/session";
@@ -29,39 +29,51 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+const subscribeNever = () => () => {};
+
+/** True only after hydration — server + first client paint both see false. */
+function useHydrated() {
+  return useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
+}
+
+let didRestoreFromStorage = false;
+
+function getClientSessionSnapshot(): CoachSession | null {
+  if (!didRestoreFromStorage) {
+    didRestoreFromStorage = true;
+    restoreSession();
+  }
+  return getSession();
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSessionState] = useState<CoachSession | null>(null);
-  const [ready, setReady] = useState(false);
+  const hydrated = useHydrated();
+  const storeSession = useSyncExternalStore(
+    subscribeToAuthSession,
+    getClientSessionSnapshot,
+    () => null,
+  );
 
   const setSession = useCallback((next: CoachSession | null) => {
     if (next) persistSession(next);
     else clearSession();
-    setSessionState(next);
   }, []);
 
   const refresh = useCallback(async () => {
-    setSessionState(restoreSession());
-    setReady(true);
+    didRestoreFromStorage = true;
+    reloadSession();
   }, []);
 
   const logout = useCallback(async () => {
     clearSession();
-    setSessionState(null);
   }, []);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setSessionState(restoreSession());
-      setReady(true);
-    }, 0);
-    const unsubscribe = subscribeToAuthSession(() => {
-      setSessionState(getSession());
-    });
-    return () => {
-      window.clearTimeout(timer);
-      unsubscribe();
-    };
-  }, []);
+  const ready = hydrated;
+  const session = ready ? storeSession : null;
 
   const value = useMemo(
     () => ({ session, ready, setSession, refresh, logout }),

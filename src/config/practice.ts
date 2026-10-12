@@ -1,5 +1,5 @@
 /**
- * Authenticated coach practice area (web CRM).
+ * Authenticated coach area.
  * Mirrors mera-coach-app subscription gating when the flag is on.
  */
 

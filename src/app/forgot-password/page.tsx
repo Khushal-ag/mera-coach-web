@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
-
 import { AuthShell } from "@/components/auth-shell";
 import { ForgotPasswordForm } from "@/components/forgot-password-form";
+import { publicPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
   title: "Forgot password",
   description: "Reset your Mera Coach coach account password.",
-};
+  path: "/forgot-password",
+});
 
 export default function ForgotPasswordPage() {
   return (
@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
       sideTitle={
         <>
           Reset access to your{" "}
-          <span className="text-[color:var(--mc-brand-coach)]">practice</span>
+          <span className="text-[color:var(--mc-brand-coach)]">coaching</span>
         </>
       }
       sideBody="Same flow as the app: request a code, set a new password, then sign in on the web dashboard."

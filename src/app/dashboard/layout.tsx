@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+/** Browser coach session — not eligible for instant navigations. */
+export const instant = false;
+
 export default function DashboardLayout({
   children,
 }: {

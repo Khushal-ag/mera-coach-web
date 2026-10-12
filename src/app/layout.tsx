@@ -82,9 +82,6 @@ export const metadata: Metadata = {
   publisher: siteConfig.publisher,
   applicationName: siteConfig.shortName,
   referrer: "origin-when-cross-origin",
-  alternates: {
-    canonical: "/",
-  },
   robots: {
     index: siteConfig.robots.index,
     follow: siteConfig.robots.follow,
@@ -97,7 +94,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteConfig.url,
-    title: "mera-coach.com | Find Health Coach - Wellness Coach",
+    title: siteConfig.name,
     description: siteConfig.description,
     siteName: siteConfig.name,
     images: [

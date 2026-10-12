@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
-
 import { PageHero } from "@/components/page-hero";
+import { publicPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
   title: "Terms & Conditions",
   description: "Terms and conditions for using Mera Coach.",
-};
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (

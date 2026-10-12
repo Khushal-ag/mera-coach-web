@@ -6,7 +6,10 @@ import { ApiRequestError } from "@/lib/api/types";
 import { clearSession, getCurrentToken } from "@/lib/auth/session";
 
 export type ApiFetchOptions = RequestInit & {
-  /** Override Next.js fetch caching. Defaults to no-store for mutations and dynamic lists. */
+  /**
+   * Public GETs pass `next.revalidate` and `skipAuth` so they can be cached.
+   * Authenticated calls omit `next` and use `cache: "no-store"`.
+   */
   next?: NextFetchRequestConfig;
   cache?: RequestCache;
   /** Skip Authorization even if a coach session exists (rare). */

@@ -15,6 +15,7 @@ import { ProfilePackages } from "@/components/coach-profile/profile-packages";
 import { ProfileStats } from "@/components/coach-profile/profile-stats";
 import { fetchCoachProfile, isApiSuccess } from "@/lib/api";
 import { getUpcomingCoachEvents } from "@/lib/coach/events";
+import { publicEventCutoffMs } from "@/lib/coach/public-event-cutoff";
 import { buildPublicProfileStats } from "@/lib/coach/public-stats";
 import {
   buildEnquiryLookingForOptions,
@@ -91,9 +92,13 @@ export async function generateMetadata({
         .filter(Boolean)
         .join(" · ");
     const titleParts = [coach.coachName, category].filter(Boolean);
+    const canonicalCode = coach.coachCode || code;
     return {
       title: titleParts.join(" · "),
       description,
+      alternates: {
+        canonical: `/coach/${encodeURIComponent(canonicalCode)}`,
+      },
       openGraph: {
         title: coach.coachName,
         description,
@@ -132,7 +137,10 @@ async function CoachProfileBody({ params }: { params: Params }) {
 
   const tags = splitServiceNames(coach.serviceNames);
   const packages = coach.packages ?? [];
-  const events = getUpcomingCoachEvents(coach.events ?? []);
+  const events = getUpcomingCoachEvents(
+    coach.events ?? [],
+    await publicEventCutoffMs(),
+  );
   const whatsappUrl = whatsAppUrlFromMobile(coach.mobile);
   const locationLabel = buildLocationLabel(coach);
   const locationDetail = buildLocationDetail(coach);

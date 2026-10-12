@@ -36,6 +36,8 @@ export async function authedFetch<T>(
     method: options.method ?? (options.body !== undefined ? "POST" : "GET"),
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
     signal: options.signal,
+    // Coach data is per session (Bearer in the browser). Never cache it.
+    cache: "no-store",
   });
 
   if (!isApiSuccess(envelope)) {

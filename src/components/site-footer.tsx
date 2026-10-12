@@ -28,7 +28,7 @@ export function SiteFooter() {
         <div>
           <BrandLockup variant="nav" className="text-xl sm:text-2xl" />
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/65">
-            Get found by clients. Run the practice that follows. For personal
+            Get found by clients. Grow your coaching business. For personal
             trainers, fitness coaches, and dieticians.
           </p>
           <a

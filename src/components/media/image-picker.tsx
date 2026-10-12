@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 
+import { MediaPreview } from "@/components/media/media-preview";
 import { REGISTER_IMAGE_ACCEPT } from "@/lib/media/image-file";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 
@@ -42,8 +43,7 @@ export function ImagePicker({
           className={`relative shrink-0 overflow-hidden rounded-xl bg-mc-secondary-light/40 ring-1 ring-mc-secondary/15 ${aspectClassName}`}
         >
           {preview ?
-            // eslint-disable-next-line @next/next/no-img-element -- blob or API media
-            <img src={preview} alt="" className="h-full w-full object-cover" />
+            <MediaPreview src={preview} sizes="64px" />
           : <span className="flex h-full w-full items-center justify-center text-[10px] font-semibold tracking-wide text-mc-secondary uppercase">
               Add
             </span>

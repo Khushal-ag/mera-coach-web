@@ -9,7 +9,7 @@ export const siteConfig = {
   name: "Mera Coach",
   shortName: "Mera Coach",
   description:
-    "Get found by clients. Run the practice that follows. Mera Coach connects personal trainers and coaches with clients, and gives coaches the tools to manage the relationship.",
+    "Get found by clients. Grow your coaching business. Mera Coach connects personal trainers and coaches with clients through a public profile, client tools, and a subscription.",
   url: env.siteUrl,
   apiBaseUrl: env.apiBaseUrl,
   /** Public contact + app-aligned support (`hello@mera-coach.com`). */
@@ -26,7 +26,8 @@ export const siteConfig = {
     "personal trainer",
     "fitness coach",
     "find a coach",
-    "coaching practice",
+    "coaching business",
+    "public profile",
     "client management",
     "mera coach",
     "dietician",

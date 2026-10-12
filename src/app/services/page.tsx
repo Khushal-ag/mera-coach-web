@@ -1,15 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import type { Metadata } from "next";
-
 import { PageHero } from "@/components/page-hero";
+import { publicPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
   title: "Services",
   description:
-    "Power your personal training practice with exercise programs, nutrition plans, client management, and a public coach page on Mera Coach.",
-};
+    "Power your coaching business with exercise programs, nutrition plans, client management, and a public coach page on Mera Coach.",
+  path: "/services",
+});
 
 const featuredOfferings = [
   {
@@ -26,7 +26,7 @@ const featuredOfferings = [
   },
 ] as const;
 
-const practiceOps = [
+const clientTools = [
   {
     title: "Detailed client profiles",
     body: "Personal details, health history, preferences, and coaching notes in one profile.",
@@ -66,7 +66,7 @@ export default function ServicesPage() {
           <>
             Power your{" "}
             <span className="text-[color:var(--mc-brand-coach)]">
-              coaching practice
+              coaching business
             </span>
           </>
         }
@@ -169,7 +169,7 @@ export default function ServicesPage() {
               Manage every client professionally
             </h2>
             <p className="mt-4 max-w-[40ch] text-sm leading-relaxed text-white/75 sm:text-base">
-              Run your coaching practice with clarity, from first assessment to
+              Run your coaching business with clarity, from first assessment to
               follow-up.
             </p>
             <Link
@@ -180,7 +180,7 @@ export default function ServicesPage() {
             </Link>
           </div>
           <ul className="divide-y divide-white/15 border-y border-white/15">
-            {practiceOps.map((item) => (
+            {clientTools.map((item) => (
               <li
                 key={item.title}
                 className="py-6 first:pt-0 last:pb-0 sm:py-7"
@@ -222,7 +222,7 @@ export default function ServicesPage() {
         <div className="relative container grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
           <div>
             <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl lg:text-4xl">
-              Turn coaching into a practice
+              Grow your coaching business
             </h2>
             <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-ink-muted sm:text-base">
               Grow beyond one-on-one sessions with a branded page, lead capture,
