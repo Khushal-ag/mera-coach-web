@@ -128,7 +128,7 @@ export function PhotoGallery({
     <section className="mc-panel">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
         <h2 className="font-display text-base font-bold text-ink">{title}</h2>
-        <label className="mc-btn-secondary !min-h-9 cursor-pointer px-3 text-sm">
+        <label className="mc-btn-secondary min-h-11 w-full cursor-pointer px-3 text-sm sm:w-auto">
           <ImagePlus className="size-4" aria-hidden />
           {busy ? "Working…" : "Upload"}
           <input

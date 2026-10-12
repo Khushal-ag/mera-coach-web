@@ -24,35 +24,36 @@ export function ProfileHero({
 
   return (
     <section className="overflow-x-clip bg-[color:var(--mc-explore-canvas)]">
-      <div className="bg-[color:var(--mc-header-bottom)]">
+      <div className="border-b border-line bg-surface">
         <div className="container py-3">
-          <p className="flex flex-wrap items-center gap-y-1 text-sm text-white/75">
+          <p className="flex flex-wrap items-center gap-y-1 text-sm text-ink-muted">
             <Link
               href="/coach"
-              className="inline-flex min-h-10 items-center hover:text-[color:var(--mc-brand-coach)]"
+              className="inline-flex min-h-11 items-center hover:text-mc-secondary"
             >
               Find a Coach
             </Link>
-            <span className="mx-1.5 text-white/40" aria-hidden>
+            <span className="mx-1.5 text-ink-muted/50" aria-hidden>
               ›
             </span>
-            <span className="text-white">{coach.coachName}</span>
+            <span className="text-ink">{coach.coachName}</span>
           </p>
         </div>
       </div>
 
       <div className="container pt-6 pb-10 sm:pt-8 sm:pb-12 lg:pb-14">
         <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:gap-12 xl:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
-          <div className="relative mx-auto aspect-[4/5] w-full max-w-xs overflow-hidden rounded-[var(--radius-lg)] bg-[color:var(--mc-header-bottom)] shadow-[0_20px_48px_rgba(0,40,32,0.14)] lg:mx-0 lg:max-w-none">
+          <div className="relative mx-auto aspect-[4/5] w-full max-w-xs overflow-hidden rounded-[var(--radius-lg)] bg-paper-elevated shadow-[0_20px_48px_rgba(17,82,60,0.12)] lg:mx-0 lg:max-w-none">
             <CoachPhoto
               src={photo}
               alt={coach.coachName}
+              name={coach.coachName}
               className="object-cover object-top"
               sizes="(max-width: 1024px) 320px, 320px"
               priority
             />
             <div
-              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[color:var(--mc-header-bottom)]/40 via-transparent to-transparent"
+              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[color:var(--mc-accent-ink)]/30 via-transparent to-transparent"
               aria-hidden
             />
           </div>

@@ -16,7 +16,7 @@ export function MobileEnquiryBar({
       <div className="mx-auto flex max-w-lg gap-2">
         <a
           href="#enquiry"
-          className="mc-btn-primary min-h-11 min-w-0 flex-1 px-3 text-sm sm:px-4"
+          className="mc-btn-primary min-h-11 min-w-0 flex-1 truncate px-3 text-sm sm:px-4"
         >
           Enquire{coachFirstName ? ` · ${coachFirstName}` : ""}
         </a>

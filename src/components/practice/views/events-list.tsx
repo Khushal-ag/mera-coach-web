@@ -132,7 +132,7 @@ export function EventsListView() {
           dirty ?
             <button
               type="button"
-              className="mc-btn-primary"
+              className="mc-btn-primary w-full sm:w-auto"
               disabled={busy}
               aria-busy={busy}
               onClick={() => void save()}
@@ -159,7 +159,11 @@ export function EventsListView() {
           title="No events yet"
           body="Add workshops or community sessions for your public page."
           action={
-            <button type="button" className="mc-btn-primary" onClick={addEvent}>
+            <button
+              type="button"
+              className="mc-btn-primary w-full sm:w-auto"
+              onClick={addEvent}
+            >
               Add event
             </button>
           }
@@ -175,7 +179,7 @@ export function EventsListView() {
               </p>
               <button
                 type="button"
-                className="text-sm font-semibold text-[color:var(--mc-destructive)]"
+                className="inline-flex min-h-11 items-center px-1 text-sm font-semibold text-[color:var(--mc-destructive)]"
                 onClick={() =>
                   edit((prev) => prev.filter((e) => e.id !== evt.id))
                 }
@@ -278,7 +282,7 @@ export function EventsListView() {
       {!loading && events.length > 0 && events.length < MAX_COACH_EVENTS ?
         <button
           type="button"
-          className="mc-btn-secondary mt-4"
+          className="mc-btn-secondary mt-4 w-full sm:w-auto"
           onClick={addEvent}
         >
           Add event

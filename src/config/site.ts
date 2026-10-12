@@ -93,7 +93,7 @@ export const siteConfig = {
     icon512: "/icon-512.png",
   },
 
-  themeColor: "#004B3E",
+  themeColor: "#178676",
 
   robots: {
     index: true,

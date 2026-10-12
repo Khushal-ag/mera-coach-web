@@ -66,7 +66,7 @@ export function CoachLoginForm() {
         <p className="text-sm text-ink-muted">Opening your coach dashboard…</p>
         <button
           type="button"
-          className="text-sm font-semibold text-mc-secondary underline-offset-2 hover:underline"
+          className="inline-flex min-h-11 items-center text-sm font-semibold text-mc-secondary underline-offset-2 hover:underline"
           onClick={() => void logout()}
         >
           Log out instead
@@ -100,7 +100,7 @@ export function CoachLoginForm() {
       <div className="flex justify-end">
         <Link
           href="/forgot-password"
-          className="text-sm font-semibold text-mc-secondary underline-offset-2 hover:underline"
+          className="inline-flex min-h-11 items-center text-sm font-semibold text-mc-secondary underline-offset-2 hover:underline"
         >
           Forgot password?
         </Link>
@@ -118,7 +118,7 @@ export function CoachLoginForm() {
         New here?{" "}
         <Link
           href="/register"
-          className="font-semibold text-mc-brand-coach hover:underline"
+          className="inline-flex min-h-11 items-center font-semibold text-mc-secondary hover:underline"
         >
           Register as a coach
         </Link>

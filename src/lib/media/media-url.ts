@@ -6,11 +6,15 @@
  * Absolute http(s) / data URLs pass through. Empty / whitespace → "".
  * Local public fallbacks (e.g. `/mc-images/…`) must be applied by the caller
  * after resolve (`resolveMediaUrl(x) || fallback`), never fed back into resolve.
+ *
+ * Missing coach/client photos are an empty string. `CoachPhoto` draws initials
+ * or a person outline — do not point this at a portrait file.
  */
 
 import { env } from "@/config/env";
 
-export const COACH_PHOTO_FALLBACK = "/mc-images/coach-avatar-fallback.jpg";
+/** Empty on purpose: UI draws a mark instead of a stock face. */
+export const COACH_PHOTO_FALLBACK = "";
 
 function isAbsoluteUrl(url: string): boolean {
   return (
@@ -46,7 +50,7 @@ export function resolveMediaUrl(url?: string | null): string {
 
 /**
  * Public list / profile prefers profile pic; logo is secondary when present.
- * Always returns a usable src (API absolute URL or local fallback).
+ * Returns "" when neither is set so the UI can draw initials or an outline.
  */
 export function resolveCoachPhotoUrl(
   coach: {

@@ -100,7 +100,7 @@ function ChipMulti({
               type="button"
               className={
                 on ?
-                  "rounded-full border border-[color:var(--mc-secondary)] bg-[color:var(--mc-secondary-light)] px-3 py-1.5 text-xs font-semibold text-[color:var(--mc-secondary-dark)]"
+                  "rounded-full border border-[color:var(--mc-secondary)] bg-[color:var(--mc-secondary-light)] px-3 py-1.5 text-xs font-semibold text-mc-secondary"
                 : "rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-muted hover:border-[color:var(--mc-secondary)]/40"
               }
               onClick={() => {
@@ -503,7 +503,7 @@ export function AssessmentWizard({
                   active ?
                     "rounded-full bg-[color:var(--mc-secondary)] px-3.5 py-1.5 text-xs font-semibold text-white"
                   : done ?
-                    "rounded-full bg-[color:var(--mc-secondary-light)] px-3.5 py-1.5 text-xs font-semibold text-[color:var(--mc-secondary-dark)]"
+                    "rounded-full bg-[color:var(--mc-secondary-light)] px-3.5 py-1.5 text-xs font-semibold text-mc-secondary"
                   : "rounded-full bg-paper-elevated px-3.5 py-1.5 text-xs font-medium text-ink-muted"
 
                 }
@@ -871,7 +871,7 @@ export function AssessmentWizard({
 
         {phase.id === "complete" ?
           <div className="flex flex-col items-start gap-3 py-4">
-            <span className="inline-flex size-12 items-center justify-center rounded-full bg-[color:var(--mc-secondary-light)] text-[color:var(--mc-secondary-dark)]">
+            <span className="inline-flex size-12 items-center justify-center rounded-full bg-[color:var(--mc-secondary-light)] text-mc-secondary">
               <Check className="size-6" aria-hidden />
             </span>
             <p className="font-display text-xl font-bold text-ink">
@@ -883,11 +883,11 @@ export function AssessmentWizard({
           </div>
         : null}
 
-        <div className="mt-8 flex flex-wrap gap-3 border-t border-line pt-5">
+        <div className="mt-8 flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:flex-wrap">
           {step > 0 && phase.id !== "complete" ?
             <button
               type="button"
-              className="mc-btn-secondary"
+              className="mc-btn-secondary w-full sm:w-auto"
               disabled={saving}
               onClick={() => {
                 setError(null);
@@ -899,7 +899,7 @@ export function AssessmentWizard({
           : null}
           <button
             type="button"
-            className="mc-btn-primary min-w-[8rem]"
+            className="mc-btn-primary w-full sm:w-auto sm:min-w-[8rem]"
             disabled={saving || generating}
             onClick={() => void onNext()}
           >

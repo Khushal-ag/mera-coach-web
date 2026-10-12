@@ -45,7 +45,7 @@ export function ProfilePackages({ packages, coachName }: ProfilePackagesProps) {
                       {pkg.name}
                     </h3>
                     {pkg.price ?
-                      <p className="shrink-0 text-sm font-semibold whitespace-nowrap text-mc-brand-coach tabular-nums">
+                      <p className="shrink-0 text-sm font-semibold whitespace-nowrap text-mc-primary tabular-nums">
                         {pkg.price}
                       </p>
                     : null}
@@ -62,7 +62,7 @@ export function ProfilePackages({ packages, coachName }: ProfilePackagesProps) {
                   : null}
                   <a
                     href="#enquiry"
-                    className="mt-3 inline-flex min-h-10 w-fit items-center text-sm font-semibold text-mc-secondary hover:text-mc-secondary-dark"
+                    className="mt-3 inline-flex min-h-11 w-fit items-center text-sm font-semibold text-mc-secondary hover:underline"
                   >
                     Enquire about this
                   </a>

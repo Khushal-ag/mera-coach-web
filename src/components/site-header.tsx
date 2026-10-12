@@ -56,7 +56,7 @@ export function SiteHeader() {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[color:var(--mc-header-bottom)]/95 text-white backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-line bg-surface text-ink">
       <div className="relative container flex h-16 items-center justify-between gap-3 lg:h-[4.25rem]">
         <Link
           href="/"
@@ -64,12 +64,12 @@ export function SiteHeader() {
           onClick={() => setOpen(false)}
           aria-label={siteConfig.name}
         >
-          <BrandLockup variant="nav" priority />
+          <BrandLockup variant="workspace" priority />
         </Link>
 
         <button
           type="button"
-          className="inline-flex size-11 shrink-0 items-center justify-center rounded-[10px] border border-white/20 text-white transition hover:bg-white/10 lg:hidden"
+          className="inline-flex size-11 shrink-0 items-center justify-center rounded-[10px] border border-line text-ink transition hover:bg-paper lg:hidden"
           aria-expanded={open}
           aria-controls={navId}
           aria-label={open ? "Close menu" : "Open menu"}
@@ -83,11 +83,11 @@ export function SiteHeader() {
         <nav
           id={navId}
           className={cn(
-            "absolute top-full right-0 left-0 max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-b border-white/10 bg-[color:var(--mc-header-bottom)] px-4 py-4 shadow-lg lg:static lg:flex lg:max-h-none lg:flex-1 lg:items-center lg:overflow-visible lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none",
+            "absolute top-full right-0 left-0 max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-b border-line bg-surface px-4 py-4 shadow-lg lg:static lg:flex lg:max-h-none lg:min-w-0 lg:flex-1 lg:items-center lg:overflow-visible lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none",
             open ? "block" : "hidden lg:flex",
           )}
         >
-          <ul className="flex flex-col gap-1 lg:mx-auto lg:flex-row lg:items-center lg:gap-1">
+          <ul className="flex flex-col gap-1 lg:mx-auto lg:min-w-0 lg:flex-row lg:items-center lg:gap-0.5 xl:gap-1">
             {siteConfig.nav.map((item) => {
               if (signedIn && item.href === "/register") return null;
               const active = isNavActive(pathname, item.href);
@@ -96,10 +96,10 @@ export function SiteHeader() {
                   <Link
                     href={item.href}
                     className={cn(
-                      "flex min-h-11 items-center rounded-[10px] px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors lg:min-h-0 lg:rounded-none lg:px-3 lg:py-1",
+                      "flex min-h-11 items-center rounded-[10px] px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors lg:rounded-none lg:px-2 lg:py-1 xl:px-3",
                       active ?
-                        "bg-white/10 text-[color:var(--mc-brand-coach)] lg:bg-transparent"
-                      : "text-white/80 hover:bg-white/5 hover:text-[color:var(--mc-brand-coach)] lg:hover:bg-transparent",
+                        "bg-[color:var(--mc-secondary-light)] font-semibold text-mc-secondary lg:bg-transparent"
+                      : "text-ink-muted hover:bg-paper hover:text-mc-secondary lg:hover:bg-transparent",
                     )}
                     aria-current={active ? "page" : undefined}
                     onClick={() => setOpen(false)}
@@ -111,15 +111,15 @@ export function SiteHeader() {
             })}
           </ul>
 
-          <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4 sm:flex-row sm:flex-wrap sm:items-center lg:ms-auto lg:mt-0 lg:shrink-0 lg:border-0 lg:pt-0">
+          <div className="mt-4 flex flex-col gap-2 border-t border-line pt-4 sm:flex-row sm:flex-wrap sm:items-center lg:ms-auto lg:mt-0 lg:shrink-0 lg:border-0 lg:pt-0">
             {signedIn && session ?
               <>
-                <p className="max-w-[12rem] truncate text-sm font-semibold text-white/90 sm:max-w-[10rem] lg:max-w-[9rem]">
+                <p className="max-w-[12rem] truncate text-sm font-semibold text-ink sm:max-w-[10rem] lg:hidden xl:block xl:max-w-[9rem]">
                   {session.fullName}
                 </p>
                 <Link
                   href={premiumHref(session)}
-                  className="mc-btn-outline-on-dark min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto"
+                  className="mc-btn-secondary min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto"
                   onClick={() => setOpen(false)}
                 >
                   Premium
@@ -127,9 +127,9 @@ export function SiteHeader() {
                 <Link
                   href="/dashboard"
                   className={cn(
-                    "mc-btn-outline-on-dark min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto",
+                    "mc-btn-secondary min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto",
                     onDashboard &&
-                      "ring-2 ring-[color:var(--mc-brand-coach)]/40 ring-offset-2 ring-offset-[color:var(--mc-header-bottom)]",
+                      "ring-2 ring-mc-secondary/30 ring-offset-2 ring-offset-surface",
                   )}
                   aria-current={onDashboard ? "page" : undefined}
                   onClick={() => setOpen(false)}
@@ -152,7 +152,7 @@ export function SiteHeader() {
                   href="/register"
                   className={cn(
                     "min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto",
-                    onRegister ? "mc-btn-primary" : "mc-btn-outline-on-dark",
+                    onRegister ? "mc-btn-primary" : "mc-btn-secondary",
                   )}
                   aria-current={onRegister ? "page" : undefined}
                   onClick={() => setOpen(false)}
@@ -163,9 +163,9 @@ export function SiteHeader() {
                   href="/coach-login"
                   className={cn(
                     "min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto",
-                    onRegister ? "mc-btn-outline-on-dark" : "mc-btn-primary",
+                    onRegister ? "mc-btn-secondary" : "mc-btn-primary",
                     onCoachLogin &&
-                      "ring-2 ring-[color:var(--mc-brand-coach)]/40 ring-offset-2 ring-offset-[color:var(--mc-header-bottom)]",
+                      "ring-2 ring-mc-secondary/30 ring-offset-2 ring-offset-surface",
                   )}
                   aria-current={onCoachLogin ? "page" : undefined}
                   onClick={() => setOpen(false)}

@@ -54,7 +54,7 @@ export function ServiceMultiSelect({
               <label className="flex cursor-pointer items-start gap-2.5 text-sm text-ink">
                 <input
                   type="checkbox"
-                  className="mt-0.5 size-4 rounded border-line text-mc-secondary focus:ring-mc-secondary"
+                  className="mt-0.5 size-4 cursor-pointer rounded border-line accent-mc-secondary focus:ring-mc-secondary disabled:cursor-default"
                   checked={selectedSet.has(opt.code)}
                   onChange={() => toggle(opt.code)}
                 />

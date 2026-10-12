@@ -569,7 +569,7 @@ export function ProfileSettingsView() {
 
       <div className="mc-panel flex flex-wrap items-center gap-3 p-4 sm:p-5">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-[color:var(--mc-secondary-dark)]">
+          <p className="text-sm font-semibold text-mc-secondary">
             Subscription
           </p>
           <p className="mt-1 font-display font-bold text-ink">{premiumLabel}</p>
@@ -582,14 +582,14 @@ export function ProfileSettingsView() {
               .
             </p>
           : profile?.isProfileVisible ?
-            <p className="mt-1 text-xs text-[color:var(--mc-secondary-dark)]">
+            <p className="mt-1 text-xs text-mc-secondary">
               Public profile visible in directory.
             </p>
           : null}
         </div>
         <Link
           href={premiumHref}
-          className="mc-btn-primary min-h-10 px-4 text-sm"
+          className="mc-btn-primary min-h-11 w-full px-4 text-sm sm:w-auto"
         >
           Manage Premium
         </Link>
@@ -625,10 +625,10 @@ export function ProfileSettingsView() {
             </p>
           : null}
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <button
             type="button"
-            className="mc-btn-primary"
+            className="mc-btn-primary w-full sm:w-auto"
             disabled={!publicUrl}
             onClick={() => void shareProfile()}
           >
@@ -637,13 +637,16 @@ export function ProfileSettingsView() {
           {session?.coachCode || profile?.coachCode ?
             <Link
               href={`/coach/${encodeURIComponent(session?.coachCode || profile?.coachCode || "")}`}
-              className="mc-btn-secondary"
+              className="mc-btn-secondary w-full sm:w-auto"
               target="_blank"
             >
               View public page
             </Link>
           : null}
-          <Link href="/dashboard/profile/password" className="mc-btn-secondary">
+          <Link
+            href="/dashboard/profile/password"
+            className="mc-btn-secondary w-full sm:w-auto"
+          >
             Change password
           </Link>
         </div>

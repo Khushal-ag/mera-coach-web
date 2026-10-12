@@ -8,6 +8,7 @@ import type { CoachPublicListItem } from "@/types/coach";
 
 import { CoachPhoto } from "@/components/coach-photo";
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { SelectField } from "@/components/ui/field";
 import { photography } from "@/config/photography";
 import {
   fetchCoachCategories,
@@ -75,7 +76,7 @@ export default function CoachDirectoryPage({
       <section className="bg-paper">
         <div className="container grid items-center gap-8 py-10 sm:py-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-12 lg:py-14">
           <div>
-            <h1 className="max-w-[10em] font-display text-4xl leading-[1.08] font-bold tracking-tight text-balance text-ink sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-[10em] font-display text-[2rem] leading-[1.08] font-bold tracking-tight text-balance text-ink sm:text-5xl lg:text-6xl">
               Find your coach
             </h1>
             <p className="mt-4 max-w-[36ch] text-sm leading-relaxed text-ink-muted sm:text-base">
@@ -96,7 +97,7 @@ export default function CoachDirectoryPage({
         </div>
       </section>
 
-      <section className="bg-[color:var(--mc-explore-canvas)] py-12 sm:py-16 lg:py-20">
+      <section className="bg-paper py-12 sm:py-16 lg:py-20">
         <div className="container">
           <Suspense fallback={<DirectoryFallback />}>
             <CoachDirectoryBody searchParams={searchParams} />
@@ -311,21 +312,19 @@ async function CoachDirectoryBody({
           {sortLabel !== SORT_OPTIONS[0] ?
             <input type="hidden" name="sort" value={sortLabel} />
           : null}
-          <label className="block min-w-0 flex-1 text-xs font-semibold text-ink-muted">
-            Serving city
-            <select
-              name="city"
-              defaultValue={city ?? ""}
-              className="mc-field mt-1.5 min-h-11 w-full text-sm text-ink"
-            >
-              <option value="">All cities</option>
-              {cities.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SelectField
+            label="Serving city"
+            name="city"
+            defaultValue={city ?? ""}
+            className="w-full min-w-0 flex-1"
+          >
+            <option value="">All cities</option>
+            {cities.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </SelectField>
           <button
             type="submit"
             className="mc-btn-primary min-h-11 px-5 text-sm"
@@ -351,12 +350,12 @@ async function CoachDirectoryBody({
             </h3>
             <Link
               href={buildQuery({ sort: "Top Rated" })}
-              className="text-xs font-semibold text-mc-secondary"
+              className="inline-flex min-h-11 items-center text-xs font-semibold text-mc-secondary"
             >
               View all
             </Link>
           </div>
-          <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
+          <div className="mt-4 flex max-w-full gap-3 overflow-x-auto overscroll-x-contain pb-2">
             {topRated.map((coach) => (
               <TopRatedCard key={coach.coachId} coach={coach} />
             ))}
@@ -388,7 +387,7 @@ async function CoachDirectoryBody({
             </Link>
           </div>
         </div>
-      : <div className="mt-8 grid gap-4 lg:grid-cols-2">
+      : <div className="mt-8 grid gap-4 md:grid-cols-2">
           {coaches.map((coach) => (
             <CoachResultCard key={coach.coachId} coach={coach} />
           ))}
@@ -432,7 +431,7 @@ async function CoachDirectoryBody({
           </p>
           <Link
             href="/register"
-            className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-mc-brand-coach"
+            className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-mc-secondary"
           >
             Are you a coach? Start here
           </Link>
@@ -447,7 +446,7 @@ async function CoachDirectoryBody({
           </p>
           <Link
             href="/bmi"
-            className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-mc-brand-coach"
+            className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-mc-secondary"
           >
             Open BMI calculator
           </Link>
@@ -496,8 +495,8 @@ function FilterChip({
       aria-current={active ? "true" : undefined}
       className={
         active ?
-          "inline-flex min-h-8 items-center rounded-full bg-mc-secondary px-3 text-xs font-bold text-white"
-        : "inline-flex min-h-8 items-center rounded-full bg-surface px-3 text-xs font-bold text-mc-secondary ring-1 ring-line hover:bg-[color:var(--mc-secondary-light)]"
+          "inline-flex min-h-11 items-center rounded-full bg-mc-secondary px-3.5 text-xs font-bold text-white"
+        : "inline-flex min-h-11 items-center rounded-full bg-[color:var(--mc-secondary-light)] px-3.5 text-xs font-bold text-mc-secondary hover:bg-[color:var(--mc-secondary-light)]"
       }
     >
       {children}
@@ -526,6 +525,7 @@ function CoachResultCard({ coach }: { coach: CoachPublicListItem }) {
           <CoachPhoto
             src={photo}
             alt=""
+            name={coach.coachName}
             className="object-cover"
             sizes="88px"
           />
@@ -574,7 +574,7 @@ function CoachResultCard({ coach }: { coach: CoachPublicListItem }) {
           ))}
         </div>
       : null}
-      <span className="mt-4 text-sm font-bold text-[color:var(--mc-brand-coach)]">
+      <span className="mt-4 text-sm font-bold text-mc-secondary">
         View profile
       </span>
     </Link>
@@ -594,6 +594,7 @@ function TopRatedCard({ coach }: { coach: CoachPublicListItem }) {
         <CoachPhoto
           src={photo}
           alt={coach.coachName}
+          name={coach.coachName}
           className="object-cover"
           sizes="64px"
         />

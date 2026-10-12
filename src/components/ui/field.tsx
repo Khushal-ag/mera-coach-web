@@ -34,7 +34,7 @@ function FieldShell({
       >
         {label}
         {required ?
-          <span className="text-mc-brand-coach"> *</span>
+          <span className="text-mc-primary"> *</span>
         : null}
       </label>
       {children}

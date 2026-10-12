@@ -32,7 +32,7 @@ export function ProfileEvents({ events }: { events: CoachEvent[] }) {
                   href={event.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-flex min-h-10 items-center text-sm font-semibold text-mc-brand-coach hover:brightness-110"
+                  className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-mc-secondary hover:underline"
                 >
                   Open details
                 </a>

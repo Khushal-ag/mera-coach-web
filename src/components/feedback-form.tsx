@@ -85,7 +85,7 @@ export function FeedbackForm({
               disabled={locked || busy}
               className={`size-11 rounded-full text-lg transition ${
                 value <= rating ?
-                  "bg-mc-brand-coach text-ink"
+                  "bg-mc-accent text-ink"
                 : "bg-line text-ink-muted hover:bg-mc-secondary-light"
               } disabled:opacity-60`}
               aria-label={`${value} star${value === 1 ? "" : "s"}`}

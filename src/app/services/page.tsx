@@ -65,7 +65,7 @@ export default function ServicesPage() {
             <p className="flex flex-wrap items-center gap-y-1 text-sm text-ink-muted">
               <Link
                 href="/"
-                className="inline-flex min-h-11 items-center hover:text-mc-brand-coach"
+                className="inline-flex min-h-11 items-center hover:text-mc-secondary"
               >
                 Home
               </Link>
@@ -74,7 +74,7 @@ export default function ServicesPage() {
               </span>
               <span>Services</span>
             </p>
-            <h1 className="mt-3 max-w-[12em] font-display text-4xl leading-[1.08] font-bold tracking-tight text-balance text-ink sm:text-5xl lg:text-6xl">
+            <h1 className="mt-3 max-w-[12em] font-display text-[2rem] leading-[1.08] font-bold tracking-tight text-balance text-ink sm:text-5xl lg:text-6xl">
               Power your{" "}
               <span className="text-[color:var(--mc-brand-coach)]">
                 coaching business

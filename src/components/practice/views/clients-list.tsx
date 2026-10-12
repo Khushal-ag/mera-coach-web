@@ -24,7 +24,7 @@ function statusTone(status?: string) {
   if (!status) return "bg-paper-elevated text-ink-muted";
   const s = status.toLowerCase();
   if (s === "active")
-    return "bg-[color:var(--mc-secondary-light)] text-[color:var(--mc-secondary-dark)]";
+    return "bg-[color:var(--mc-secondary-light)] text-mc-secondary";
   if (s === "new")
     return "bg-[color:var(--mc-primary-light)] text-[color:var(--mc-primary)]";
   return "bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]";
@@ -76,7 +76,7 @@ export function ClientsListView() {
     () => (
       <button
         type="button"
-        className="mc-btn-primary"
+        className="mc-btn-primary w-full sm:w-auto"
         disabled={checking}
         onClick={() => void openAddClient()}
       >
@@ -138,82 +138,86 @@ export function ClientsListView() {
       : <>
           {/* Desktop / tablet table */}
           <div className="mc-roster hidden md:block">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[40rem] text-left text-sm">
-                <thead className="mc-roster-head sticky top-0">
-                  <tr>
-                    <th scope="col" className="px-4 py-3 font-semibold">
-                      Name
-                    </th>
-                    <th scope="col" className="px-4 py-3 font-semibold">
-                      Contact
-                    </th>
-                    <th scope="col" className="px-4 py-3 font-semibold">
-                      Age
-                    </th>
-                    <th scope="col" className="px-4 py-3 font-semibold">
-                      Status
-                    </th>
-                    <th scope="col" className="px-4 py-3 font-semibold">
-                      Last checkup
-                    </th>
-                    <th scope="col" className="sr-only px-4 py-3 font-semibold">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line">
-                  {rows.map((client) => {
-                    const code = client.clientCode;
-                    if (!code) return null;
-                    return (
-                      <tr
-                        key={code}
-                        className="transition hover:bg-[color:var(--mc-explore-canvas)]"
-                      >
-                        <td className="px-4 py-3">
-                          <Link
-                            href={`/dashboard/clients/${encodeURIComponent(code)}`}
-                            className="font-display font-bold text-ink hover:text-[color:var(--mc-secondary-dark)]"
+            <table className="w-full text-left text-sm">
+              <thead className="mc-roster-head sticky top-0">
+                <tr>
+                  <th scope="col" className="px-4 py-3 font-semibold">
+                    Name
+                  </th>
+                  <th scope="col" className="px-4 py-3 font-semibold">
+                    Contact
+                  </th>
+                  <th
+                    scope="col"
+                    className="hidden px-4 py-3 font-semibold lg:table-cell"
+                  >
+                    Age
+                  </th>
+                  <th scope="col" className="px-4 py-3 font-semibold">
+                    Status
+                  </th>
+                  <th
+                    scope="col"
+                    className="hidden px-4 py-3 font-semibold xl:table-cell"
+                  >
+                    Last checkup
+                  </th>
+                  <th scope="col" className="sr-only px-4 py-3 font-semibold">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {rows.map((client) => {
+                  const code = client.clientCode;
+                  if (!code) return null;
+                  return (
+                    <tr
+                      key={code}
+                      className="transition hover:bg-[color:var(--mc-explore-canvas)]"
+                    >
+                      <td className="px-4 py-2">
+                        <Link
+                          href={`/dashboard/clients/${encodeURIComponent(code)}`}
+                          className="inline-flex min-h-11 items-center font-display font-bold text-ink hover:text-mc-secondary"
+                        >
+                          {client.name || "Unnamed client"}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-2 text-ink-muted">
+                        {client.mobileNo || "-"}
+                      </td>
+                      <td className="hidden px-4 py-2 text-ink-muted tabular-nums lg:table-cell">
+                        {client.age != null ? `${client.age}` : "-"}
+                      </td>
+                      <td className="px-4 py-2">
+                        {client.status ?
+                          <span
+                            className={cn(
+                              "inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-bold",
+                              statusTone(client.status),
+                            )}
                           >
-                            {client.name || "Unnamed client"}
-                          </Link>
-                        </td>
-                        <td className="px-4 py-3 text-ink-muted">
-                          {client.mobileNo || "-"}
-                        </td>
-                        <td className="px-4 py-3 text-ink-muted tabular-nums">
-                          {client.age != null ? `${client.age}` : "-"}
-                        </td>
-                        <td className="px-4 py-3">
-                          {client.status ?
-                            <span
-                              className={cn(
-                                "inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-bold",
-                                statusTone(client.status),
-                              )}
-                            >
-                              {client.status}
-                            </span>
-                          : <span className="text-ink-muted">-</span>}
-                        </td>
-                        <td className="px-4 py-3 text-ink-muted">
-                          {client.lastCheckupDate || "-"}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <Link
-                            href={`/dashboard/clients/${encodeURIComponent(code)}`}
-                            className="font-semibold text-mc-secondary hover:underline"
-                          >
-                            Open
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                            {client.status}
+                          </span>
+                        : <span className="text-ink-muted">-</span>}
+                      </td>
+                      <td className="hidden px-4 py-2 text-ink-muted xl:table-cell">
+                        {client.lastCheckupDate || "-"}
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        <Link
+                          href={`/dashboard/clients/${encodeURIComponent(code)}`}
+                          className="inline-flex min-h-11 items-center font-semibold text-mc-secondary hover:underline"
+                        >
+                          Open
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
 
           {/* Mobile: compact list, still web-native (not portrait cards) */}
@@ -225,7 +229,7 @@ export function ClientsListView() {
                 <li key={code}>
                   <Link
                     href={`/dashboard/clients/${encodeURIComponent(code)}`}
-                    className="flex items-start justify-between gap-3 px-4 py-3.5 transition hover:bg-paper"
+                    className="flex min-h-11 items-start justify-between gap-3 px-4 py-3.5 transition hover:bg-paper"
                   >
                     <div className="min-w-0">
                       <p className="truncate font-display font-bold text-ink">

@@ -92,55 +92,50 @@ export function CheckupsDueView() {
               : "No clients are due for a re-checkup right now."
             }
           />
-        : <div className="mc-roster overflow-x-auto">
-            <table className="w-full min-w-[32rem] text-left text-sm">
-              <thead className="mc-roster-head">
-                <tr>
-                  <th className="px-4 py-2.5">Client</th>
-                  <th className="px-4 py-2.5">Last checkup</th>
-                  <th className="px-4 py-2.5">Status</th>
-                  <th className="sr-only px-4 py-2.5">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {filtered.map((item) => (
-                  <tr key={item.clientCode ?? item.name}>
-                    <td className="px-4 py-3">
-                      <p className="font-semibold text-ink">{item.name}</p>
-                      {item.mobileNo ?
-                        <p className="text-xs text-ink-muted">
-                          {item.mobileNo}
-                        </p>
-                      : null}
-                    </td>
-                    <td className="px-4 py-3 text-ink-muted">
-                      {item.lastCheckupDate || "-"}
-                    </td>
-                    <td className="px-4 py-3">
-                      {item.daysOverdue > 0 ?
-                        <span className="font-medium text-[color:var(--mc-destructive)]">
-                          {item.daysOverdue}d overdue
-                        </span>
-                      : item.dueDate ?
-                        `Due ${item.dueDate}`
-                      : "Due soon"}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {item.clientCode ?
-                        <Link
-                          href={`/dashboard/clients/${encodeURIComponent(item.clientCode)}/checkup`}
-                          className="inline-flex items-center gap-1 font-semibold text-mc-secondary"
-                        >
-                          Start checkup
-                          <ArrowRight className="size-3.5" aria-hidden />
-                        </Link>
-                      : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        : <ul className="mc-roster divide-y divide-line">
+            {filtered.map((item) => (
+              <li
+                key={item.clientCode ?? item.name}
+                className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-ink">{item.name}</p>
+                  <p className="mt-0.5 truncate text-xs text-ink-muted">
+                    {[
+                      item.mobileNo,
+                      item.lastCheckupDate ?
+                        `Last checkup ${item.lastCheckupDate}`
+                      : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ") || "No contact details"}
+                  </p>
+                  <p
+                    className={
+                      item.daysOverdue > 0 ?
+                        "mt-1 text-sm font-medium text-[color:var(--mc-destructive)]"
+                      : "mt-1 text-sm text-ink-muted"
+                    }
+                  >
+                    {item.daysOverdue > 0 ?
+                      `${item.daysOverdue}d overdue`
+                    : item.dueDate ?
+                      `Due ${item.dueDate}`
+                    : "Due soon"}
+                  </p>
+                </div>
+                {item.clientCode ?
+                  <Link
+                    href={`/dashboard/clients/${encodeURIComponent(item.clientCode)}/checkup`}
+                    className="inline-flex min-h-11 items-center justify-center gap-1 text-sm font-semibold text-mc-secondary sm:shrink-0"
+                  >
+                    Start checkup
+                    <ArrowRight className="size-3.5" aria-hidden />
+                  </Link>
+                : null}
+              </li>
+            ))}
+          </ul>
         }
       </div>
     </div>

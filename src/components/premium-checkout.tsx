@@ -396,7 +396,7 @@ export function PremiumCheckout({
             );
           }
         },
-        theme: { color: "#f47f1e" },
+        theme: { color: "#178676" },
         modal: {
           ondismiss: () => {
             checkoutLock.current = false;
@@ -440,11 +440,12 @@ export function PremiumCheckout({
       />
 
       {resolvedCoach ?
-        <div className="flex min-w-0 items-center gap-3 rounded-[var(--radius-md)] border border-[color:var(--mc-secondary)]/15 bg-[color:var(--mc-explore-canvas)] p-3 sm:p-4">
+        <div className="flex min-w-0 items-center gap-3 rounded-[var(--radius-md)] border border-line bg-surface p-3 sm:p-4">
           <div className="relative size-12 shrink-0 overflow-hidden rounded-full ring-1 ring-[color:var(--mc-secondary)]/20">
             <CoachPhoto
               src={resolvedCoach.photo}
               alt={resolvedCoach.coachName}
+              name={resolvedCoach.coachName}
               className="object-cover"
               sizes="48px"
             />
@@ -463,7 +464,7 @@ export function PremiumCheckout({
               setShowCodeEntry(true);
               setCodeLookup(resolvedCoach.coachCode || "");
             }}
-            className="shrink-0 text-xs font-semibold text-mc-brand-coach"
+            className="shrink-0 text-xs font-semibold text-mc-secondary"
           >
             Change
           </button>
@@ -511,8 +512,8 @@ export function PremiumCheckout({
                 onClick={() => setPlanId(String(plan.planId))}
                 className={`min-h-11 min-w-0 rounded-[var(--radius-md)] border p-4 text-left transition active:scale-[0.99] sm:p-5 ${
                   active ?
-                    "border-mc-brand-coach bg-surface shadow-[0_12px_28px_rgba(244,127,30,0.16)] ring-2 ring-mc-brand-coach/25"
-                  : "border-[color:var(--mc-secondary)]/15 bg-[color:var(--mc-explore-canvas)] hover:border-mc-secondary/40"
+                    "border-mc-secondary bg-surface shadow-[0_12px_28px_rgba(23,134,118,0.16)] ring-2 ring-mc-secondary/25"
+                  : "border-line bg-surface hover:border-mc-secondary/40"
                 }`}
               >
                 <p className="text-xs font-semibold text-mc-secondary">
@@ -522,11 +523,9 @@ export function PremiumCheckout({
                 <h3 className="mt-1 truncate font-display text-xl font-bold text-ink">
                   {plan.planName}
                 </h3>
-                <p className="mt-3 font-display text-2xl font-bold sm:text-3xl">
-                  <span className="whitespace-nowrap tabular-nums">
-                    {formatInr(monthly)}
-                  </span>
-                  <span className="ml-1 text-base font-semibold text-ink-muted">
+                <p className="mt-3 flex flex-wrap items-baseline gap-x-1 font-display text-2xl font-bold sm:text-3xl">
+                  <span className="tabular-nums">{formatInr(monthly)}</span>
+                  <span className="text-base font-semibold text-mc-primary">
                     / month
                   </span>
                 </p>
@@ -539,7 +538,9 @@ export function PremiumCheckout({
                       {formatInr(plan.finalPrice)}
                     </span>
                     {off != null ?
-                      <span className="whitespace-nowrap">{` · ${off}% off`}</span>
+                      <span className="ml-2 inline-flex rounded-full bg-[color:var(--mc-primary-light)] px-2 py-0.5 text-xs font-bold whitespace-nowrap text-mc-primary">
+                        {off}% off
+                      </span>
                     : null}
                   </p>
                 : <p className="mt-1 text-sm text-ink-muted">
@@ -573,7 +574,7 @@ export function PremiumCheckout({
       />
 
       {quote && selected ?
-        <div className="min-w-0 rounded-[var(--radius-md)] border border-[color:var(--mc-secondary)]/15 bg-[color:var(--mc-explore-canvas)] p-4 sm:p-5">
+        <div className="min-w-0 rounded-[var(--radius-md)] border border-line bg-surface p-4 sm:p-5">
           <p className="text-xs font-semibold text-mc-secondary">
             Price breakdown
           </p>
@@ -651,7 +652,7 @@ export function PremiumCheckout({
         type="button"
         onClick={() => void startCheckout()}
         disabled={busy || plans.length === 0 || !canPay}
-        className="mc-btn-primary w-full max-w-full sm:w-auto"
+        className="mc-btn-primary mc-btn-pay w-full max-w-full sm:w-auto"
       >
         {status === "loading" ?
           message?.startsWith("Complete payment") ?

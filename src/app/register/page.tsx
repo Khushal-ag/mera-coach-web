@@ -41,7 +41,7 @@ export default function RegisterPage() {
         Already registered?{" "}
         <Link
           href="/coach-login"
-          className="font-semibold text-mc-brand-coach hover:underline"
+          className="font-semibold text-mc-secondary hover:underline"
         >
           Coach login
         </Link>

@@ -128,7 +128,7 @@ export function PackagesListView() {
           dirty ?
             <button
               type="button"
-              className="mc-btn-primary"
+              className="mc-btn-primary w-full sm:w-auto"
               disabled={busy}
               aria-busy={busy}
               onClick={() => void save()}
@@ -155,7 +155,7 @@ export function PackagesListView() {
           action={
             <button
               type="button"
-              className="mc-btn-primary"
+              className="mc-btn-primary w-full sm:w-auto"
               onClick={addPackage}
             >
               Add package
@@ -173,7 +173,7 @@ export function PackagesListView() {
               </p>
               <button
                 type="button"
-                className="text-sm font-semibold text-[color:var(--mc-destructive)]"
+                className="inline-flex min-h-11 items-center px-1 text-sm font-semibold text-[color:var(--mc-destructive)]"
                 onClick={() =>
                   edit((prev) => prev.filter((p) => p.id !== pkg.id))
                 }
@@ -255,7 +255,7 @@ export function PackagesListView() {
       {!loading && packages.length > 0 && packages.length < MAX_COACH_PACKAGES ?
         <button
           type="button"
-          className="mc-btn-secondary mt-4"
+          className="mc-btn-secondary mt-4 w-full sm:w-auto"
           onClick={addPackage}
         >
           Add package

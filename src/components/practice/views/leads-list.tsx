@@ -117,108 +117,82 @@ export function LeadsListView() {
           href="/dashboard/profile"
           cta="Share profile"
         />
-      : <div className="mc-roster">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[44rem] text-left text-sm">
-              <thead className="mc-roster-head">
-                <tr>
-                  <th scope="col" className="px-4 py-3 font-semibold">
-                    Lead
-                  </th>
-                  <th scope="col" className="px-4 py-3 font-semibold">
-                    Looking for
-                  </th>
-                  <th scope="col" className="px-4 py-3 font-semibold">
-                    Status
-                  </th>
-                  <th scope="col" className="px-4 py-3 font-semibold">
-                    Notes
-                  </th>
-                  <th scope="col" className="sr-only px-4 py-3 font-semibold">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {leads.map((lead) => (
-                  <tr
-                    key={lead.id}
-                    className={cn(
-                      "align-top",
-                      lead.isContacted && "bg-paper/50",
-                    )}
+      : <ul className="grid gap-3 lg:grid-cols-2">
+          {leads.map((lead) => (
+            <li
+              key={lead.id}
+              className={cn(
+                "mc-panel min-w-0 p-4 sm:p-5",
+                lead.isContacted && "bg-paper/70",
+              )}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate font-display font-bold text-ink">
+                    {lead.clientName || "Lead"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-ink-muted">
+                    {lead.dateLabel || "Recent"}
+                    {lead.lookingFor ? ` · ${lead.lookingFor}` : ""}
+                  </p>
+                </div>
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold",
+                    lead.isContacted ?
+                      "bg-paper-elevated text-ink-muted"
+                    : "bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]",
+                  )}
+                >
+                  {lead.isContacted ? "Contacted" : "Open"}
+                </span>
+              </div>
+              <div className="mt-3 flex flex-col gap-1 text-sm">
+                {lead.clientMobile ?
+                  <a
+                    href={`tel:${lead.clientMobile}`}
+                    className="inline-flex min-h-11 items-center font-semibold break-all text-mc-secondary hover:underline"
                   >
-                    <td className="px-4 py-3">
-                      <p className="font-display font-bold text-ink">
-                        {lead.clientName || "Lead"}
-                      </p>
-                      <p className="mt-0.5 text-xs text-ink-muted">
-                        {lead.dateLabel || "Recent"}
-                      </p>
-                      {lead.clientMobile ?
-                        <a
-                          href={`tel:${lead.clientMobile}`}
-                          className="mt-1 inline-block text-sm font-semibold text-mc-secondary hover:underline"
-                        >
-                          {lead.clientMobile}
-                        </a>
-                      : null}
-                      {lead.clientEmail ?
-                        <p className="text-xs text-ink-muted">
-                          {lead.clientEmail}
-                        </p>
-                      : null}
-                    </td>
-                    <td className="px-4 py-3 text-ink-muted">
-                      {lead.lookingFor || "-"}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={cn(
-                          "inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-bold",
-                          lead.isContacted ?
-                            "bg-paper-elevated text-ink-muted"
-                          : "bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]",
-                        )}
-                      >
-                        {lead.isContacted ? "Contacted" : "Open"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <label className="block">
-                        <span className="sr-only">
-                          Notes for {lead.clientName}
-                        </span>
-                        <textarea
-                          className="mc-field min-h-[4.5rem] w-full min-w-[12rem] text-sm"
-                          defaultValue={lead.notes}
-                          onBlur={(e) => {
-                            const next = e.target.value.trim();
-                            if (next !== lead.notes) void saveNotes(lead, next);
-                          }}
-                        />
-                      </label>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        className="mc-btn-secondary !min-h-9 px-3 text-xs"
-                        disabled={savingId === lead.id}
-                        onClick={() => void toggleContacted(lead)}
-                      >
-                        {savingId === lead.id ?
-                          "Saving"
-                        : lead.isContacted ?
-                          "Reopen"
-                        : "Mark contacted"}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                    {lead.clientMobile}
+                  </a>
+                : null}
+                {lead.clientEmail ?
+                  <a
+                    href={`mailto:${lead.clientEmail}`}
+                    className="inline-flex min-h-11 items-center break-all text-ink-muted hover:text-mc-secondary"
+                  >
+                    {lead.clientEmail}
+                  </a>
+                : null}
+              </div>
+              <label className="mt-3 block">
+                <span className="mc-field-label">
+                  Notes for {lead.clientName || "this lead"}
+                </span>
+                <textarea
+                  className="mc-field min-h-[4.5rem] w-full"
+                  defaultValue={lead.notes}
+                  onBlur={(e) => {
+                    const next = e.target.value.trim();
+                    if (next !== lead.notes) void saveNotes(lead, next);
+                  }}
+                />
+              </label>
+              <button
+                type="button"
+                className="mc-btn-secondary mt-3 w-full sm:w-auto"
+                disabled={savingId === lead.id}
+                onClick={() => void toggleContacted(lead)}
+              >
+                {savingId === lead.id ?
+                  "Saving"
+                : lead.isContacted ?
+                  "Reopen"
+                : "Mark contacted"}
+              </button>
+            </li>
+          ))}
+        </ul>
       }
     </div>
   );

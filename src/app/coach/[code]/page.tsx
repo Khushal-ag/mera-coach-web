@@ -13,6 +13,7 @@ import { ProfileExpertise } from "@/components/coach-profile/profile-expertise";
 import { ProfileHero } from "@/components/coach-profile/profile-hero";
 import { ProfilePackages } from "@/components/coach-profile/profile-packages";
 import { ProfileStats } from "@/components/coach-profile/profile-stats";
+import { siteConfig } from "@/config/site";
 import { fetchCoachProfile, isApiSuccess } from "@/lib/api";
 import { getUpcomingCoachEvents } from "@/lib/coach/events";
 import { publicEventCutoffMs } from "@/lib/coach/public-event-cutoff";
@@ -22,7 +23,7 @@ import {
   splitServiceNames,
 } from "@/lib/coach/services";
 import { whatsAppUrlFromMobile } from "@/lib/coach/whatsapp";
-import { COACH_PHOTO_FALLBACK, resolveMediaUrl } from "@/lib/media/media-url";
+import { resolveMediaUrl } from "@/lib/media/media-url";
 
 type Params = Promise<{ code: string }>;
 
@@ -82,7 +83,7 @@ export async function generateMetadata({
     if (!coach) return { title: "Coach" };
     const photo =
       resolveMediaUrl(coach.profile_Pic_Url || coach.logo_Url) ||
-      COACH_PHOTO_FALLBACK;
+      siteConfig.brand.logoMark;
     const category = coach.coachTypeName?.trim();
     const city = coach.city_Cd?.trim();
     const description =
@@ -205,7 +206,7 @@ function CoachProfileFallback() {
     <>
       <section className="bg-[color:var(--mc-explore-canvas)] pt-5 pb-8 sm:pt-7 sm:pb-10">
         <div className="container">
-          <div className="mb-4 h-4 w-40 animate-pulse rounded bg-[color:var(--mc-header-bottom)]/30" />
+          <div className="mb-4 h-4 w-40 animate-pulse rounded bg-line" />
           <div className="overflow-hidden rounded-[1.35rem] border border-[color:var(--mc-secondary)]/12 bg-surface sm:rounded-[1.75rem]">
             <div className="grid lg:grid-cols-[minmax(0,16.5rem)_minmax(0,1fr)]">
               <div className="hidden min-h-[21rem] animate-pulse bg-line lg:block" />

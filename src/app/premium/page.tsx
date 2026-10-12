@@ -40,12 +40,12 @@ export default function PremiumPage({
 }) {
   return (
     <>
-      <section className="bg-[color:var(--mc-explore-canvas)] py-10 sm:py-14 lg:py-16">
+      <section className="bg-[color:var(--mc-secondary-light)] py-10 sm:py-14 lg:py-16">
         <div className="container max-w-6xl">
           <p className="flex flex-wrap items-center gap-y-1 text-sm text-ink-muted">
             <Link
               href="/"
-              className="inline-flex min-h-11 items-center hover:text-mc-brand-coach"
+              className="inline-flex min-h-11 items-center hover:text-mc-secondary"
             >
               Home
             </Link>
@@ -54,7 +54,7 @@ export default function PremiumPage({
             </span>
             <span>Premium</span>
           </p>
-          <h1 className="mt-3 max-w-[16em] font-display text-4xl leading-[1.08] font-bold tracking-tight text-balance text-ink sm:text-5xl">
+          <h1 className="mt-3 max-w-[16em] font-display text-[2rem] leading-[1.08] font-bold tracking-tight text-balance text-ink sm:text-5xl">
             Grow your coaching business with{" "}
             <span className="text-[color:var(--mc-brand-coach)]">
               Mera Coach
@@ -127,7 +127,7 @@ async function PremiumCatalog({
 
         <div className="rounded-[var(--radius-md)] border border-line bg-surface p-5 sm:p-6">
           <div className="flex items-center gap-3">
-            <span className="inline-flex size-9 items-center justify-center rounded-[10px] bg-[color:var(--mc-accent-light)] text-[color:var(--mc-brand-coach)]">
+            <span className="inline-flex size-9 items-center justify-center rounded-[10px] bg-[color:var(--mc-accent-light)] text-mc-accent">
               <Crown className="size-4" strokeWidth={1.75} aria-hidden />
             </span>
             <h2 className="font-display text-lg font-bold text-ink">
@@ -175,14 +175,11 @@ async function PremiumCatalog({
         </div>
         <p className="mt-6 text-center text-sm text-ink-muted lg:text-left">
           Signed in? Premium uses your coach account automatically. New here?{" "}
-          <Link href="/register" className="font-semibold text-mc-brand-coach">
+          <Link href="/register" className="font-semibold text-mc-secondary">
             Start as a Coach
           </Link>{" "}
           or{" "}
-          <Link
-            href="/coach-login"
-            className="font-semibold text-mc-brand-coach"
-          >
+          <Link href="/coach-login" className="font-semibold text-mc-secondary">
             Coach login
           </Link>
           .

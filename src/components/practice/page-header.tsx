@@ -28,7 +28,7 @@ export function PracticePageHeader({
           className,
         )}
       >
-        <div className="relative min-h-[13rem] sm:min-h-[16rem]">
+        <div className="relative min-h-[11rem] sm:min-h-[12.5rem]">
           <Image
             src={image}
             alt="Coach writing notes between sets"
@@ -38,12 +38,12 @@ export function PracticePageHeader({
             className="object-cover object-[center_42%]"
           />
           <div
-            className="absolute inset-0 bg-gradient-to-r from-[color:var(--mc-header-bottom)]/94 via-[color:var(--mc-header-bottom)]/70 to-[color:var(--mc-header-top)]/35"
+            className="absolute inset-0 bg-gradient-to-r from-[color:var(--mc-secondary)]/88 via-[color:var(--mc-secondary)]/55 to-[color:var(--mc-header-top)]/30"
             aria-hidden
           />
-          <div className="relative flex min-h-[13rem] flex-col justify-end gap-4 px-5 py-5 sm:min-h-[16rem] sm:flex-row sm:items-end sm:justify-between sm:px-7 sm:py-6">
+          <div className="relative flex min-h-[11rem] flex-col justify-end gap-4 px-5 py-5 sm:min-h-[12.5rem] sm:flex-row sm:items-end sm:justify-between sm:px-7 sm:py-6">
             <div className="max-w-[62ch] min-w-0">
-              <h1 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              <h1 className="font-display text-2xl font-bold tracking-tight break-words text-white sm:text-3xl">
                 {title}
               </h1>
               {description ?
@@ -53,7 +53,7 @@ export function PracticePageHeader({
               : null}
             </div>
             {action ?
-              <div className="shrink-0">{action}</div>
+              <div className="w-full shrink-0 sm:w-auto">{action}</div>
             : null}
           </div>
         </div>
@@ -79,7 +79,7 @@ export function PracticePageHeader({
         : null}
       </div>
       {action ?
-        <div className="shrink-0">{action}</div>
+        <div className="w-full shrink-0 sm:w-auto">{action}</div>
       : null}
     </header>
   );

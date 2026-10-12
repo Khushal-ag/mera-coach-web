@@ -15,7 +15,7 @@ type Props = {
 };
 
 /**
- * Branded empty / error / loading status surface — matches header greens + brandCoach.
+ * Branded empty / error / loading status surface — paper ground, teal wash.
  */
 export function StatusPanel({
   code,
@@ -34,7 +34,7 @@ export function StatusPanel({
       )}
     >
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[color:var(--mc-header-bottom)]/12 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[color:var(--mc-secondary)]/10 to-transparent"
         aria-hidden
       />
       <div

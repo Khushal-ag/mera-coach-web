@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 /*
-  Mera Coach brand tokens — ported from mera-coach-app/src/constants/theme.ts
-  Teal secondary / header greens, brandCoach orange CTA, mint surfaces.
+  Mera Coach brand tokens — mera-coach-app/src/constants/theme.ts
+  and the screens that use them (Home, Find a Coach, Premium, profile).
+  Teal #178676 is headers, tabs, and links. Terracotta #d05c26 is the
+  shared pill button (white label). #f47f1e is the Coach wordmark and
+  the home-hero CTA only. Page grounds are #f5f7f5 / #d6ede5 / #f8f7f2.
   Montserrat headings + Poppins body (see lib/fonts.ts).
 */
 :root {
@@ -41,7 +44,8 @@
   --accent: var(--mc-secondary);
   --accent-fg: #ffffff;
   --accent-soft: var(--mc-secondary-light);
-  --cta: var(--mc-brand-coach);
+  /* Shared CTA is Colors.primary, not the wordmark orange. */
+  --cta: var(--mc-primary);
   --cta-fg: #ffffff;
   --terminal: var(--mc-header-bottom);
 
@@ -143,11 +147,14 @@
   }
 
   button:disabled,
-  select:disabled,
   input:disabled,
   textarea:disabled,
   [aria-disabled="true"] {
     cursor: not-allowed;
+  }
+
+  select:disabled {
+    cursor: default;
   }
 }
 
@@ -159,16 +166,16 @@
     justify-content: center;
     gap: 0.5rem;
     border-radius: var(--radius-pill);
-    background-color: var(--mc-brand-coach);
+    background-color: var(--mc-primary);
     padding-inline: 1.5rem;
     font-family: var(--font-sans);
     font-size: 0.9375rem;
     font-weight: 700;
-    /* Ink on brand orange clears WCAG AA; white on #f47f1e does not. */
-    color: var(--ink);
+    /* AppButton primary: terracotta fill, white label. */
+    color: #fff;
     box-shadow:
-      0 4px 14px color-mix(in oklab, var(--mc-brand-coach) 28%, transparent),
-      0 8px 24px color-mix(in oklab, var(--mc-secondary) 16%, transparent);
+      0 4px 14px color-mix(in oklab, var(--mc-primary) 28%, transparent),
+      0 8px 24px color-mix(in oklab, var(--mc-secondary) 12%, transparent);
     transition:
       filter 0.2s ease,
       opacity 0.15s ease,
@@ -177,11 +184,40 @@
   }
 
   .mc-btn-primary:hover {
-    filter: brightness(1.06);
+    background-color: var(--mc-primary-dark);
+    filter: none;
     transform: translateY(-1px);
     box-shadow:
-      0 8px 22px color-mix(in oklab, var(--mc-brand-coach) 34%, transparent),
-      0 12px 28px color-mix(in oklab, var(--mc-secondary) 18%, transparent);
+      0 8px 22px color-mix(in oklab, var(--mc-primary) 34%, transparent),
+      0 12px 28px color-mix(in oklab, var(--mc-secondary) 14%, transparent);
+  }
+
+  /* Premium Pay Now — Colors.secondary, white label. */
+  .mc-btn-pay {
+    background-color: var(--mc-secondary);
+    color: #fff;
+    box-shadow: 0 4px 14px
+      color-mix(in oklab, var(--mc-secondary) 32%, transparent);
+  }
+
+  .mc-btn-pay:hover {
+    background-color: var(--mc-secondary-dark);
+    filter: none;
+    box-shadow: 0 8px 22px
+      color-mix(in oklab, var(--mc-secondary) 36%, transparent);
+  }
+
+  /* Home hero CTA — Colors.brandCoach, white label (HomeScreen). */
+  .mc-btn-home {
+    background-color: var(--mc-brand-coach);
+    color: #fff;
+    box-shadow: 0 4px 14px
+      color-mix(in oklab, var(--mc-brand-coach) 32%, transparent);
+  }
+
+  .mc-btn-home:hover {
+    background-color: var(--mc-brand-coach);
+    filter: brightness(1.06);
   }
 
   .mc-btn-primary:active {
@@ -272,6 +308,8 @@
   .mc-field {
     width: 100%;
     min-height: 2.75rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     appearance: none;
     border-radius: var(--radius-sm);
     border: 1.5px solid var(--line);
@@ -295,7 +333,8 @@
     opacity: 1;
   }
 
-  .mc-field:hover:not(:disabled):not(:read-only) {
+  .mc-field:hover:not(:disabled):not(:read-only),
+  select.mc-field:hover:not(:disabled) {
     border-color: color-mix(in oklab, var(--mc-secondary) 45%, var(--line));
   }
 
@@ -313,7 +352,8 @@
     opacity: 0.72;
   }
 
-  .mc-field:read-only:not(:disabled) {
+  input.mc-field:read-only:not(:disabled),
+  textarea.mc-field:read-only:not(:disabled) {
     background-color: var(--paper-elevated);
     color: var(--ink);
   }
@@ -334,6 +374,109 @@
     resize: vertical;
   }
 
+  select.mc-field {
+    cursor: pointer;
+    color-scheme: light;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6.25 8 10.25 12 6.25' stroke='%23178676' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+    background-size: 1rem 1rem;
+  }
+
+  select.mc-field:disabled {
+    cursor: default;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6.25 8 10.25 12 6.25' stroke='%236b756f' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
+  select.mc-field option,
+  select.mc-field optgroup {
+    background-color: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-sans);
+  }
+
+  select.mc-field option:checked {
+    background-color: var(--mc-secondary-light);
+    color: var(--mc-header-bottom);
+  }
+
+  /*
+    Chromium customizable select: theme the open menu.
+    Other browsers keep the native option list; the closed control stays mc-field.
+  */
+  @supports (appearance: base-select) {
+    select.mc-field,
+    select.mc-field::picker(select) {
+      appearance: base-select;
+    }
+
+    select.mc-field {
+      background-image: none;
+      padding-right: 0.85rem;
+    }
+
+    select.mc-field::picker-icon {
+      color: var(--mc-secondary);
+    }
+
+    select.mc-field:disabled::picker-icon {
+      color: var(--ink-muted);
+    }
+
+    select.mc-field::picker(select) {
+      margin-top: 0.35rem;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid
+        color-mix(in oklab, var(--mc-secondary) 28%, var(--line));
+      background-color: var(--surface);
+      padding: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-sans);
+      box-shadow: 0 12px 32px
+        color-mix(in oklab, var(--mc-header-bottom) 14%, transparent);
+    }
+
+    select.mc-field option {
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      background-color: transparent;
+    }
+
+    select.mc-field option:hover,
+    select.mc-field option:focus-visible {
+      background-color: var(--mc-secondary-light);
+      color: var(--mc-header-bottom);
+    }
+
+    select.mc-field option:checked {
+      background-color: var(--mc-secondary-light);
+      color: var(--mc-header-bottom);
+      font-weight: 600;
+    }
+
+    select.mc-field option::checkmark {
+      color: var(--mc-secondary);
+    }
+  }
+
+  input[type="search"].mc-field::-webkit-search-decoration,
+  input[type="search"].mc-field::-webkit-search-cancel-button,
+  input[type="search"].mc-field::-webkit-search-results-button,
+  input[type="search"].mc-field::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type="checkbox"] {
+    accent-color: var(--mc-secondary);
+    cursor: pointer;
+  }
+
+  input[type="checkbox"]:disabled {
+    cursor: default;
+  }
+
   .mc-field-dark {
     border-color: color-mix(in oklab, #fff 22%, transparent);
     background-color: color-mix(in oklab, #000 35%, transparent);
@@ -345,7 +488,8 @@
     color: color-mix(in oklab, #fff 42%, transparent);
   }
 
-  .mc-field-dark:hover:not(:disabled):not(:read-only) {
+  .mc-field-dark:hover:not(:disabled):not(:read-only),
+  select.mc-field-dark:hover:not(:disabled) {
     border-color: color-mix(in oklab, #fff 40%, transparent);
     background-color: color-mix(in oklab, #000 28%, transparent);
   }
@@ -365,7 +509,8 @@
     color: color-mix(in oklab, #fff 45%, transparent);
   }
 
-  .mc-field-dark:read-only:not(:disabled) {
+  input.mc-field-dark:read-only:not(:disabled),
+  textarea.mc-field-dark:read-only:not(:disabled) {
     background-color: color-mix(in oklab, #fff 8%, transparent);
   }
 
@@ -560,16 +705,16 @@
   .mc-gradient-header {
     background-image: linear-gradient(
       160deg,
-      var(--mc-header-top) 0%,
-      var(--mc-header-bottom) 100%
+      var(--mc-secondary) 0%,
+      var(--mc-header-top) 100%
     );
   }
 
   .mc-gradient-cta {
     background-image: linear-gradient(
       135deg,
-      var(--mc-auth-cta-start) 0%,
-      var(--mc-auth-cta-end) 100%
+      var(--mc-secondary) 0%,
+      var(--mc-secondary-dark) 100%
     );
   }
 
@@ -630,9 +775,8 @@
   .mc-auth-side {
     background-image: linear-gradient(
       145deg,
-      var(--mc-auth-cta-start) 0%,
-      var(--mc-header-bottom) 55%,
-      var(--mc-home-canvas) 100%
+      var(--mc-secondary) 0%,
+      var(--mc-header-top) 100%
     );
   }
 

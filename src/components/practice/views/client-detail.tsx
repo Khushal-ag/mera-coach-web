@@ -153,7 +153,7 @@ export function ClientDetailView() {
       <nav className="mb-4" aria-label="Breadcrumb">
         <Link
           href="/dashboard/clients"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-mc-secondary hover:underline"
+          className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-mc-secondary hover:underline"
         >
           <ArrowLeft className="size-3.5" aria-hidden />
           Clients
@@ -168,6 +168,7 @@ export function ClientDetailView() {
                 coachCode={session.coachCode}
                 clientCode={detail.clientCode}
                 savedBy={session.coachId}
+                name={detail.clientName}
                 onError={(msg) => setError(msg)}
               />
             : null}
@@ -197,24 +198,24 @@ export function ClientDetailView() {
               : null}
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
             <Link
               href={`/dashboard/clients/${encodeURIComponent(code)}/checkup`}
-              className="mc-btn-primary !min-h-11"
+              className="mc-btn-primary min-h-11 w-full sm:w-auto"
             >
               <RefreshCw className="size-4" aria-hidden />
               Start checkup
             </Link>
             <Link
               href={`/dashboard/clients/${encodeURIComponent(code)}/bmi`}
-              className="mc-btn-secondary !min-h-11"
+              className="mc-btn-secondary min-h-11 w-full sm:w-auto"
             >
               <FileText className="size-4" aria-hidden />
               BMI report
             </Link>
             <Link
               href={`/dashboard/clients/${encodeURIComponent(code)}/diet`}
-              className="mc-btn-secondary !min-h-11"
+              className="mc-btn-secondary min-h-11 w-full sm:w-auto"
             >
               <Utensils className="size-4" aria-hidden />
               Diet plan
@@ -223,7 +224,7 @@ export function ClientDetailView() {
               <>
                 <button
                   type="button"
-                  className="mc-btn-secondary !min-h-11"
+                  className="mc-btn-secondary min-h-11 w-full sm:w-auto"
                   onClick={() => void askForFeedback("share")}
                 >
                   <Share2 className="size-4" aria-hidden />
@@ -231,7 +232,7 @@ export function ClientDetailView() {
                 </button>
                 <button
                   type="button"
-                  className="mc-btn-secondary !min-h-11"
+                  className="mc-btn-secondary min-h-11 w-full sm:w-auto"
                   title={feedbackUrl}
                   onClick={() => void askForFeedback("copy")}
                 >
@@ -242,7 +243,7 @@ export function ClientDetailView() {
                   href={feedbackUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mc-btn-secondary !min-h-11"
+                  className="mc-btn-secondary min-h-11 w-full sm:w-auto"
                 >
                   <MessageSquareHeart className="size-4" aria-hidden />
                   Open form

@@ -77,7 +77,7 @@ export function BmiCalculator() {
 
   const categoryTone =
     category?.tone === "secondary" ?
-      "bg-[color:var(--mc-secondary-light)] text-[color:var(--mc-secondary-dark)]"
+      "bg-[color:var(--mc-secondary-light)] text-mc-secondary"
     : category?.tone === "primary" ?
       "bg-[color:var(--mc-primary-light)] text-[color:var(--mc-primary)]"
     : "bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]";
@@ -168,7 +168,7 @@ export function BmiCalculator() {
           </AlertBanner>
         : null}
         {success ?
-          <div className="mt-4 flex items-center gap-2 rounded-[var(--radius-sm)] bg-[color:var(--mc-secondary-light)] p-3 text-sm font-medium text-[color:var(--mc-secondary-dark)]">
+          <div className="mt-4 flex items-center gap-2 rounded-[var(--radius-sm)] bg-[color:var(--mc-secondary-light)] p-3 text-sm font-medium text-mc-secondary">
             <CheckCircle2 className="size-5 shrink-0" aria-hidden />
             Thanks! A coach will reach out shortly.
           </div>

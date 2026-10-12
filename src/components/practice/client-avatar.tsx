@@ -11,7 +11,7 @@ import {
   REGISTER_IMAGE_ACCEPT,
   validateRegisterImage,
 } from "@/lib/media/image-file";
-import { COACH_PHOTO_FALLBACK, resolveMediaUrl } from "@/lib/media/media-url";
+import { resolveMediaUrl } from "@/lib/media/media-url";
 import {
   CLIENT_PROFILE_DOC_TYPE,
   CLIENT_PROFILE_REF_TYPE,
@@ -21,6 +21,7 @@ type ClientAvatarProps = {
   coachCode: string;
   clientCode: string;
   savedBy: number;
+  name?: string;
   onError?: (message: string | null) => void;
 };
 
@@ -28,6 +29,7 @@ export function ClientAvatar({
   coachCode,
   clientCode,
   savedBy,
+  name,
   onError,
 }: ClientAvatarProps) {
   const inputId = useId();
@@ -93,20 +95,24 @@ export function ClientAvatar({
     }
   }
 
-  const src = photoUrl || COACH_PHOTO_FALLBACK;
-
   return (
     <div className="relative shrink-0">
       <div
-        className={`relative size-20 overflow-hidden rounded-full bg-paper-elevated ring-2 ring-line ${
+        className={`relative size-20 overflow-hidden rounded-full bg-[color:var(--mc-secondary)] ring-2 ring-line ${
           loading || busy ? "opacity-60" : ""
         }`}
       >
-        <CoachPhoto src={src} alt="" sizes="80px" className="object-cover" />
+        <CoachPhoto
+          src={photoUrl}
+          alt={name?.trim() ? `${name.trim()} photo` : ""}
+          name={name}
+          sizes="80px"
+          className="object-cover"
+        />
       </div>
       <label
         htmlFor={inputId}
-        className={`absolute -right-0.5 -bottom-0.5 inline-flex size-8 cursor-pointer items-center justify-center rounded-full bg-mc-header-bottom text-white shadow ${
+        className={`absolute -right-0.5 -bottom-0.5 inline-flex size-8 cursor-pointer items-center justify-center rounded-full bg-mc-primary text-white shadow ${
           busy ? "pointer-events-none opacity-60" : "hover:opacity-90"
         }`}
         title="Upload client photo"

@@ -92,7 +92,7 @@ export default function HomePage() {
             <p className="motion-rise text-sm font-semibold text-white/80">
               Personal trainers, coaches, and the people who train with them
             </p>
-            <h1 className="motion-rise motion-rise-delay-1 mt-3 max-w-[16em] font-display text-[1.7rem] leading-[1.12] font-extrabold tracking-tight text-white sm:text-5xl lg:text-[3.15rem]">
+            <h1 className="motion-rise motion-rise-delay-1 mt-3 max-w-[14em] font-display text-[1.7rem] leading-[1.12] font-extrabold tracking-tight text-balance text-white sm:max-w-[16em] sm:text-5xl lg:text-[3.15rem]">
               Grow your{" "}
               <span className="text-[color:var(--mc-brand-coach)]">
                 coaching
@@ -110,7 +110,7 @@ export default function HomePage() {
             <div className="motion-rise motion-rise-delay-2 mt-6 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:flex-wrap">
               <Link
                 href="/register"
-                className="mc-btn-primary w-full sm:w-auto"
+                className="mc-btn-primary mc-btn-home w-full sm:w-auto"
               >
                 Start as a Coach
               </Link>
@@ -305,7 +305,7 @@ export default function HomePage() {
           <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
             <Link
               href="/register"
-              className="inline-flex min-h-12 items-center justify-center rounded-full bg-white px-8 text-sm font-bold text-mc-secondary-dark hover:bg-mc-explore"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-white px-8 text-sm font-bold text-mc-secondary hover:bg-mc-explore"
             >
               Start as a Coach
             </Link>

@@ -127,7 +127,7 @@ export function ForgotPasswordForm() {
         </button>
         <button
           type="button"
-          className="w-full text-sm font-semibold text-mc-secondary underline-offset-2 hover:underline"
+          className="inline-flex min-h-11 w-full items-center justify-center text-sm font-semibold text-mc-secondary underline-offset-2 hover:underline"
           disabled={busy}
           onClick={() => {
             setError(null);
@@ -140,7 +140,7 @@ export function ForgotPasswordForm() {
         <p className="border-t border-line pt-5 text-center text-sm text-ink-muted">
           <Link
             href="/coach-login"
-            className="font-semibold text-mc-brand-coach hover:underline"
+            className="inline-flex min-h-11 items-center font-semibold text-mc-secondary hover:underline"
           >
             Back to sign in
           </Link>
@@ -174,7 +174,7 @@ export function ForgotPasswordForm() {
       <p className="border-t border-line pt-5 text-center text-sm text-ink-muted">
         <Link
           href="/coach-login"
-          className="font-semibold text-mc-brand-coach hover:underline"
+          className="inline-flex min-h-11 items-center font-semibold text-mc-secondary hover:underline"
         >
           Back to sign in
         </Link>
