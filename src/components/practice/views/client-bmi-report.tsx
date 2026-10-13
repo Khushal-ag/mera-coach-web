@@ -19,6 +19,16 @@ import { downloadAuthedPdf } from "@/lib/api/pdf";
 import { fetchBmiReport } from "@/lib/api/practice";
 import { formatBmi, getBmi, getBmiCategory } from "@/lib/bmi";
 
+function historyBmiLabel(row: {
+  bmi?: number | null;
+  height?: string | number | null;
+  weight?: string | number | null;
+}) {
+  if (row.bmi && row.bmi > 0) return formatBmi(row.bmi);
+  const computed = getBmi(row.height ?? "", row.weight ?? "");
+  return computed ? formatBmi(computed) : "-";
+}
+
 export function ClientBmiReportView() {
   const params = useParams<{ code: string }>();
   const code = decodeURIComponent(params.code ?? "");
@@ -218,8 +228,26 @@ export function ClientBmiReportView() {
               <h2 className="border-b border-line px-5 py-3 font-display text-base font-bold text-ink">
                 History
               </h2>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[28rem] text-left text-sm">
+              <ul className="divide-y divide-line md:hidden">
+                {report.history.map((row, i) => (
+                  <li key={`${row.assessmentDate}-${i}`} className="px-4 py-3">
+                    <p className="font-display font-bold text-ink">
+                      {row.assessmentDate || "Checkup"}
+                    </p>
+                    <p className="mt-1 text-sm text-ink-muted">
+                      BMI {historyBmiLabel(row)}
+                      {" · "}
+                      {row.weight != null ? `${row.weight} kg` : "Weight -"}
+                      {" · "}
+                      {row.bodyFatPct != null ?
+                        `${row.bodyFatPct}% fat`
+                      : "Body fat -"}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full text-left text-sm">
                   <thead className="mc-roster-head">
                     <tr>
                       <th className="px-4 py-2">Date</th>
@@ -235,13 +263,7 @@ export function ClientBmiReportView() {
                           {row.assessmentDate || "-"}
                         </td>
                         <td className="px-4 py-2 tabular-nums">
-                          {row.bmi && row.bmi > 0 ?
-                            formatBmi(row.bmi)
-                          : getBmi(row.height ?? "", row.weight ?? "") ?
-                            formatBmi(
-                              getBmi(row.height ?? "", row.weight ?? "")!,
-                            )
-                          : "-"}
+                          {historyBmiLabel(row)}
                         </td>
                         <td className="px-4 py-2 tabular-nums">
                           {row.weight ?? "-"}

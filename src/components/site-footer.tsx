@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { BrandLockup } from "@/components/brand-lockup";
 import { siteConfig } from "@/config/site";
 
 const platformLinks = [
@@ -23,15 +22,17 @@ const companyLinks = [
 ] as const;
 
 const linkClass =
-  "inline-flex min-h-11 items-center text-sm text-white/80 transition-colors hover:text-[color:var(--mc-accent)]";
+  "inline-flex min-h-11 items-center text-sm text-white/80 transition-colors hover:text-mc-brand-coach";
 
 export function SiteFooter() {
   return (
-    <footer className="bg-[#2c1810] text-white">
+    <footer className="bg-mc-header-bottom text-white">
       <div className="container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_0.8fr_0.9fr_1fr] lg:gap-12 lg:py-16">
         <div>
-          <BrandLockup variant="nav" />
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/80">
+          <p className="font-display text-sm font-bold text-white">
+            Mera Coach
+          </p>
+          <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/80">
             India&apos;s coaching and wellness platform connecting people with
             health, fitness, yoga, and nutrition coaches, and giving those
             coaches one place to run the practice.
@@ -74,7 +75,7 @@ export function SiteFooter() {
             <li>
               <a
                 href={`mailto:${siteConfig.email.team}`}
-                className="inline-flex min-h-11 items-center break-all hover:text-[color:var(--mc-accent)]"
+                className="inline-flex min-h-11 items-center break-all hover:text-mc-brand-coach"
               >
                 {siteConfig.email.team}
               </a>

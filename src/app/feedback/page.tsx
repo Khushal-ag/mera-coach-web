@@ -31,9 +31,9 @@ export default function FeedbackPage({
         emphasis="feedback"
         subtitle="A few stars and optional comments for your coach."
       />
-      <section className="bg-[#f5ede0] py-10 sm:py-14">
+      <section className="bg-[color:var(--mc-explore-canvas)] py-10 sm:py-14">
         <div className="container max-w-lg">
-          <div className="rounded-[22px] border border-line bg-white p-5 shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:p-8">
+          <div className="rounded-[22px] border border-line bg-white p-5 shadow-[0_16px_40px_rgba(23,134,118,0.08)] sm:p-8">
             <Suspense fallback={<FeedbackFormSkeleton />}>
               <FeedbackBody searchParams={searchParams} />
             </Suspense>

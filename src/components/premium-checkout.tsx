@@ -35,6 +35,8 @@ type Props = {
   promo?: CoachSuggestedPromo | null;
   initialCoachId?: number;
   initialCoachCode?: string;
+  /** Session display name. The code stays internal and is never edited. */
+  displayName?: string;
 };
 
 type RazorpaySuccess = {
@@ -64,7 +66,7 @@ async function lookupCoach(params: {
     params.coachId && params.coachId > 0 ? params.coachId : undefined;
   const coachCode = params.coachCode?.trim() || undefined;
   if (!coachId && !coachCode) {
-    return { error: "Enter your coach code to continue." };
+    return { error: "Coach account is missing." };
   }
 
   async function tryFetch(query: {
@@ -100,7 +102,7 @@ async function lookupCoach(params: {
     }
     return {
       error:
-        "Could not load that coach profile. You can still pay if you opened this from the app, or enter your coach code below.",
+        "Could not load that coach profile. Payment can still continue for the account that opened this page.",
     };
   } catch (error) {
     return {
@@ -119,22 +121,29 @@ export function PremiumCheckout({
   promo,
   initialCoachId = 0,
   initialCoachCode = "",
+  displayName = "",
 }: Props) {
   const router = useRouter();
-  const fromApp = initialCoachId > 0 || Boolean(initialCoachCode.trim());
+  const identified = initialCoachId > 0 || Boolean(initialCoachCode.trim());
   const suggestedPromo = promo?.code?.trim() ? promo : null;
   const checkoutLock = useRef(false);
+  const seededName = displayName.trim();
 
   const [coachId, setCoachId] = useState(
     initialCoachId > 0 ? initialCoachId : 0,
   );
   const [coachCode, setCoachCode] = useState(initialCoachCode.trim());
-  const [codeLookup, setCodeLookup] = useState("");
-  const [showCodeEntry, setShowCodeEntry] = useState(!fromApp);
   const [resolvedCoach, setResolvedCoach] = useState<ResolvedCoach | null>(
-    null,
+    seededName ?
+      {
+        coachId: initialCoachId > 0 ? initialCoachId : 0,
+        coachCode: initialCoachCode.trim(),
+        coachName: seededName,
+        photo: "",
+      }
+    : null,
   );
-  const [coachLoading, setCoachLoading] = useState(fromApp);
+  const [coachLoading, setCoachLoading] = useState(identified);
   const [planId, setPlanId] = useState(plans[0] ? String(plans[0].planId) : "");
   const [promoCode, setPromoCode] = useState(suggestedPromo?.code ?? "");
   const [status, setStatus] = useState<
@@ -153,15 +162,12 @@ export function PremiumCheckout({
     [selected, suggestedPromo, promoCode],
   );
 
-  const canPay =
-    coachId > 0 || Boolean(coachCode.trim()) || Boolean(codeLookup.trim());
+  const canPay = coachId > 0 || Boolean(coachCode.trim());
 
   useEffect(() => {
-    if (!fromApp) return;
+    if (!identified) return;
     let cancelled = false;
 
-    // Identity is seeded from props via useState (+ page remount key).
-    // Lookup still enriches display when the public profile is available.
     void lookupCoach({
       coachId: initialCoachId > 0 ? initialCoachId : undefined,
       coachCode: initialCoachCode.trim() || undefined,
@@ -172,70 +178,23 @@ export function PremiumCheckout({
         setResolvedCoach(result.coach);
         setCoachId(result.coach.coachId);
         setCoachCode(result.coach.coachCode);
-        setShowCodeEntry(false);
         return;
       }
 
-      // Keep checkout usable from the app without a public profile.
-      if (initialCoachId > 0 || initialCoachCode.trim()) {
-        const code = initialCoachCode.trim();
-        setResolvedCoach({
-          coachId: initialCoachId > 0 ? initialCoachId : 0,
-          coachCode: code,
-          coachName: fallbackCoachLabel(),
-          photo: "",
-        });
-        setShowCodeEntry(false);
-        setMessage(null);
-        setStatus("idle");
-        return;
-      }
-
-      setShowCodeEntry(true);
-      setMessage(
-        result.error ??
-          "Enter your coach code to continue, or open Pay Now from the app.",
-      );
-      setStatus("error");
+      const code = initialCoachCode.trim();
+      setResolvedCoach({
+        coachId: initialCoachId > 0 ? initialCoachId : 0,
+        coachCode: code,
+        coachName: seededName || fallbackCoachLabel(),
+        photo: "",
+      });
+      setMessage(null);
+      setStatus("idle");
     });
     return () => {
       cancelled = true;
     };
-  }, [fromApp, initialCoachId, initialCoachCode]);
-
-  async function lookupEnteredCode() {
-    const code = codeLookup.trim();
-    if (!code) {
-      setStatus("error");
-      setMessage("Enter your coach code to continue.");
-      return;
-    }
-    setCoachLoading(true);
-    setMessage(null);
-    const result = await lookupCoach({ coachCode: code });
-    setCoachLoading(false);
-    if (result.coach) {
-      setResolvedCoach(result.coach);
-      setCoachId(result.coach.coachId);
-      setCoachCode(result.coach.coachCode);
-      setShowCodeEntry(false);
-      setStatus("idle");
-      return;
-    }
-
-    // Order API can resolve by coachCode alone when the profile is private.
-    setResolvedCoach({
-      coachId: 0,
-      coachCode: code,
-      coachName: fallbackCoachLabel(),
-      photo: "",
-    });
-    setCoachId(0);
-    setCoachCode(code);
-    setShowCodeEntry(false);
-    setStatus("idle");
-    setMessage(null);
-  }
+  }, [identified, initialCoachId, initialCoachCode, seededName]);
 
   async function startCheckout() {
     if (checkoutLock.current) return;
@@ -248,35 +207,14 @@ export function PremiumCheckout({
       return;
     }
 
-    let resolvedId = coachId;
-    let resolvedCode = coachCode.trim() || undefined;
-
-    if (resolvedId <= 0 && !resolvedCode) {
-      const code = codeLookup.trim();
-      if (!code) {
-        setStatus("error");
-        setMessage("Coach is required.");
-        setShowCodeEntry(true);
-        return;
-      }
-      const lookedUp = await lookupCoach({ coachCode: code });
-      if (lookedUp.coach) {
-        resolvedId = lookedUp.coach.coachId;
-        resolvedCode = lookedUp.coach.coachCode || code;
-        setResolvedCoach(lookedUp.coach);
-        setCoachId(lookedUp.coach.coachId);
-        setCoachCode(lookedUp.coach.coachCode);
-      } else {
-        // Proceed with code-only; API FindActiveCoachIdAsync resolves it.
-        resolvedCode = code;
-        setCoachCode(code);
-      }
-    }
+    const resolvedId = coachId;
+    const resolvedCode = coachCode.trim() || undefined;
 
     if (resolvedId <= 0 && !resolvedCode) {
       setStatus("error");
-      setMessage("Coach is required.");
-      setShowCodeEntry(true);
+      setMessage(
+        "Coach account is missing. Sign in, or open Pay Now from the app.",
+      );
       return;
     }
 
@@ -339,10 +277,7 @@ export function PremiumCheckout({
 
       // Prefer the coach id the order was created for.
       const paidCoachId = order.coachId > 0 ? order.coachId : resolvedId;
-      if (paidCoachId > 0) {
-        resolvedId = paidCoachId;
-        setCoachId(paidCoachId);
-      }
+      if (paidCoachId > 0) setCoachId(paidCoachId);
 
       const rzp = new window.Razorpay({
         key: order.keyId,
@@ -396,7 +331,7 @@ export function PremiumCheckout({
             );
           }
         },
-        theme: { color: "#c04b2b" },
+        theme: { color: "#178676" },
         modal: {
           ondismiss: () => {
             checkoutLock.current = false;
@@ -458,41 +393,9 @@ export function PremiumCheckout({
               {resolvedCoach.coachName}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              setShowCodeEntry(true);
-              setCodeLookup(resolvedCoach.coachCode || "");
-            }}
-            className="shrink-0 text-xs font-semibold text-mc-secondary"
-          >
-            Change
-          </button>
         </div>
-      : fromApp && coachLoading ?
+      : identified && coachLoading ?
         <p className="text-sm text-ink-muted">Loading your coach profile…</p>
-      : null}
-
-      {showCodeEntry ?
-        <div className="grid min-w-0 gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
-          <TextField
-            label="Coach code"
-            value={codeLookup}
-            onChange={(e) => setCodeLookup(e.target.value)}
-            placeholder="Enter the code from your app"
-            disabled={busy}
-            hint="Open Pay Now from the app, or enter your coach code here."
-            className="min-w-0"
-          />
-          <button
-            type="button"
-            onClick={() => void lookupEnteredCode()}
-            disabled={busy || !codeLookup.trim()}
-            className="mc-btn-secondary min-h-11 w-full max-w-full sm:w-auto"
-          >
-            {coachLoading ? "Looking up…" : "Find coach"}
-          </button>
-        </div>
       : null}
 
       {plans.length === 0 ?

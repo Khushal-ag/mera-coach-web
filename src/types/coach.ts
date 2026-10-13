@@ -67,6 +67,7 @@ export type CoachProfile = {
   coachDesc?: string | null;
   profile_Pic_Url?: string | null;
   logo_Url?: string | null;
+  cover_Url?: string | null;
   serviceNames?: string | null;
   experienceYears?: number;
   happyClientCount?: number;
@@ -98,6 +99,7 @@ export type CoachMediaUpdateInput = {
   coachId: number;
   logo_Url?: string;
   profile_Pic_Url?: string;
+  cover_Url?: string;
 };
 
 export type CoachEnquiryInput = {

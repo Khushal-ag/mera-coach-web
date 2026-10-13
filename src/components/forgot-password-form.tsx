@@ -81,7 +81,10 @@ export function ForgotPasswordForm() {
 
   if (step === "confirm") {
     return (
-      <form className="space-y-5" onSubmit={(e) => void onConfirm(e)}>
+      <form
+        className="mx-auto w-full max-w-md space-y-5"
+        onSubmit={(e) => void onConfirm(e)}
+      >
         {info ?
           <AlertBanner tone="success">{info}</AlertBanner>
         : null}
@@ -121,7 +124,7 @@ export function ForgotPasswordForm() {
           type="submit"
           disabled={busy}
           aria-busy={busy}
-          className="mc-btn-primary mc-btn-pay mt-1 w-full"
+          className="mc-btn-primary mc-btn-auth mt-1 w-full"
         >
           {busy ? "Updating password" : "Update password"}
         </button>
@@ -150,7 +153,10 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form className="space-y-5" onSubmit={(e) => void onRequest(e)}>
+    <form
+      className="mx-auto w-full max-w-md space-y-5"
+      onSubmit={(e) => void onRequest(e)}
+    >
       {error ?
         <AlertBanner tone="error">{error}</AlertBanner>
       : null}
@@ -167,7 +173,7 @@ export function ForgotPasswordForm() {
         type="submit"
         disabled={busy}
         aria-busy={busy}
-        className="mc-btn-primary mc-btn-pay mt-1 w-full"
+        className="mc-btn-primary mc-btn-auth mt-1 w-full"
       >
         {busy ? "Sending code" : "Send reset code"}
       </button>

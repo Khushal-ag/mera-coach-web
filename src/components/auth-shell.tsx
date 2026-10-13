@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { BrandLockup } from "@/components/brand-lockup";
 import { cn } from "@/lib/utils";
 
 type Crumb = { label: string; href?: string };
@@ -13,8 +12,10 @@ const trust = [
 ] as const;
 
 /**
- * Login split from meracoachweb: sand page, forest trust panel, white form.
- * A faint page photo can sit inside the forest panel. It is not a full-bleed backdrop.
+ * Auth canvas around a white form card.
+ * Split layouts keep a viewport-scale trust panel for short forms.
+ * Card layout is a centered form (~760px) with an optional short photo banner.
+ * The site header owns the wordmark; this shell does not repeat it.
  */
 export function AuthShell({
   title,
@@ -39,18 +40,21 @@ export function AuthShell({
   panelHeading?: React.ReactNode;
   panelSubheading?: React.ReactNode;
   children: React.ReactNode;
-  layout?: "split" | "single";
+  /** split: trust panel + narrow form. wide: same panel, wider form. card: centered form, no side column. */
+  layout?: "split" | "single" | "wide" | "card";
   panel?: "dark" | "light";
   image?: string;
   imageAlt?: string;
   className?: string;
 }) {
-  const split = layout === "split";
+  const split = layout === "split" || layout === "wide";
+  const card = layout === "card";
+  const banner = card && Boolean(image);
 
   return (
     <section
       className={cn(
-        "relative overflow-x-clip bg-[#f5ede0] py-8 text-ink sm:py-12 lg:py-14",
+        "relative overflow-x-clip bg-[color:var(--mc-explore-canvas)] py-8 text-ink sm:py-12 lg:py-14",
         className,
       )}
     >
@@ -79,7 +83,7 @@ export function AuthShell({
                 {crumb.href ?
                   <Link
                     href={crumb.href}
-                    className="inline-flex min-h-11 items-center hover:text-mc-primary"
+                    className="inline-flex min-h-11 items-center hover:text-mc-secondary"
                   >
                     {crumb.label}
                   </Link>
@@ -91,17 +95,49 @@ export function AuthShell({
 
         <div
           className={cn(
-            "mx-auto overflow-hidden rounded-[24px] bg-white shadow-[0_30px_80px_rgba(44,24,16,0.16)]",
-            split ? "grid max-w-5xl lg:grid-cols-2" : "max-w-xl",
+            "mx-auto overflow-hidden rounded-[24px] bg-white shadow-[0_30px_80px_rgba(23,134,118,0.16)]",
+            layout === "card" ? "w-full max-w-[47.5rem]"
+            : layout === "wide" ?
+              "grid w-full max-w-[73.5rem] lg:grid-cols-[minmax(22rem,26rem)_minmax(0,1fr)]"
+            : split ? "grid max-w-5xl lg:grid-cols-2"
+            : "max-w-xl",
           )}
         >
+          {banner && image ?
+            <div className="relative min-h-36 overflow-hidden">
+              <Image
+                src={image}
+                alt={imageAlt}
+                fill
+                priority
+                className="object-cover object-[center_30%]"
+                sizes="(max-width: 768px) 100vw, 760px"
+              />
+              <div
+                className="absolute inset-0 bg-[linear-gradient(105deg,rgba(23,134,118,0.94)_0%,rgba(23,134,118,0.78)_52%,rgba(23,134,118,0.5)_100%)]"
+                aria-hidden
+              />
+              <div className="relative z-10 flex h-full flex-col justify-end p-6 sm:p-8">
+                <h1 className="font-display text-3xl leading-tight font-extrabold tracking-tight text-white sm:text-4xl">
+                  {title}
+                </h1>
+                {subtitle ?
+                  <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/85">
+                    {subtitle}
+                  </p>
+                : null}
+              </div>
+            </div>
+          : null}
+
           {split ?
-            <aside className="relative hidden min-h-[28rem] flex-col justify-between overflow-hidden bg-[image:linear-gradient(160deg,#0f2018_0%,#1b4332_55%,#0f2018_100%)] p-8 text-white lg:flex xl:p-10">
+            <aside className="relative hidden min-h-[28rem] flex-col justify-between overflow-hidden bg-[image:var(--mc-gradient)] p-8 text-white lg:flex xl:p-10">
               {image ?
                 <Image
                   src={image}
                   alt={imageAlt}
                   fill
+                  priority
                   className="object-cover opacity-[0.18]"
                   sizes="40vw"
                 />
@@ -111,8 +147,7 @@ export function AuthShell({
                 aria-hidden
               />
               <div className="relative z-10">
-                <BrandLockup variant="nav" />
-                <h2 className="mt-8 font-display text-3xl leading-tight font-extrabold">
+                <h2 className="font-display text-3xl leading-tight font-extrabold">
                   {sideTitle ?? title}
                 </h2>
                 {(sideBody ?? subtitle) ?
@@ -161,21 +196,23 @@ export function AuthShell({
               panel === "dark" && "bg-mc-secondary text-white",
             )}
           >
-            <div className={cn(split && "lg:hidden")}>
-              <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
-                {title}
-              </h1>
-              {subtitle ?
-                <p
-                  className={cn(
-                    "mt-2 text-sm leading-relaxed",
-                    panel === "dark" ? "text-white/70" : "text-ink-muted",
-                  )}
-                >
-                  {subtitle}
-                </p>
-              : null}
-            </div>
+            {banner ? null : (
+              <div className={cn(split && "lg:hidden")}>
+                <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
+                  {title}
+                </h1>
+                {subtitle ?
+                  <p
+                    className={cn(
+                      "mt-2 text-sm leading-relaxed",
+                      panel === "dark" ? "text-white/70" : "text-ink-muted",
+                    )}
+                  >
+                    {subtitle}
+                  </p>
+                : null}
+              </div>
+            )}
             {panelHeading ?
               <div
                 className={cn("mb-6", split && "mt-6 hidden lg:mt-0 lg:block")}

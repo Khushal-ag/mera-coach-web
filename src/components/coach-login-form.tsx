@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextField } from "@/components/ui/field";
+import { useMounted } from "@/hooks/use-mounted";
 import { loginCoach } from "@/lib/api/auth";
 
 function safeNextPath(raw: string | null): string {
@@ -16,7 +17,8 @@ function safeNextPath(raw: string | null): string {
 }
 
 export function CoachLoginForm() {
-  const { session, ready, setSession, logout } = useAuth();
+  const { session, ready, setSession } = useAuth();
+  const mounted = useMounted();
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = safeNextPath(searchParams.get("next"));
@@ -24,9 +26,9 @@ export function CoachLoginForm() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!ready || !session) return;
+    if (!mounted || !ready || !session) return;
     router.replace(nextPath);
-  }, [ready, session, router, nextPath]);
+  }, [mounted, ready, session, router, nextPath]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,31 +54,11 @@ export function CoachLoginForm() {
     }
   }
 
-  if (!ready) {
-    return (
-      <p className="text-sm text-ink-muted" aria-live="polite">
-        Checking session…
-      </p>
-    );
-  }
-
-  if (session) {
-    return (
-      <div className="space-y-4">
-        <p className="text-sm text-ink-muted">Opening your coach dashboard…</p>
-        <button
-          type="button"
-          className="inline-flex min-h-11 items-center text-sm font-semibold text-mc-secondary underline-offset-2 hover:underline"
-          onClick={() => void logout()}
-        >
-          Log out instead
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <form onSubmit={(event) => void onSubmit(event)} className="space-y-5">
+    <form
+      onSubmit={(event) => void onSubmit(event)}
+      className="mx-auto w-full max-w-md space-y-5"
+    >
       {message ?
         <AlertBanner tone="error">{message}</AlertBanner>
       : null}
@@ -109,7 +91,7 @@ export function CoachLoginForm() {
         type="submit"
         disabled={status === "loading"}
         aria-busy={status === "loading"}
-        className="mc-btn-primary mc-btn-pay mt-1 w-full"
+        className="mc-btn-primary mc-btn-auth mt-1 w-full"
       >
         {status === "loading" ? "Signing in" : "Sign in"}
       </button>

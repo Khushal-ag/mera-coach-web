@@ -48,7 +48,7 @@ export default function PremiumPage({
         emphasis="Premium"
         subtitle="Unlimited clients, packages, and the public page tools. One plan, checkout on the website."
       />
-      <section className="bg-[#f5ede0] py-10 sm:py-14">
+      <section className="bg-mc-secondary-light py-10 sm:py-14">
         <div className="container max-w-6xl">
           <Suspense fallback={<PremiumCatalogSkeleton />}>
             <PremiumCatalog searchParams={searchParams} />
@@ -97,7 +97,7 @@ async function PremiumCatalog({
   return (
     <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
       <aside className="space-y-5">
-        <div className="relative aspect-[16/10] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(44,24,16,0.12)]">
+        <div className="relative aspect-[16/10] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(23,134,118,0.12)]">
           <Image
             src={photography.premium}
             alt="A quiet stretch in a coaching studio"
@@ -106,7 +106,7 @@ async function PremiumCatalog({
             sizes="(max-width: 1024px) 100vw, 380px"
           />
         </div>
-        <div className="rounded-[22px] border border-line bg-white p-5 shadow-[0_8px_24px_rgba(44,24,16,0.06)] sm:p-6">
+        <div className="rounded-[22px] border border-line bg-white p-5 shadow-[0_8px_24px_rgba(23,134,118,0.06)] sm:p-6">
           <div className="flex items-center gap-3">
             <span className="inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]">
               <Crown className="size-5" strokeWidth={1.75} aria-hidden />
@@ -138,7 +138,7 @@ async function PremiumCatalog({
           </AlertBanner>
         : null}
 
-        <div className="overflow-hidden rounded-[22px] border border-line bg-white p-4 shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:p-8">
+        <div className="overflow-hidden rounded-[22px] border border-line bg-white p-4 shadow-[0_16px_40px_rgba(23,134,118,0.08)] sm:p-8">
           {errorMessage ?
             <AlertBanner tone="error" className="mb-6">
               {errorMessage}
@@ -152,13 +152,10 @@ async function PremiumCatalog({
           />
         </div>
         <p className="mt-6 text-center text-sm text-ink-muted lg:text-left">
-          Signed in? Premium uses your coach account automatically. New here?{" "}
+          Pay Now in the app opens checkout for your account. On the web, sign
+          in first. New here?{" "}
           <Link href="/register" className="font-semibold text-mc-secondary">
             Start as a Coach
-          </Link>{" "}
-          or{" "}
-          <Link href="/coach-login" className="font-semibold text-mc-secondary">
-            Coach login
           </Link>
           .
         </p>

@@ -7,7 +7,7 @@ export function SectionHeading({
 }) {
   return (
     <div className="mb-5">
-      <h2 className="font-display text-2xl font-bold tracking-tight text-mc-accent-ink sm:text-[1.75rem]">
+      <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-[1.75rem]">
         {title}
       </h2>
       <div

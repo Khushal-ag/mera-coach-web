@@ -5,8 +5,7 @@ import { cn } from "@/lib/utils";
 type Crumb = { label: string; href?: string };
 
 /**
- * Forest page banner from meracoachweb coach list / profile heroes:
- * soft circles, breadcrumb, title with a gold emphasis word.
+ * Teal page banner: soft circles, breadcrumb, title with an accent word.
  */
 export function PageBanner({
   crumbs,
@@ -28,7 +27,7 @@ export function PageBanner({
   return (
     <section
       className={cn(
-        "relative isolate overflow-hidden bg-[image:linear-gradient(145deg,#0f2018_0%,#1b4332_48%,#163527_100%)] text-white",
+        "relative isolate overflow-hidden bg-[image:var(--mc-gradient)] text-white",
         className,
       )}
     >

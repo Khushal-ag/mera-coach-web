@@ -16,8 +16,8 @@ export default function TermsPage() {
         emphasis="conditions"
         subtitle="Please read these terms carefully before using Mera Coach websites and services."
       />
-      <section className="bg-[#f5ede0] py-10 sm:py-14">
-        <article className="container max-w-3xl space-y-6 rounded-[22px] border border-line bg-white p-6 text-sm leading-relaxed text-ink-muted shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:p-8">
+      <section className="bg-[color:var(--mc-explore-canvas)] py-10 sm:py-14">
+        <article className="container max-w-3xl space-y-6 rounded-[22px] border border-line bg-white p-6 text-sm leading-relaxed text-ink-muted shadow-[0_16px_40px_rgba(23,134,118,0.08)] sm:p-8">
           <p>
             By accessing mera-coach.com, related web pages, or connecting mobile
             experiences operated by Hench Solutions (&quot;Mera Coach&quot;),

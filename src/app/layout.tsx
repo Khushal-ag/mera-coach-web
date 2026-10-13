@@ -44,7 +44,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          fonts.nunito.variable,
+          fonts.montserrat.variable,
           fonts.poppins.variable,
           "min-h-dvh scroll-smooth font-sans antialiased",
         )}

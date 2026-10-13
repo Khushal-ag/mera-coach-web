@@ -80,9 +80,9 @@ export default function ServicesPage() {
         </div>
       </PageBanner>
 
-      <section className="bg-[#f5ede0] py-14 sm:py-16">
+      <section className="bg-[color:var(--mc-explore-canvas)] py-14 sm:py-16">
         <div className="container grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(44,24,16,0.12)]">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(23,134,118,0.12)]">
             <Image
               src={photography.services}
               alt="Coach watching a kettlebell setup in a daylight studio"
@@ -96,7 +96,7 @@ export default function ServicesPage() {
             {offerings.map((item) => (
               <article
                 key={item.title}
-                className="rounded-2xl border border-line bg-white p-5 shadow-[0_8px_24px_rgba(44,24,16,0.05)]"
+                className="rounded-2xl border border-line bg-white p-5 shadow-[0_8px_24px_rgba(23,134,118,0.05)]"
               >
                 <h2 className="font-display text-lg font-bold text-ink">
                   {item.title}

@@ -64,7 +64,7 @@ export function PracticePageHeader({
   return (
     <header
       className={cn(
-        "mb-6 overflow-hidden rounded-[22px] bg-[image:linear-gradient(145deg,#0f2018_0%,#1b4332_52%,#163527_100%)] text-white shadow-[0_16px_40px_rgba(15,32,24,0.18)] sm:mb-8 print:bg-white print:bg-none print:text-ink print:shadow-none",
+        "mb-6 overflow-hidden rounded-[22px] bg-[image:var(--mc-gradient)] text-white shadow-[0_16px_40px_rgba(0,75,62,0.18)] sm:mb-8 print:bg-white print:bg-none print:text-ink print:shadow-none",
         className,
       )}
     >

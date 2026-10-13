@@ -17,29 +17,17 @@ export const metadata = publicPageMetadata({
 export default function RegisterPage() {
   return (
     <AuthShell
-      layout="split"
+      layout="card"
       panel="light"
       image={photography.authRegister}
       imageAlt="Coach setting dumbbells on a rack before a session"
       crumbs={[{ label: "Home", href: "/" }, { label: "Register" }]}
-      sideTitle={
-        <>
-          Start your coaching{" "}
-          <em className="text-[color:var(--mc-accent)] not-italic">practice</em>
-        </>
-      }
-      sideBody="A public profile, client tools, and enquiries in one account. We review new coaches before listing."
       title={
         <>
-          Coach{" "}
-          <span className="text-[color:var(--mc-brand-coach)]">
-            Registration
-          </span>
+          Start <span className="text-mc-brand-coach">coaching</span>
         </>
       }
-      subtitle="Get found by clients. Build your public profile on Mera Coach."
-      panelHeading="Create your coach account"
-      panelSubheading="Tell us about your coaching. We review new coaches before listing."
+      subtitle="A public profile, client tools, and enquiries in one account. We review new coaches before listing."
     >
       <Suspense fallback={<RegisterFieldsSkeleton />}>
         <RegisterFormLoader />
@@ -65,15 +53,18 @@ async function RegisterFormLoader() {
 function RegisterFieldsSkeleton() {
   return (
     <div
-      className="space-y-4"
+      className="space-y-6"
       aria-busy="true"
       aria-label="Loading registration"
     >
-      {Array.from({ length: 6 }).map((_, index) => (
-        <div
-          key={index}
-          className="h-11 animate-pulse rounded-[10px] bg-line"
-        />
+      {Array.from({ length: 3 }).map((_, section) => (
+        <div key={section} className="space-y-3">
+          <div className="h-4 w-24 animate-pulse rounded bg-line" />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="h-11 animate-pulse rounded-[10px] bg-line" />
+            <div className="h-11 animate-pulse rounded-[10px] bg-line" />
+          </div>
+        </div>
       ))}
     </div>
   );

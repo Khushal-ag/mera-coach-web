@@ -1,7 +1,12 @@
 /** Document upload shapes (meracoachapi `/v1/Document/upload`). */
 
 export type CoachDocType =
-  "LOGO" | "PROFILE_PIC" | "GALLERY" | "PACKAGE_IMAGE" | "EVENT_IMAGE";
+  | "LOGO"
+  | "PROFILE_PIC"
+  | "COVER"
+  | "GALLERY"
+  | "PACKAGE_IMAGE"
+  | "EVENT_IMAGE";
 
 type ClientDocType = "PROGRESS_PHOTO" | "PROFILE_PIC";
 

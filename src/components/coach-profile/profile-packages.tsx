@@ -41,7 +41,7 @@ export function ProfilePackages({ packages, coachName }: ProfilePackagesProps) {
                 : null}
                 <div className="flex min-w-0 flex-col justify-center p-4 sm:p-5">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                    <h3 className="min-w-0 font-display text-lg font-bold text-mc-accent-ink">
+                    <h3 className="min-w-0 font-display text-lg font-bold text-ink">
                       {pkg.name}
                     </h3>
                     {pkg.price ?

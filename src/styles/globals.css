@@ -1,53 +1,66 @@
 @import "tailwindcss";
 
 /*
-  Website design language from meracoachweb:
-  wwwroot/css/site.css, Login.css, CoachLayout.css.
-  Rust #c04b2b is the public CTA, tags, and nav active state.
-  Forest #1b4332 is heroes, auth panels, the dashboard sidebar, and
-  secondary fills. Gold #c9882a is emphasis, stars, and the active
-  dashboard item. Ground is cream #fdf8f2, bands are sand #f5ede0,
-  ink is #2c1810. Headings are Poppins, body is Nunito.
+  App tokens from mera-coach-app/src/constants/theme.ts.
+  Terracotta primary is the shared button. Teal secondary is headers,
+  links, selected chips, and Premium Pay Now. Orange brandCoach is the
+  wordmark "Coach" and the home / BMI hero CTA. Dashboard and Find a Coach
+  sit on background; public explore and BMI sit on exploreCanvas.
+  Headings are Montserrat, body is Poppins.
 */
 :root {
-  --mc-primary: #c04b2b;
-  --mc-primary-dark: #9e3b1f;
-  --mc-primary-light: #fceee9;
-  --mc-secondary: #1b4332;
-  --mc-secondary-dark: #0f2018;
-  --mc-secondary-light: #e8f5e9;
-  --mc-accent: #c9882a;
+  --mc-primary: #d05c26;
+  --mc-primary-dark: #b34a1c;
+  --mc-primary-light: #fdf0e8;
+  --mc-secondary: #178676;
+  --mc-secondary-dark: #11685c;
+  --mc-secondary-light: #d6ede5;
+  --mc-accent: #e8a317;
   --mc-accent-light: #fdf3e0;
-  --mc-brand-coach: #c9882a;
-  --mc-header-top: #2d6a4f;
-  --mc-header-bottom: #0f2018;
-  --mc-accent-ink: #2c1810;
-  --mc-explore-canvas: #f5ede0;
-  --mc-destructive: #9e3b1f;
-  --mc-destructive-soft: #fff0ee;
+  --mc-brand-coach: #f47f1e;
+  --mc-brand-mera: #a8c4b4;
+  --mc-header-top: #14766a;
+  --mc-header-bottom: #004b3e;
+  --mc-accent-ink: #11523c;
+  --mc-explore-canvas: #f8f7f2;
+  --mc-explore-panel: #faf8f2;
+  --mc-home-canvas: #033d28;
+  --mc-auth-cta: #026455;
+  --mc-auth-cta-start: #15886f;
+  --mc-greeting: #5a9a8c;
+  --mc-destructive: #dc2626;
+  --mc-destructive-soft: #fef2f2;
   --mc-whatsapp: #25d366;
-  --mc-disabled-bg: #f3ebe3;
+  --mc-disabled-bg: #e8ece9;
 
-  --ink: #2c1810;
-  --ink-muted: #8b6553;
-  --paper: #fdf8f2;
-  --paper-elevated: #f5ede0;
+  --ink: #1c1c1c;
+  --ink-muted: #6b756f;
+  --paper: #f5f7f5;
+  --paper-elevated: #eef2ef;
   --surface: #ffffff;
-  --line: #e5d5c5;
+  --line: #d5ddd8;
 
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 24px;
   --radius-pill: 50px;
 
-  --mc-gradient: linear-gradient(145deg, #1b2f1f 0%, #1b4332 40%, #2d3a1a 100%);
-  --mc-shadow-sm: 0 2px 8px rgba(44, 24, 16, 0.06);
-  --mc-shadow-lg: 0 20px 60px rgba(44, 24, 16, 0.12);
+  --mc-gradient: linear-gradient(160deg, #14766a 0%, #11685c 46%, #004b3e 100%);
+  --mc-tips-gradient: linear-gradient(135deg, #0b4d3a 0%, #004b3e 100%);
+  --mc-photo-scrim: linear-gradient(
+    to right,
+    #033d28 0%,
+    #004b3e 34%,
+    rgba(0, 75, 62, 0.72) 58%,
+    transparent 100%
+  );
+  --mc-shadow-sm: 0 2px 8px rgba(23, 134, 118, 0.08);
+  --mc-shadow-lg: 0 20px 60px rgba(23, 134, 118, 0.12);
 }
 
 @theme inline {
-  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
 
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
@@ -60,7 +73,9 @@
   --color-mc-secondary: var(--mc-secondary);
   --color-mc-secondary-light: var(--mc-secondary-light);
   --color-mc-brand-coach: var(--mc-brand-coach);
+  --color-mc-brand-mera: var(--mc-brand-mera);
   --color-mc-header-top: var(--mc-header-top);
+  --color-mc-header-bottom: var(--mc-header-bottom);
   --color-mc-accent: var(--mc-accent);
   --color-mc-accent-ink: var(--mc-accent-ink);
   --color-mc-explore: var(--mc-explore-canvas);
@@ -132,7 +147,7 @@
   summary:focus-visible,
   [role="button"]:not([aria-disabled="true"]):focus-visible,
   [role="link"]:focus-visible {
-    outline: 2px solid var(--mc-accent);
+    outline: 2px solid var(--mc-secondary);
     outline-offset: 3px;
   }
 
@@ -158,11 +173,11 @@
     border-radius: var(--radius-pill);
     background-color: var(--mc-primary);
     padding-inline: 1.75rem;
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
     font-size: 0.9375rem;
-    font-weight: 600;
+    font-weight: 700;
     color: #fff;
-    box-shadow: 0 8px 25px rgba(192, 75, 43, 0.28);
+    box-shadow: 0 8px 25px rgba(208, 92, 38, 0.28);
     transition:
       filter 0.2s ease,
       opacity 0.15s ease,
@@ -174,20 +189,52 @@
     background-color: var(--mc-primary-dark);
     filter: none;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(192, 75, 43, 0.35);
+    box-shadow: 0 8px 25px rgba(208, 92, 38, 0.35);
   }
 
-  /* Forest fill — website .btn-secondary and login submit. */
+  /* Premium Pay Now — app Colors.secondary. */
   .mc-btn-pay {
     background-color: var(--mc-secondary);
+    font-family: var(--font-display);
+    font-weight: 600;
     color: #fff;
-    box-shadow: 0 6px 20px rgba(27, 67, 50, 0.28);
+    box-shadow: 0 6px 20px rgba(23, 134, 118, 0.28);
   }
 
   .mc-btn-pay:hover {
-    background-color: var(--mc-header-top);
+    background-color: var(--mc-secondary-dark);
     filter: none;
-    box-shadow: 0 10px 28px rgba(27, 67, 50, 0.36);
+    box-shadow: 0 10px 28px rgba(23, 134, 118, 0.36);
+  }
+
+  /* Home hero and BMI submit — app Colors.brandCoach. */
+  .mc-btn-hero {
+    background-color: var(--mc-brand-coach);
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: #fff;
+    box-shadow: 0 8px 25px rgba(244, 127, 30, 0.28);
+  }
+
+  .mc-btn-hero:hover {
+    background-color: var(--mc-brand-coach);
+    filter: brightness(0.92);
+    box-shadow: 0 8px 25px rgba(244, 127, 30, 0.35);
+  }
+
+  /* Auth submit — app authCtaGradientEnd, lighter start on hover. */
+  .mc-btn-auth {
+    background-color: var(--mc-auth-cta);
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(2, 100, 85, 0.28);
+  }
+
+  .mc-btn-auth:hover {
+    background-color: var(--mc-auth-cta-start);
+    filter: none;
+    box-shadow: 0 10px 28px rgba(2, 100, 85, 0.32);
   }
 
   .mc-btn-primary:active {
@@ -236,13 +283,13 @@
     justify-content: center;
     gap: 0.5rem;
     border-radius: var(--radius-pill);
-    border: 2px solid var(--mc-primary);
-    background-color: transparent;
+    border: 1.5px solid var(--line);
+    background-color: var(--surface);
     padding-inline: 1.75rem;
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
     font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--mc-primary);
+    font-weight: 700;
+    color: var(--mc-secondary);
     transition:
       border-color 0.2s ease,
       background-color 0.2s ease,
@@ -251,9 +298,9 @@
   }
 
   .mc-btn-secondary:hover {
-    border-color: var(--mc-primary);
-    background-color: var(--mc-primary);
-    color: #fff;
+    border-color: var(--mc-secondary);
+    background-color: var(--mc-secondary-light);
+    color: var(--mc-secondary);
     transform: translateY(-2px);
   }
 
@@ -298,7 +345,7 @@
   .mc-field:focus-visible {
     border-color: var(--mc-secondary);
     background-color: var(--surface);
-    box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.1);
+    box-shadow: 0 0 0 3px rgba(23, 134, 118, 0.16);
   }
 
   .mc-field:disabled {
@@ -334,7 +381,7 @@
     cursor: pointer;
     color-scheme: light;
     padding-right: 2.5rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6.25 8 10.25 12 6.25' stroke='%231b4332' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6.25 8 10.25 12 6.25' stroke='%23178676' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.85rem center;
     background-size: 1rem 1rem;
@@ -342,7 +389,7 @@
 
   select.mc-field:disabled {
     cursor: default;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6.25 8 10.25 12 6.25' stroke='%238b6553' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6.25 8 10.25 12 6.25' stroke='%236b756f' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   }
 
   select.mc-field option,
@@ -354,7 +401,7 @@
 
   select.mc-field option:checked {
     background-color: var(--mc-secondary-light);
-    color: var(--mc-header-bottom);
+    color: var(--mc-secondary-dark);
   }
 
   /*
@@ -402,12 +449,12 @@
     select.mc-field option:hover,
     select.mc-field option:focus-visible {
       background-color: var(--mc-secondary-light);
-      color: var(--mc-header-bottom);
+      color: var(--mc-secondary-dark);
     }
 
     select.mc-field option:checked {
       background-color: var(--mc-secondary-light);
-      color: var(--mc-header-bottom);
+      color: var(--mc-secondary-dark);
       font-weight: 600;
     }
 
@@ -576,14 +623,14 @@
   }
 
   .mc-roster-head {
-    background-image: linear-gradient(180deg, #f8f4ef 0%, #f1ece4 100%);
+    background-image: linear-gradient(180deg, #f7faf8 0%, #eef2ef 100%);
     color: var(--ink);
     font-family: var(--font-display);
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    border-bottom: 2px solid #e8ddd2;
+    border-bottom: 2px solid #d5ddd8;
   }
 
   .mc-roster tbody tr,

@@ -113,7 +113,7 @@ function decodedOk(img: HTMLImageElement): boolean {
 
 /**
  * Photo slot that falls back to initials (when `name` is set) or a person
- * outline on a forest pad. The image stays hidden until it decodes, so a
+ * outline on a teal pad. The image stays hidden until it decodes, so a
  * 404 never paints the browser's broken-image icon.
  *
  * `next/image`'s `onError` does not run when the file already failed before

@@ -30,7 +30,7 @@ export function CoachTopRatedStrip({
           <li key={coach.coachId} className="snap-start">
             <Link
               href={coachHref(coach)}
-              className="flex w-[16.75rem] items-center gap-3 rounded-2xl border border-line bg-white px-3 py-2.5 shadow-[0_8px_24px_rgba(44,24,16,0.06)] transition hover:-translate-y-0.5 hover:border-mc-primary/35 hover:shadow-[0_12px_28px_rgba(44,24,16,0.1)]"
+              className="flex w-[16.75rem] items-center gap-3 rounded-2xl border border-line bg-white px-3 py-2.5 shadow-[0_8px_24px_rgba(23,134,118,0.06)] transition hover:-translate-y-0.5 hover:border-mc-primary/35 hover:shadow-[0_12px_28px_rgba(23,134,118,0.1)]"
             >
               <span className="relative size-11 shrink-0 overflow-hidden rounded-full border-2 border-white bg-mc-secondary shadow-sm">
                 <CoachPhoto
@@ -86,7 +86,7 @@ export function CoachDirectoryCard({ coach }: { coach: CoachPublicListItem }) {
   const specialty = coach.coachTypeName || "Personal Coach";
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[16px] border border-line bg-surface shadow-[0_8px_30px_rgba(44,24,16,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(44,24,16,0.14)]">
+    <article className="group flex h-full flex-col overflow-hidden rounded-[16px] border border-line bg-surface shadow-[0_8px_30px_rgba(23,134,118,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(23,134,118,0.14)]">
       <div className="relative h-36 sm:h-40">
         <Image
           src={scene.src}

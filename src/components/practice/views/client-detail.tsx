@@ -161,7 +161,7 @@ export function ClientDetailView() {
       </nav>
 
       <header className="mb-8">
-        <div className="overflow-hidden rounded-[22px] bg-[image:linear-gradient(145deg,#0f2018_0%,#1b4332_52%,#163527_100%)] px-5 py-5 text-white shadow-[0_16px_40px_rgba(15,32,24,0.18)] sm:px-7 sm:py-6">
+        <div className="overflow-hidden rounded-[22px] bg-[image:var(--mc-gradient)] px-5 py-5 text-white shadow-[0_16px_40px_rgba(0,75,62,0.18)] sm:px-7 sm:py-6">
           <div className="flex min-w-0 items-start gap-4">
             {session?.coachCode && detail?.clientCode ?
               <ClientAvatar

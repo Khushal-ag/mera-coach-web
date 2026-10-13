@@ -40,6 +40,14 @@ import {
   COACH_GALLERY_REF_TYPE,
 } from "@/types/document";
 
+/** Empty input is missing. 0 is a saved value and still counts, matching the API. */
+function enteredCount(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const value = Number(trimmed);
+  return Number.isFinite(value) ? value : null;
+}
+
 async function copyText(url: string) {
   try {
     await navigator.clipboard.writeText(url);
@@ -72,6 +80,7 @@ type ProfileDraft = {
   dietTemplate: string;
   logoPick: boolean;
   photoPick: boolean;
+  coverPick: boolean;
 };
 
 function profileDraftKey(draft: ProfileDraft) {
@@ -136,8 +145,10 @@ export function ProfileSettingsView() {
   const [dietTemplate, setDietTemplate] = useState("");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [logoPick, setLogoPick] = useState<PickedImage | null>(null);
   const [photoPick, setPhotoPick] = useState<PickedImage | null>(null);
+  const [coverPick, setCoverPick] = useState<PickedImage | null>(null);
 
   const pinLookup = usePinLocationLookup(pinCode, countryCd || "IN", (loc) => {
     if (loc.city) setCity(loc.city);
@@ -159,8 +170,8 @@ export function ProfileSettingsView() {
         tagline,
         coachDesc,
         serviceCodes,
-        experienceYears: Number(experienceYears) || null,
-        happyClientCount: Number(happyClients) || null,
+        experienceYears: enteredCount(experienceYears),
+        happyClientCount: enteredCount(happyClients),
         pinCode,
         locality,
         add_Line: addLine,
@@ -212,6 +223,7 @@ export function ProfileSettingsView() {
         dietTemplate,
         logoPick: Boolean(logoPick),
         photoPick: Boolean(photoPick),
+        coverPick: Boolean(coverPick),
       }) !== savedKey
     );
   }, [
@@ -239,6 +251,7 @@ export function ProfileSettingsView() {
     dietTemplate,
     logoPick,
     photoPick,
+    coverPick,
   ]);
 
   useEffect(() => {
@@ -306,6 +319,7 @@ export function ProfileSettingsView() {
           setDietTemplate(p.dietChartTemplate ?? "");
           setLogoUrl(p.logo_Url ?? null);
           setProfilePicUrl(p.profile_Pic_Url ?? null);
+          setCoverUrl(p.cover_Url ?? null);
           setSavedKey(
             profileDraftKey({
               coachName: p.coachName ?? "",
@@ -335,6 +349,7 @@ export function ProfileSettingsView() {
               dietTemplate: p.dietChartTemplate ?? "",
               logoPick: false,
               photoPick: false,
+              coverPick: false,
             }),
           );
         }
@@ -359,17 +374,17 @@ export function ProfileSettingsView() {
     };
   }, [session?.email]);
 
-  function setSlot(slot: "logo" | "photo", file: File | null) {
+  function setSlot(slot: "logo" | "photo" | "cover", file: File | null) {
     setError(null);
-    const apply = (setter: typeof setLogoPick) => {
+    const setter =
+      slot === "logo" ? setLogoPick
+      : slot === "photo" ? setPhotoPick
+      : setCoverPick;
+    if (!file) {
       setter((prev) => {
         if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl);
         return null;
       });
-    };
-    if (!file) {
-      if (slot === "logo") apply(setLogoPick);
-      else apply(setPhotoPick);
       return;
     }
     const invalid = validateRegisterImage(file);
@@ -381,22 +396,16 @@ export function ProfileSettingsView() {
       file,
       previewUrl: URL.createObjectURL(file),
     };
-    if (slot === "logo") {
-      setLogoPick((prev) => {
-        if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl);
-        return next;
-      });
-    } else {
-      setPhotoPick((prev) => {
-        if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl);
-        return next;
-      });
-    }
+    setter((prev) => {
+      if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl);
+      return next;
+    });
   }
 
   async function uploadMediaIfNeeded(): Promise<{
     logo_Url?: string;
     profile_Pic_Url?: string;
+    cover_Url?: string;
   }> {
     const coachCode = session?.coachCode || profile?.coachCode;
     const coachId = session?.coachId || profile?.coachId;
@@ -404,6 +413,7 @@ export function ProfileSettingsView() {
 
     let nextLogo = logoUrl ?? undefined;
     let nextPhoto = profilePicUrl ?? undefined;
+    let nextCover = coverUrl ?? undefined;
 
     if (logoPick) {
       const dataUrl = await fileToBase64DataUrl(logoPick.file);
@@ -429,12 +439,25 @@ export function ProfileSettingsView() {
       });
       nextPhoto = uploaded.url;
     }
+    if (coverPick) {
+      const dataUrl = await fileToBase64DataUrl(coverPick.file);
+      const uploaded = await uploadDocument({
+        base64DataUrl: dataUrl,
+        coachCode,
+        refCode: coachCode,
+        refType: "COACH",
+        docType: "COVER",
+        savedBy: coachId,
+      });
+      nextCover = uploaded.url;
+    }
 
-    if (logoPick || photoPick) {
+    if (logoPick || photoPick || coverPick) {
       const mediaRes = await updateCoachMedia({
         coachId,
         logo_Url: nextLogo,
         profile_Pic_Url: nextPhoto,
+        cover_Url: nextCover,
       });
       if (!isApiSuccess(mediaRes)) {
         throw new Error(
@@ -443,11 +466,17 @@ export function ProfileSettingsView() {
       }
       setLogoUrl(nextLogo ?? null);
       setProfilePicUrl(nextPhoto ?? null);
+      setCoverUrl(nextCover ?? null);
       setSlot("logo", null);
       setSlot("photo", null);
+      setSlot("cover", null);
     }
 
-    return { logo_Url: nextLogo, profile_Pic_Url: nextPhoto };
+    return {
+      logo_Url: nextLogo,
+      profile_Pic_Url: nextPhoto,
+      cover_Url: nextCover,
+    };
   }
 
   async function save() {
@@ -479,19 +508,28 @@ export function ProfileSettingsView() {
         serviceCodes,
         logo_Url: media.logo_Url ?? logoUrl,
         profile_Pic_Url: media.profile_Pic_Url ?? profilePicUrl,
+        cover_Url: media.cover_Url ?? coverUrl,
         bmiReportTemplate: bmiTemplate.trim(),
         dietChartTemplate: dietTemplate.trim(),
       });
-      setProfile((prev) =>
-        prev ?
-          {
-            ...prev,
-            coachTypeCode,
-            serviceCodes,
-            logo_Url: media.logo_Url ?? logoUrl,
-            profile_Pic_Url: media.profile_Pic_Url ?? profilePicUrl,
-          }
-        : prev,
+      let refreshed: CoachProfile | null = null;
+      try {
+        refreshed = await fetchAuthedCoachProfile();
+      } catch {
+        refreshed = null;
+      }
+      setProfile(
+        refreshed ??
+          (profile ?
+            {
+              ...profile,
+              coachTypeCode,
+              serviceCodes,
+              logo_Url: media.logo_Url ?? logoUrl,
+              profile_Pic_Url: media.profile_Pic_Url ?? profilePicUrl,
+              cover_Url: media.cover_Url ?? coverUrl,
+            }
+          : profile),
       );
       setMessage("Profile saved.");
       setSavedKey(
@@ -518,6 +556,7 @@ export function ProfileSettingsView() {
           dietTemplate,
           logoPick: false,
           photoPick: false,
+          coverPick: false,
         }),
       );
     } catch (err) {
@@ -554,7 +593,7 @@ export function ProfileSettingsView() {
   }, [session]);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto w-full max-w-[47.5rem] space-y-6">
       <PracticePageHeader
         title="Profile"
         description="Public page details, gallery, Premium, and account security."
@@ -573,19 +612,6 @@ export function ProfileSettingsView() {
             Subscription
           </p>
           <p className="mt-1 font-display font-bold text-ink">{premiumLabel}</p>
-          {profile?.isProfileVisible === false ?
-            <p className="mt-1 text-xs text-[color:var(--mc-destructive)]">
-              Profile is not publicly visible
-              {profile.missingPublicFields?.length ?
-                ` (missing: ${profile.missingPublicFields.join(", ")})`
-              : ""}
-              .
-            </p>
-          : profile?.isProfileVisible ?
-            <p className="mt-1 text-xs text-mc-secondary">
-              Public profile visible in directory.
-            </p>
-          : null}
         </div>
         <Link
           href={premiumHref}
@@ -595,7 +621,24 @@ export function ProfileSettingsView() {
         </Link>
       </div>
 
-      {!completion.isPublicReady || completion.percent < 100 ?
+      {profile?.isProfileVisible === false ?
+        <div className="mc-panel flex items-baseline justify-between gap-4 p-4 sm:p-5">
+          <div className="min-w-0">
+            <p className="font-display text-sm font-bold text-ink">
+              Find a Coach listing is off
+            </p>
+            <p className="mt-1 text-sm text-ink-muted">
+              {completion.missingLabels.length ?
+                `Save these details on this profile: ${completion.missingLabels.join(", ")}. Find a Coach lists a profile once every required field is saved.`
+              : "Save this profile again. Find a Coach lists a profile once every required field is saved."
+              }
+            </p>
+          </div>
+          <p className="font-display text-3xl font-bold text-ink tabular-nums">
+            {completion.percent}%
+          </p>
+        </div>
+      : profile && completion.percent < 100 ?
         <div className="mc-panel flex items-baseline justify-between gap-4 p-4 sm:p-5">
           <div className="min-w-0">
             <p className="font-display text-sm font-bold text-ink">
@@ -617,7 +660,11 @@ export function ProfileSettingsView() {
         <div>
           <p className="text-sm font-semibold text-ink">Public profile link</p>
           <p className="mt-1 text-sm text-ink-muted">
-            Copy this link when you want clients to open your page.
+            {profile?.isProfileVisible === false ?
+              "This link opens your page after the Find a Coach listing is on."
+            : profile?.isProfileVisible ?
+              "This profile is listed on Find a Coach. Copy the link when you want clients to open your page."
+            : "Copy this link when you want clients to open your page."}
           </p>
           {publicUrl ?
             <p className="mt-2 truncate text-sm font-medium text-ink">
@@ -634,7 +681,10 @@ export function ProfileSettingsView() {
           >
             {shareFeedback ?? "Copy link"}
           </button>
-          {session?.coachCode || profile?.coachCode ?
+          {(
+            profile?.isProfileVisible &&
+            (session?.coachCode || profile?.coachCode)
+          ) ?
             <Link
               href={`/coach/${encodeURIComponent(session?.coachCode || profile?.coachCode || "")}`}
               className="mc-btn-secondary w-full sm:w-auto"
@@ -666,6 +716,15 @@ export function ProfileSettingsView() {
             void save();
           }}
         >
+          <ImagePicker
+            label="Cover image"
+            hint="Wide banner for your public profile. JPG, PNG, or WebP · max 2 MB"
+            value={coverPick}
+            currentUrl={coverUrl}
+            onChange={(file) => setSlot("cover", file)}
+            disabled={busy}
+            aspectClassName="h-20 w-36"
+          />
           <div className="grid gap-4 sm:grid-cols-2">
             <ImagePicker
               label="Logo"
@@ -810,7 +869,7 @@ export function ProfileSettingsView() {
           />
           <button
             type="submit"
-            className="mc-btn-primary w-full"
+            className="mc-btn-primary w-full sm:w-auto"
             disabled={busy || !profileDirty}
             aria-busy={busy}
           >

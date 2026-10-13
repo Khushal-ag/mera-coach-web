@@ -92,6 +92,7 @@ function normalizeProfile(payload: unknown): CoachProfile | null {
     profile_Pic_Url:
       pick<string | null>(r, "profile_Pic_Url", "Profile_Pic_Url") ?? null,
     logo_Url: pick<string | null>(r, "logo_Url", "Logo_Url") ?? null,
+    cover_Url: pick<string | null>(r, "cover_Url", "Cover_Url") ?? null,
     serviceNames:
       pick<string | null>(r, "serviceNames", "ServiceNames") ?? null,
     experienceYears: Number(pick(r, "experienceYears", "ExperienceYears") ?? 0),
@@ -277,6 +278,7 @@ export async function updateCoachMedia(body: CoachMediaUpdateInput) {
       coachId: body.coachId,
       logo_Url: body.logo_Url,
       profile_Pic_Url: body.profile_Pic_Url,
+      cover_Url: body.cover_Url,
     }),
   });
   return {

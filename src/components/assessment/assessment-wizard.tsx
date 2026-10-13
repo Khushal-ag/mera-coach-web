@@ -484,7 +484,7 @@ export function AssessmentWizard({
       phases[phases.length - 1]?.id === "complete");
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto w-full max-w-[47.5rem]">
       <PracticePageHeader
         title={title}
         description="Fill each section, then save it on the client."
@@ -501,7 +501,7 @@ export function AssessmentWizard({
                 aria-current={active ? "step" : undefined}
                 className={
                   active ?
-                    "rounded-full bg-mc-primary px-3.5 py-1.5 font-display text-xs font-bold text-white shadow-[0_6px_16px_rgba(192,75,43,0.28)]"
+                    "rounded-full bg-mc-primary px-3.5 py-1.5 font-display text-xs font-bold text-white shadow-[0_6px_16px_rgba(208,92,38,0.28)]"
                   : done ?
                     "rounded-full bg-[color:var(--mc-secondary-light)] px-3.5 py-1.5 font-display text-xs font-bold text-mc-secondary"
                   : "rounded-full bg-paper-elevated px-3.5 py-1.5 font-display text-xs font-semibold text-ink-muted"

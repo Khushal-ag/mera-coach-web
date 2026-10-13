@@ -312,47 +312,47 @@ async function CoachDirectoryBody({
 
       <section className="bg-paper py-8 sm:py-10">
         <div className="container min-w-0">
-          <form
-            action="/coach"
-            className="flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:flex-row"
-          >
-            <div className="relative flex min-h-14 flex-1 items-center">
-              <Search
-                className="pointer-events-none absolute left-4 size-4 text-ink-muted"
-                aria-hidden
-              />
-              <input
-                type="search"
-                name="search"
-                defaultValue={search ?? ""}
-                placeholder="Search by name, city, service, or coach type"
-                aria-label="Search coaches"
-                className="min-h-14 w-full bg-transparent pr-4 pl-11 text-sm text-ink outline-none placeholder:text-ink-muted"
-              />
-            </div>
-            {city ?
-              <input type="hidden" name="city" value={city} />
-            : null}
-            {category ?
-              <input type="hidden" name="category" value={category} />
-            : null}
-            {ratingLabel !== RATING_FILTER_OPTIONS[0] ?
-              <input type="hidden" name="rating" value={ratingLabel} />
-            : null}
-            {sortLabel !== SORT_OPTIONS[0] ?
-              <input type="hidden" name="sort" value={sortLabel} />
-            : null}
-            <PageSizeField pageSize={pageSize} />
-            <button
-              type="submit"
-              className="mc-btn-primary m-2 min-h-12 rounded-xl sm:rounded-full"
+          <div className="w-full max-w-[52rem] space-y-5">
+            <form
+              action="/coach"
+              className="flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-[0_16px_40px_rgba(23,134,118,0.08)] sm:flex-row"
             >
-              Search
-            </button>
-          </form>
+              <div className="relative flex min-h-14 flex-1 items-center">
+                <Search
+                  className="pointer-events-none absolute left-4 size-4 text-ink-muted"
+                  aria-hidden
+                />
+                <input
+                  type="search"
+                  name="search"
+                  defaultValue={search ?? ""}
+                  placeholder="Search by name, city, service, or coach type"
+                  aria-label="Search coaches"
+                  className="min-h-14 w-full bg-transparent pr-4 pl-11 text-sm text-ink outline-none placeholder:text-ink-muted"
+                />
+              </div>
+              {city ?
+                <input type="hidden" name="city" value={city} />
+              : null}
+              {category ?
+                <input type="hidden" name="category" value={category} />
+              : null}
+              {ratingLabel !== RATING_FILTER_OPTIONS[0] ?
+                <input type="hidden" name="rating" value={ratingLabel} />
+              : null}
+              {sortLabel !== SORT_OPTIONS[0] ?
+                <input type="hidden" name="sort" value={sortLabel} />
+              : null}
+              <PageSizeField pageSize={pageSize} />
+              <button
+                type="submit"
+                className="mc-btn-primary m-2 min-h-12 rounded-xl sm:rounded-full"
+              >
+                Search
+              </button>
+            </form>
 
-          <div className="mt-6 space-y-5">
-            <div className="grid gap-5 lg:grid-cols-2">
+            <div className="flex flex-col gap-5 sm:flex-row sm:flex-wrap sm:items-start sm:gap-x-8">
               <div>
                 <p className="text-xs font-semibold text-ink-muted">Rating</p>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -385,7 +385,7 @@ async function CoachDirectoryBody({
 
             <form
               action="/coach"
-              className="flex flex-col gap-3 border-y border-line py-4 sm:flex-row sm:items-end"
+              className="flex flex-col gap-3 border-y border-line py-4 sm:flex-row sm:flex-wrap sm:items-end"
             >
               {search ?
                 <input type="hidden" name="search" value={search} />
@@ -404,7 +404,7 @@ async function CoachDirectoryBody({
                 label="Serving city"
                 name="city"
                 defaultValue={city ?? ""}
-                className="w-full min-w-0 flex-1"
+                className="w-full sm:w-72"
               >
                 <option value="">All cities</option>
                 {cities.map((item) => (

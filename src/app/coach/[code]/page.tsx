@@ -204,21 +204,19 @@ async function CoachProfileBody({ params }: { params: Params }) {
 function CoachProfileFallback() {
   return (
     <>
-      <section className="bg-[color:var(--mc-explore-canvas)] pt-5 pb-8 sm:pt-7 sm:pb-10">
+      <section className="bg-[color:var(--mc-explore-canvas)] pt-5 pb-8 sm:pt-6 sm:pb-10">
         <div className="container">
-          <div className="mb-4 h-4 w-40 animate-pulse rounded bg-line" />
-          <div className="overflow-hidden rounded-[1.35rem] border border-[color:var(--mc-secondary)]/12 bg-surface sm:rounded-[1.75rem]">
-            <div className="grid lg:grid-cols-[minmax(0,16.5rem)_minmax(0,1fr)]">
-              <div className="hidden min-h-[21rem] animate-pulse bg-line lg:block" />
-              <div className="flex gap-4 px-4 py-5 sm:px-8 sm:py-8">
-                <div className="size-[5.5rem] shrink-0 animate-pulse rounded-2xl bg-line sm:size-[6.75rem] lg:hidden" />
-                <div className="min-w-0 flex-1 space-y-3">
-                  <div className="h-5 w-36 animate-pulse rounded-full bg-line" />
-                  <div className="h-8 w-48 animate-pulse rounded bg-line" />
-                  <div className="h-4 w-40 animate-pulse rounded bg-line" />
-                  <div className="mt-3 h-11 w-40 animate-pulse rounded-full bg-line" />
-                </div>
-              </div>
+          <div className="h-4 w-40 animate-pulse rounded bg-line" />
+        </div>
+        <div className="mt-4 h-40 animate-pulse bg-line sm:mt-5 sm:h-48 lg:h-56" />
+        <div className="container">
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+            <div className="-mt-16 size-32 shrink-0 animate-pulse rounded-full bg-line ring-4 ring-[color:var(--mc-explore-canvas)] sm:-mt-20 sm:size-40 lg:-mt-24 lg:size-44" />
+            <div className="w-full min-w-0 flex-1 space-y-3 sm:pb-2">
+              <div className="mx-auto h-5 w-36 animate-pulse rounded-full bg-line sm:mx-0" />
+              <div className="mx-auto h-8 w-48 animate-pulse rounded bg-line sm:mx-0" />
+              <div className="mx-auto h-4 w-40 animate-pulse rounded bg-line sm:mx-0" />
+              <div className="mx-auto mt-2 h-11 w-40 animate-pulse rounded-full bg-line sm:mx-0" />
             </div>
           </div>
         </div>

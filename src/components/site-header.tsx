@@ -108,8 +108,8 @@ export function SiteHeader() {
     cn(
       "flex min-h-11 items-center rounded-lg px-3 font-display text-sm font-medium whitespace-nowrap transition-colors lg:px-3.5",
       isNavActive(pathname, href) ?
-        "bg-[color:var(--mc-primary-light)] font-semibold text-mc-primary"
-      : "text-ink hover:bg-[color:var(--mc-primary-light)] hover:text-mc-primary",
+        "bg-mc-secondary-light font-semibold text-mc-secondary"
+      : "text-ink hover:bg-mc-secondary-light hover:text-mc-secondary",
     );
 
   const actions = (
@@ -127,26 +127,23 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="bg-[image:linear-gradient(90deg,#0f2018,#1b4332)] text-white">
+      <div className="bg-[image:linear-gradient(90deg,var(--mc-header-top),var(--mc-header-bottom))] text-white">
         <div className="container flex h-9 items-center justify-between gap-3 text-[11px] sm:text-xs">
           <p className="truncate font-medium tracking-wide text-white/80">
             Wellness platform for coaches and the people who train with them
           </p>
           <p className="hidden shrink-0 items-center gap-3 sm:flex">
-            <Link href="/bmi" className="hover:text-[color:var(--mc-accent)]">
+            <Link href="/bmi" className="hover:text-mc-brand-coach">
               BMI calculator
             </Link>
-            <Link
-              href="/premium"
-              className="hover:text-[color:var(--mc-accent)]"
-            >
+            <Link href="/premium" className="hover:text-mc-brand-coach">
               Premium
             </Link>
           </p>
         </div>
       </div>
 
-      <div className="border-b-[3px] border-[color:var(--mc-accent)] bg-[color:var(--paper)]/96 text-ink shadow-[0_8px_24px_rgba(44,24,16,0.08)] backdrop-blur-md">
+      <div className="border-b-[3px] border-mc-secondary bg-[color:var(--paper)]/96 text-ink shadow-[0_8px_24px_rgba(23,134,118,0.08)] backdrop-blur-md">
         <div className="container flex h-[4.25rem] items-center justify-between gap-3">
           <Link
             href="/"
@@ -199,19 +196,18 @@ export function SiteHeader() {
         <div className="lg:hidden">
           <button
             type="button"
-            className="fixed inset-0 z-40 bg-[#2c1810]/45"
+            className="fixed inset-0 z-40 bg-black/40"
             aria-label="Close menu"
             onClick={() => setOpen(false)}
           />
           <aside
             id={navId}
-            className="fixed inset-y-0 right-0 z-50 flex w-[min(20rem,calc(100vw-2.5rem))] flex-col bg-[image:linear-gradient(180deg,#0f2018,#1b4332)] px-5 py-6 text-white shadow-[-12px_0_40px_rgba(0,0,0,0.28)]"
+            className="fixed inset-y-0 right-0 z-50 flex w-[min(20rem,calc(100vw-2.5rem))] flex-col border-l border-line bg-white px-5 py-6 text-ink shadow-[-12px_0_40px_rgba(23,134,118,0.16)]"
           >
-            <div className="flex items-center justify-between">
-              <BrandLockup variant="nav" />
+            <div className="flex items-center justify-end">
               <button
                 type="button"
-                className="inline-flex size-11 items-center justify-center rounded-xl border border-white/15"
+                className="inline-flex size-11 items-center justify-center rounded-xl border border-line text-ink"
                 aria-label="Close menu"
                 onClick={() => setOpen(false)}
               >
@@ -230,8 +226,8 @@ export function SiteHeader() {
                     className={cn(
                       "flex min-h-12 items-center rounded-xl px-3 font-display text-base font-semibold",
                       active ?
-                        "bg-[color:var(--mc-accent)]/20 text-[color:var(--mc-accent)]"
-                      : "text-white/85 hover:bg-white/10",
+                        "bg-mc-secondary-light text-mc-secondary"
+                      : "text-ink hover:bg-mc-secondary-light hover:text-mc-secondary",
                     )}
                     aria-current={active ? "page" : undefined}
                   >
@@ -240,9 +236,9 @@ export function SiteHeader() {
                 );
               })}
             </nav>
-            <div className="flex flex-col gap-2 border-t border-white/10 pt-4">
+            <div className="flex flex-col gap-2 border-t border-line pt-4">
               <HeaderActions
-                surface="dark"
+                surface="light"
                 signedIn={signedIn}
                 session={session}
                 onNavigate={() => setOpen(false)}

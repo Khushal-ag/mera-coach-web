@@ -34,10 +34,10 @@ export default function BmiPage() {
         emphasis="know your health"
         subtitle="A quick check, then a coach can call you back. Free, and nothing is stored until you ask."
       />
-      <section className="bg-[#f5ede0] py-10 sm:py-14">
+      <section className="bg-[color:var(--mc-explore-canvas)] py-10 sm:py-14">
         <div className="container grid items-start gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-10">
           <aside className="space-y-5">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(44,24,16,0.12)]">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(23,134,118,0.12)]">
               <Image
                 src={photography.bmi}
                 alt="A height check in a coaching studio"

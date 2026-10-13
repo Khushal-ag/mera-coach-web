@@ -15,7 +15,7 @@ type Props = {
 };
 
 /**
- * Branded empty / error / loading status surface. Sand ground, forest header.
+ * Branded empty / error / loading status surface. Explore ground, teal header.
  */
 export function StatusPanel({
   code,
@@ -28,7 +28,7 @@ export function StatusPanel({
   return (
     <section
       className={cn(
-        "relative flex flex-col items-center justify-center overflow-hidden bg-[#f5ede0] px-6 py-16 text-center text-ink",
+        "relative flex flex-col items-center justify-center overflow-hidden bg-[color:var(--mc-explore-canvas)] px-6 py-16 text-center text-ink",
         fullViewport ? "min-h-dvh" : "min-h-[70dvh]",
         className,
       )}
@@ -42,15 +42,17 @@ export function StatusPanel({
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto w-full max-w-lg overflow-hidden rounded-[24px] border border-line bg-white shadow-[0_24px_60px_rgba(44,24,16,0.12)]">
-        <div className="bg-[image:linear-gradient(145deg,#0f2018_0%,#1b4332_55%,#163527_100%)] px-6 py-8 text-white">
-          <Image
-            src={siteConfig.brand.logoMark}
-            alt=""
-            width={56}
-            height={56}
-            className="mx-auto mb-3 size-14 object-contain"
-          />
+      <div className="relative z-10 mx-auto w-full max-w-lg overflow-hidden rounded-[24px] border border-line bg-white shadow-[0_24px_60px_rgba(23,134,118,0.12)]">
+        <div className="bg-[image:var(--mc-gradient)] px-6 py-8 text-white">
+          {fullViewport ?
+            <Image
+              src={siteConfig.brand.logoMark}
+              alt=""
+              width={56}
+              height={56}
+              className="mx-auto mb-3 size-14 object-contain"
+            />
+          : null}
           {code ?
             <p className="font-display text-xs font-bold tracking-[0.2em] text-[color:var(--mc-accent)] uppercase">
               {code}

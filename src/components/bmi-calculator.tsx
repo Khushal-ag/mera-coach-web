@@ -84,7 +84,7 @@ export function BmiCalculator() {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-start lg:gap-10">
-      <div className="rounded-[var(--radius-lg)] bg-mc-secondary p-5 text-white shadow-[0_20px_60px_rgba(27,67,50,0.35)] sm:p-7">
+      <div className="rounded-[var(--radius-lg)] bg-mc-secondary p-5 text-white shadow-[0_20px_60px_rgba(0,75,62,0.28)] sm:p-7">
         <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
           Calculate BMI
         </h2>
@@ -209,7 +209,7 @@ export function BmiCalculator() {
         <button
           type="submit"
           disabled={submitting}
-          className="mc-btn-primary mt-6 w-full"
+          className="mc-btn-primary mc-btn-hero mt-6 w-full"
         >
           {submitting ? "Sending…" : "Request a callback"}
         </button>

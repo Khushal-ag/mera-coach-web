@@ -349,6 +349,7 @@ export async function fetchAuthedCoachProfile(): Promise<CoachProfile | null> {
     profile_Pic_Url:
       String(pick(raw, "profile_Pic_Url", "Profile_Pic_Url") ?? "") || null,
     logo_Url: String(pick(raw, "logo_Url", "Logo_Url") ?? "") || null,
+    cover_Url: String(pick(raw, "cover_Url", "Cover_Url") ?? "") || null,
     serviceNames:
       String(pick(raw, "serviceNames", "ServiceNames") ?? "") || null,
     experienceYears: Number(
@@ -424,6 +425,7 @@ export async function saveCoachPackagesEvents(params: {
     country_Cd: profile.country_Cd ?? "",
     logo_Url: profile.logo_Url ?? "",
     profile_Pic_Url: profile.profile_Pic_Url ?? "",
+    cover_Url: profile.cover_Url ?? "",
     coachDesc: profile.coachDesc ?? "",
     serviceCodes: [],
   };
@@ -460,6 +462,7 @@ export async function saveCoachProfileEssentials(params: {
   serviceCodes?: string[];
   logo_Url?: string | null;
   profile_Pic_Url?: string | null;
+  cover_Url?: string | null;
   bmiReportTemplate?: string;
   dietChartTemplate?: string;
 }): Promise<void> {
@@ -488,6 +491,7 @@ export async function saveCoachProfileEssentials(params: {
       country_Cd: params.country_Cd ?? profile.country_Cd ?? "",
       logo_Url: params.logo_Url ?? profile.logo_Url ?? "",
       profile_Pic_Url: params.profile_Pic_Url ?? profile.profile_Pic_Url ?? "",
+      cover_Url: params.cover_Url ?? profile.cover_Url ?? "",
       coachDesc: params.coachDesc,
       bmiReportTemplate:
         params.bmiReportTemplate ?? profile.bmiReportTemplate ?? "",

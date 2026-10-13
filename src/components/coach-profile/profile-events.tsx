@@ -16,7 +16,7 @@ export function ProfileEvents({ events }: { events: CoachEvent[] }) {
             .join(" · ");
           return (
             <li key={event.id} className="px-4 py-4 sm:px-5">
-              <h3 className="font-display text-base font-bold text-mc-accent-ink sm:text-lg">
+              <h3 className="font-display text-base font-bold text-ink sm:text-lg">
                 {event.title}
               </h3>
               {when ?

@@ -244,111 +244,125 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
   const busy = status === "loading";
 
   return (
-    <form onSubmit={(event) => void onSubmit(event)} className="space-y-5">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <TextField
-          name="coachName"
-          label="Coach name"
-          required
-          disabled={busy}
-        />
-        <TextField name="businessName" label="Business name" disabled={busy} />
-        <TextField
-          name="mobile"
-          label="Mobile"
-          required
-          type="tel"
-          disabled={busy}
-        />
-        <TextField
-          name="email"
-          label="Email"
-          required
-          type="email"
-          disabled={busy}
-        />
-        <SelectField
-          label="Coach category"
-          name="coachTypeCode"
-          required
-          disabled={busy}
-          value={coachTypeCode}
-          onChange={(e) => setCoachTypeCode(e.target.value)}
-        >
-          <option value="">Select category</option>
-          {categories.map((c) => (
-            <option key={c.code} value={c.code}>
-              {c.label}
-            </option>
-          ))}
-        </SelectField>
-        <TextField
-          name="pin"
-          label="PIN code"
-          disabled={busy}
-          value={pin}
-          inputMode="numeric"
-          onChange={(e) => setPin(e.target.value)}
-          hint={pinLookup.lookingUp ? "Looking up city…" : undefined}
-          error={pinLookup.error || undefined}
-        />
-        <TextField
-          name="state"
-          label="State"
-          disabled={busy}
-          value={stateCd}
-          onChange={(e) => setStateCd(e.target.value)}
-        />
-        <TextField
-          name="city"
-          label="City"
-          disabled={busy}
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-        />
-        <TextField
-          name="address"
-          label="Address"
-          disabled={busy}
-          className="sm:col-span-2"
-        />
-      </div>
-
-      <div>
-        <p className="mb-3 text-sm font-semibold text-mc-secondary">
-          Media &amp; profile
-        </p>
+    <form onSubmit={(event) => void onSubmit(event)}>
+      <FormSection title="Account">
         <div className="grid gap-4 sm:grid-cols-2">
-          <ImagePicker
-            label="Logo"
-            hint="JPG, PNG, or WebP · max 2 MB"
-            value={logo}
-            onChange={(file) => setSlot("logo", file)}
+          <TextField
+            name="coachName"
+            label="Coach name"
+            required
             disabled={busy}
           />
-          <ImagePicker
-            label="Profile photo"
-            hint="JPG, PNG, or WebP · max 2 MB"
-            value={photo}
-            onChange={(file) => setSlot("photo", file)}
+          <TextField
+            name="mobile"
+            label="Mobile"
+            required
+            type="tel"
+            disabled={busy}
+          />
+          <TextField
+            name="email"
+            label="Email"
+            required
+            type="email"
             disabled={busy}
           />
         </div>
-        <p className="mt-2 text-xs text-ink-muted">
+      </FormSection>
+
+      <FormSection title="About the coach">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <TextField
+            name="businessName"
+            label="Business name"
+            disabled={busy}
+          />
+          <SelectField
+            label="Coach category"
+            name="coachTypeCode"
+            required
+            disabled={busy}
+            value={coachTypeCode}
+            onChange={(e) => setCoachTypeCode(e.target.value)}
+          >
+            <option value="">Select category</option>
+            {categories.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.label}
+              </option>
+            ))}
+          </SelectField>
+        </div>
+        <TextAreaField
+          name="description"
+          label="Description"
+          rows={4}
+          disabled={busy}
+          placeholder="Tell clients about your coaching style…"
+        />
+      </FormSection>
+
+      <FormSection title="Location">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <TextField
+            name="pin"
+            label="PIN code"
+            disabled={busy}
+            value={pin}
+            inputMode="numeric"
+            onChange={(e) => setPin(e.target.value)}
+            hint={pinLookup.lookingUp ? "Looking up city…" : undefined}
+            error={pinLookup.error || undefined}
+          />
+          <TextField
+            name="city"
+            label="City"
+            disabled={busy}
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+          />
+          <TextField
+            name="state"
+            label="State"
+            disabled={busy}
+            value={stateCd}
+            onChange={(e) => setStateCd(e.target.value)}
+          />
+          <TextField name="address" label="Address" disabled={busy} />
+        </div>
+      </FormSection>
+
+      <FormSection title="Photos">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="min-w-0 sm:w-64">
+            <ImagePicker
+              label="Logo"
+              hint="JPG, PNG, or WebP · max 2 MB"
+              value={logo}
+              onChange={(file) => setSlot("logo", file)}
+              disabled={busy}
+            />
+          </div>
+          <div className="min-w-0 sm:w-64">
+            <ImagePicker
+              label="Profile photo"
+              hint="JPG, PNG, or WebP · max 2 MB"
+              value={photo}
+              onChange={(file) => setSlot("photo", file)}
+              disabled={busy}
+            />
+          </div>
+        </div>
+        <p className="text-xs text-ink-muted">
           Optional. Photos upload after your account is created.
         </p>
-      </div>
-
-      <TextAreaField
-        name="description"
-        label="Description"
-        rows={4}
-        disabled={busy}
-        placeholder="Tell clients about your coaching style…"
-      />
+      </FormSection>
 
       {message ?
-        <AlertBanner tone={status === "success" ? "success" : "error"}>
+        <AlertBanner
+          tone={status === "success" ? "success" : "error"}
+          className="mt-8"
+        >
           {message}{" "}
           {status === "success" ?
             <Link href="/coach-login" className="font-semibold underline">
@@ -370,7 +384,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
         type="submit"
         disabled={busy}
         aria-busy={busy}
-        className="mc-btn-primary mc-btn-pay w-full"
+        className="mc-btn-primary mc-btn-auth mt-8 w-full sm:w-auto"
       >
         {busy ? "Creating account" : "Create coach account"}
       </button>
@@ -379,5 +393,22 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
         Max image bytes {REGISTER_IMAGE_MAX_BYTES}
       </span>
     </form>
+  );
+}
+
+function FormSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-4 border-t border-line pt-8 first:border-0 first:pt-0">
+      <h3 className="font-display text-sm font-bold text-mc-secondary">
+        {title}
+      </h3>
+      {children}
+    </section>
   );
 }

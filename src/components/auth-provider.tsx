@@ -4,18 +4,19 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useSyncExternalStore,
 } from "react";
 
 import type { CoachSession } from "@/lib/auth/types";
 
+import { markClientReady, useMounted } from "@/hooks/use-mounted";
 import {
   clearSession,
   getSession,
   saveSession as persistSession,
   reloadSession,
-  restoreSession,
   subscribeToAuthSession,
 } from "@/lib/auth/session";
 
@@ -29,34 +30,23 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const subscribeNever = () => () => {};
-
-/** True only after hydration — server + first client paint both see false. */
-function useHydrated() {
-  return useSyncExternalStore(
-    subscribeNever,
-    () => true,
-    () => false,
-  );
-}
-
-let didRestoreFromStorage = false;
-
+/** Memory only. sessionStorage is restored after mount, never during hydration. */
 function getClientSessionSnapshot(): CoachSession | null {
-  if (!didRestoreFromStorage) {
-    didRestoreFromStorage = true;
-    restoreSession();
-  }
   return getSession();
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const hydrated = useHydrated();
+  const ready = useMounted();
   const storeSession = useSyncExternalStore(
     subscribeToAuthSession,
     getClientSessionSnapshot,
     () => null,
   );
+
+  useEffect(() => {
+    reloadSession();
+    markClientReady();
+  }, []);
 
   const setSession = useCallback((next: CoachSession | null) => {
     if (next) persistSession(next);
@@ -64,7 +54,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const refresh = useCallback(async () => {
-    didRestoreFromStorage = true;
     reloadSession();
   }, []);
 
@@ -72,7 +61,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearSession();
   }, []);
 
-  const ready = hydrated;
   const session = ready ? storeSession : null;
 
   const value = useMemo(

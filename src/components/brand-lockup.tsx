@@ -4,9 +4,9 @@ import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
 /**
- * Wordmark from meracoachweb: "Mera Coach" plus "Wellness Platform".
- * - `workspace`: brown type on cream chrome
- * - `nav`: white type on forest or footer chrome
+ * App wordmark: "Mera" in teal, "Coach" in orange, plus "Wellness Platform".
+ * - `workspace`: light chrome (header, dashboard rail)
+ * - `nav`: dark chrome (deep teal surfaces without a site header)
  * - `full` / `mark`: brand image assets
  */
 export function BrandLockup({
@@ -51,9 +51,7 @@ export function BrandLockup({
       <span
         className={cn(
           "inline-flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-xl sm:size-10",
-          onDark ?
-            "bg-white/12 ring-1 ring-white/20"
-          : "bg-[image:var(--mc-gradient)]",
+          onDark ? "bg-white/12 ring-1 ring-white/20" : "bg-mc-secondary-light",
         )}
       >
         <Image
@@ -66,13 +64,11 @@ export function BrandLockup({
         />
       </span>
       <span className="min-w-0 leading-tight">
-        <span
-          className={cn(
-            "block truncate font-display text-base font-extrabold tracking-tight sm:text-lg",
-            onDark ? "text-white" : "text-ink",
-          )}
-        >
-          Mera Coach
+        <span className="block truncate font-display text-base font-extrabold tracking-tight sm:text-lg">
+          <span className={onDark ? "text-mc-brand-mera" : "text-mc-secondary"}>
+            Mera
+          </span>
+          <span className="text-mc-brand-coach">Coach</span>
         </span>
         <span
           className={cn(

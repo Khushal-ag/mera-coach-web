@@ -16,8 +16,8 @@ export default function PrivacyPage() {
         emphasis="policy"
         subtitle="How we collect, use, and protect information on Mera Coach."
       />
-      <section className="bg-[#f5ede0] py-10 sm:py-14">
-        <article className="container max-w-3xl space-y-6 rounded-[22px] border border-line bg-white p-6 text-sm leading-relaxed text-ink-muted shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:p-8">
+      <section className="bg-[color:var(--mc-explore-canvas)] py-10 sm:py-14">
+        <article className="container max-w-3xl space-y-6 rounded-[22px] border border-line bg-white p-6 text-sm leading-relaxed text-ink-muted shadow-[0_16px_40px_rgba(23,134,118,0.08)] sm:p-8">
           <p>
             Hench Solutions operates Mera Coach. This policy explains what we
             collect when you use the website, online forms, and related app

@@ -87,6 +87,12 @@ export function getProfileCompletion(
     },
   ];
 
+  // Saved-row list from the API. Same labels as CoachDAL; this is why Find a Coach omits the coach.
+  if (Array.isArray(profile.missingPublicFields)) {
+    const missing = new Set(profile.missingPublicFields);
+    for (const item of items) item.done = !missing.has(item.label);
+  }
+
   const doneCount = items.filter((i) => i.done).length;
   const percent = Math.round((doneCount / items.length) * 100);
   const missingLabels = items.filter((i) => !i.done).map((i) => i.label);

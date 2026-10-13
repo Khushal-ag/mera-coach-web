@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 
 import { ArrowRight, ClipboardCheck, Inbox, Plus, Users } from "lucide-react";
@@ -21,10 +20,12 @@ import { AlertBanner } from "@/components/ui/alert-banner";
 import { photography } from "@/config/photography";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import {
+  fetchAuthedCoachProfile,
   fetchClientList,
   fetchEnquiryLeads,
   fetchRecheckupList,
 } from "@/lib/api/practice";
+import { getProfileCompletion } from "@/lib/profile-completion";
 
 function greetingFor(date: Date) {
   const h = date.getHours();
@@ -75,21 +76,21 @@ function MetricCard({
   hint: string;
   href: string;
   loading?: boolean;
-  tone: "forest" | "gold" | "rust";
+  tone: "teal" | "amber" | "terracotta";
   icon: React.ReactNode;
 }) {
   const iconClass =
-    tone === "gold" ? "bg-[color:var(--mc-accent)]"
-    : tone === "rust" ? "bg-mc-primary"
+    tone === "amber" ? "bg-[color:var(--mc-accent)]"
+    : tone === "terracotta" ? "bg-mc-primary"
     : "bg-mc-secondary";
   const accent =
-    tone === "gold" ? "border-l-[color:var(--mc-accent)]"
-    : tone === "rust" ? "border-l-mc-primary"
+    tone === "amber" ? "border-l-[color:var(--mc-accent)]"
+    : tone === "terracotta" ? "border-l-mc-primary"
     : "border-l-mc-secondary";
   return (
     <Link
       href={href}
-      className={`flex items-center gap-4 rounded-[16px] border border-l-4 border-line bg-white p-4 shadow-[0_8px_24px_rgba(44,24,16,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(44,24,16,0.1)] ${accent}`}
+      className={`flex items-center gap-4 rounded-[16px] border border-l-4 border-line bg-white p-4 shadow-[0_8px_24px_rgba(23,134,118,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(23,134,118,0.1)] ${accent}`}
     >
       <span
         className={`grid size-12 shrink-0 place-items-center rounded-xl text-white ${iconClass}`}
@@ -138,61 +139,41 @@ function SectionHead({
   );
 }
 
-function DashboardHero({
+function DashboardIntro({
   greeting,
   firstName,
   attention,
-  today,
   checking,
   onAdd,
 }: {
   greeting: string;
   firstName: string;
   attention: string;
-  today: string | null;
   checking: boolean;
   onAdd: () => void;
 }) {
   return (
-    <header className="mb-6 overflow-hidden rounded-[22px] bg-[image:linear-gradient(145deg,#0f2018_0%,#1b4332_52%,#163527_100%)] px-5 py-5 text-white shadow-[0_16px_40px_rgba(15,32,24,0.18)] sm:px-7 sm:py-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-xl">
-          <p className="text-sm text-white/65">
-            Home <span aria-hidden>/</span> Dashboard
-          </p>
-          <h1 className="mt-1 font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
-            Dashboard
-          </h1>
-          <div
-            className="mt-3 h-1 w-12 rounded-full bg-[color:var(--mc-accent)]"
-            aria-hidden
-          />
-          <p className="mt-3 text-sm leading-relaxed text-white/80">
-            {greeting}, {firstName}. {attention}
-          </p>
-        </div>
-        <div className="flex flex-col gap-2 sm:items-end">
-          {today ?
-            <p className="inline-flex min-h-9 items-center rounded-full border border-white/20 bg-white/10 px-4 text-sm text-white/85">
-              {today}
-            </p>
-          : <p className="h-9" aria-hidden />}
-          <button
-            type="button"
-            disabled={checking}
-            onClick={onAdd}
-            className="mc-btn-primary w-full sm:w-auto"
-          >
-            <Plus className="size-4" strokeWidth={2.25} aria-hidden />
-            {checking ? "Checking…" : "Add client"}
-          </button>
-        </div>
-      </div>
-    </header>
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <p className="max-w-xl text-sm leading-relaxed text-ink-muted">
+        <span className="font-display text-base font-bold text-ink">
+          {greeting}, {firstName}.
+        </span>{" "}
+        {attention}
+      </p>
+      <button
+        type="button"
+        disabled={checking}
+        onClick={onAdd}
+        className="mc-btn-primary w-full shrink-0 sm:w-auto"
+      >
+        <Plus className="size-4" strokeWidth={2.25} aria-hidden />
+        {checking ? "Checking…" : "Add client"}
+      </button>
+    </div>
   );
 }
 
-function DashboardHeroLive({
+function DashboardIntroLive({
   firstName,
   attention,
   checking,
@@ -203,17 +184,11 @@ function DashboardHeroLive({
   checking: boolean;
   onAdd: () => void;
 }) {
-  const now = new Date();
   return (
-    <DashboardHero
-      greeting={greetingFor(now)}
+    <DashboardIntro
+      greeting={greetingFor(new Date())}
       firstName={firstName}
       attention={attention}
-      today={now.toLocaleDateString("en-IN", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-      })}
       checking={checking}
       onAdd={onAdd}
     />
@@ -234,6 +209,8 @@ export function DashboardHomeView() {
   const [due, setDue] = useState<RecheckupDueClient[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [listing, setListing] = useState<"unknown" | "on" | "off">("unknown");
+  const [listingMissing, setListingMissing] = useState<string[]>([]);
 
   useEffect(() => {
     if (!session?.coachCode) return;
@@ -246,14 +223,36 @@ export function DashboardHomeView() {
         fetchClientList({ coachCode }),
         fetchEnquiryLeads(coachCode),
         fetchRecheckupList({ coachCode }),
+        fetchAuthedCoachProfile(),
       ]).then((results) => {
         if (cancelled) return;
-        const [c, l, d] = results;
+        const [c, l, d, profileResult] = results;
         if (c.status === "fulfilled") setClients(c.value);
         if (l.status === "fulfilled") setLeads(l.value);
         if (d.status === "fulfilled") setDue(d.value);
-        const failures = results.filter((r) => r.status === "rejected");
-        if (failures.length === results.length) {
+        if (profileResult.status === "fulfilled" && profileResult.value) {
+          const coach = profileResult.value;
+          const completion = getProfileCompletion({
+            coachName: coach.coachName,
+            coachTypeCode: coach.coachTypeCode,
+            city_Cd: coach.city_Cd,
+            tagline: coach.tagline,
+            coachDesc: coach.coachDesc,
+            serviceCodes: coach.serviceCodes,
+            experienceYears: coach.experienceYears,
+            happyClientCount: coach.happyClientCount,
+            pinCode: coach.pinCode,
+            locality: coach.locality,
+            add_Line: coach.add_Line,
+            profile_Pic_Url: coach.profile_Pic_Url,
+            isProfileVisible: coach.isProfileVisible,
+            missingPublicFields: coach.missingPublicFields,
+          });
+          setListing(coach.isProfileVisible === false ? "off" : "on");
+          setListingMissing(completion.missingLabels);
+        }
+        const metricFailures = [c, l, d].filter((r) => r.status === "rejected");
+        if (metricFailures.length === 3) {
           setError("Could not load dashboard metrics. Try refreshing.");
         }
         setLoading(false);
@@ -286,17 +285,16 @@ export function DashboardHomeView() {
     <div className="mx-auto w-full max-w-7xl">
       <Suspense
         fallback={
-          <DashboardHero
+          <DashboardIntro
             greeting="Hello"
             firstName={firstName}
             attention={attention}
-            today={null}
             checking={checking}
             onAdd={() => void openAddClient()}
           />
         }
       >
-        <DashboardHeroLive
+        <DashboardIntroLive
           firstName={firstName}
           attention={attention}
           checking={checking}
@@ -318,7 +316,7 @@ export function DashboardHomeView() {
           value={String(clients.length)}
           href="/dashboard/clients"
           loading={loading && clients.length === 0}
-          tone="forest"
+          tone="teal"
           icon={<Users className="size-5" aria-hidden />}
         />
         <MetricCard
@@ -327,7 +325,7 @@ export function DashboardHomeView() {
           value={String(openLeads.length)}
           href="/dashboard/leads"
           loading={loading && leads.length === 0}
-          tone="gold"
+          tone="amber"
           icon={<Inbox className="size-5" aria-hidden />}
         />
         <MetricCard
@@ -336,48 +334,43 @@ export function DashboardHomeView() {
           value={String(due.length)}
           href="/dashboard/checkups"
           loading={loading && due.length === 0}
-          tone="rust"
+          tone="terracotta"
           icon={<ClipboardCheck className="size-5" aria-hidden />}
         />
       </section>
 
-      <div className="mt-5 overflow-hidden rounded-[18px] bg-[image:linear-gradient(135deg,#1b4332,#0f2018)] text-white shadow-[0_12px_32px_rgba(15,32,24,0.18)]">
-        <div className="grid items-center gap-6 p-6 sm:p-7 lg:grid-cols-[1.3fr_0.7fr]">
-          <div>
-            <p className="inline-flex rounded-full bg-white/10 px-3 py-1 font-display text-[11px] font-bold text-[color:var(--mc-accent)]">
-              Your public page
-            </p>
-            <h2 className="mt-3 font-display text-2xl font-extrabold">
-              Coaches with a complete profile
-              <br />
-              <em className="text-[color:var(--mc-accent)] not-italic">
-                get found first
-              </em>
-            </h2>
-            <p className="mt-2 max-w-md text-sm leading-relaxed text-white/70">
-              Photo, services, and city are what people read before they
-              enquire.
-            </p>
-            <Link
-              href={
-                session?.coachCode ?
-                  `/coach/${encodeURIComponent(session.coachCode)}`
-                : "/dashboard/profile"
+      <div className="mt-5 rounded-[var(--radius-md)] border border-mc-secondary/20 bg-mc-secondary-light px-5 py-5 sm:px-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="max-w-xl">
+            <h2 className="font-display text-xl font-bold tracking-tight text-ink">
+              {listing === "off" ?
+                "Your listing is off until the profile is complete"
+              : <>
+                  Coaches with a complete profile{" "}
+                  <span className="text-mc-primary">get found first</span>
+                </>
               }
-              className="mt-5 inline-flex min-h-11 items-center rounded-full bg-white px-5 font-display text-sm font-semibold text-mc-secondary"
-            >
-              Open public profile
-            </Link>
+            </h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
+              {listing === "off" ?
+                listingMissing.length ?
+                  `Save these details on your profile: ${listingMissing.join(", ")}. Find a Coach lists a profile once every required field is saved.`
+                : "Save your profile again. Find a Coach lists a profile once every required field is saved."
+
+              : "Photo, services, and city are what people read before they enquire."
+              }
+            </p>
           </div>
-          <div className="relative hidden aspect-[4/3] overflow-hidden rounded-2xl lg:block">
-            <Image
-              src={photography.practiceHero}
-              alt="A coach's notes between sessions"
-              fill
-              className="object-cover"
-              sizes="280px"
-            />
-          </div>
+          <Link
+            href={
+              listing === "on" && session?.coachCode ?
+                `/coach/${encodeURIComponent(session.coachCode)}`
+              : "/dashboard/profile"
+            }
+            className="mc-btn-primary w-full shrink-0 sm:w-auto"
+          >
+            {listing === "on" ? "Open public profile" : "Update profile"}
+          </Link>
         </div>
       </div>
 
@@ -523,13 +516,17 @@ export function DashboardHomeView() {
               image={photography.emptyLeads}
               imageAlt="A coach holding a phone between sessions"
               title="No open enquiries"
-              body="Share your public profile so new clients can reach you."
+              body={
+                listing === "off" ?
+                  "Your Find a Coach listing is off until the required profile details are saved."
+                : "Share your public profile so new clients can reach you."
+              }
               href={
-                session?.coachCode ?
+                listing === "on" && session?.coachCode ?
                   `/coach/${encodeURIComponent(session.coachCode)}`
                 : "/dashboard/profile"
               }
-              cta="Open profile"
+              cta={listing === "on" ? "Open profile" : "Update profile"}
             />
           : <ul className="mc-roster divide-y divide-line">
               {leadPreview.map((lead) => (

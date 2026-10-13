@@ -1,10 +1,13 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import type { CoachCatalogPlan, CoachSuggestedPromo } from "@/types/premium";
 
 import { useAuth } from "@/components/auth-provider";
+import { useMounted } from "@/hooks/use-mounted";
 
 const PremiumCheckout = dynamic(
   () =>
@@ -28,7 +31,9 @@ type Props = {
 };
 
 /**
- * Prefer deep-link coach identity; otherwise prefill from the signed-in web session.
+ * Checkout identity comes from the signed-in session, or from the app Pay Now
+ * link (`coachId` / `coachCode`). Anonymous visits with neither go to login.
+ * The coach code is never an editable field.
  */
 export function PremiumCheckoutAuth({
   plans,
@@ -37,26 +42,43 @@ export function PremiumCheckoutAuth({
   initialCoachCode = "",
 }: Props) {
   const { session, ready } = useAuth();
+  const mounted = useMounted();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const fromQuery = initialCoachId > 0 || Boolean(initialCoachCode.trim());
-  const coachId = fromQuery ? initialCoachId : (session?.coachId ?? 0);
-  const coachCode = fromQuery ? initialCoachCode : (session?.coachCode ?? "");
+  const fromApp = initialCoachId > 0 || Boolean(initialCoachCode.trim());
+  const returnPath = useMemo(() => {
+    const qs = searchParams.toString();
+    return qs ? `/premium?${qs}` : "/premium";
+  }, [searchParams]);
+  const loginHref = `/coach-login?next=${encodeURIComponent(returnPath)}`;
 
-  if (!ready && !fromQuery) {
-    return (
-      <p className="text-sm text-ink-muted" aria-live="polite">
-        Checking your coach session…
-      </p>
-    );
-  }
+  useEffect(() => {
+    if (!mounted || !ready || session || fromApp) return;
+    router.replace(loginHref);
+  }, [mounted, ready, session, fromApp, router, loginHref]);
+
+  // Deep-link identity is on the server. A stored session is applied only
+  // after mount, so the plan catalog paints without reading sessionStorage.
+  const sessionCoach = mounted && ready && session ? session : null;
+  const coachId =
+    fromApp ? initialCoachId
+    : sessionCoach && sessionCoach.coachId > 0 ? sessionCoach.coachId
+    : 0;
+  const coachCode =
+    fromApp ? initialCoachCode.trim()
+    : sessionCoach?.coachCode.trim() ? sessionCoach.coachCode.trim()
+    : "";
+  const displayName = fromApp ? "" : (sessionCoach?.fullName.trim() ?? "");
 
   return (
     <PremiumCheckout
-      key={`${coachId}:${coachCode}:${ready ? "ready" : "wait"}`}
+      key={`${coachId}:${coachCode}:${displayName}`}
       plans={plans}
       promo={promo}
       initialCoachId={coachId}
       initialCoachCode={coachCode}
+      displayName={displayName}
     />
   );
 }
