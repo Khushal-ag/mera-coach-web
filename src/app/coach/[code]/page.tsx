@@ -52,7 +52,7 @@ function buildLocationLabel(coach: CoachProfile): string | null {
       unique.push(part!);
     }
   }
-  return unique.join(" · ");
+  return unique.join(", ");
 }
 
 function buildLocationDetail(coach: CoachProfile): string | null {
@@ -69,7 +69,7 @@ function buildLocationDetail(coach: CoachProfile): string | null {
       unique.push(part!);
     }
   }
-  return unique.join(" · ");
+  return unique.join(", ");
 }
 
 export async function generateMetadata({

@@ -109,7 +109,7 @@ export function CoachLoginForm() {
         type="submit"
         disabled={status === "loading"}
         aria-busy={status === "loading"}
-        className="mc-btn-primary mt-1 w-full"
+        className="mc-btn-primary mc-btn-pay mt-1 w-full"
       >
         {status === "loading" ? "Signing in" : "Sign in"}
       </button>

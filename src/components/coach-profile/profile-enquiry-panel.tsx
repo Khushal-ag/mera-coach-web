@@ -18,9 +18,9 @@ export function ProfileEnquiryPanel({
   return (
     <aside
       id="enquiry"
-      className="scroll-mt-24 overflow-hidden rounded-[var(--radius-lg)] border border-[color:var(--mc-secondary)]/15 bg-surface shadow-[0_16px_40px_rgba(17,104,92,0.08)] lg:sticky lg:top-24"
+      className="scroll-mt-24 overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface shadow-[var(--mc-shadow-lg)] lg:sticky lg:top-24"
     >
-      <div className="border-b border-[color:var(--mc-secondary)]/15 bg-[color:var(--mc-secondary-light)] px-5 py-5 sm:px-7 sm:py-6">
+      <div className="border-b border-line bg-mc-primary-light px-5 py-5 sm:px-7 sm:py-6">
         <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
           Start with {firstName}
         </h2>

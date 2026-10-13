@@ -13,9 +13,9 @@ export const metadata = publicPageMetadata({
 export default function MemberLoginPage() {
   return (
     <AuthShell
-      layout="single"
+      layout="split"
       panel="light"
-      image={photography.authLogin}
+      image={photography.findCoach}
       imageAlt="Someone walking into a neighbourhood gym at dusk"
       crumbs={[{ label: "Home", href: "/" }, { label: "Member Login" }]}
       title={

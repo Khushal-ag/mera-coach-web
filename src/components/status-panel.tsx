@@ -15,7 +15,7 @@ type Props = {
 };
 
 /**
- * Branded empty / error / loading status surface — paper ground, teal wash.
+ * Branded empty / error / loading status surface. Sand ground, forest header.
  */
 export function StatusPanel({
   code,
@@ -28,49 +28,52 @@ export function StatusPanel({
   return (
     <section
       className={cn(
-        "relative flex flex-col items-center justify-center overflow-hidden bg-paper px-6 py-16 text-center text-ink",
-        fullViewport ? "min-h-dvh" : "min-h-[60dvh]",
+        "relative flex flex-col items-center justify-center overflow-hidden bg-[#f5ede0] px-6 py-16 text-center text-ink",
+        fullViewport ? "min-h-dvh" : "min-h-[70dvh]",
         className,
       )}
     >
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[color:var(--mc-secondary)]/10 to-transparent"
+        className="pointer-events-none absolute -top-24 -right-16 size-72 rounded-full bg-[color:var(--mc-accent)]/15"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute top-24 -left-16 size-56 rounded-full bg-[color:var(--mc-secondary)]/10 blur-3xl"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -right-10 bottom-16 size-48 rounded-full bg-[color:var(--mc-brand-coach)]/15 blur-3xl"
+        className="pointer-events-none absolute -bottom-20 -left-16 size-64 rounded-full bg-mc-secondary/10"
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-md flex-col items-center gap-4">
-        <Image
-          src={siteConfig.brand.logoMark}
-          alt=""
-          width={56}
-          height={56}
-          className="mb-1 size-14 object-contain"
-        />
-        {code ?
-          <p className="text-xs font-bold tracking-[0.2em] text-mc-secondary uppercase">
-            {code}
+      <div className="relative z-10 mx-auto w-full max-w-lg overflow-hidden rounded-[24px] border border-line bg-white shadow-[0_24px_60px_rgba(44,24,16,0.12)]">
+        <div className="bg-[image:linear-gradient(145deg,#0f2018_0%,#1b4332_55%,#163527_100%)] px-6 py-8 text-white">
+          <Image
+            src={siteConfig.brand.logoMark}
+            alt=""
+            width={56}
+            height={56}
+            className="mx-auto mb-3 size-14 object-contain"
+          />
+          {code ?
+            <p className="font-display text-xs font-bold tracking-[0.2em] text-[color:var(--mc-accent)] uppercase">
+              {code}
+            </p>
+          : null}
+          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+            {title}
+          </h1>
+          <div
+            className="mx-auto mt-4 h-1 w-12 rounded-full bg-[color:var(--mc-accent)]"
+            aria-hidden
+          />
+        </div>
+        <div className="px-6 py-8">
+          <p className="mx-auto max-w-sm text-sm leading-relaxed text-ink-muted">
+            {description}
           </p>
-        : null}
-        <h1 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-          {title}
-        </h1>
-        <div className="h-1 w-12 rounded-full bg-mc-brand-coach" aria-hidden />
-        <p className="max-w-sm text-sm leading-relaxed text-ink-muted">
-          {description}
-        </p>
-        {children ?
-          <div className="mt-2 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
-            {children}
-          </div>
-        : null}
+          {children ?
+            <div className="mt-6 flex w-full flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
+              {children}
+            </div>
+          : null}
+        </div>
       </div>
     </section>
   );

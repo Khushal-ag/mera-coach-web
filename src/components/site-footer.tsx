@@ -3,48 +3,47 @@ import Link from "next/link";
 import { BrandLockup } from "@/components/brand-lockup";
 import { siteConfig } from "@/config/site";
 
-const exploreLinks = [
+const platformLinks = [
   { label: "Find a coach", href: "/coach" },
   { label: "Services", href: "/services" },
   { label: "BMI calculator", href: "/bmi" },
+  { label: "Feedback", href: "/feedback" },
 ] as const;
 
-const accountLinks = [
-  { label: "Register", href: "/register" },
+const coachLinks = [
+  { label: "Become a coach", href: "/register" },
   { label: "Coach login", href: "/coach-login" },
+  { label: "Premium", href: "/premium" },
   { label: "Member login", href: "/member-login" },
 ] as const;
 
-const legalLinks = [
+const companyLinks = [
   { label: "Privacy", href: "/privacy" },
   { label: "Terms", href: "/terms" },
 ] as const;
 
 const linkClass =
-  "inline-flex min-h-11 min-w-11 items-center text-sm text-ink-muted transition-colors hover:text-mc-secondary";
+  "inline-flex min-h-11 items-center text-sm text-white/80 transition-colors hover:text-[color:var(--mc-accent)]";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-line bg-surface text-ink">
-      <div className="container grid gap-10 py-14 sm:py-16 md:grid-cols-2 lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.7fr] lg:gap-12">
+    <footer className="bg-[#2c1810] text-white">
+      <div className="container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_0.8fr_0.9fr_1fr] lg:gap-12 lg:py-16">
         <div>
-          <BrandLockup variant="workspace" className="text-xl sm:text-2xl" />
-          <p className="mt-5 max-w-sm text-sm leading-relaxed text-ink-muted">
-            Get found by clients. Grow your coaching. For personal trainers,
-            fitness coaches, and dieticians.
+          <BrandLockup variant="nav" />
+          <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/80">
+            India&apos;s coaching and wellness platform connecting people with
+            health, fitness, yoga, and nutrition coaches, and giving those
+            coaches one place to run the practice.
           </p>
-          <a
-            href={`mailto:${siteConfig.email.team}`}
-            className="mt-5 inline-flex min-h-11 items-center text-sm break-all text-mc-secondary transition-colors hover:underline"
-          >
-            {siteConfig.email.team}
-          </a>
         </div>
 
         <div>
-          <p className="font-display text-sm font-bold text-ink">Explore</p>
-          <ul className="mt-3 space-y-0.5">
-            {exploreLinks.map((link) => (
+          <h2 className="font-display text-sm font-bold text-white">
+            Platform
+          </h2>
+          <ul className="mt-3">
+            {platformLinks.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className={linkClass}>
                   {link.label}
@@ -55,9 +54,11 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <p className="font-display text-sm font-bold text-ink">Account</p>
-          <ul className="mt-3 space-y-0.5">
-            {accountLinks.map((link) => (
+          <h2 className="font-display text-sm font-bold text-white">
+            For coaches
+          </h2>
+          <ul className="mt-3">
+            {coachLinks.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className={linkClass}>
                   {link.label}
@@ -68,9 +69,25 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <p className="font-display text-sm font-bold text-ink">Legal</p>
-          <ul className="mt-3 space-y-0.5">
-            {legalLinks.map((link) => (
+          <h2 className="font-display text-sm font-bold text-white">Contact</h2>
+          <ul className="mt-3 space-y-2 text-sm text-white/80">
+            <li>
+              <a
+                href={`mailto:${siteConfig.email.team}`}
+                className="inline-flex min-h-11 items-center break-all hover:text-[color:var(--mc-accent)]"
+              >
+                {siteConfig.email.team}
+              </a>
+            </li>
+            <li className="leading-relaxed">
+              Questions about a coach profile or Premium checkout.
+            </li>
+          </ul>
+          <h3 className="mt-6 font-display text-sm font-bold text-white">
+            Company
+          </h3>
+          <ul className="mt-2">
+            {companyLinks.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className={linkClass}>
                   {link.label}
@@ -81,9 +98,10 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="border-t border-line">
-        <div className="container py-5 text-sm text-ink-muted">
+      <div className="border-t border-white/10">
+        <div className="container flex flex-col gap-2 py-5 text-sm text-white/75 sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 Mera Coach. All rights reserved.</p>
+          <p>Made for a healthier coaching practice.</p>
         </div>
       </div>
     </footer>

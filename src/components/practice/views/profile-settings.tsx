@@ -676,6 +676,7 @@ export function ProfileSettingsView() {
             />
             <ImagePicker
               label="Profile photo"
+              name={coachName}
               value={photoPick}
               currentUrl={profilePicUrl}
               onChange={(file) => setSlot("photo", file)}

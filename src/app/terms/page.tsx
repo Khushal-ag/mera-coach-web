@@ -1,4 +1,4 @@
-import { PageHero } from "@/components/page-hero";
+import { PageBanner } from "@/components/marketing/page-banner";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
@@ -10,13 +10,14 @@ export const metadata = publicPageMetadata({
 export default function TermsPage() {
   return (
     <>
-      <PageHero
+      <PageBanner
         crumbs={[{ label: "Home", href: "/" }, { label: "Terms" }]}
-        title="Terms & Conditions"
+        title="Terms &"
+        emphasis="conditions"
         subtitle="Please read these terms carefully before using Mera Coach websites and services."
       />
-      <section className="bg-paper py-14">
-        <div className="prose prose-neutral container max-w-3xl space-y-6 text-sm leading-relaxed text-ink-muted">
+      <section className="bg-[#f5ede0] py-10 sm:py-14">
+        <article className="container max-w-3xl space-y-6 rounded-[22px] border border-line bg-white p-6 text-sm leading-relaxed text-ink-muted shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:p-8">
           <p>
             By accessing mera-coach.com, related web pages, or connecting mobile
             experiences operated by Hench Solutions (&quot;Mera Coach&quot;),
@@ -58,7 +59,7 @@ export default function TermsPage() {
             acceptance. For questions, email Contact@mera-coach.com.
           </p>
           <p className="text-xs text-ink-muted">Last updated: October 2026</p>
-        </div>
+        </article>
       </section>
     </>
   );

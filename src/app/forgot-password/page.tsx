@@ -12,7 +12,7 @@ export const metadata = publicPageMetadata({
 export default function ForgotPasswordPage() {
   return (
     <AuthShell
-      layout="single"
+      layout="split"
       panel="light"
       image={photography.authLogin}
       imageAlt="Someone walking into a neighbourhood gym at dusk"

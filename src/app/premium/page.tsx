@@ -6,6 +6,7 @@ import { Check, Crown } from "lucide-react";
 
 import type { CoachCatalogPlan, CoachSuggestedPromo } from "@/types/premium";
 
+import { PageBanner } from "@/components/marketing/page-banner";
 import { PremiumCheckoutAuth } from "@/components/premium-checkout-auth";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { photography } from "@/config/photography";
@@ -40,35 +41,18 @@ export default function PremiumPage({
 }) {
   return (
     <>
-      <section className="bg-[color:var(--mc-secondary-light)] py-10 sm:py-14 lg:py-16">
+      <PageBanner
+        crumbs={[{ label: "Home", href: "/" }, { label: "Premium" }]}
+        eyebrow="For coaches"
+        title="Grow the practice with"
+        emphasis="Premium"
+        subtitle="Unlimited clients, packages, and the public page tools. One plan, checkout on the website."
+      />
+      <section className="bg-[#f5ede0] py-10 sm:py-14">
         <div className="container max-w-6xl">
-          <p className="flex flex-wrap items-center gap-y-1 text-sm text-ink-muted">
-            <Link
-              href="/"
-              className="inline-flex min-h-11 items-center hover:text-mc-secondary"
-            >
-              Home
-            </Link>
-            <span className="mx-1.5 text-ink-muted/50" aria-hidden>
-              ›
-            </span>
-            <span>Premium</span>
-          </p>
-          <h1 className="mt-3 max-w-[16em] font-display text-[2rem] leading-[1.08] font-bold tracking-tight text-balance text-ink sm:text-5xl">
-            Grow your coaching business with{" "}
-            <span className="text-[color:var(--mc-brand-coach)]">
-              Mera Coach
-            </span>
-          </h1>
-          <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-ink-muted sm:text-base">
-            All the tools you need. One simple plan. No limits. Just focus on
-            your clients.
-          </p>
-          <div className="mt-10">
-            <Suspense fallback={<PremiumCatalogSkeleton />}>
-              <PremiumCatalog searchParams={searchParams} />
-            </Suspense>
-          </div>
+          <Suspense fallback={<PremiumCatalogSkeleton />}>
+            <PremiumCatalog searchParams={searchParams} />
+          </Suspense>
         </div>
       </section>
     </>
@@ -111,35 +95,29 @@ async function PremiumCatalog({
     catalogFeatures.length > 0 ? catalogFeatures : [...FALLBACK_FEATURES];
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-12">
-      <aside className="space-y-6">
-        <div className="overflow-hidden rounded-[var(--radius-lg)]">
-          <div className="relative aspect-[16/10] lg:aspect-[3/4]">
-            <Image
-              src={photography.premium}
-              alt="Coach and client stretching in a quiet studio"
-              fill
-              className="object-cover object-[center_40%]"
-              sizes="(max-width: 1024px) 100vw, 400px"
-            />
-          </div>
+    <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+      <aside className="space-y-5">
+        <div className="relative aspect-[16/10] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(44,24,16,0.12)]">
+          <Image
+            src={photography.premium}
+            alt="A quiet stretch in a coaching studio"
+            fill
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 380px"
+          />
         </div>
-
-        <div className="rounded-[var(--radius-md)] border border-line bg-surface p-5 sm:p-6">
+        <div className="rounded-[22px] border border-line bg-white p-5 shadow-[0_8px_24px_rgba(44,24,16,0.06)] sm:p-6">
           <div className="flex items-center gap-3">
-            <span className="inline-flex size-9 items-center justify-center rounded-[10px] bg-[color:var(--mc-accent-light)] text-mc-accent">
-              <Crown className="size-4" strokeWidth={1.75} aria-hidden />
+            <span className="inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]">
+              <Crown className="size-5" strokeWidth={1.75} aria-hidden />
             </span>
             <h2 className="font-display text-lg font-bold text-ink">
               What you get
             </h2>
           </div>
-          <ul className="mt-5 divide-y divide-line border-t border-line">
+          <ul className="mt-4 space-y-3">
             {features.map((feature) => (
-              <li
-                key={feature}
-                className="flex items-start gap-3 py-3 text-sm first:pt-4"
-              >
+              <li key={feature} className="flex items-start gap-3 text-sm">
                 <Check
                   className="mt-0.5 size-4 shrink-0 text-mc-secondary"
                   strokeWidth={2.25}
@@ -160,7 +138,7 @@ async function PremiumCatalog({
           </AlertBanner>
         : null}
 
-        <div className="overflow-hidden rounded-[var(--radius-md)] border border-line bg-surface p-4 shadow-[0_12px_32px_rgba(0,75,62,0.06)] sm:p-8">
+        <div className="overflow-hidden rounded-[22px] border border-line bg-white p-4 shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:p-8">
           {errorMessage ?
             <AlertBanner tone="error" className="mb-6">
               {errorMessage}

@@ -84,16 +84,17 @@ export function BmiCalculator() {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-start lg:gap-10">
-      <div className="mc-panel p-5 sm:p-7">
-        <h2 className="font-display text-xl font-bold text-ink sm:text-2xl">
+      <div className="rounded-[var(--radius-lg)] bg-mc-secondary p-5 text-white shadow-[0_20px_60px_rgba(27,67,50,0.35)] sm:p-7">
+        <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
           Calculate BMI
         </h2>
-        <p className="mt-2 max-w-[40ch] text-sm text-ink-muted">
+        <p className="mt-2 max-w-[40ch] text-sm text-white/80">
           Enter height and weight for an instant result. Nothing is stored until
           you request a coach callback.
         </p>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <TextField
+            tone="dark"
             label="Height (cm)"
             type="number"
             inputMode="decimal"
@@ -105,6 +106,7 @@ export function BmiCalculator() {
             placeholder="e.g. 170"
           />
           <TextField
+            tone="dark"
             label="Weight (kg)"
             type="number"
             inputMode="decimal"
@@ -117,14 +119,16 @@ export function BmiCalculator() {
           />
         </div>
 
-        <div className="mt-6 flex flex-col items-start gap-3 border-t border-line pt-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mt-6 flex flex-col items-start gap-3 border-t border-white/15 pt-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-medium text-ink-muted">Your BMI</p>
+            <p className="font-display text-[11px] font-bold tracking-wide text-white/85 uppercase">
+              Your BMI
+            </p>
             {bmi != null ?
-              <p className="mt-1 font-display text-4xl font-bold tracking-tight text-ink tabular-nums sm:text-5xl">
+              <p className="mt-1 font-display text-5xl font-extrabold tracking-tight text-[color:var(--mc-accent)] tabular-nums">
                 {formatBmi(bmi)}
               </p>
-            : <p className="mt-1 text-sm text-ink-muted">
+            : <p className="mt-1 text-sm text-white/80">
                 Waiting for measurements
               </p>
             }
@@ -138,7 +142,7 @@ export function BmiCalculator() {
           : null}
         </div>
 
-        <dl className="mt-6 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-line pt-4 text-xs sm:grid-cols-4">
+        <dl className="mt-6 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-white/15 pt-4 text-xs">
           {[
             { label: "Underweight", range: "< 18.5" },
             { label: "Normal", range: "18.5-24.9" },
@@ -146,8 +150,8 @@ export function BmiCalculator() {
             { label: "Obese", range: "30+" },
           ].map((row) => (
             <div key={row.label}>
-              <dt className="font-semibold text-ink">{row.label}</dt>
-              <dd className="text-ink-muted">{row.range}</dd>
+              <dt className="font-semibold text-white/85">{row.label}</dt>
+              <dd className="text-white/75">{row.range}</dd>
             </div>
           ))}
         </dl>

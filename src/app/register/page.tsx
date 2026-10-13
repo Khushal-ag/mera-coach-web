@@ -17,11 +17,18 @@ export const metadata = publicPageMetadata({
 export default function RegisterPage() {
   return (
     <AuthShell
-      layout="single"
+      layout="split"
       panel="light"
       image={photography.authRegister}
       imageAlt="Coach setting dumbbells on a rack before a session"
       crumbs={[{ label: "Home", href: "/" }, { label: "Register" }]}
+      sideTitle={
+        <>
+          Start your coaching{" "}
+          <em className="text-[color:var(--mc-accent)] not-italic">practice</em>
+        </>
+      }
+      sideBody="A public profile, client tools, and enquiries in one account. We review new coaches before listing."
       title={
         <>
           Coach{" "}

@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 
+import { PageBanner } from "@/components/marketing/page-banner";
 import { photography } from "@/config/photography";
 import { publicPageMetadata } from "@/lib/seo";
 
@@ -17,74 +18,69 @@ const BmiCalculator = dynamic(
   { loading: () => <BmiCalculatorSkeleton /> },
 );
 
+const points = [
+  "Instant BMI with a health category",
+  "Nothing is stored until you ask for a callback",
+  "Then browse coaches who fit the goal",
+] as const;
+
 export default function BmiPage() {
   return (
-    <section className="bg-[color:var(--mc-explore-canvas)]">
-      <div className="container grid items-start gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-12 lg:py-16">
-        <div className="order-2 lg:order-1">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-lg)]">
-            <Image
-              src={photography.bmi}
-              alt="Coach measuring a client's height against a wall"
-              fill
-              priority
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 40vw"
-            />
-          </div>
+    <>
+      <PageBanner
+        crumbs={[{ label: "Home", href: "/" }, { label: "BMI" }]}
+        eyebrow="Free health tool"
+        title="Know your BMI,"
+        emphasis="know your health"
+        subtitle="A quick check, then a coach can call you back. Free, and nothing is stored until you ask."
+      />
+      <section className="bg-[#f5ede0] py-10 sm:py-14">
+        <div className="container grid items-start gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-10">
+          <aside className="space-y-5">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(44,24,16,0.12)]">
+              <Image
+                src={photography.bmi}
+                alt="A height check in a coaching studio"
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 34vw"
+              />
+            </div>
+            <ul className="space-y-3 rounded-[22px] border border-line bg-white p-5">
+              {points.map((point) => (
+                <li key={point} className="flex gap-3 text-sm text-ink">
+                  <span
+                    className="mt-1.5 size-2 shrink-0 rounded-full bg-mc-primary"
+                    aria-hidden
+                  />
+                  {point}
+                </li>
+              ))}
+            </ul>
+            <p className="text-sm text-ink-muted">
+              Prefer to browse first?{" "}
+              <Link href="/coach" className="font-semibold text-mc-secondary">
+                Find a Coach
+              </Link>
+            </p>
+          </aside>
+          <BmiCalculator />
         </div>
-
-        <div className="order-1 lg:order-2">
-          <p className="flex flex-wrap items-center gap-y-1 text-sm text-ink-muted">
-            <Link
-              href="/"
-              className="inline-flex min-h-11 items-center hover:text-mc-secondary"
-            >
-              Home
-            </Link>
-            <span className="mx-1.5 text-ink-muted/50" aria-hidden>
-              ›
-            </span>
-            <span>BMI</span>
-          </p>
-          <h1 className="mt-3 font-display text-[2rem] leading-[1.08] font-bold tracking-tight text-balance text-ink sm:text-5xl">
-            Check your{" "}
-            <span className="text-[color:var(--mc-brand-coach)]">BMI</span>
-          </h1>
-          <p className="mt-4 max-w-[36ch] text-sm leading-relaxed text-ink-muted sm:text-base">
-            Get your BMI in seconds. Then share your details with a coach.
-          </p>
-
-          <div className="mt-8">
-            <BmiCalculator />
-          </div>
-
-          <p className="mt-8 text-sm text-ink-muted">
-            Prefer to browse first?{" "}
-            <Link href="/coach" className="font-semibold text-mc-secondary">
-              Find a Coach
-            </Link>
-          </p>
-        </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
 
 function BmiCalculatorSkeleton() {
   return (
     <div
-      className="grid gap-6 rounded-[var(--radius-lg)] border border-line bg-surface p-5 sm:p-8 lg:grid-cols-2"
+      className="grid gap-6 rounded-[var(--radius-lg)] bg-mc-secondary p-5 sm:p-8 lg:grid-cols-2"
       aria-busy="true"
       aria-label="Loading BMI calculator"
     >
-      <div className="space-y-4">
-        <div className="mc-skeleton h-6 w-40" />
-        <div className="mc-skeleton h-11 rounded-[10px]" />
-        <div className="mc-skeleton h-11 rounded-[10px]" />
-        <div className="mc-skeleton h-12 rounded-full" />
-      </div>
-      <div className="mc-skeleton h-40 rounded-[var(--radius-md)]" />
+      <div className="h-64 animate-pulse rounded-2xl bg-white/10" />
+      <div className="h-64 animate-pulse rounded-2xl bg-white/10" />
     </div>
   );
 }

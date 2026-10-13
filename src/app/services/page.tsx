@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { PageBanner } from "@/components/marketing/page-banner";
 import { photography } from "@/config/photography";
 import { publicPageMetadata } from "@/lib/seo";
 
@@ -59,75 +60,53 @@ const progressPoints = [
 export default function ServicesPage() {
   return (
     <>
-      <section className="bg-paper">
-        <div className="container grid items-center gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-14 lg:py-16">
-          <div>
-            <p className="flex flex-wrap items-center gap-y-1 text-sm text-ink-muted">
-              <Link
-                href="/"
-                className="inline-flex min-h-11 items-center hover:text-mc-secondary"
-              >
-                Home
-              </Link>
-              <span className="mx-1.5 text-ink-muted/50" aria-hidden>
-                ›
-              </span>
-              <span>Services</span>
-            </p>
-            <h1 className="mt-3 max-w-[12em] font-display text-[2rem] leading-[1.08] font-bold tracking-tight text-balance text-ink sm:text-5xl lg:text-6xl">
-              Power your{" "}
-              <span className="text-[color:var(--mc-brand-coach)]">
-                coaching business
-              </span>
-            </h1>
-            <p className="mt-4 max-w-[42ch] text-sm leading-relaxed text-ink-muted sm:text-base">
-              Exercise, nutrition, and client tools for personal trainers who
-              train people one-to-one.
-            </p>
-            <Link
-              href="/coach"
-              className="mc-btn-primary mt-8 w-full sm:w-auto"
-            >
-              Find a Coach
-            </Link>
-          </div>
-          <div className="motion-reveal relative aspect-[4/3] overflow-hidden rounded-[var(--radius-lg)]">
+      <PageBanner
+        crumbs={[{ label: "Home", href: "/" }, { label: "Services" }]}
+        eyebrow="For coaches"
+        title="Power your"
+        emphasis="coaching business"
+        subtitle="Exercise, nutrition, and client tools for personal trainers who train people one-to-one."
+      >
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Link href="/register" className="mc-btn-primary w-full sm:w-auto">
+            Start as a Coach
+          </Link>
+          <Link
+            href="/coach"
+            className="mc-btn-outline-on-dark w-full sm:w-auto"
+          >
+            Find a Coach
+          </Link>
+        </div>
+      </PageBanner>
+
+      <section className="bg-[#f5ede0] py-14 sm:py-16">
+        <div className="container grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(44,24,16,0.12)]">
             <Image
               src={photography.services}
               alt="Coach watching a kettlebell setup in a daylight studio"
               fill
               priority
               className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
+              sizes="(max-width: 1024px) 100vw, 42vw"
             />
           </div>
-        </div>
-      </section>
-
-      <section className="bg-paper-elevated py-16 sm:py-20 lg:py-24">
-        <div className="container max-w-3xl">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl lg:text-4xl">
-            Coaching you deliver in person
-          </h2>
-          <p className="mt-3 max-w-[50ch] text-sm leading-relaxed text-ink-muted sm:text-base">
-            Design and deliver fitness and nutrition programs from one place,
-            then stay close to each client.
-          </p>
-          <ol className="mt-10 border-t border-[color:var(--mc-secondary)]/15">
+          <div className="grid gap-4">
             {offerings.map((item) => (
-              <li
+              <article
                 key={item.title}
-                className="border-b border-[color:var(--mc-secondary)]/15 py-6 sm:py-7"
+                className="rounded-2xl border border-line bg-white p-5 shadow-[0_8px_24px_rgba(44,24,16,0.05)]"
               >
-                <h3 className="font-display text-xl font-bold text-ink sm:text-2xl">
+                <h2 className="font-display text-lg font-bold text-ink">
                   {item.title}
-                </h3>
-                <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-ink-muted sm:text-base">
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-ink-muted">
                   {item.body}
                 </p>
-              </li>
+              </article>
             ))}
-          </ol>
+          </div>
         </div>
       </section>
 

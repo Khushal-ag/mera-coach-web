@@ -1,4 +1,8 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+
+import { cn } from "@/lib/utils";
 
 type MediaPreviewProps = {
   src: string;
@@ -7,34 +11,53 @@ type MediaPreviewProps = {
   className?: string;
 };
 
+function decodedOk(img: HTMLImageElement): boolean {
+  return img.naturalWidth > 2 && img.naturalHeight > 2;
+}
+
 /**
- * Remote coach/client photos go through `next/image`.
- * Blob and data URLs are local file previews — the optimizer rejects them.
- * Parent must be `relative` with a size (`fill`).
+ * Remote and local photo previews.
+ * The image stays hidden until it decodes so a 404 does not show a broken icon.
+ * Parent must be `relative` with a size.
  */
 export function MediaPreview({
   src,
   alt = "",
-  sizes,
   className = "object-cover",
 }: MediaPreviewProps) {
-  if (!src) return null;
-
-  if (src.startsWith("blob:") || src.startsWith("data:")) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element -- local file preview
-      <img src={src} alt={alt} className={`size-full ${className}`} />
-    );
+  const [failed, setFailed] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [trackedSrc, setTrackedSrc] = useState(src);
+  if (src !== trackedSrc) {
+    setTrackedSrc(src);
+    setFailed(false);
+    setReady(false);
   }
 
+  if (!src || failed) return null;
+
   return (
-    <Image
+    // Native img: blob/data previews, and a failed /document file must not use next/image.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
       src={src}
-      alt={alt}
-      fill
-      sizes={sizes}
-      className={className}
-      unoptimized={src.startsWith("http://")}
+      alt={ready ? alt : ""}
+      decoding="async"
+      draggable={false}
+      ref={(node) => {
+        if (!node?.complete) return;
+        if (decodedOk(node)) setReady(true);
+        else setFailed(true);
+      }}
+      onLoad={(event) => {
+        if (decodedOk(event.currentTarget)) setReady(true);
+        else setFailed(true);
+      }}
+      onError={() => setFailed(true)}
+      className={cn(
+        "absolute inset-0 size-full",
+        ready ? className : "invisible",
+      )}
     />
   );
 }

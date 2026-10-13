@@ -93,7 +93,7 @@ export function LeadsListView() {
         description="Enquiries from your public profile and directory."
         action={
           leads != null && leads.length > 0 ?
-            <p className="text-sm text-ink-muted tabular-nums">
+            <p className="inline-flex min-h-9 items-center rounded-full border border-white/25 bg-white/10 px-3.5 text-sm font-semibold text-white tabular-nums print:border-line print:bg-paper print:text-ink">
               {openCount} open of {leads.length}
             </p>
           : undefined

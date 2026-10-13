@@ -49,7 +49,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mc-panel px-5 py-5">
+    <section className="mc-panel border-l-4 border-l-mc-secondary px-5 py-5">
       <h2 className="font-display text-base font-bold text-ink">{title}</h2>
       <dl className="mt-4 grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
         {children}
@@ -161,7 +161,7 @@ export function ClientDetailView() {
       </nav>
 
       <header className="mb-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="overflow-hidden rounded-[22px] bg-[image:linear-gradient(145deg,#0f2018_0%,#1b4332_52%,#163527_100%)] px-5 py-5 text-white shadow-[0_16px_40px_rgba(15,32,24,0.18)] sm:px-7 sm:py-6">
           <div className="flex min-w-0 items-start gap-4">
             {session?.coachCode && detail?.clientCode ?
               <ClientAvatar
@@ -173,10 +173,14 @@ export function ClientDetailView() {
               />
             : null}
             <div className="min-w-0">
-              <h1 className="font-display text-[1.75rem] leading-[1.15] font-bold tracking-tight text-ink sm:text-[2rem]">
+              <h1 className="font-display text-[1.75rem] leading-[1.15] font-extrabold tracking-tight sm:text-[2rem]">
                 {title}
               </h1>
-              <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-ink-muted">
+              <div
+                className="mt-3 h-1 w-12 rounded-full bg-[color:var(--mc-accent)]"
+                aria-hidden
+              />
+              <p className="mt-3 max-w-[52ch] text-sm leading-relaxed text-white/75">
                 {[
                   detail?.mobileNo,
                   detail?.emailId,
@@ -187,10 +191,10 @@ export function ClientDetailView() {
                   .join(", ") || "Client profile from your latest assessment."}
               </p>
               {bmi != null ?
-                <p className="mt-3 font-display text-lg font-bold text-ink tabular-nums">
+                <p className="mt-3 font-display text-lg font-bold text-[color:var(--mc-accent)] tabular-nums">
                   BMI {formatBmi(bmi)}
                   {bmiCat ?
-                    <span className="ml-2 text-sm font-semibold text-ink-muted">
+                    <span className="ml-2 text-sm font-semibold text-white/75">
                       {bmiCat.label}
                     </span>
                   : null}
@@ -198,59 +202,59 @@ export function ClientDetailView() {
               : null}
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
-            <Link
-              href={`/dashboard/clients/${encodeURIComponent(code)}/checkup`}
-              className="mc-btn-primary min-h-11 w-full sm:w-auto"
-            >
-              <RefreshCw className="size-4" aria-hidden />
-              Start checkup
-            </Link>
-            <Link
-              href={`/dashboard/clients/${encodeURIComponent(code)}/bmi`}
-              className="mc-btn-secondary min-h-11 w-full sm:w-auto"
-            >
-              <FileText className="size-4" aria-hidden />
-              BMI report
-            </Link>
-            <Link
-              href={`/dashboard/clients/${encodeURIComponent(code)}/diet`}
-              className="mc-btn-secondary min-h-11 w-full sm:w-auto"
-            >
-              <Utensils className="size-4" aria-hidden />
-              Diet plan
-            </Link>
-            {feedbackUrl ?
-              <>
-                <button
-                  type="button"
-                  className="mc-btn-secondary min-h-11 w-full sm:w-auto"
-                  onClick={() => void askForFeedback("share")}
-                >
-                  <Share2 className="size-4" aria-hidden />
-                  {feedbackAction ?? "Ask for feedback"}
-                </button>
-                <button
-                  type="button"
-                  className="mc-btn-secondary min-h-11 w-full sm:w-auto"
-                  title={feedbackUrl}
-                  onClick={() => void askForFeedback("copy")}
-                >
-                  <Copy className="size-4" aria-hidden />
-                  Copy link
-                </button>
-                <a
-                  href={feedbackUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mc-btn-secondary min-h-11 w-full sm:w-auto"
-                >
-                  <MessageSquareHeart className="size-4" aria-hidden />
-                  Open form
-                </a>
-              </>
-            : null}
-          </div>
+        </div>
+        <div className="mt-4 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+          <Link
+            href={`/dashboard/clients/${encodeURIComponent(code)}/checkup`}
+            className="mc-btn-primary min-h-11 w-full sm:w-auto"
+          >
+            <RefreshCw className="size-4" aria-hidden />
+            Start checkup
+          </Link>
+          <Link
+            href={`/dashboard/clients/${encodeURIComponent(code)}/bmi`}
+            className="mc-btn-secondary min-h-11 w-full sm:w-auto"
+          >
+            <FileText className="size-4" aria-hidden />
+            BMI report
+          </Link>
+          <Link
+            href={`/dashboard/clients/${encodeURIComponent(code)}/diet`}
+            className="mc-btn-secondary min-h-11 w-full sm:w-auto"
+          >
+            <Utensils className="size-4" aria-hidden />
+            Diet plan
+          </Link>
+          {feedbackUrl ?
+            <>
+              <button
+                type="button"
+                className="mc-btn-secondary min-h-11 w-full sm:w-auto"
+                onClick={() => void askForFeedback("share")}
+              >
+                <Share2 className="size-4" aria-hidden />
+                {feedbackAction ?? "Ask for feedback"}
+              </button>
+              <button
+                type="button"
+                className="mc-btn-secondary min-h-11 w-full sm:w-auto"
+                title={feedbackUrl}
+                onClick={() => void askForFeedback("copy")}
+              >
+                <Copy className="size-4" aria-hidden />
+                Copy link
+              </button>
+              <a
+                href={feedbackUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mc-btn-secondary min-h-11 w-full sm:w-auto"
+              >
+                <MessageSquareHeart className="size-4" aria-hidden />
+                Open form
+              </a>
+            </>
+          : null}
         </div>
       </header>
 

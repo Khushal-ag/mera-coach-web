@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { AppHandoffCta } from "@/components/app-handoff-cta";
-import { PageHero } from "@/components/page-hero";
+import { PageBanner } from "@/components/marketing/page-banner";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { premiumPaidDeepLink } from "@/lib/app-deep-link";
 
@@ -29,17 +29,18 @@ export default function PremiumSuccessPage({
 }) {
   return (
     <>
-      <PageHero
+      <PageBanner
         crumbs={[
           { label: "Home", href: "/" },
           { label: "Premium", href: "/premium" },
           { label: "Success" },
         ]}
-        title="Premium activated"
+        title="Premium"
+        emphasis="activated"
         subtitle="Payment confirmed. Premium is active for Add Client and coaching tools on the web and in the app."
       />
 
-      <section className="bg-[color:var(--mc-explore-canvas)] py-14">
+      <section className="bg-[#f5ede0] py-10 sm:py-14">
         <div className="container max-w-xl">
           <Suspense fallback={<PremiumSuccessSkeleton />}>
             <PremiumSuccessBody searchParams={searchParams} />
@@ -71,7 +72,7 @@ async function PremiumSuccessBody({
   const openAppHref = premiumPaidDeepLink();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 rounded-[22px] border border-line bg-white p-5 shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:p-8">
       <AlertBanner tone="success">
         {params.plan ?
           <>

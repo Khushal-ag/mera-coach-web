@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 
 import { resolveMediaUrl } from "@/lib/media/media-url";
+import { cn } from "@/lib/utils";
 
 type CoachPhotoProps = {
   /** Prefer a URL already passed through `resolveCoachPhotoUrl` / `resolveMediaUrl`. */
@@ -17,13 +17,32 @@ type CoachPhotoProps = {
   priority?: boolean;
 };
 
+/**
+ * Stock filenames that are not a real portrait. A 404 of one of these, or of
+ * a missing `/document/…` file, uses the same initials mark as an empty src.
+ */
 function isRetiredFaceFallback(src: string): boolean {
-  return src.includes("coach-avatar-fallback");
+  const path = (src.split(/[?#]/, 1)[0] ?? src).toLowerCase();
+  const file = path.slice(path.lastIndexOf("/") + 1);
+  if (!file) return false;
+  return (
+    file.includes("coach-avatar-fallback") ||
+    file.includes("avatar-fallback") ||
+    file.includes("avatar-default") ||
+    file.includes("default-avatar") ||
+    file === "no-image.png" ||
+    file === "noimage.png" ||
+    file === "no-photo.png" ||
+    file === "placeholder.png" ||
+    file === "placeholder.jpg" ||
+    file === "placeholder-user.png"
+  );
 }
 
 /**
  * Safety: if a caller still passes a relative `/document/…` path, join it to
- * the API origin here so next/image never requests it against the Next host.
+ * the API origin here so the browser never requests it against the Next host
+ * by accident. A joined URL that still 404s falls back in `onError`.
  */
 function ensurePhotoSrc(src: string): string {
   const trimmed = src.trim();
@@ -88,9 +107,18 @@ function AvatarMark({ name, alt }: { name?: string; alt: string }) {
   );
 }
 
+function decodedOk(img: HTMLImageElement): boolean {
+  return img.naturalWidth > 2 && img.naturalHeight > 2;
+}
+
 /**
  * Photo slot that falls back to initials (when `name` is set) or a person
- * outline on a teal pad. Never a stock portrait.
+ * outline on a forest pad. The image stays hidden until it decodes, so a
+ * 404 never paints the browser's broken-image icon.
+ *
+ * `next/image`'s `onError` does not run when the file already failed before
+ * hydration, which left the broken icon on screen. A native image reports
+ * that failure from `complete` / `naturalWidth` as well as `onError`.
  */
 export function CoachPhoto({
   src,
@@ -98,33 +126,49 @@ export function CoachPhoto({
   name,
   fill = true,
   className,
-  sizes,
-  priority,
+  priority = false,
 }: CoachPhotoProps) {
   const resolved = ensurePhotoSrc(src);
-  const [failed, setFailed] = useState(false);
+  const [status, setStatus] = useState<"pending" | "ok" | "bad">(
+    resolved ? "pending" : "bad",
+  );
   const [trackedSrc, setTrackedSrc] = useState(resolved);
   if (resolved !== trackedSrc) {
     setTrackedSrc(resolved);
-    setFailed(false);
+    setStatus(resolved ? "pending" : "bad");
   }
 
-  if (!resolved || failed) {
+  if (!resolved || status === "bad") {
     return <AvatarMark name={name} alt={alt} />;
   }
 
-  const isLocalHttp = resolved.startsWith("http://");
+  const shown = status === "ok";
 
   return (
-    <Image
-      src={resolved}
-      alt={alt}
-      fill={fill}
-      className={className}
-      sizes={sizes}
-      priority={priority}
-      unoptimized={isLocalHttp}
-      onError={() => setFailed(true)}
-    />
+    <>
+      {shown ? null : <AvatarMark name={name} alt={alt} />}
+      {/* next/image swallows the pre-hydration error, so the broken icon stuck. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={resolved}
+        alt={shown ? alt : ""}
+        decoding="async"
+        fetchPriority={priority ? "high" : "auto"}
+        draggable={false}
+        ref={(node) => {
+          if (!node?.complete) return;
+          setStatus(decodedOk(node) ? "ok" : "bad");
+        }}
+        onLoad={(event) => {
+          setStatus(decodedOk(event.currentTarget) ? "ok" : "bad");
+        }}
+        onError={() => setStatus("bad")}
+        className={cn(
+          fill ? "absolute inset-0 size-full" : "size-full",
+          "object-cover",
+          shown ? className : "invisible",
+        )}
+      />
+    </>
   );
 }

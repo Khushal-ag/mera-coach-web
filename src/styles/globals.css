@@ -1,63 +1,53 @@
 @import "tailwindcss";
 
 /*
-  Mera Coach brand tokens — mera-coach-app/src/constants/theme.ts
-  and the screens that use them (Home, Find a Coach, Premium, profile).
-  Teal #178676 is headers, tabs, and links. Terracotta #d05c26 is the
-  shared pill button (white label). #f47f1e is the Coach wordmark and
-  the home-hero CTA only. Page grounds are #f5f7f5 / #d6ede5 / #f8f7f2.
-  Montserrat headings + Poppins body (see lib/fonts.ts).
+  Website design language from meracoachweb:
+  wwwroot/css/site.css, Login.css, CoachLayout.css.
+  Rust #c04b2b is the public CTA, tags, and nav active state.
+  Forest #1b4332 is heroes, auth panels, the dashboard sidebar, and
+  secondary fills. Gold #c9882a is emphasis, stars, and the active
+  dashboard item. Ground is cream #fdf8f2, bands are sand #f5ede0,
+  ink is #2c1810. Headings are Poppins, body is Nunito.
 */
 :root {
-  /* App Colors */
-  --mc-primary: #d05c26;
-  --mc-primary-dark: #b34a1c;
-  --mc-primary-light: #fdf0e8;
-  --mc-secondary: #178676;
-  --mc-secondary-dark: #11685c;
-  --mc-secondary-light: #d6ede5;
-  --mc-accent: #e8a317;
+  --mc-primary: #c04b2b;
+  --mc-primary-dark: #9e3b1f;
+  --mc-primary-light: #fceee9;
+  --mc-secondary: #1b4332;
+  --mc-secondary-dark: #0f2018;
+  --mc-secondary-light: #e8f5e9;
+  --mc-accent: #c9882a;
   --mc-accent-light: #fdf3e0;
-  --mc-brand-coach: #f47f1e;
-  --mc-brand-mera-on-dark: #a8c4b4;
-  --mc-header-top: #14766a;
-  --mc-header-bottom: #004b3e;
-  --mc-auth-cta-start: #15886f;
-  --mc-auth-cta-end: #026455;
-  --mc-home-canvas: #033d28;
-  --mc-splash: #03422f;
-  --mc-accent-ink: #11523c;
-  --mc-explore-canvas: #f8f7f2;
-  --mc-destructive: #dc2626;
-  --mc-destructive-soft: #fef2f2;
-  --mc-online: #22c55e;
+  --mc-brand-coach: #c9882a;
+  --mc-header-top: #2d6a4f;
+  --mc-header-bottom: #0f2018;
+  --mc-accent-ink: #2c1810;
+  --mc-explore-canvas: #f5ede0;
+  --mc-destructive: #9e3b1f;
+  --mc-destructive-soft: #fff0ee;
   --mc-whatsapp: #25d366;
-  --mc-disabled-bg: #e8ece9;
-  --mc-greeting: #5a9a8c;
+  --mc-disabled-bg: #f3ebe3;
 
-  --ink: #1c1c1c;
-  --ink-muted: #6b756f;
-  --paper: #f5f7f5;
-  --paper-elevated: #eef2ef;
+  --ink: #2c1810;
+  --ink-muted: #8b6553;
+  --paper: #fdf8f2;
+  --paper-elevated: #f5ede0;
   --surface: #ffffff;
-  --line: #d5ddd8;
-  --accent: var(--mc-secondary);
-  --accent-fg: #ffffff;
-  --accent-soft: var(--mc-secondary-light);
-  /* Shared CTA is Colors.primary, not the wordmark orange. */
-  --cta: var(--mc-primary);
-  --cta-fg: #ffffff;
-  --terminal: var(--mc-header-bottom);
+  --line: #e5d5c5;
 
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 24px;
   --radius-pill: 50px;
+
+  --mc-gradient: linear-gradient(145deg, #1b2f1f 0%, #1b4332 40%, #2d3a1a 100%);
+  --mc-shadow-sm: 0 2px 8px rgba(44, 24, 16, 0.06);
+  --mc-shadow-lg: 0 20px 60px rgba(44, 24, 16, 0.12);
 }
 
 @theme inline {
-  --font-display: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
 
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
@@ -65,33 +55,24 @@
   --color-paper-elevated: var(--paper-elevated);
   --color-surface: var(--surface);
   --color-line: var(--line);
-  --color-accent: var(--accent);
-  --color-accent-fg: var(--accent-fg);
-  --color-accent-soft: var(--accent-soft);
-  --color-cta: var(--cta);
-  --color-cta-fg: var(--cta-fg);
-  --color-terminal: var(--terminal);
 
   --color-mc-primary: var(--mc-primary);
   --color-mc-secondary: var(--mc-secondary);
-  --color-mc-secondary-dark: var(--mc-secondary-dark);
   --color-mc-secondary-light: var(--mc-secondary-light);
   --color-mc-brand-coach: var(--mc-brand-coach);
   --color-mc-header-top: var(--mc-header-top);
-  --color-mc-header-bottom: var(--mc-header-bottom);
   --color-mc-accent: var(--mc-accent);
   --color-mc-accent-ink: var(--mc-accent-ink);
   --color-mc-explore: var(--mc-explore-canvas);
   --color-mc-destructive: var(--mc-destructive);
-  --color-mc-online: var(--mc-online);
-  --color-mc-home: var(--mc-home-canvas);
+  --color-mc-primary-light: var(--mc-primary-light);
 }
 
 @layer base {
   .container {
     margin-inline: auto;
     padding-inline: 1rem;
-    max-width: 1100px;
+    max-width: 77.5rem;
     width: 100%;
   }
 
@@ -128,7 +109,7 @@
   }
 
   ::selection {
-    background-color: color-mix(in oklab, var(--mc-secondary) 35%, transparent);
+    background-color: color-mix(in oklab, var(--mc-primary) 28%, transparent);
     color: var(--ink);
   }
 
@@ -144,6 +125,15 @@
   [role="button"]:not([aria-disabled="true"]),
   [role="link"] {
     cursor: pointer;
+  }
+
+  a[href]:focus-visible,
+  button:not(:disabled):focus-visible,
+  summary:focus-visible,
+  [role="button"]:not([aria-disabled="true"]):focus-visible,
+  [role="link"]:focus-visible {
+    outline: 2px solid var(--mc-accent);
+    outline-offset: 3px;
   }
 
   button:disabled,
@@ -167,15 +157,12 @@
     gap: 0.5rem;
     border-radius: var(--radius-pill);
     background-color: var(--mc-primary);
-    padding-inline: 1.5rem;
-    font-family: var(--font-sans);
+    padding-inline: 1.75rem;
+    font-family: var(--font-display);
     font-size: 0.9375rem;
-    font-weight: 700;
-    /* AppButton primary: terracotta fill, white label. */
+    font-weight: 600;
     color: #fff;
-    box-shadow:
-      0 4px 14px color-mix(in oklab, var(--mc-primary) 28%, transparent),
-      0 8px 24px color-mix(in oklab, var(--mc-secondary) 12%, transparent);
+    box-shadow: 0 8px 25px rgba(192, 75, 43, 0.28);
     transition:
       filter 0.2s ease,
       opacity 0.15s ease,
@@ -186,38 +173,21 @@
   .mc-btn-primary:hover {
     background-color: var(--mc-primary-dark);
     filter: none;
-    transform: translateY(-1px);
-    box-shadow:
-      0 8px 22px color-mix(in oklab, var(--mc-primary) 34%, transparent),
-      0 12px 28px color-mix(in oklab, var(--mc-secondary) 14%, transparent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(192, 75, 43, 0.35);
   }
 
-  /* Premium Pay Now — Colors.secondary, white label. */
+  /* Forest fill — website .btn-secondary and login submit. */
   .mc-btn-pay {
     background-color: var(--mc-secondary);
     color: #fff;
-    box-shadow: 0 4px 14px
-      color-mix(in oklab, var(--mc-secondary) 32%, transparent);
+    box-shadow: 0 6px 20px rgba(27, 67, 50, 0.28);
   }
 
   .mc-btn-pay:hover {
-    background-color: var(--mc-secondary-dark);
+    background-color: var(--mc-header-top);
     filter: none;
-    box-shadow: 0 8px 22px
-      color-mix(in oklab, var(--mc-secondary) 36%, transparent);
-  }
-
-  /* Home hero CTA — Colors.brandCoach, white label (HomeScreen). */
-  .mc-btn-home {
-    background-color: var(--mc-brand-coach);
-    color: #fff;
-    box-shadow: 0 4px 14px
-      color-mix(in oklab, var(--mc-brand-coach) 32%, transparent);
-  }
-
-  .mc-btn-home:hover {
-    background-color: var(--mc-brand-coach);
-    filter: brightness(1.06);
+    box-shadow: 0 10px 28px rgba(27, 67, 50, 0.36);
   }
 
   .mc-btn-primary:active {
@@ -226,7 +196,6 @@
 
   .mc-btn-primary:disabled,
   .mc-btn-secondary:disabled,
-  .mc-btn-ghost:disabled,
   .mc-btn-outline-on-dark:disabled {
     cursor: not-allowed;
     opacity: 0.6;
@@ -241,13 +210,13 @@
     justify-content: center;
     gap: 0.5rem;
     border-radius: var(--radius-pill);
-    border: 1.5px solid var(--mc-brand-coach);
+    border: 2px solid rgba(255, 255, 255, 0.6);
     background-color: transparent;
     padding-inline: 1rem;
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--mc-brand-coach);
+    color: #fff;
     transition:
       background-color 0.2s ease,
       color 0.2s ease,
@@ -255,8 +224,9 @@
   }
 
   .mc-btn-outline-on-dark:hover {
-    background-color: var(--mc-brand-coach);
-    color: var(--ink);
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: #fff;
+    color: #fff;
   }
 
   .mc-btn-secondary {
@@ -266,43 +236,29 @@
     justify-content: center;
     gap: 0.5rem;
     border-radius: var(--radius-pill);
-    border: 1.5px solid var(--line);
-    background-color: #fff;
-    padding-inline: 1.5rem;
-    font-family: var(--font-sans);
+    border: 2px solid var(--mc-primary);
+    background-color: transparent;
+    padding-inline: 1.75rem;
+    font-family: var(--font-display);
     font-size: 0.9375rem;
-    font-weight: 700;
-    color: var(--mc-secondary);
+    font-weight: 600;
+    color: var(--mc-primary);
     transition:
-      border-color 0.15s ease,
-      color 0.15s ease,
-      transform 0.15s ease;
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
   }
 
   .mc-btn-secondary:hover {
-    border-color: var(--mc-secondary);
+    border-color: var(--mc-primary);
+    background-color: var(--mc-primary);
+    color: #fff;
+    transform: translateY(-2px);
   }
 
   .mc-btn-secondary:active {
     transform: scale(0.98);
-  }
-
-  .mc-btn-ghost {
-    display: inline-flex;
-    min-height: 2.75rem;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-pill);
-    border: 1.5px solid color-mix(in oklab, #fff 45%, transparent);
-    padding-inline: 1.5rem;
-    font-size: 0.9375rem;
-    font-weight: 700;
-    color: #fff;
-    transition: background-color 0.15s ease;
-  }
-
-  .mc-btn-ghost:hover {
-    background-color: color-mix(in oklab, #fff 12%, transparent);
   }
 
   .mc-field {
@@ -313,10 +269,10 @@
     appearance: none;
     border-radius: var(--radius-sm);
     border: 1.5px solid var(--line);
-    background-color: var(--surface);
+    background-color: var(--paper);
     padding: 0.65rem 0.85rem;
     font-family: var(--font-sans);
-    font-size: 1rem;
+    font-size: 0.9375rem;
     line-height: 1.4;
     color: var(--ink);
     outline: none;
@@ -335,14 +291,14 @@
 
   .mc-field:hover:not(:disabled):not(:read-only),
   select.mc-field:hover:not(:disabled) {
-    border-color: color-mix(in oklab, var(--mc-secondary) 45%, var(--line));
+    border-color: color-mix(in oklab, var(--mc-secondary) 35%, var(--line));
   }
 
   .mc-field:focus,
   .mc-field:focus-visible {
     border-color: var(--mc-secondary);
-    box-shadow: 0 0 0 3px
-      color-mix(in oklab, var(--mc-secondary) 22%, transparent);
+    background-color: var(--surface);
+    box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.1);
   }
 
   .mc-field:disabled {
@@ -378,7 +334,7 @@
     cursor: pointer;
     color-scheme: light;
     padding-right: 2.5rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6.25 8 10.25 12 6.25' stroke='%23178676' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6.25 8 10.25 12 6.25' stroke='%231b4332' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.85rem center;
     background-size: 1rem 1rem;
@@ -386,7 +342,7 @@
 
   select.mc-field:disabled {
     cursor: default;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6.25 8 10.25 12 6.25' stroke='%236b756f' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6.25 8 10.25 12 6.25' stroke='%238b6553' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   }
 
   select.mc-field option,
@@ -485,7 +441,7 @@
   }
 
   .mc-field-dark::placeholder {
-    color: color-mix(in oklab, #fff 42%, transparent);
+    color: color-mix(in oklab, #fff 72%, transparent);
   }
 
   .mc-field-dark:hover:not(:disabled):not(:read-only),
@@ -517,14 +473,18 @@
   .mc-field-label {
     display: block;
     margin-bottom: 0.375rem;
-    font-family: var(--font-sans);
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 600;
     color: var(--ink);
   }
 
   .mc-field-label-dark {
-    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.88);
   }
 
   .mc-field-hint {
@@ -546,32 +506,32 @@
     align-items: center;
     gap: 0.25rem;
     border-radius: var(--radius-pill);
-    background-color: var(--mc-secondary-light);
-    padding: 0.35rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--mc-secondary);
+    background-color: var(--mc-primary-light);
+    padding: 0.25rem 0.65rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--mc-primary);
+  }
+
+  .mc-section-tag {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius-pill);
+    background-color: var(--mc-primary-light);
+    padding: 0.375rem 1rem;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--mc-primary);
   }
 
   .mc-card {
     overflow: hidden;
-    border-radius: var(--radius-md);
-    border: 1.5px solid
-      color-mix(in oklab, var(--mc-secondary) 14%, var(--line));
+    border-radius: var(--radius-lg);
+    border: 1.5px solid var(--line);
     background-color: var(--surface);
-    box-shadow: 0 8px 24px
-      color-mix(in oklab, var(--mc-header-bottom) 8%, transparent);
-    transition:
-      border-color 0.2s ease,
-      box-shadow 0.2s ease,
-      transform 0.2s ease;
-  }
-
-  a.mc-card:hover {
-    border-color: color-mix(in oklab, var(--mc-secondary) 28%, var(--line));
-    box-shadow: 0 14px 32px
-      color-mix(in oklab, var(--mc-header-bottom) 12%, transparent);
-    transform: translateY(-2px);
+    box-shadow: var(--mc-shadow-sm);
   }
 
   .mc-banner {
@@ -600,15 +560,12 @@
     color: var(--mc-secondary-dark);
   }
 
-  /* Practice surfaces: one radius (16px panels, 10px inputs, pill buttons).
-     Elevation only where a group is a real object. Shadows tinted to the teal header, never pure black. */
   .mc-panel {
     overflow: hidden;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     border: 1px solid var(--line);
     background-color: var(--surface);
-    box-shadow: 0 1px 0
-      color-mix(in oklab, var(--mc-header-bottom) 4%, transparent);
+    box-shadow: var(--mc-shadow-sm);
   }
 
   .mc-roster {
@@ -619,13 +576,14 @@
   }
 
   .mc-roster-head {
-    background-color: var(--paper);
-    color: var(--ink-muted);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0;
-    text-transform: none;
-    border-bottom: 1px solid var(--line);
+    background-image: linear-gradient(180deg, #f8f4ef 0%, #f1ece4 100%);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-bottom: 2px solid #e8ddd2;
   }
 
   .mc-roster tbody tr,
@@ -637,7 +595,7 @@
   .mc-roster tbody tr:hover,
   .mc-roster > li:hover,
   .mc-roster > ul > li:hover {
-    background-color: color-mix(in oklab, var(--mc-secondary-light) 38%, white);
+    background-color: color-mix(in oklab, var(--mc-primary-light) 70%, white);
   }
 
   .mc-stat-strip {
@@ -661,9 +619,6 @@
     gap: 0.2rem;
     padding: 1.05rem 1.2rem 1.15rem;
     border-bottom: 1px solid var(--line);
-    transition:
-      background-color 0.2s ease,
-      transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .mc-stat:last-child {
@@ -681,19 +636,6 @@
     }
   }
 
-  a.mc-stat:hover {
-    background-color: color-mix(in oklab, var(--mc-secondary-light) 45%, white);
-  }
-
-  a.mc-stat:active {
-    transform: scale(0.985);
-  }
-
-  a.mc-stat:focus-visible {
-    outline: 2px solid var(--mc-secondary);
-    outline-offset: -2px;
-  }
-
   .mc-skeleton {
     border-radius: 6px;
     background-color: var(--paper-elevated);
@@ -703,94 +645,7 @@
 
 @layer utilities {
   .mc-gradient-header {
-    background-image: linear-gradient(
-      160deg,
-      var(--mc-secondary) 0%,
-      var(--mc-header-top) 100%
-    );
-  }
-
-  .mc-gradient-cta {
-    background-image: linear-gradient(
-      135deg,
-      var(--mc-secondary) 0%,
-      var(--mc-secondary-dark) 100%
-    );
-  }
-
-  .mc-gradient-hero {
-    background-image: linear-gradient(
-      165deg,
-      var(--mc-home-canvas) 0%,
-      var(--mc-header-bottom) 55%,
-      var(--mc-splash) 100%
-    );
-  }
-
-  /* Auth / photo heroes: brand teal wash over coaching photography */
-  .mc-auth-scrim {
-    background:
-      linear-gradient(
-        115deg,
-        color-mix(in oklab, var(--mc-home-canvas) 78%, transparent) 0%,
-        color-mix(in oklab, var(--mc-header-bottom) 62%, transparent) 42%,
-        color-mix(in oklab, var(--mc-splash) 72%, transparent) 100%
-      ),
-      linear-gradient(
-        180deg,
-        color-mix(in oklab, #000 28%, transparent) 0%,
-        transparent 38%,
-        color-mix(in oklab, #000 55%, transparent) 100%
-      );
-  }
-
-  .mc-auth-card {
-    overflow: hidden;
-    border-radius: var(--radius-md);
-    border: 1px solid color-mix(in oklab, #fff 14%, transparent);
-    background-color: color-mix(in oklab, #0a0a0a 55%, transparent);
-    box-shadow:
-      0 28px 64px color-mix(in oklab, #000 55%, transparent),
-      inset 0 1px 0 color-mix(in oklab, #fff 8%, transparent);
-    backdrop-filter: blur(22px);
-  }
-
-  .mc-auth-card-light {
-    overflow: hidden;
-    border-radius: var(--radius-md);
-    border: 1px solid color-mix(in oklab, #fff 55%, transparent);
-    background-color: var(--surface);
-    box-shadow:
-      0 28px 64px color-mix(in oklab, #000 40%, transparent),
-      0 4px 16px color-mix(in oklab, var(--mc-secondary) 12%, transparent);
-  }
-
-  @media (min-width: 640px) {
-    .mc-auth-card,
-    .mc-auth-card-light {
-      border-radius: var(--radius-lg);
-    }
-  }
-
-  .mc-auth-side {
-    background-image: linear-gradient(
-      145deg,
-      var(--mc-secondary) 0%,
-      var(--mc-header-top) 100%
-    );
-  }
-
-  .mc-auth-panel {
-    background: linear-gradient(
-      160deg,
-      color-mix(in oklab, #141414 88%, transparent) 0%,
-      color-mix(in oklab, #0c0c0c 92%, transparent) 100%
-    );
-  }
-
-  .mc-auth-panel-light {
-    background-color: var(--surface);
-    color: var(--ink);
+    background-image: var(--mc-gradient);
   }
 
   @keyframes mc-pulse {
@@ -806,10 +661,10 @@
   @media (prefers-reduced-motion: reduce) {
     .mc-btn-primary:hover,
     .mc-btn-primary:active,
+    .mc-btn-secondary:hover,
     .mc-btn-secondary:active,
     .mc-field-dark:focus,
     .mc-field-dark:focus-visible,
-    a.mc-stat:active,
     .mc-press:active {
       transform: none;
     }
@@ -823,51 +678,14 @@
     animation: mc-enter 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  .motion-rise {
-    animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .motion-rise-delay-1 {
-    animation-delay: 0.08s;
-  }
-
-  .motion-rise-delay-2 {
-    animation-delay: 0.16s;
-  }
-
   .motion-underline {
     animation: underline-grow 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
-  }
-
-  .motion-reveal {
-    animation: rise-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
-    animation-timeline: view();
-    animation-range: entry 8% cover 28%;
-  }
-
-  @supports not (animation-timeline: view()) {
-    .motion-reveal {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
   }
 
   @keyframes mc-enter {
     from {
       opacity: 0;
       transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes rise-in {
-    from {
-      opacity: 0;
-      transform: translateY(16px);
     }
     to {
       opacity: 1;
@@ -888,17 +706,12 @@
 
   @media (prefers-reduced-motion: reduce) {
     .mc-enter,
-    .motion-rise,
-    .motion-underline,
-    .motion-reveal {
+    .motion-underline {
       animation: none !important;
       opacity: 1;
       transform: none;
     }
 
-    a.mc-card:hover,
-    a.mc-stat:hover,
-    a.mc-stat:active,
     .mc-press:active {
       transform: none;
     }

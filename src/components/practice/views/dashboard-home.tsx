@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
-import { ArrowRight, Plus, Users } from "lucide-react";
+import { ArrowRight, ClipboardCheck, Inbox, Plus, Users } from "lucide-react";
 
 import type {
   ClientSummary,
@@ -14,7 +15,6 @@ import type {
 import { useAuth } from "@/components/auth-provider";
 import {
   PracticeEmpty,
-  PracticePageHeader,
   PracticeRosterSkeleton,
 } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
@@ -26,7 +26,7 @@ import {
   fetchRecheckupList,
 } from "@/lib/api/practice";
 
-function greetingFor(date = new Date()) {
+function greetingFor(date: Date) {
   const h = date.getHours();
   if (h < 12) return "Good morning";
   if (h < 17) return "Good afternoon";
@@ -61,37 +61,53 @@ function attentionLine({
   return "You're caught up. Add a client when someone new is ready to train.";
 }
 
-function MetricCell({
+function MetricCard({
   label,
   value,
   hint,
   href,
   loading,
-  tone = "ink",
+  tone,
+  icon,
 }: {
   label: string;
   value: string;
   hint: string;
   href: string;
   loading?: boolean;
-  tone?: "ink" | "alert";
+  tone: "forest" | "gold" | "rust";
+  icon: React.ReactNode;
 }) {
+  const iconClass =
+    tone === "gold" ? "bg-[color:var(--mc-accent)]"
+    : tone === "rust" ? "bg-mc-primary"
+    : "bg-mc-secondary";
+  const accent =
+    tone === "gold" ? "border-l-[color:var(--mc-accent)]"
+    : tone === "rust" ? "border-l-mc-primary"
+    : "border-l-mc-secondary";
   return (
-    <Link href={href} className="mc-stat min-h-11">
-      <span className="text-xs font-medium text-ink-muted">{label}</span>
-      {loading ?
-        <span className="mc-skeleton mt-1 h-8 w-14" />
-      : <span
-          className={
-            tone === "alert" ?
-              "font-display text-3xl font-bold tracking-tight text-[color:var(--mc-destructive)] tabular-nums"
-            : "font-display text-3xl font-bold tracking-tight text-ink tabular-nums"
-          }
-        >
-          {value}
+    <Link
+      href={href}
+      className={`flex items-center gap-4 rounded-[16px] border border-l-4 border-line bg-white p-4 shadow-[0_8px_24px_rgba(44,24,16,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(44,24,16,0.1)] ${accent}`}
+    >
+      <span
+        className={`grid size-12 shrink-0 place-items-center rounded-xl text-white ${iconClass}`}
+      >
+        {icon}
+      </span>
+      <span className="min-w-0">
+        {loading ?
+          <span className="mc-skeleton block h-8 w-12" />
+        : <span className="block font-display text-3xl font-extrabold tracking-tight text-ink tabular-nums">
+            {value}
+          </span>
+        }
+        <span className="block font-display text-sm font-bold text-ink">
+          {label}
         </span>
-      }
-      <span className="text-xs text-ink-muted">{hint}</span>
+        <span className="block text-xs text-ink-muted">{hint}</span>
+      </span>
     </Link>
   );
 }
@@ -119,6 +135,88 @@ function SectionHead({
         {action}
       </Link>
     </div>
+  );
+}
+
+function DashboardHero({
+  greeting,
+  firstName,
+  attention,
+  today,
+  checking,
+  onAdd,
+}: {
+  greeting: string;
+  firstName: string;
+  attention: string;
+  today: string | null;
+  checking: boolean;
+  onAdd: () => void;
+}) {
+  return (
+    <header className="mb-6 overflow-hidden rounded-[22px] bg-[image:linear-gradient(145deg,#0f2018_0%,#1b4332_52%,#163527_100%)] px-5 py-5 text-white shadow-[0_16px_40px_rgba(15,32,24,0.18)] sm:px-7 sm:py-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="max-w-xl">
+          <p className="text-sm text-white/65">
+            Home <span aria-hidden>/</span> Dashboard
+          </p>
+          <h1 className="mt-1 font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
+            Dashboard
+          </h1>
+          <div
+            className="mt-3 h-1 w-12 rounded-full bg-[color:var(--mc-accent)]"
+            aria-hidden
+          />
+          <p className="mt-3 text-sm leading-relaxed text-white/80">
+            {greeting}, {firstName}. {attention}
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 sm:items-end">
+          {today ?
+            <p className="inline-flex min-h-9 items-center rounded-full border border-white/20 bg-white/10 px-4 text-sm text-white/85">
+              {today}
+            </p>
+          : <p className="h-9" aria-hidden />}
+          <button
+            type="button"
+            disabled={checking}
+            onClick={onAdd}
+            className="mc-btn-primary w-full sm:w-auto"
+          >
+            <Plus className="size-4" strokeWidth={2.25} aria-hidden />
+            {checking ? "Checking…" : "Add client"}
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function DashboardHeroLive({
+  firstName,
+  attention,
+  checking,
+  onAdd,
+}: {
+  firstName: string;
+  attention: string;
+  checking: boolean;
+  onAdd: () => void;
+}) {
+  const now = new Date();
+  return (
+    <DashboardHero
+      greeting={greetingFor(now)}
+      firstName={firstName}
+      attention={attention}
+      today={now.toLocaleDateString("en-IN", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      })}
+      checking={checking}
+      onAdd={onAdd}
+    />
   );
 }
 
@@ -174,34 +272,37 @@ export function DashboardHomeView() {
   );
 
   const firstName = session?.fullName?.split(" ")[0] || "Coach";
+  const attention = attentionLine({
+    loading,
+    due: due.length,
+    leads: openLeads.length,
+    clients: clients.length,
+  });
   const recentClients = clients.slice(0, 8);
   const duePreview = dueSorted.slice(0, 6);
   const leadPreview = openLeads.slice(0, 6);
 
   return (
     <div className="mx-auto w-full max-w-7xl">
-      <PracticePageHeader
-        variant="band"
-        image={photography.practiceHero}
-        title={`${greetingFor()}, ${firstName}`}
-        description={attentionLine({
-          loading,
-          due: due.length,
-          leads: openLeads.length,
-          clients: clients.length,
-        })}
-        action={
-          <button
-            type="button"
-            disabled={checking}
-            onClick={() => void openAddClient()}
-            className="mc-btn-primary w-full sm:w-auto"
-          >
-            <Plus className="size-4" strokeWidth={2.25} aria-hidden />
-            {checking ? "Checking…" : "Add client"}
-          </button>
+      <Suspense
+        fallback={
+          <DashboardHero
+            greeting="Hello"
+            firstName={firstName}
+            attention={attention}
+            today={null}
+            checking={checking}
+            onAdd={() => void openAddClient()}
+          />
         }
-      />
+      >
+        <DashboardHeroLive
+          firstName={firstName}
+          attention={attention}
+          checking={checking}
+          onAdd={() => void openAddClient()}
+        />
+      </Suspense>
 
       {error ?
         <AlertBanner tone="error">{error}</AlertBanner>
@@ -210,30 +311,75 @@ export function DashboardHomeView() {
         <AlertBanner tone="error">{gateError}</AlertBanner>
       : null}
 
-      <section aria-label="Key metrics" className="mc-stat-strip">
-        <MetricCell
-          label="Clients"
+      <section aria-label="Key metrics" className="grid gap-4 md:grid-cols-3">
+        <MetricCard
+          label="Total clients"
           hint="On your roster"
           value={String(clients.length)}
           href="/dashboard/clients"
           loading={loading && clients.length === 0}
+          tone="forest"
+          icon={<Users className="size-5" aria-hidden />}
         />
-        <MetricCell
+        <MetricCard
           label="Open leads"
           hint="Waiting on you"
           value={String(openLeads.length)}
           href="/dashboard/leads"
           loading={loading && leads.length === 0}
+          tone="gold"
+          icon={<Inbox className="size-5" aria-hidden />}
         />
-        <MetricCell
+        <MetricCard
           label="Checkups due"
           hint={due.length > 0 ? "Follow up today" : "None waiting"}
           value={String(due.length)}
           href="/dashboard/checkups"
           loading={loading && due.length === 0}
-          tone={!loading && due.length > 0 ? "alert" : "ink"}
+          tone="rust"
+          icon={<ClipboardCheck className="size-5" aria-hidden />}
         />
       </section>
+
+      <div className="mt-5 overflow-hidden rounded-[18px] bg-[image:linear-gradient(135deg,#1b4332,#0f2018)] text-white shadow-[0_12px_32px_rgba(15,32,24,0.18)]">
+        <div className="grid items-center gap-6 p-6 sm:p-7 lg:grid-cols-[1.3fr_0.7fr]">
+          <div>
+            <p className="inline-flex rounded-full bg-white/10 px-3 py-1 font-display text-[11px] font-bold text-[color:var(--mc-accent)]">
+              Your public page
+            </p>
+            <h2 className="mt-3 font-display text-2xl font-extrabold">
+              Coaches with a complete profile
+              <br />
+              <em className="text-[color:var(--mc-accent)] not-italic">
+                get found first
+              </em>
+            </h2>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-white/70">
+              Photo, services, and city are what people read before they
+              enquire.
+            </p>
+            <Link
+              href={
+                session?.coachCode ?
+                  `/coach/${encodeURIComponent(session.coachCode)}`
+                : "/dashboard/profile"
+              }
+              className="mt-5 inline-flex min-h-11 items-center rounded-full bg-white px-5 font-display text-sm font-semibold text-mc-secondary"
+            >
+              Open public profile
+            </Link>
+          </div>
+          <div className="relative hidden aspect-[4/3] overflow-hidden rounded-2xl lg:block">
+            <Image
+              src={photography.practiceHero}
+              alt="A coach's notes between sessions"
+              fill
+              className="object-cover"
+              sizes="280px"
+            />
+          </div>
+        </div>
+      </div>
 
       <div className="mt-6 grid gap-6 md:mt-8 md:grid-cols-2 md:gap-5 lg:gap-6">
         <section aria-labelledby="due-heading" className="min-w-0">

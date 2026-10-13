@@ -121,7 +121,7 @@ export function ForgotPasswordForm() {
           type="submit"
           disabled={busy}
           aria-busy={busy}
-          className="mc-btn-primary mt-1 w-full"
+          className="mc-btn-primary mc-btn-pay mt-1 w-full"
         >
           {busy ? "Updating password" : "Update password"}
         </button>
@@ -167,7 +167,7 @@ export function ForgotPasswordForm() {
         type="submit"
         disabled={busy}
         aria-busy={busy}
-        className="mc-btn-primary mt-1 w-full"
+        className="mc-btn-primary mc-btn-pay mt-1 w-full"
       >
         {busy ? "Sending code" : "Send reset code"}
       </button>

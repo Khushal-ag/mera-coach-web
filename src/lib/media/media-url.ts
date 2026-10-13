@@ -14,7 +14,7 @@
 import { env } from "@/config/env";
 
 /** Empty on purpose: UI draws a mark instead of a stock face. */
-export const COACH_PHOTO_FALLBACK = "";
+const COACH_PHOTO_FALLBACK = "";
 
 function isAbsoluteUrl(url: string): boolean {
   return (

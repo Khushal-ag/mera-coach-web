@@ -64,23 +64,29 @@ export function PracticePageHeader({
   return (
     <header
       className={cn(
-        "mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between",
+        "mb-6 overflow-hidden rounded-[22px] bg-[image:linear-gradient(145deg,#0f2018_0%,#1b4332_52%,#163527_100%)] text-white shadow-[0_16px_40px_rgba(15,32,24,0.18)] sm:mb-8 print:bg-white print:bg-none print:text-ink print:shadow-none",
         className,
       )}
     >
-      <div className="max-w-[65ch] min-w-0">
-        <h1 className="font-display text-[1.75rem] leading-[1.15] font-bold tracking-tight text-ink sm:text-[2rem]">
-          {title}
-        </h1>
-        {description ?
-          <p className="mt-2 text-sm leading-relaxed text-ink-muted">
-            {description}
-          </p>
+      <div className="flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-end sm:justify-between sm:px-7 sm:py-6">
+        <div className="max-w-[65ch] min-w-0">
+          <h1 className="font-display text-[1.75rem] leading-[1.15] font-extrabold tracking-tight text-white sm:text-[2rem] print:text-ink">
+            {title}
+          </h1>
+          <div
+            className="mt-3 h-1 w-12 rounded-full bg-[color:var(--mc-accent)] print:bg-mc-secondary"
+            aria-hidden
+          />
+          {description ?
+            <p className="mt-3 text-sm leading-relaxed text-white/75 print:text-ink-muted">
+              {description}
+            </p>
+          : null}
+        </div>
+        {action ?
+          <div className="w-full shrink-0 sm:w-auto">{action}</div>
         : null}
       </div>
-      {action ?
-        <div className="w-full shrink-0 sm:w-auto">{action}</div>
-      : null}
     </header>
   );
 }

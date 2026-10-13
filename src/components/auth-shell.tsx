@@ -1,11 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { BrandLockup } from "@/components/brand-lockup";
 import { cn } from "@/lib/utils";
 
 type Crumb = { label: string; href?: string };
 
-/** Full-bleed gym photo + brand teal scrim + elevated auth panel. */
+const trust = [
+  { value: "500+", label: "Coach profiles" },
+  { value: "Free", label: "To enquire" },
+  { value: "1", label: "Practice home" },
+] as const;
+
+/**
+ * Login split from meracoachweb: sand page, forest trust panel, white form.
+ * A faint page photo can sit inside the forest panel. It is not a full-bleed backdrop.
+ */
 export function AuthShell({
   title,
   subtitle,
@@ -26,57 +36,50 @@ export function AuthShell({
   crumbs?: Crumb[];
   sideTitle?: React.ReactNode;
   sideBody?: React.ReactNode;
-  /** Heading inside the form card. Hidden on small split layouts, where the page title already shows. */
   panelHeading?: React.ReactNode;
   panelSubheading?: React.ReactNode;
   children: React.ReactNode;
   layout?: "split" | "single";
-  /** Dark glass for short auth; light elevated for longer register forms. */
   panel?: "dark" | "light";
-  /** Page-specific photograph. Omit for a plain brand gradient. */
   image?: string;
   imageAlt?: string;
   className?: string;
 }) {
+  const split = layout === "split";
+
   return (
     <section
       className={cn(
-        "relative isolate flex min-h-[calc(100dvh-4.25rem)] flex-col overflow-x-clip py-10 text-white sm:py-14 lg:py-16",
-        !image && "mc-gradient-header",
+        "relative overflow-x-clip bg-[#f5ede0] py-8 text-ink sm:py-12 lg:py-14",
         className,
       )}
     >
-      {image ?
-        <>
-          <Image
-            src={image}
-            alt={imageAlt}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-center"
-          />
-          <div className="mc-auth-scrim absolute inset-0" aria-hidden />
-        </>
-      : null}
+      <div
+        className="pointer-events-none absolute -top-24 -right-16 size-[28rem] rounded-full bg-[color:var(--mc-accent)]/15"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -bottom-20 -left-16 size-72 rounded-full bg-mc-secondary/10"
+        aria-hidden
+      />
 
-      <div className="relative z-10 container flex flex-1 flex-col justify-center">
+      <div className="relative z-10 container">
         {crumbs && crumbs.length > 0 ?
-          <p className="motion-rise flex flex-wrap items-center gap-y-1 text-sm text-white/70">
+          <p className="mb-4 flex flex-wrap items-center gap-y-1 text-sm text-ink-muted">
             {crumbs.map((crumb, index) => (
               <span
                 key={`${crumb.label}-${index}`}
                 className="inline-flex items-center"
               >
                 {index > 0 ?
-                  <span className="mx-1.5 text-white/40" aria-hidden>
-                    ›
+                  <span className="mx-1.5 text-ink-muted/50" aria-hidden>
+                    /
                   </span>
                 : null}
                 {crumb.href ?
                   <Link
                     href={crumb.href}
-                    className="inline-flex min-h-11 items-center transition-colors hover:text-[color:var(--mc-brand-coach)]"
+                    className="inline-flex min-h-11 items-center hover:text-mc-primary"
                   >
                     {crumb.label}
                   </Link>
@@ -88,48 +91,66 @@ export function AuthShell({
 
         <div
           className={cn(
-            "motion-rise motion-rise-delay-1 mt-4 sm:mt-5",
-            layout === "split" && "lg:hidden",
+            "mx-auto overflow-hidden rounded-[24px] bg-white shadow-[0_30px_80px_rgba(44,24,16,0.16)]",
+            split ? "grid max-w-5xl lg:grid-cols-2" : "max-w-xl",
           )}
         >
-          <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
-            {title}
-          </h1>
-          <div
-            className="mt-3 h-1 w-14 rounded-full bg-[color:var(--mc-brand-coach)]"
-            aria-hidden
-          />
-          {subtitle ?
-            <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
-              {subtitle}
-            </p>
-          : null}
-        </div>
-
-        <div
-          className={cn(
-            "motion-rise motion-rise-delay-2 mt-6 sm:mt-8",
-            panel === "light" ? "mc-auth-card-light" : "mc-auth-card",
-            layout === "split" ?
-              "mx-auto grid w-full max-w-3xl lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
-            : "mx-auto w-full max-w-3xl",
-          )}
-        >
-          {layout === "split" ?
-            <aside className="mc-auth-side relative hidden min-h-[22rem] flex-col justify-center overflow-hidden p-7 sm:p-8 lg:flex">
+          {split ?
+            <aside className="relative hidden min-h-[28rem] flex-col justify-between overflow-hidden bg-[image:linear-gradient(160deg,#0f2018_0%,#1b4332_55%,#0f2018_100%)] p-8 text-white lg:flex xl:p-10">
+              {image ?
+                <Image
+                  src={image}
+                  alt={imageAlt}
+                  fill
+                  className="object-cover opacity-[0.18]"
+                  sizes="40vw"
+                />
+              : null}
+              <div
+                className="pointer-events-none absolute -top-16 -right-10 size-56 rounded-full bg-[color:var(--mc-accent)]/15"
+                aria-hidden
+              />
               <div className="relative z-10">
-                <h2 className="font-display text-2xl font-bold tracking-tight xl:text-3xl">
+                <BrandLockup variant="nav" />
+                <h2 className="mt-8 font-display text-3xl leading-tight font-extrabold">
                   {sideTitle ?? title}
                 </h2>
-                <div
-                  className="mt-3 h-1 w-14 rounded-full bg-[color:var(--mc-brand-coach)]"
-                  aria-hidden
-                />
                 {(sideBody ?? subtitle) ?
-                  <p className="mt-4 max-w-[22ch] text-sm leading-relaxed text-white/85 xl:max-w-xs">
+                  <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/80">
                     {sideBody ?? subtitle}
                   </p>
                 : null}
+              </div>
+              <div className="relative z-10 mt-8 space-y-4">
+                <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/12 bg-white/8 p-3">
+                  {trust.map((item) => (
+                    <div key={item.label} className="text-center">
+                      <p className="font-display text-lg font-extrabold text-[color:var(--mc-accent)]">
+                        {item.value}
+                      </p>
+                      <p className="text-[10px] text-white/80">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <blockquote className="rounded-2xl border border-white/12 bg-white/8 p-4">
+                  <p className="text-sm leading-relaxed text-white/80">
+                    “The public page and the client list finally live in the
+                    same account. I spend the hour coaching, not hunting notes.”
+                  </p>
+                  <footer className="mt-3 flex items-center gap-3">
+                    <span className="grid size-9 place-items-center rounded-full bg-white/15 font-display text-xs font-bold">
+                      AK
+                    </span>
+                    <span>
+                      <strong className="block text-sm">
+                        A coach on Mera Coach
+                      </strong>
+                      <span className="text-xs text-white/80">
+                        Practice owner
+                      </span>
+                    </span>
+                  </footer>
+                </blockquote>
               </div>
             </aside>
           : null}
@@ -137,16 +158,31 @@ export function AuthShell({
           <div
             className={cn(
               "p-5 sm:p-8",
-              panel === "light" ? "mc-auth-panel-light" : "mc-auth-panel",
+              panel === "dark" && "bg-mc-secondary text-white",
             )}
           >
+            <div className={cn(split && "lg:hidden")}>
+              <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
+                {title}
+              </h1>
+              {subtitle ?
+                <p
+                  className={cn(
+                    "mt-2 text-sm leading-relaxed",
+                    panel === "dark" ? "text-white/70" : "text-ink-muted",
+                  )}
+                >
+                  {subtitle}
+                </p>
+              : null}
+            </div>
             {panelHeading ?
               <div
-                className={cn("mb-6", layout === "split" && "hidden lg:block")}
+                className={cn("mb-6", split && "mt-6 hidden lg:mt-0 lg:block")}
               >
                 <h2
                   className={cn(
-                    "font-display text-2xl font-bold tracking-tight",
+                    "font-display text-2xl font-extrabold tracking-tight",
                     panel === "light" && "text-ink",
                   )}
                 >
@@ -164,7 +200,7 @@ export function AuthShell({
                 : null}
               </div>
             : null}
-            {children}
+            <div className={cn(split && "mt-6 lg:mt-0")}>{children}</div>
           </div>
         </div>
       </div>

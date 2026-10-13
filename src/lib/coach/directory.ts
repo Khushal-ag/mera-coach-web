@@ -8,6 +8,18 @@ export const SORT_OPTIONS = [
 
 export const RATING_FILTER_OPTIONS = ["Any rating", "4.0+", "3.0+"] as const;
 
+/** Page sizes the public directory accepts. 12 fills the card grid; 48 is omitted so a short list does not grow a page-size control. */
+export const DIRECTORY_PAGE_SIZES = [12, 24] as const;
+
+export const DEFAULT_DIRECTORY_PAGE_SIZE = 12;
+
+export function parseDirectoryPageSize(raw: string | undefined): number {
+  const value = Number(raw);
+  return (DIRECTORY_PAGE_SIZES as readonly number[]).includes(value) ?
+      value
+    : DEFAULT_DIRECTORY_PAGE_SIZE;
+}
+
 /** Offline seed while Master CoachType is loading — not an allowlist. */
 export const FALLBACK_COACH_CATEGORIES = [
   { code: "CT001", label: "Gym Trainer" },

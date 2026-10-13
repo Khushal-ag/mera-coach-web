@@ -501,10 +501,10 @@ export function AssessmentWizard({
                 aria-current={active ? "step" : undefined}
                 className={
                   active ?
-                    "rounded-full bg-[color:var(--mc-secondary)] px-3.5 py-1.5 text-xs font-semibold text-white"
+                    "rounded-full bg-mc-primary px-3.5 py-1.5 font-display text-xs font-bold text-white shadow-[0_6px_16px_rgba(192,75,43,0.28)]"
                   : done ?
-                    "rounded-full bg-[color:var(--mc-secondary-light)] px-3.5 py-1.5 text-xs font-semibold text-mc-secondary"
-                  : "rounded-full bg-paper-elevated px-3.5 py-1.5 text-xs font-medium text-ink-muted"
+                    "rounded-full bg-[color:var(--mc-secondary-light)] px-3.5 py-1.5 font-display text-xs font-bold text-mc-secondary"
+                  : "rounded-full bg-paper-elevated px-3.5 py-1.5 font-display text-xs font-semibold text-ink-muted"
 
                 }
               >

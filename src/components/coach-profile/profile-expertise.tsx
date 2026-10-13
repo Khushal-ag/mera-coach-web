@@ -8,10 +8,7 @@ export function ProfileExpertise({ tags }: { tags: string[] }) {
       <SectionHeading title="What I specialise in" />
       <ul className="flex flex-wrap gap-2.5">
         {tags.map((tag) => (
-          <li
-            key={tag}
-            className="rounded-full bg-mc-secondary-light px-3.5 py-1.5 text-sm font-medium text-mc-secondary"
-          >
+          <li key={tag} className="mc-chip px-3.5 py-1.5 text-sm">
             {tag}
           </li>
         ))}

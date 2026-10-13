@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 
-import { MediaPreview } from "@/components/media/media-preview";
+import { CoachPhoto } from "@/components/coach-photo";
 import { REGISTER_IMAGE_ACCEPT } from "@/lib/media/image-file";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 
@@ -17,6 +17,8 @@ type ImagePickerProps = {
   value: PickedImage | null;
   /** Existing remote URL when no new file is picked. */
   currentUrl?: string | null;
+  /** Initials when the current photo 404s. */
+  name?: string;
   onChange: (file: File | null) => void;
   disabled?: boolean;
   aspectClassName?: string;
@@ -27,6 +29,7 @@ export function ImagePicker({
   hint = "JPG, PNG, or WebP · max 2 MB",
   value,
   currentUrl,
+  name,
   onChange,
   disabled,
   aspectClassName = "h-16 w-16",
@@ -43,7 +46,13 @@ export function ImagePicker({
           className={`relative shrink-0 overflow-hidden rounded-xl bg-mc-secondary-light/40 ring-1 ring-mc-secondary/15 ${aspectClassName}`}
         >
           {preview ?
-            <MediaPreview src={preview} sizes="64px" />
+            <CoachPhoto
+              src={preview}
+              alt={name?.trim() ? `${name.trim()} photo` : label}
+              name={name}
+              className="object-cover"
+              sizes="64px"
+            />
           : <span className="flex h-full w-full items-center justify-center text-[10px] font-semibold tracking-wide text-mc-secondary uppercase">
               Add
             </span>

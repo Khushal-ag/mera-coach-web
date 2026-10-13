@@ -370,7 +370,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
         type="submit"
         disabled={busy}
         aria-busy={busy}
-        className="mc-btn-primary w-full"
+        className="mc-btn-primary mc-btn-pay w-full"
       >
         {busy ? "Creating account" : "Create coach account"}
       </button>

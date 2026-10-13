@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { FeedbackForm } from "@/components/feedback-form";
+import { PageBanner } from "@/components/marketing/page-banner";
 import { fetchFeedbackContext, isApiSuccess } from "@/lib/api";
 import { publicPageMetadata } from "@/lib/seo";
 
@@ -23,23 +24,23 @@ export default function FeedbackPage({
   searchParams: SearchParams;
 }) {
   return (
-    <section className="bg-mc-explore py-10 sm:py-16 lg:py-24">
-      <div className="container max-w-lg">
-        <div className="mc-card p-5 sm:p-8">
-          <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-            Share feedback
-          </h1>
-          <p className="mt-2 text-sm text-ink-muted">
-            Quick feedback for your coach: a few stars and optional comments.
-          </p>
-          <div className="mt-8">
+    <>
+      <PageBanner
+        crumbs={[{ label: "Home", href: "/" }, { label: "Feedback" }]}
+        title="Share"
+        emphasis="feedback"
+        subtitle="A few stars and optional comments for your coach."
+      />
+      <section className="bg-[#f5ede0] py-10 sm:py-14">
+        <div className="container max-w-lg">
+          <div className="rounded-[22px] border border-line bg-white p-5 shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:p-8">
             <Suspense fallback={<FeedbackFormSkeleton />}>
               <FeedbackBody searchParams={searchParams} />
             </Suspense>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
 

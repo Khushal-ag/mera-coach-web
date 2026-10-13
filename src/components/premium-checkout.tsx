@@ -396,7 +396,7 @@ export function PremiumCheckout({
             );
           }
         },
-        theme: { color: "#178676" },
+        theme: { color: "#c04b2b" },
         modal: {
           ondismiss: () => {
             checkoutLock.current = false;

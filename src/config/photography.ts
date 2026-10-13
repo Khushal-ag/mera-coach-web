@@ -1,11 +1,13 @@
 /**
  * One photograph per surface. Do not point a second page at the same file.
- * Coach login, forgot password, and member login share `authLogin`
- * because they are one door. Register uses its own photograph.
+ * Coach login and forgot password share `authLogin` because they are one door.
+ * Register and member login each use their own photograph.
  */
 export const photography = {
   homeHero: "/mc-images/home-hero.jpg",
   homeFloor: "/mc-images/home-floor.jpg",
+  pathMember: "/mc-images/path-member.jpg",
+  ctaPractice: "/mc-images/cta-practice.jpg",
   services: "/mc-images/services-session.jpg",
   findCoach: "/mc-images/find-consult.jpg",
   premium: "/mc-images/premium-quiet.jpg",
@@ -16,4 +18,8 @@ export const photography = {
   emptyClients: "/mc-images/empty-roster.jpg",
   emptyLeads: "/mc-images/empty-enquiry.jpg",
   emptyEvents: "/mc-images/empty-session.jpg",
+  bannerFitness: "/mc-images/banner-fitness.jpg",
+  bannerYoga: "/mc-images/banner-yoga.jpg",
+  bannerNutrition: "/mc-images/banner-nutrition.jpg",
+  bannerWellness: "/mc-images/banner-wellness.jpg",
 } as const;

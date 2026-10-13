@@ -176,10 +176,10 @@ export function ClientsListView() {
                       key={code}
                       className="transition hover:bg-[color:var(--mc-explore-canvas)]"
                     >
-                      <td className="px-4 py-2">
+                      <td className="max-w-[16rem] px-4 py-2">
                         <Link
                           href={`/dashboard/clients/${encodeURIComponent(code)}`}
-                          className="inline-flex min-h-11 items-center font-display font-bold text-ink hover:text-mc-secondary"
+                          className="block truncate font-display leading-[2.75rem] font-bold text-ink hover:text-mc-secondary"
                         >
                           {client.name || "Unnamed client"}
                         </Link>

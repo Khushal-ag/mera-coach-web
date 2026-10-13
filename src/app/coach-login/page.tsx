@@ -14,11 +14,18 @@ export const metadata = publicPageMetadata({
 export default function CoachLoginPage() {
   return (
     <AuthShell
-      layout="single"
+      layout="split"
       panel="light"
       image={photography.authLogin}
       imageAlt="Someone walking into a neighbourhood gym at dusk"
       crumbs={[{ label: "Home", href: "/" }, { label: "Coach Login" }]}
+      sideTitle={
+        <>
+          India&apos;s coaching{" "}
+          <em className="text-[color:var(--mc-accent)] not-italic">platform</em>
+        </>
+      }
+      sideBody="Sign in to manage clients, leads, packages, and the public page people use to find you."
       title={
         <>
           Coach{" "}

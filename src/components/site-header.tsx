@@ -24,6 +24,58 @@ function premiumHref(session: { coachId: number; coachCode: string }) {
   return qs.toString() ? `/premium?${qs.toString()}` : "/premium";
 }
 
+function HeaderActions({
+  surface,
+  signedIn,
+  session,
+  onNavigate,
+  onLogout,
+}: {
+  surface: "light" | "dark";
+  signedIn: boolean;
+  session: { coachId: number; coachCode: string } | null;
+  onNavigate: () => void;
+  onLogout: () => void;
+}) {
+  const width = surface === "dark" ? "w-full" : "w-full sm:w-auto";
+  const secondary =
+    surface === "dark" ?
+      `mc-btn-outline-on-dark min-h-11 justify-center px-4 text-sm ${width}`
+    : `mc-btn-secondary min-h-11 justify-center px-4 text-sm ${width}`;
+  const primary = `mc-btn-primary min-h-11 justify-center px-5 text-sm ${width}`;
+
+  if (signedIn && session) {
+    return (
+      <>
+        <Link
+          href={premiumHref(session)}
+          className={secondary}
+          onClick={onNavigate}
+        >
+          Premium
+        </Link>
+        <Link href="/dashboard" className={secondary} onClick={onNavigate}>
+          Dashboard
+        </Link>
+        <button type="button" className={primary} onClick={onLogout}>
+          Logout
+        </button>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Link href="/coach-login" className={secondary} onClick={onNavigate}>
+        Login
+      </Link>
+      <Link href="/register" className={primary} onClick={onNavigate}>
+        Join Free
+      </Link>
+    </>
+  );
+}
+
 export function SiteHeader() {
   const pathname = usePathname();
   const { session, ready, logout } = useAuth();
@@ -36,9 +88,6 @@ export function SiteHeader() {
     if (open) setOpen(false);
   }
 
-  const onCoachLogin = isNavActive(pathname, "/coach-login");
-  const onDashboard = isNavActive(pathname, "/dashboard");
-  const onRegister = isNavActive(pathname, "/register");
   const signedIn = ready && !!session;
 
   useEffect(() => {
@@ -55,128 +104,157 @@ export function SiteHeader() {
     };
   }, [open]);
 
+  const linkClass = (href: string) =>
+    cn(
+      "flex min-h-11 items-center rounded-lg px-3 font-display text-sm font-medium whitespace-nowrap transition-colors lg:px-3.5",
+      isNavActive(pathname, href) ?
+        "bg-[color:var(--mc-primary-light)] font-semibold text-mc-primary"
+      : "text-ink hover:bg-[color:var(--mc-primary-light)] hover:text-mc-primary",
+    );
+
+  const actions = (
+    <HeaderActions
+      surface="light"
+      signedIn={signedIn}
+      session={session}
+      onNavigate={() => setOpen(false)}
+      onLogout={() => {
+        setOpen(false);
+        void logout();
+      }}
+    />
+  );
+
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-surface text-ink">
-      <div className="relative container flex h-16 items-center justify-between gap-3 lg:h-[4.25rem]">
-        <Link
-          href="/"
-          className="flex min-h-11 min-w-0 items-center"
-          onClick={() => setOpen(false)}
-          aria-label={siteConfig.name}
-        >
-          <BrandLockup variant="workspace" priority />
-        </Link>
+    <header className="sticky top-0 z-50">
+      <div className="bg-[image:linear-gradient(90deg,#0f2018,#1b4332)] text-white">
+        <div className="container flex h-9 items-center justify-between gap-3 text-[11px] sm:text-xs">
+          <p className="truncate font-medium tracking-wide text-white/80">
+            Wellness platform for coaches and the people who train with them
+          </p>
+          <p className="hidden shrink-0 items-center gap-3 sm:flex">
+            <Link href="/bmi" className="hover:text-[color:var(--mc-accent)]">
+              BMI calculator
+            </Link>
+            <Link
+              href="/premium"
+              className="hover:text-[color:var(--mc-accent)]"
+            >
+              Premium
+            </Link>
+          </p>
+        </div>
+      </div>
 
-        <button
-          type="button"
-          className="inline-flex size-11 shrink-0 items-center justify-center rounded-[10px] border border-line text-ink transition hover:bg-paper lg:hidden"
-          aria-expanded={open}
-          aria-controls={navId}
-          aria-label={open ? "Close menu" : "Open menu"}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ?
-            <X className="size-5" aria-hidden />
-          : <Menu className="size-5" aria-hidden />}
-        </button>
+      <div className="border-b-[3px] border-[color:var(--mc-accent)] bg-[color:var(--paper)]/96 text-ink shadow-[0_8px_24px_rgba(44,24,16,0.08)] backdrop-blur-md">
+        <div className="container flex h-[4.25rem] items-center justify-between gap-3">
+          <Link
+            href="/"
+            className="flex min-h-11 min-w-0 items-center"
+            onClick={() => setOpen(false)}
+            aria-label={siteConfig.name}
+          >
+            <BrandLockup variant="workspace" priority />
+          </Link>
 
-        <nav
-          id={navId}
-          className={cn(
-            "absolute top-full right-0 left-0 max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-b border-line bg-surface px-4 py-4 shadow-lg lg:static lg:flex lg:max-h-none lg:min-w-0 lg:flex-1 lg:items-center lg:overflow-visible lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none",
-            open ? "block" : "hidden lg:flex",
-          )}
-        >
-          <ul className="flex flex-col gap-1 lg:mx-auto lg:min-w-0 lg:flex-row lg:items-center lg:gap-0.5 xl:gap-1">
-            {siteConfig.nav.map((item) => {
-              if (signedIn && item.href === "/register") return null;
-              const active = isNavActive(pathname, item.href);
-              return (
-                <li key={item.href}>
+          <nav className="hidden min-w-0 flex-1 items-center justify-center lg:flex">
+            <ul className="flex items-center gap-0.5">
+              {siteConfig.nav.map((item) => {
+                if (signedIn && item.href === "/register") return null;
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={linkClass(item.href)}
+                      aria-current={
+                        isNavActive(pathname, item.href) ? "page" : undefined
+                      }
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          <div className="hidden items-center gap-2 lg:flex">{actions}</div>
+
+          <button
+            type="button"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-[10px] border border-line text-ink lg:hidden"
+            aria-expanded={open}
+            aria-controls={navId}
+            aria-label={open ? "Close menu" : "Open menu"}
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ?
+              <X className="size-5" aria-hidden />
+            : <Menu className="size-5" aria-hidden />}
+          </button>
+        </div>
+      </div>
+
+      {open ?
+        <div className="lg:hidden">
+          <button
+            type="button"
+            className="fixed inset-0 z-40 bg-[#2c1810]/45"
+            aria-label="Close menu"
+            onClick={() => setOpen(false)}
+          />
+          <aside
+            id={navId}
+            className="fixed inset-y-0 right-0 z-50 flex w-[min(20rem,calc(100vw-2.5rem))] flex-col bg-[image:linear-gradient(180deg,#0f2018,#1b4332)] px-5 py-6 text-white shadow-[-12px_0_40px_rgba(0,0,0,0.28)]"
+          >
+            <div className="flex items-center justify-between">
+              <BrandLockup variant="nav" />
+              <button
+                type="button"
+                className="inline-flex size-11 items-center justify-center rounded-xl border border-white/15"
+                aria-label="Close menu"
+                onClick={() => setOpen(false)}
+              >
+                <X className="size-5" aria-hidden />
+              </button>
+            </div>
+            <nav className="mt-8 flex flex-1 flex-col gap-1">
+              {siteConfig.nav.map((item) => {
+                if (signedIn && item.href === "/register") return null;
+                const active = isNavActive(pathname, item.href);
+                return (
                   <Link
+                    key={item.href}
                     href={item.href}
+                    onClick={() => setOpen(false)}
                     className={cn(
-                      "flex min-h-11 items-center rounded-[10px] px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors lg:rounded-none lg:px-2 lg:py-1 xl:px-3",
+                      "flex min-h-12 items-center rounded-xl px-3 font-display text-base font-semibold",
                       active ?
-                        "bg-[color:var(--mc-secondary-light)] font-semibold text-mc-secondary lg:bg-transparent"
-                      : "text-ink-muted hover:bg-paper hover:text-mc-secondary lg:hover:bg-transparent",
+                        "bg-[color:var(--mc-accent)]/20 text-[color:var(--mc-accent)]"
+                      : "text-white/85 hover:bg-white/10",
                     )}
                     aria-current={active ? "page" : undefined}
-                    onClick={() => setOpen(false)}
                   >
                     {item.label}
                   </Link>
-                </li>
-              );
-            })}
-          </ul>
-
-          <div className="mt-4 flex flex-col gap-2 border-t border-line pt-4 sm:flex-row sm:flex-wrap sm:items-center lg:ms-auto lg:mt-0 lg:shrink-0 lg:border-0 lg:pt-0">
-            {signedIn && session ?
-              <>
-                <p className="max-w-[12rem] truncate text-sm font-semibold text-ink sm:max-w-[10rem] lg:hidden xl:block xl:max-w-[9rem]">
-                  {session.fullName}
-                </p>
-                <Link
-                  href={premiumHref(session)}
-                  className="mc-btn-secondary min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto"
-                  onClick={() => setOpen(false)}
-                >
-                  Premium
-                </Link>
-                <Link
-                  href="/dashboard"
-                  className={cn(
-                    "mc-btn-secondary min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto",
-                    onDashboard &&
-                      "ring-2 ring-mc-secondary/30 ring-offset-2 ring-offset-surface",
-                  )}
-                  aria-current={onDashboard ? "page" : undefined}
-                  onClick={() => setOpen(false)}
-                >
-                  Dashboard
-                </Link>
-                <button
-                  type="button"
-                  className="mc-btn-primary min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto"
-                  onClick={() => {
-                    setOpen(false);
-                    void logout();
-                  }}
-                >
-                  Logout
-                </button>
-              </>
-            : <>
-                <Link
-                  href="/register"
-                  className={cn(
-                    "min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto",
-                    onRegister ? "mc-btn-primary" : "mc-btn-secondary",
-                  )}
-                  aria-current={onRegister ? "page" : undefined}
-                  onClick={() => setOpen(false)}
-                >
-                  Start as a Coach
-                </Link>
-                <Link
-                  href="/coach-login"
-                  className={cn(
-                    "min-h-11 w-full justify-center px-4 text-sm whitespace-nowrap sm:w-auto",
-                    onRegister ? "mc-btn-secondary" : "mc-btn-primary",
-                    onCoachLogin &&
-                      "ring-2 ring-mc-secondary/30 ring-offset-2 ring-offset-surface",
-                  )}
-                  aria-current={onCoachLogin ? "page" : undefined}
-                  onClick={() => setOpen(false)}
-                >
-                  Coach Login
-                </Link>
-              </>
-            }
-          </div>
-        </nav>
-      </div>
+                );
+              })}
+            </nav>
+            <div className="flex flex-col gap-2 border-t border-white/10 pt-4">
+              <HeaderActions
+                surface="dark"
+                signedIn={signedIn}
+                session={session}
+                onNavigate={() => setOpen(false)}
+                onLogout={() => {
+                  setOpen(false);
+                  void logout();
+                }}
+              />
+            </div>
+          </aside>
+        </div>
+      : null}
     </header>
   );
 }
