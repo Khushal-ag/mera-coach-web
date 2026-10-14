@@ -18,6 +18,19 @@ type ApiFetchOptions = RequestInit & {
   bearer?: string;
 };
 
+/** Plain-language text for responses that carry no message of their own. */
+function statusMessage(status: number): string {
+  if (status === 401) return "Your session has expired. Please sign in again.";
+  if (status === 403)
+    return "You do not have access to this. It may belong to another account.";
+  if (status === 404) return "We could not find what you asked for.";
+  if (status === 429)
+    return "Too many attempts. Please wait a moment and try again.";
+  if (status >= 500)
+    return "Something went wrong on our side. Please try again shortly.";
+  return "The request could not be completed. Please try again.";
+}
+
 function apiUrl(path: string) {
   const base = assertApiBaseUrl();
   const normalized = path.startsWith("/") ? path : `/${path}`;
@@ -35,19 +48,28 @@ export async function apiFetch<T>(
   const { next, cache, headers, skipAuth, bearer, ...rest } = init ?? {};
   const token = bearer ?? (skipAuth ? null : getCurrentToken());
 
-  const res = await fetch(apiUrl(path), {
-    ...rest,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(headers ?? {}),
-    },
-    ...(next ? { next } : {}),
-    ...(cache ? { cache }
-    : next ? {}
-    : { cache: "no-store" }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(apiUrl(path), {
+      ...rest,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(headers ?? {}),
+      },
+      ...(next ? { next } : {}),
+      ...(cache ? { cache }
+      : next ? {}
+      : { cache: "no-store" }),
+    });
+  } catch {
+    throw new ApiRequestError(
+      "Could not reach the server. Check your connection and try again.",
+      0,
+      [],
+    );
+  }
 
   let body: GenericResponse<T> | null = null;
   try {
@@ -62,8 +84,7 @@ export async function apiFetch<T>(
 
   if (!res.ok) {
     const errors = body?.errorObj ?? [];
-    const message =
-      errors[0]?.errorMessage ?? `Request failed with status ${res.status}`;
+    const message = errors[0]?.errorMessage ?? statusMessage(res.status);
     throw new ApiRequestError(message, res.status, errors);
   }
 

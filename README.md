@@ -43,21 +43,21 @@ src/
 
 ## Main routes
 
-| Route                              | Notes                                                                     |
-| ---------------------------------- | ------------------------------------------------------------------------- |
-| `/`                                | Marketing home                                                            |
-| `/coach`                           | Public coach directory (+ city filters)                                   |
-| `/coach/[code]`                    | Profile + enquiry                                                         |
-| `/services`                        | Services marketing                                                        |
-| `/register`                        | Coach registration                                                        |
-| `/coach-login`                     | Coach login → `/dashboard`                                                |
-| `/dashboard`                       | Authenticated coach practice (clients, leads, packages, events, profile)  |
-| `/premium`                         | Plans + Razorpay (`?coachId=&coachCode=` from app `buildCoachPaymentUrl`) |
-| `/premium/success`                 | Post-confirm return page                                                  |
-| `/feedback`                        | `?coachCode=&clientCode=`                                                 |
-| `/bmi`                             | Public BMI calculator with a callback form                                |
-| `/member-login` `/forgot-password` | Utility pages (noindex)                                                   |
-| `/terms` `/privacy`                | Legal. Have counsel review the wording before launch                      |
+| Route               | Notes                                                                     |
+| ------------------- | ------------------------------------------------------------------------- |
+| `/`                 | Marketing home                                                            |
+| `/coach`            | Public coach directory (+ city filters)                                   |
+| `/coach/[code]`     | Profile + enquiry                                                         |
+| `/services`         | Services marketing                                                        |
+| `/register`         | Coach registration                                                        |
+| `/coach-login`      | Coach login → `/dashboard`                                                |
+| `/dashboard`        | Authenticated coach practice (clients, leads, packages, events, profile)  |
+| `/premium`          | Plans + Razorpay (`?coachId=&coachCode=` from app `buildCoachPaymentUrl`) |
+| `/premium/success`  | Post-confirm return page                                                  |
+| `/feedback`         | `?coachCode=&clientCode=`                                                 |
+| `/bmi`              | Public BMI calculator with a callback form                                |
+| `/forgot-password`  | Utility page (noindex)                                                    |
+| `/terms` `/privacy` | Legal. Have counsel review the wording before launch                      |
 
 ## Verify flows
 
@@ -81,7 +81,7 @@ src/
 1. Set `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_API_BASE_URL` (https) for the production environment. A production build fails if the API origin is missing or not https.
 2. Confirm the API is the build that exposes `GET /v1/Coach/premium`; older builds return 404 and the premium status shows as unavailable.
 3. Run `bun run validate`.
-4. Utility pages (`/coach-login`, `/member-login`, `/forgot-password`, `/feedback`, `/premium`) are `noindex` and disallowed in `robots.txt`. The sitemap lists public pages and coach profiles only.
+4. Utility pages (`/coach-login`, `/forgot-password`, `/feedback`, `/premium`) are `noindex` and disallowed in `robots.txt`. The sitemap lists public pages and coach profiles only.
 
 ## Registration and uploads
 

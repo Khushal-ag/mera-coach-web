@@ -40,7 +40,6 @@ export const siteConfig = {
     bmi: "/bmi",
     register: "/register",
     coachLogin: "/coach-login",
-    memberLogin: "/member-login",
     premium: "/premium",
     premiumSuccess: "/premium/success",
     feedback: "/feedback",

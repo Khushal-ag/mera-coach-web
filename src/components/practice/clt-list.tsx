@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 import { MenuSelect } from "@/components/ui/menu-select";
+import { pageWindow } from "@/lib/pagination";
 
 export function CltPageHead({
   title,
@@ -270,8 +271,8 @@ export function CltPager({
   total: number;
   onPage: (page: number) => void;
 }) {
-  const windowStart = Math.max(1, page - 2);
-  const windowEnd = Math.min(pages, windowStart + 4);
+  // Always show up to five page numbers, sliding the window at either end.
+  const { start: windowStart, end: windowEnd } = pageWindow(page, pages);
   const nums: number[] = [];
   for (let n = windowStart; n <= windowEnd; n += 1) nums.push(n);
 
@@ -283,16 +284,34 @@ export function CltPager({
         : `Showing ${start + 1} to ${end} of ${total} entr${total === 1 ? "y" : "ies"}`
         }
       </div>
-      {total > 0 ?
-        <div className="clt-page-btns">
+      {total > 0 && pages > 1 ?
+        <nav className="clt-page-btns" aria-label="Pagination">
           <button
             type="button"
             className="clt-page-btn"
             disabled={page <= 1}
+            aria-label="Previous page"
             onClick={() => onPage(page - 1)}
           >
             Prev
           </button>
+          {windowStart > 1 ?
+            <>
+              <button
+                type="button"
+                className="clt-page-btn"
+                aria-label="Page 1"
+                onClick={() => onPage(1)}
+              >
+                1
+              </button>
+              {windowStart > 2 ?
+                <span className="clt-page-gap" aria-hidden>
+                  …
+                </span>
+              : null}
+            </>
+          : null}
           {nums.map((n) => (
             <button
               key={n}
@@ -300,20 +319,40 @@ export function CltPager({
               className={
                 n === page ? "clt-page-btn clt-page-active" : "clt-page-btn"
               }
+              aria-label={`Page ${n}`}
+              aria-current={n === page ? "page" : undefined}
               onClick={() => onPage(n)}
             >
               {n}
             </button>
           ))}
+          {windowEnd < pages ?
+            <>
+              {windowEnd < pages - 1 ?
+                <span className="clt-page-gap" aria-hidden>
+                  …
+                </span>
+              : null}
+              <button
+                type="button"
+                className="clt-page-btn"
+                aria-label={`Page ${pages}`}
+                onClick={() => onPage(pages)}
+              >
+                {pages}
+              </button>
+            </>
+          : null}
           <button
             type="button"
             className="clt-page-btn"
             disabled={page >= pages}
+            aria-label="Next page"
             onClick={() => onPage(page + 1)}
           >
             Next
           </button>
-        </div>
+        </nav>
       : null}
     </div>
   );

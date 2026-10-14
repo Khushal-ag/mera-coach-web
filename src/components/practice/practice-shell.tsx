@@ -204,6 +204,15 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                   </span>
                 </div>
               : null}
+              <Link
+                href="/dashboard"
+                className="cl-home-btn"
+                aria-label="Go to dashboard home"
+                aria-current={pathname === "/dashboard" ? "page" : undefined}
+                title="Home"
+              >
+                <i className="fas fa-home" aria-hidden />
+              </Link>
               <div className="cl-profile-wrap" ref={accountMenuRef}>
                 <button
                   type="button"

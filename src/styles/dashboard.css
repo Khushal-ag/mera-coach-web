@@ -4334,3 +4334,39 @@
   color: #1b4332;
   border: 2px solid #2d6a4f;
 }
+
+/* Home shortcut in the top bar, like the app header */
+.mc-dash .cl-home-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid var(--cl-border);
+  background: var(--cl-white);
+  color: var(--cl-primary);
+  font-size: 16px;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+}
+.mc-dash .cl-home-btn:hover {
+  background: #e8f3ec;
+  border-color: #2d6a4f;
+}
+.mc-dash .cl-home-btn:focus-visible {
+  outline: 3px solid rgba(45, 106, 79, 0.4);
+  outline-offset: 2px;
+}
+.mc-dash .cl-home-btn[aria-current="page"] {
+  background: #1b4332;
+  border-color: #1b4332;
+  color: #fff;
+}
+
+.mc-dash .clt-page-gap {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  color: #6b5a4c;
+}

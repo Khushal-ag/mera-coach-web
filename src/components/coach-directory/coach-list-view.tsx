@@ -465,11 +465,12 @@ export function CoachListView({
               </div>
 
               {totalPages > 1 ?
-                <div className="cl-pagination">
+                <nav className="cl-pagination" aria-label="Pagination">
                   {query.page > 1 ?
                     <Link
                       href={pageHref(query, query.page - 1)}
                       className="cl-page-btn"
+                      aria-label="Previous page"
                     >
                       <i className="fas fa-chevron-left" />
                     </Link>
@@ -492,13 +493,18 @@ export function CoachListView({
                     (_, index) => {
                       const page = pageStart + index;
                       return page === query.page ?
-                          <span key={page} className="cl-page-btn active">
+                          <span
+                            key={page}
+                            className="cl-page-btn active"
+                            aria-current="page"
+                          >
                             {page}
                           </span>
                         : <Link
                             key={page}
                             href={pageHref(query, page)}
                             className="cl-page-btn"
+                            aria-label={`Page ${page}`}
                           >
                             {page}
                           </Link>;
@@ -521,6 +527,7 @@ export function CoachListView({
                     <Link
                       href={pageHref(query, query.page + 1)}
                       className="cl-page-btn"
+                      aria-label="Next page"
                     >
                       <i className="fas fa-chevron-right" />
                     </Link>
@@ -528,7 +535,7 @@ export function CoachListView({
                       <i className="fas fa-chevron-right" />
                     </span>
                   }
-                </div>
+                </nav>
               : null}
             </div>
 

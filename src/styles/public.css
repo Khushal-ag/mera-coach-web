@@ -12086,3 +12086,28 @@
 .mc-public .car-dot.car-dot-active {
   width: 28px;
 }
+
+/* Login and similar card pages: fill the viewport and centre the card
+   in the space below the fixed navbar, so the pattern never stops mid-page. */
+.mc-public .lg-page {
+  min-height: 100svh;
+  align-items: center;
+  overflow: hidden;
+}
+@media (min-width: 1024px) {
+  .mc-public .lg-wrap {
+    max-width: 1000px;
+  }
+}
+
+/* Register, forgot password, member login, legal, feedback and premium share
+   this page shell. Fill the viewport and centre short cards under the navbar. */
+.mc-public .rg-page {
+  min-height: 100svh;
+  align-items: center;
+}
+/* The profile editor reuses rg- styles inside the dashboard. */
+.mc-dash .rg-page {
+  min-height: 0;
+  align-items: flex-start;
+}

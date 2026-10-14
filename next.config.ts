@@ -198,6 +198,12 @@ const nextConfig: NextConfig = {
   // Keep title and description in <head> for every crawler, not streamed into the body.
   htmlLimitedBots: /.*/,
   compress: true,
+  // Clients have no login; old bookmarks go to the coach directory.
+  async redirects() {
+    return [
+      { source: "/member-login", destination: "/coach", permanent: true },
+    ];
+  },
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,

@@ -12,7 +12,6 @@ export default function robots(): MetadataRoute.Robots {
         "/premium",
         "/feedback",
         "/coach-login",
-        "/member-login",
         "/forgot-password",
       ],
     },

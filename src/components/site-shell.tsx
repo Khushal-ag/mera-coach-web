@@ -34,7 +34,6 @@ function MarketingChrome({ children }: { children: React.ReactNode }) {
     pathname === "/terms" ||
     pathname === "/premium" ||
     pathname === "/feedback" ||
-    pathname === "/member-login" ||
     pathname === "/forgot-password";
 
   return (

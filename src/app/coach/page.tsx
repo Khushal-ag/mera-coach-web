@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { cacheLife } from "next/cache";
+import { redirect } from "next/navigation";
 
 import type { CoachPublicListItem } from "@/types/coach";
 
@@ -101,6 +102,18 @@ async function CoachDirectoryContent({
     page,
   };
   const data = await loadCoachList(query);
+
+  // A stale or hand-edited page number past the end restarts at page 1.
+  if (!data.loadError && data.coaches.length === 0 && page > 1) {
+    const params = new URLSearchParams();
+    if (query.search) params.set("search", query.search);
+    if (query.coachTypeCode) params.set("coachTypeCode", query.coachTypeCode);
+    if (query.country) params.set("country", query.country);
+    if (query.state) params.set("state", query.state);
+    if (query.city) params.set("city", query.city);
+    const qs = params.toString();
+    redirect(qs ? `/coach?${qs}` : "/coach");
+  }
 
   return <CoachListView {...data} query={query} />;
 }
