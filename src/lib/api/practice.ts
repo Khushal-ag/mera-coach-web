@@ -46,18 +46,27 @@ function mapClientListItem(raw: Record<string, unknown>): ClientSummary {
     lastCheckupDate:
       String(pick(raw, "lastCheckupDate", "LastCheckupDate") ?? "").trim() ||
       undefined,
+    height: String(pick(raw, "height", "Height") ?? "").trim() || undefined,
+    weight: String(pick(raw, "weight", "Weight") ?? "").trim() || undefined,
+    hasLifestyle: flagOn(pick(raw, "hasLifestyle", "HasLifestyle")),
+    hasDiet: flagOn(pick(raw, "hasDiet", "HasDiet")),
   };
+}
+
+function flagOn(value: unknown) {
+  return value === true || value === 1 || value === "1" || value === "true";
 }
 
 export async function fetchClientList(params: {
   coachCode: string;
   searchText?: string;
+  searchOption?: string;
 }): Promise<ClientSummary[]> {
   const items = await authedFetch<unknown[]>("v1/Client/ClientList", {
     method: "POST",
     body: {
       coachCode: params.coachCode,
-      searchOption: params.searchText ? "name" : undefined,
+      searchOption: params.searchOption ?? "",
       searchText: params.searchText ?? "",
     },
   });
@@ -68,13 +77,15 @@ export async function fetchClientList(params: {
 
 export async function fetchRecheckupList(params: {
   coachCode: string;
+  searchOption?: string;
+  searchText?: string;
 }): Promise<RecheckupDueClient[]> {
   const items = await authedFetch<unknown[]>("v1/Client/recheckup-list", {
     method: "POST",
     body: {
       coachCode: params.coachCode,
-      searchOption: "",
-      searchText: "",
+      searchOption: params.searchOption ?? "",
+      searchText: params.searchText ?? "",
     },
   });
   return (items ?? []).map((row) => {

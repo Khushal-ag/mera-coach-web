@@ -33,6 +33,8 @@ type MenuSelectProps = {
    * `field` matches the other themed inputs.
    */
   variant?: "field" | "bar";
+  /** Public pages use the Poppins green/brown menu in public.css. */
+  skin?: "app" | "public";
   className?: string;
   "aria-label"?: string;
   "aria-labelledby"?: string;
@@ -58,6 +60,7 @@ export function MenuSelect({
   tone = "light",
   invalid,
   variant = "field",
+  skin = "app",
   className,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -162,11 +165,12 @@ export function MenuSelect({
         type="button"
         disabled={disabled}
         className={cn(
-          "flex w-full cursor-pointer items-center justify-between gap-3 text-left text-base focus-visible:outline-none disabled:cursor-default",
-          variant === "bar" ?
-            "min-h-14 border-b border-line bg-transparent px-4 font-display font-medium text-mc-secondary focus-visible:bg-mc-primary-light sm:h-full sm:border-r sm:border-b-0"
+          "flex w-full cursor-pointer items-center justify-between gap-3 text-left focus-visible:outline-none disabled:cursor-default",
+          skin === "public" ? "ui-select-btn"
+          : variant === "bar" ?
+            "min-h-14 border-b border-line bg-transparent px-4 font-display text-base font-medium text-mc-secondary focus-visible:bg-mc-primary-light sm:h-full sm:border-r sm:border-b-0"
           : cn(
-              "mc-field",
+              "mc-field text-base",
               tone === "dark" && "mc-field-dark",
               (invalid || missing) && "mc-field-error",
               tone === "dark" ? "text-white" : "text-mc-secondary",
@@ -195,8 +199,10 @@ export function MenuSelect({
         </span>
         <ChevronDown
           className={cn(
-            "size-4 shrink-0 text-mc-primary motion-safe:transition-transform motion-safe:duration-200",
-            tone === "dark" && "text-mc-accent",
+            "size-4 shrink-0 motion-safe:transition-transform motion-safe:duration-200",
+            skin === "public" ? "ui-select-chevron" : (
+              cn("text-mc-primary", tone === "dark" && "text-mc-accent")
+            ),
             open && "rotate-180",
           )}
           aria-hidden
@@ -207,7 +213,11 @@ export function MenuSelect({
           id={listId}
           role="listbox"
           aria-labelledby={ariaLabelledBy ?? valueId}
-          className="z-30 mt-1 max-h-60 w-full min-w-0 overflow-auto overscroll-contain rounded-xl border border-line bg-paper py-1 text-mc-secondary shadow-[0_16px_40px_rgba(44,24,16,0.14)] sm:absolute sm:inset-x-0 sm:top-full sm:w-auto"
+          className={cn(
+            skin === "public" ? "ui-select-menu" : (
+              "z-30 mt-1 max-h-60 w-full min-w-0 overflow-auto overscroll-contain rounded-xl border border-line bg-paper py-1 text-mc-secondary shadow-[0_16px_40px_rgba(44,24,16,0.14)] sm:absolute sm:inset-x-0 sm:top-full sm:w-auto"
+            ),
+          )}
         >
           {options.map((item, index) => {
             const active = item.value === current;
@@ -222,10 +232,14 @@ export function MenuSelect({
                   aria-selected={active}
                   disabled={item.disabled}
                   className={cn(
-                    "flex min-h-11 w-full min-w-0 cursor-pointer items-center justify-between gap-3 px-3.5 py-2 text-left text-base focus-visible:outline-none disabled:cursor-default",
-                    active ?
-                      "bg-mc-secondary font-semibold text-white"
-                    : "text-mc-secondary hover:bg-mc-primary-light focus-visible:bg-mc-primary-light",
+                    skin === "public" ?
+                      cn("ui-select-option", active && "is-active")
+                    : cn(
+                        "flex min-h-11 w-full min-w-0 cursor-pointer items-center justify-between gap-3 px-3.5 py-2 text-left text-base focus-visible:outline-none disabled:cursor-default",
+                        active ?
+                          "bg-mc-secondary font-semibold text-white"
+                        : "text-mc-secondary hover:bg-mc-primary-light focus-visible:bg-mc-primary-light",
+                      ),
                     item.disabled && "opacity-50",
                   )}
                   onClick={() => {

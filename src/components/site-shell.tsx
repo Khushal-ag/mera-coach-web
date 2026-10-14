@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 
 import { AuthProvider } from "@/components/auth-provider";
+import { ScrollTop } from "@/components/scroll-top";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
@@ -21,13 +22,31 @@ function MarketingChrome({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  const flushNav =
+    pathname === "/" ||
+    pathname === "/services" ||
+    pathname === "/coach" ||
+    pathname.startsWith("/coach/") ||
+    pathname === "/coach-login" ||
+    pathname === "/register" ||
+    pathname === "/contact" ||
+    pathname === "/privacy" ||
+    pathname === "/terms" ||
+    pathname === "/premium" ||
+    pathname === "/feedback" ||
+    pathname === "/member-login" ||
+    pathname === "/forgot-password";
+
   return (
     <div className="flex min-h-dvh flex-col bg-paper text-ink">
       <Suspense fallback={<HeaderFallback />}>
         <SiteHeader />
       </Suspense>
-      <main className="flex-1">{children}</main>
+      <main className={flushNav ? "flex-1" : "flex-1 pt-[90px]"}>
+        {children}
+      </main>
       <SiteFooter />
+      <ScrollTop />
     </div>
   );
 }

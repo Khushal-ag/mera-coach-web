@@ -52,9 +52,9 @@ export const siteConfig = {
     { label: "Home", href: "/" },
     { label: "Find a Coach", href: "/coach" },
     { label: "Features", href: "/services" },
-    { label: "BMI", href: "/bmi" },
-    { label: "About", href: "/#path" },
-    { label: "Blog", href: "/#tips" },
+    { label: "About Us", href: "#" },
+    { label: "Blog", href: "#" },
+    { label: "Contact", href: "/contact" },
   ] as const,
 
   /**

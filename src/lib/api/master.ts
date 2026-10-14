@@ -6,6 +6,8 @@ import { pick } from "@/lib/api/normalize";
 export type MasterOption = {
   code: string;
   label: string;
+  iconClass?: string;
+  description?: string;
 };
 
 function normalizeMasterItems(payload: unknown): MasterOption[] {
@@ -20,7 +22,16 @@ function normalizeMasterItems(payload: unknown): MasterOption[] {
         pick(r, "itemName", "ItemName", "label", "Label", "name", "Name") ?? "",
       ).trim();
       if (!code || !label) return null;
-      return { code, label } satisfies MasterOption;
+      const iconClass = String(pick(r, "iconClass", "IconClass") ?? "").trim();
+      const description = String(
+        pick(r, "description", "Description") ?? "",
+      ).trim();
+      return {
+        code,
+        label,
+        ...(iconClass ? { iconClass } : {}),
+        ...(description ? { description } : {}),
+      } satisfies MasterOption;
     })
     .filter((x): x is MasterOption => x != null);
 }
@@ -43,6 +54,23 @@ async function fetchMasterItems(params: {
     ...response,
     responseObj: normalizeMasterItems(response.responseObj),
   };
+}
+
+export async function fetchMasterOptions(
+  itemType: string,
+  filterText?: string,
+): Promise<MasterOption[]> {
+  const type = itemType.trim();
+  if (!type) return [];
+  try {
+    const res = await fetchMasterItems({
+      itemType: type,
+      ...(filterText ? { filterText } : {}),
+    });
+    return res.responseObj ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export async function fetchCoachCategories(): Promise<MasterOption[]> {

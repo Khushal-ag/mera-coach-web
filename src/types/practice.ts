@@ -10,6 +10,10 @@ export type ClientSummary = {
   age?: number;
   status?: string;
   lastCheckupDate?: string;
+  height?: string;
+  weight?: string;
+  hasLifestyle?: boolean;
+  hasDiet?: boolean;
 };
 
 type ClientMealSlot = {

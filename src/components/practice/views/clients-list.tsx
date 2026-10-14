@@ -3,267 +3,316 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
-import { Plus, Users } from "lucide-react";
-
 import type { ClientSummary } from "@/types/practice";
 
 import { useAuth } from "@/components/auth-provider";
 import {
-  PracticeEmpty,
-  PracticePageHeader,
-  PracticeSearch,
-} from "@/components/practice/page-header";
-import { ClientsTableSkeleton } from "@/components/skeletons/table-skeleton";
-import { AlertBanner } from "@/components/ui/alert-banner";
+  CltPageHead,
+  CltPager,
+  CltSearchCard,
+  CltTableTools,
+  usePagedRows,
+} from "@/components/practice/clt-list";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import { fetchClientList } from "@/lib/api/practice";
-import { cn } from "@/lib/utils";
 
-function statusTone(status?: string) {
-  if (!status) return "bg-paper-elevated text-ink-muted";
-  const s = status.toLowerCase();
-  if (s === "active")
-    return "bg-[color:var(--mc-secondary-light)] text-mc-secondary";
-  if (s === "new")
-    return "bg-[color:var(--mc-primary-light)] text-[color:var(--mc-primary)]";
-  return "bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]";
+const AVATAR_PALETTE = [
+  "#1b4332",
+  "#2d6a4f",
+  "#c9882a",
+  "#2563eb",
+  "#7c3aed",
+  "#dc2626",
+  "#0891b2",
+  "#059669",
+  "#d97706",
+  "#4f46e5",
+  "#be185d",
+  "#0f766e",
+  "#92400e",
+  "#1d4ed8",
+  "#065f46",
+];
+
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "?";
+  if (parts.length === 1) return parts[0]!.slice(0, 1).toUpperCase();
+  return `${parts[0]![0]}${parts[parts.length - 1]![0]}`.toUpperCase();
+}
+
+function avatarColor(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i += 1) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length]!;
+}
+
+function weightLabel(weight?: string) {
+  if (!weight) return "—";
+  const n = Number(weight);
+  return Number.isFinite(n) ? n.toFixed(1) : weight;
 }
 
 export function ClientsListView() {
   const { session } = useAuth();
   const { openAddClient, error: gateError } = useOpenAddClient();
   const [rows, setRows] = useState<ClientSummary[] | null>(null);
-  const [search, setSearch] = useState("");
+  const [option, setOption] = useState("");
+  const [text, setText] = useState("");
+  const [query, setQuery] = useState("");
+  const [perPage, setPerPage] = useState(10);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState({ option: "", text: "" });
 
   useEffect(() => {
     if (!session?.coachCode) return;
     let cancelled = false;
-    const timer = window.setTimeout(
-      () => {
-        setLoading(true);
-        setError(null);
-        void fetchClientList({
-          coachCode: session.coachCode,
-          searchText: search.trim() || undefined,
+    const coachCode = session.coachCode;
+    const timer = window.setTimeout(() => {
+      setLoading(true);
+      setError(null);
+      void fetchClientList({
+        coachCode,
+        searchOption: search.option,
+        searchText: search.text,
+      })
+        .then((list) => {
+          if (!cancelled) setRows(list);
         })
-          .then((list) => {
-            if (!cancelled) setRows(list);
-          })
-          .catch((err) => {
-            if (!cancelled) {
-              setError(
-                err instanceof Error ? err.message : "Could not load clients.",
-              );
-              setRows([]);
-            }
-          })
-          .finally(() => {
-            if (!cancelled) setLoading(false);
-          });
-      },
-      search ? 250 : 0,
-    );
+        .catch((err) => {
+          if (!cancelled) {
+            setError(
+              err instanceof Error ? err.message : "Failed to load clients.",
+            );
+            setRows([]);
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    }, 0);
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
     };
   }, [session?.coachCode, search]);
 
-  const addButton = useMemo(
-    () => (
-      <button
-        type="button"
-        className="mc-btn-primary w-full sm:w-auto"
-        onClick={() => void openAddClient()}
-      >
-        <Plus className="size-4" strokeWidth={2.25} aria-hidden />
-        Add client
-      </button>
-    ),
-    [openAddClient],
-  );
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const list = rows ?? [];
+    if (!q) return list;
+    return list.filter((client) =>
+      [client.name, client.mobileNo, client.age, client.height, client.weight]
+        .filter((value) => value != null)
+        .join(" ")
+        .toLowerCase()
+        .includes(q),
+    );
+  }, [rows, query]);
 
-  const countLabel =
-    rows == null ? null : (
-      `${rows.length} client${rows.length === 1 ? "" : "s"}`
+  const paged = usePagedRows(filtered, perPage);
+  const badge =
+    rows == null ? "Loading…" : (
+      `${paged.total} Client${paged.total === 1 ? "" : "s"}`
     );
 
   return (
     <div>
-      <PracticePageHeader
+      <CltPageHead
         title="Clients"
-        description="Everyone on your roster."
-        icon={<Users className="size-5" aria-hidden />}
-        action={addButton}
+        crumb="Clients"
+        action={
+          <button
+            type="button"
+            className="clt-btn clt-btn-primary"
+            onClick={() => void openAddClient()}
+          >
+            <i className="fas fa-user-plus" /> Add New Client
+          </button>
+        }
       />
-
       {error ?
-        <AlertBanner tone="error">{error}</AlertBanner>
+        <p className="rg-alert">{error}</p>
       : null}
       {gateError ?
-        <AlertBanner tone="error">{gateError}</AlertBanner>
+        <p className="rg-alert">{gateError}</p>
       : null}
-
-      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <PracticeSearch
-          id="client-search"
-          label="Search"
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Name or mobile"
-          autoComplete="off"
-          className="max-w-sm"
-        />
-        {countLabel ?
-          <p className="text-sm text-ink-muted">{countLabel}</p>
-        : null}
-      </div>
-
-      {loading && rows == null ?
-        <ClientsTableSkeleton />
-      : !rows?.length ?
-        <PracticeEmpty
-          icon={<Users className="size-5" aria-hidden />}
-          title={search.trim() ? "No matches" : "No clients yet"}
-          body={
-            search.trim() ?
-              "Try a different name or mobile number."
-            : "Use Add client above to start an assessment."
-          }
-        />
-      : <>
-          {/* Desktop / tablet table */}
-          <div className="mc-roster hidden md:block">
-            <table className="w-full text-left text-sm">
-              <thead className="mc-roster-head sticky top-0">
+      <CltSearchCard
+        optionId="cltSearchOption"
+        textId="cltSearchText"
+        option={option}
+        text={text}
+        onOption={setOption}
+        onText={setText}
+        onSearch={() => {
+          setSearch({ option, text: text.trim() });
+          paged.setPage(1);
+        }}
+        onReset={() => {
+          setOption("");
+          setText("");
+          setQuery("");
+          setSearch({ option: "", text: "" });
+          paged.setPage(1);
+        }}
+      />
+      <div className="clt-card">
+        <div className="clt-card-header">
+          <h2>
+            <i className="fas fa-list" /> Client List
+          </h2>
+          <span className="clt-total-badge">{badge}</span>
+        </div>
+        <div className="clt-card-body">
+          <CltTableTools
+            selectId="cltEntriesSelect"
+            perPage={perPage}
+            onPerPage={(value) => {
+              setPerPage(value);
+              paged.setPage(1);
+            }}
+            query={query}
+            onQuery={(value) => {
+              setQuery(value);
+              paged.setPage(1);
+            }}
+          />
+          <div className="clt-table-wrap">
+            <table className="clt-table">
+              <thead>
                 <tr>
-                  <th scope="col" className="px-4 py-3 font-semibold">
-                    Name
-                  </th>
-                  <th scope="col" className="px-4 py-3 font-semibold">
-                    Contact
-                  </th>
-                  <th
-                    scope="col"
-                    className="hidden px-4 py-3 font-semibold lg:table-cell"
-                  >
-                    Age
-                  </th>
-                  <th scope="col" className="px-4 py-3 font-semibold">
-                    Status
-                  </th>
-                  <th
-                    scope="col"
-                    className="hidden px-4 py-3 font-semibold xl:table-cell"
-                  >
-                    Last checkup
-                  </th>
-                  <th scope="col" className="sr-only px-4 py-3 font-semibold">
-                    Actions
-                  </th>
+                  <th>S. No.</th>
+                  <th>Client Name</th>
+                  <th>Mobile No.</th>
+                  <th>Age</th>
+                  <th>Height</th>
+                  <th>Weight</th>
+                  <th>Last Check-up</th>
+                  <th>Check-up</th>
+                  <th>Report</th>
+                  <th>Diet Chart</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
-                {rows.map((client) => {
-                  const code = client.clientCode;
-                  if (!code) return null;
-                  return (
-                    <tr
-                      key={code}
-                      className="transition hover:bg-[color:var(--mc-explore-canvas)]"
-                    >
-                      <td className="max-w-[16rem] px-4 py-2">
-                        <Link
-                          href={`/dashboard/clients/${encodeURIComponent(code)}`}
-                          className="block truncate font-display leading-[2.75rem] font-bold text-ink hover:text-mc-secondary"
-                        >
-                          {client.name || "Unnamed client"}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-2 text-ink-muted">
-                        {client.mobileNo || "-"}
-                      </td>
-                      <td className="hidden px-4 py-2 text-ink-muted tabular-nums lg:table-cell">
-                        {client.age != null ? `${client.age}` : "-"}
-                      </td>
-                      <td className="px-4 py-2">
-                        {client.status ?
-                          <span
-                            className={cn(
-                              "inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-bold",
-                              statusTone(client.status),
-                            )}
+              <tbody>
+                {loading && rows == null ?
+                  <tr className="clt-skeleton-row">
+                    <td colSpan={10}>Loading…</td>
+                  </tr>
+                : paged.slice.length === 0 ?
+                  <tr className="clt-no-results">
+                    <td colSpan={10}>
+                      <i className="fas fa-user-slash" />
+                      No clients found.
+                    </td>
+                  </tr>
+                : paged.slice.map((client, index) => {
+                    const code = client.clientCode;
+                    if (!code) return null;
+                    const checkupHref = `/dashboard/clients/${encodeURIComponent(code)}/checkup`;
+                    const reportHref = `/dashboard/clients/${encodeURIComponent(code)}?tab=bmi`;
+                    const dietReady = Boolean(
+                      client.hasLifestyle && client.hasDiet,
+                    );
+                    return (
+                      <tr key={code}>
+                        <td className="clt-td-sno">
+                          {paged.start + index + 1}
+                        </td>
+                        <td>
+                          <div className="clt-client-name">
+                            <div
+                              className="clt-name-avatar"
+                              style={{
+                                background: avatarColor(client.name || code),
+                              }}
+                            >
+                              {initials(client.name || code)}
+                            </div>
+                            {client.name || "—"}
+                          </div>
+                        </td>
+                        <td>
+                          {client.mobileNo ?
+                            <a
+                              href={`tel:${client.mobileNo}`}
+                              className="clt-mobile-link"
+                            >
+                              {client.mobileNo}
+                            </a>
+                          : "—"}
+                        </td>
+                        <td className="clt-td-num">{client.age ?? "—"}</td>
+                        <td className="clt-td-num">{client.height || "—"}</td>
+                        <td className="clt-td-num">
+                          {weightLabel(client.weight)}
+                        </td>
+                        <td>
+                          {client.lastCheckupDate ?
+                            <span className="clt-date-badge">
+                              <i className="fas fa-calendar-alt" />
+                              &nbsp;{client.lastCheckupDate}
+                            </span>
+                          : <span style={{ color: "#b8a898", fontSize: 12 }}>
+                              No check-up
+                            </span>
+                          }
+                        </td>
+                        <td>
+                          <Link
+                            href={checkupHref}
+                            className="clt-action-btn clt-ab-checkup"
+                            title="Check-up"
                           >
-                            {client.status}
-                          </span>
-                        : <span className="text-ink-muted">-</span>}
-                      </td>
-                      <td className="hidden px-4 py-2 text-ink-muted xl:table-cell">
-                        {client.lastCheckupDate || "-"}
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        <Link
-                          href={`/dashboard/clients/${encodeURIComponent(code)}`}
-                          className="inline-flex min-h-11 items-center font-semibold text-mc-secondary hover:underline"
-                        >
-                          Open
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
+                            <i className="fas fa-clipboard-list" />
+                          </Link>
+                        </td>
+                        <td>
+                          <Link
+                            href={reportHref}
+                            className="clt-action-btn clt-ab-report"
+                            title="View BMI Report"
+                          >
+                            <i className="fas fa-chart-bar" />
+                          </Link>
+                        </td>
+                        <td>
+                          {dietReady ?
+                            <Link
+                              href={`/dashboard/clients/${encodeURIComponent(code)}/diet`}
+                              className="clt-action-btn clt-ab-report"
+                              title="View Diet Chart"
+                            >
+                              <i className="fas fa-utensils" />
+                            </Link>
+                          : <span
+                              className="clt-action-btn"
+                              style={{ opacity: 0.3, cursor: "not-allowed" }}
+                              title="Lifestyle & Current Diet not captured yet"
+                            >
+                              <i className="fas fa-utensils" />
+                            </span>
+                          }
+                        </td>
+                      </tr>
+                    );
+                  })
+                }
               </tbody>
             </table>
           </div>
-
-          {/* Mobile: compact list, still web-native (not portrait cards) */}
-          <ul className="mc-roster divide-y divide-line md:hidden">
-            {rows.map((client) => {
-              const code = client.clientCode;
-              if (!code) return null;
-              return (
-                <li key={code}>
-                  <Link
-                    href={`/dashboard/clients/${encodeURIComponent(code)}`}
-                    className="flex min-h-11 items-start justify-between gap-3 px-4 py-3.5 transition hover:bg-paper"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate font-display font-bold text-ink">
-                        {client.name || "Unnamed client"}
-                      </p>
-                      <p className="mt-0.5 truncate text-sm text-ink-muted">
-                        {[
-                          client.mobileNo,
-                          client.age != null ? `${client.age} yrs` : null,
-                          client.lastCheckupDate,
-                        ]
-                          .filter(Boolean)
-                          .join(", ") || "No contact details"}
-                      </p>
-                    </div>
-                    {client.status ?
-                      <span
-                        className={cn(
-                          "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold",
-                          statusTone(client.status),
-                        )}
-                      >
-                        {client.status}
-                      </span>
-                    : <span className="shrink-0 text-sm font-semibold text-mc-secondary">
-                        Open
-                      </span>
-                    }
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </>
-      }
+          <CltPager
+            page={paged.page}
+            pages={paged.pages}
+            start={paged.start}
+            end={paged.end}
+            total={paged.total}
+            onPage={paged.setPage}
+          />
+        </div>
+      </div>
     </div>
   );
 }

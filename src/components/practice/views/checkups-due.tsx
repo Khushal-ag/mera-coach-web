@@ -3,145 +3,216 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
-import { ArrowRight, CalendarClock } from "lucide-react";
-
 import type { RecheckupDueClient } from "@/types/practice";
 
 import { useAuth } from "@/components/auth-provider";
 import {
-  PracticeEmpty,
-  PracticePageHeader,
-  PracticeSearch,
-} from "@/components/practice/page-header";
-import { CheckupListSkeleton } from "@/components/skeletons/table-skeleton";
-import { AlertBanner } from "@/components/ui/alert-banner";
+  CltPageHead,
+  CltPager,
+  CltSearchCard,
+  CltTableTools,
+  usePagedRows,
+} from "@/components/practice/clt-list";
 import { fetchRecheckupList } from "@/lib/api/practice";
 
 export function CheckupsDueView() {
   const { session } = useAuth();
-  const [due, setDue] = useState<RecheckupDueClient[]>([]);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [due, setDue] = useState<RecheckupDueClient[] | null>(null);
+  const [option, setOption] = useState("");
+  const [text, setText] = useState("");
+  const [query, setQuery] = useState("");
+  const [perPage, setPerPage] = useState(10);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState({ option: "", text: "" });
 
   useEffect(() => {
     if (!session?.coachCode) return;
     let cancelled = false;
     const coachCode = session.coachCode;
     const timer = window.setTimeout(() => {
-      setLoading(true);
       setError(null);
-      void fetchRecheckupList({ coachCode })
+      void fetchRecheckupList({
+        coachCode,
+        searchOption: search.option,
+        searchText: search.text,
+      })
         .then((rows) => {
           if (!cancelled) setDue(rows);
         })
         .catch((err) => {
-          if (!cancelled)
+          if (!cancelled) {
             setError(
-              err instanceof Error ? err.message : "Could not load checkups.",
+              err instanceof Error ? err.message : "Failed to load list.",
             );
-        })
-        .finally(() => {
-          if (!cancelled) setLoading(false);
+            setDue([]);
+          }
         });
     }, 0);
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [session?.coachCode]);
+  }, [session?.coachCode, search]);
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return due;
-    return due.filter(
-      (d) => d.name.toLowerCase().includes(q) || (d.mobileNo ?? "").includes(q),
+    const q = query.trim().toLowerCase();
+    const list = due ?? [];
+    if (!q) return list;
+    return list.filter((item) =>
+      [item.name, item.mobileNo, item.age, item.lastCheckupDate, item.dueDate]
+        .filter((value) => value != null)
+        .join(" ")
+        .toLowerCase()
+        .includes(q),
     );
-  }, [due, search]);
+  }, [due, query]);
+
+  const paged = usePagedRows(filtered, perPage);
+  const badge = due == null ? "Loading…" : `${paged.total} Due`;
 
   return (
     <div>
-      <PracticePageHeader
-        title="Checkups"
-        description="Start a recheckup for clients who need a follow-up."
-        icon={<CalendarClock className="size-5" aria-hidden />}
-      />
-
-      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <PracticeSearch
-          id="checkup-search"
-          label="Search"
-          placeholder="Name or mobile"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="max-w-sm"
-        />
-        {!loading ?
-          <p className="text-sm text-ink-muted">{filtered.length} due</p>
-        : null}
-      </div>
-
+      <CltPageHead title="Re-checkup Due" crumb="Re-checkup" />
       {error ?
-        <AlertBanner tone="error">{error}</AlertBanner>
+        <p className="rg-alert">{error}</p>
       : null}
-
-      {loading ?
-        <CheckupListSkeleton rows={5} />
-      : filtered.length === 0 ?
-        <PracticeEmpty
-          icon={<CalendarClock className="size-5" aria-hidden />}
-          title={search.trim() ? "No matches" : "No checkups due"}
-          body={
-            search.trim() ?
-              "Try a different name or mobile number."
-            : "No clients are due for a re-checkup right now."
-          }
-        />
-      : <ul className="mc-roster divide-y divide-line">
-          {filtered.map((item) => (
-            <li
-              key={item.clientCode ?? item.name}
-              className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div className="min-w-0">
-                <p className="truncate font-semibold text-ink">{item.name}</p>
-                <p className="mt-0.5 truncate text-xs text-ink-muted">
-                  {[
-                    item.mobileNo,
-                    item.lastCheckupDate ?
-                      `Last checkup ${item.lastCheckupDate}`
-                    : null,
-                  ]
-                    .filter(Boolean)
-                    .join(", ") || "No contact details"}
-                </p>
-                <p
-                  className={
-                    item.daysOverdue > 0 ?
-                      "mt-1 text-sm font-medium text-[color:var(--mc-destructive)]"
-                    : "mt-1 text-sm text-ink-muted"
-                  }
-                >
-                  {item.daysOverdue > 0 ?
-                    `${item.daysOverdue}d overdue`
-                  : item.dueDate ?
-                    `Due ${item.dueDate}`
-                  : "Due soon"}
-                </p>
-              </div>
-              {item.clientCode ?
-                <Link
-                  href={`/dashboard/clients/${encodeURIComponent(item.clientCode)}?tab=checkup`}
-                  className="inline-flex min-h-11 items-center justify-center gap-1 text-sm font-semibold text-mc-secondary sm:shrink-0"
-                >
-                  Start checkup
-                  <ArrowRight className="size-3.5" aria-hidden />
-                </Link>
-              : null}
-            </li>
-          ))}
-        </ul>
-      }
+      <CltSearchCard
+        optionId="rcSearchOption"
+        textId="rcSearchText"
+        option={option}
+        text={text}
+        onOption={setOption}
+        onText={setText}
+        onSearch={() => {
+          setSearch({ option, text: text.trim() });
+          paged.setPage(1);
+        }}
+        onReset={() => {
+          setOption("");
+          setText("");
+          setQuery("");
+          setSearch({ option: "", text: "" });
+          paged.setPage(1);
+        }}
+      />
+      <div className="clt-card">
+        <div className="clt-card-header">
+          <h2>
+            <i className="fas fa-redo-alt" /> Due for Re-checkup
+          </h2>
+          <span className="clt-total-badge">{badge}</span>
+        </div>
+        <div className="clt-card-body">
+          <CltTableTools
+            selectId="rcEntriesSelect"
+            perPage={perPage}
+            onPerPage={(value) => {
+              setPerPage(value);
+              paged.setPage(1);
+            }}
+            query={query}
+            onQuery={(value) => {
+              setQuery(value);
+              paged.setPage(1);
+            }}
+          />
+          <div className="clt-table-wrap">
+            <table className="clt-table">
+              <thead>
+                <tr>
+                  <th>S. No.</th>
+                  <th>Client Name</th>
+                  <th>Mobile No.</th>
+                  <th>Age</th>
+                  <th>Last Check-up</th>
+                  <th>Due Date</th>
+                  <th>Overdue By</th>
+                  <th>Check-up</th>
+                </tr>
+              </thead>
+              <tbody>
+                {due == null ?
+                  <tr className="clt-skeleton-row">
+                    <td colSpan={8}>Loading…</td>
+                  </tr>
+                : paged.slice.length === 0 ?
+                  <tr className="clt-no-results">
+                    <td colSpan={8}>
+                      <i className="fas fa-check-circle" />
+                      No clients due for re-checkup.
+                    </td>
+                  </tr>
+                : paged.slice.map((item, index) => {
+                    const code = item.clientCode;
+                    return (
+                      <tr key={code ?? `${item.name}-${index}`}>
+                        <td className="clt-td-sno">
+                          {paged.start + index + 1}
+                        </td>
+                        <td>{item.name || "—"}</td>
+                        <td>
+                          {item.mobileNo ?
+                            <a
+                              href={`tel:${item.mobileNo}`}
+                              className="clt-mobile-link"
+                            >
+                              {item.mobileNo}
+                            </a>
+                          : "—"}
+                        </td>
+                        <td className="clt-td-num">{item.age ?? "—"}</td>
+                        <td>
+                          {item.lastCheckupDate ?
+                            <span className="clt-date-badge">
+                              <i className="fas fa-calendar-alt" />
+                              &nbsp;{item.lastCheckupDate}
+                            </span>
+                          : "—"}
+                        </td>
+                        <td>
+                          {item.dueDate ?
+                            <span className="clt-date-badge">
+                              <i className="fas fa-bell" />
+                              &nbsp;{item.dueDate}
+                            </span>
+                          : "—"}
+                        </td>
+                        <td
+                          className="clt-td-num"
+                          style={{ color: "#c0392b", fontWeight: 600 }}
+                        >
+                          {item.daysOverdue > 0 ?
+                            `${item.daysOverdue} day${item.daysOverdue === 1 ? "" : "s"}`
+                          : "Today"}
+                        </td>
+                        <td>
+                          {code ?
+                            <Link
+                              href={`/dashboard/clients/${encodeURIComponent(code)}/checkup`}
+                              className="clt-action-btn clt-ab-checkup"
+                              title="Check-up"
+                            >
+                              <i className="fas fa-clipboard-list" />
+                            </Link>
+                          : "—"}
+                        </td>
+                      </tr>
+                    );
+                  })
+                }
+              </tbody>
+            </table>
+          </div>
+          <CltPager
+            page={paged.page}
+            pages={paged.pages}
+            start={paged.start}
+            end={paged.end}
+            total={paged.total}
+            onPage={paged.setPage}
+          />
+        </div>
+      </div>
     </div>
   );
 }

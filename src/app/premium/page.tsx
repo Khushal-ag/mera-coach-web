@@ -1,33 +1,20 @@
 import { Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
-
-import { Check, Crown } from "lucide-react";
 
 import type { CoachCatalogPlan, CoachSuggestedPromo } from "@/types/premium";
 
-import { PageBanner } from "@/components/marketing/page-banner";
 import { PremiumCheckoutAuth } from "@/components/premium-checkout-auth";
 import { PremiumPlansSkeleton } from "@/components/skeletons/premium-plans-skeleton";
-import { AlertBanner } from "@/components/ui/alert-banner";
-import { photography } from "@/config/photography";
 import { fetchPremiumPlans, firstApiError, isApiSuccess } from "@/lib/api";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
-  title: "Premium",
+  title: "Premium | Mera Coach",
   description:
     "Grow your coaching business with Mera Coach Premium. Unlimited clients, packages, and coaching tools. Secure checkout on the website.",
   path: "/premium",
+  absolute: true,
 });
-
-const FALLBACK_FEATURES = [
-  "Unlimited client management",
-  "Unlimited follow-ups and progress tracking",
-  "Unlimited coaching packages",
-  "Coach profile, gallery, photos and videos",
-  "All Mera Coach features included",
-] as const;
 
 type SearchParams = Promise<{
   coachId?: string;
@@ -41,56 +28,35 @@ export default function PremiumPage({
   searchParams: SearchParams;
 }) {
   return (
-    <>
-      <PageBanner
-        crumbs={[{ label: "Home", href: "/" }, { label: "Premium" }]}
-        eyebrow="For coaches"
-        title="Grow the practice with"
-        emphasis="Premium"
-        subtitle="Unlimited clients, packages, and the public page tools. One plan, checkout on the website."
-      />
-      <section className="bg-mc-secondary-light py-10 sm:py-14">
-        <div className="container grid max-w-6xl gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-          <aside className="space-y-5">
-            <div className="relative aspect-[16/10] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(44,24,16,0.12)]">
-              <Image
-                src={photography.premium}
-                alt="A quiet stretch in a coaching studio"
-                fill
-                priority
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 380px"
-              />
+    <div className="mc-public">
+      <div className="rg-page">
+        <div className="rg-card">
+          <div className="rg-card-head">
+            <div className="rg-head-blobs">
+              <div className="rg-hb rg-hb-1" />
+              <div className="rg-hb rg-hb-2" />
             </div>
-            <div className="rounded-[22px] border border-line bg-white p-5 shadow-[0_8px_24px_rgba(44,24,16,0.06)] sm:p-6">
-              <div className="flex items-center gap-3">
-                <span className="inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]">
-                  <Crown className="size-5" strokeWidth={1.75} aria-hidden />
-                </span>
-                <h2 className="font-display text-lg font-bold text-ink">
-                  What you get
-                </h2>
+            <div className="rg-head-inner">
+              <div className="rg-head-icon">
+                <i className="fas fa-crown" />
               </div>
-              <ul className="mt-4 space-y-3">
-                {FALLBACK_FEATURES.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3 text-sm">
-                    <Check
-                      className="mt-0.5 size-4 shrink-0 text-mc-secondary"
-                      strokeWidth={2.25}
-                      aria-hidden
-                    />
-                    <span className="text-ink">{feature}</span>
-                  </li>
-                ))}
-              </ul>
+              <div>
+                <h1>Premium</h1>
+                <p>
+                  Unlimited clients, packages, and the public page tools. One
+                  plan, checkout on the website.
+                </p>
+              </div>
             </div>
-          </aside>
-          <Suspense fallback={<PremiumPlansSkeleton />}>
-            <PremiumCatalog searchParams={searchParams} />
-          </Suspense>
+          </div>
+          <div className="rg-card-body">
+            <Suspense fallback={<PremiumPlansSkeleton />}>
+              <PremiumCatalog searchParams={searchParams} />
+            </Suspense>
+          </div>
         </div>
-      </section>
-    </>
+      </div>
+    </div>
   );
 }
 
@@ -106,6 +72,7 @@ async function PremiumCatalog({
 
   let plans: CoachCatalogPlan[] = [];
   let promo: CoachSuggestedPromo | null | undefined = null;
+  let features: string[] = [];
   let errorMessage: string | null = null;
 
   try {
@@ -115,6 +82,7 @@ async function PremiumCatalog({
     } else {
       plans = response.responseObj?.plans ?? [];
       promo = response.responseObj?.promo;
+      features = response.responseObj?.features ?? [];
     }
   } catch (error) {
     errorMessage =
@@ -122,33 +90,44 @@ async function PremiumCatalog({
   }
 
   return (
-    <div className="min-w-0">
+    <div>
       {fromAddClient ?
-        <AlertBanner tone="info" className="mb-5">
-          Adding a client needs an active subscription.
-        </AlertBanner>
+        <div className="rg-info-note" style={{ marginBottom: 20 }}>
+          <i className="fas fa-info-circle" />
+          <div>Adding a client needs an active subscription.</div>
+        </div>
       : null}
-
-      <div className="overflow-hidden rounded-[22px] border border-line bg-white p-4 shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:p-8">
-        {errorMessage ?
-          <AlertBanner tone="error" className="mb-6">
-            {errorMessage}
-          </AlertBanner>
-        : null}
-        <PremiumCheckoutAuth
-          plans={plans}
-          promo={promo}
-          initialCoachId={initialCoachId}
-          initialCoachCode={initialCoachCode}
-        />
-      </div>
-      <p className="mt-6 text-center text-sm text-ink-muted lg:text-left">
+      {errorMessage ?
+        <div className="rg-alert" style={{ marginBottom: 20 }}>
+          <i className="fas fa-exclamation-circle" />
+          <span>{errorMessage}</span>
+        </div>
+      : null}
+      {features.length > 0 ?
+        <ul className="rg-intro-items" style={{ marginBottom: 24 }}>
+          {features.map((feature) => (
+            <li key={feature} className="rg-ii">
+              <div className="rg-ii-icon rg-ii-green">
+                <i className="fas fa-check" />
+              </div>
+              <div className="rg-ii-body">
+                <strong>{feature}</strong>
+              </div>
+            </li>
+          ))}
+        </ul>
+      : plans.length === 0 && !errorMessage ?
+        <p>No premium plans are available right now.</p>
+      : null}
+      <PremiumCheckoutAuth
+        plans={plans}
+        promo={promo}
+        initialCoachId={initialCoachId}
+        initialCoachCode={initialCoachCode}
+      />
+      <p className="rg-card-foot" style={{ marginTop: 24 }}>
         Pay Now in the app opens checkout for your account. On the web, sign in
-        first. New here?{" "}
-        <Link href="/register" className="font-semibold text-mc-secondary">
-          Start as a Coach
-        </Link>
-        .
+        first. New here? <Link href="/register">Start as a Coach</Link>.
       </p>
     </div>
   );

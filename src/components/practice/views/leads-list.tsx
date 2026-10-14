@@ -1,26 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import { Inbox } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { EnquiryLead } from "@/types/practice";
 
 import { useAuth } from "@/components/auth-provider";
 import {
-  PracticeEmpty,
-  PracticePageHeader,
-} from "@/components/practice/page-header";
-import { LeadListSkeleton } from "@/components/skeletons/table-skeleton";
-import { AlertBanner } from "@/components/ui/alert-banner";
+  CltPageHead,
+  CltPager,
+  CltTableTools,
+  usePagedRows,
+} from "@/components/practice/clt-list";
 import { fetchEnquiryLeads, updateEnquiryLead } from "@/lib/api/practice";
-import { cn } from "@/lib/utils";
 
 export function LeadsListView() {
   const { session } = useAuth();
   const [leads, setLeads] = useState<EnquiryLead[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [perPage, setPerPage] = useState(10);
   const [savingId, setSavingId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -36,7 +34,7 @@ export function LeadsListView() {
         .catch((err) => {
           if (!cancelled) {
             setError(
-              err instanceof Error ? err.message : "Could not load leads.",
+              err instanceof Error ? err.message : "Failed to load leads.",
             );
             setLeads([]);
           }
@@ -48,20 +46,40 @@ export function LeadsListView() {
     };
   }, [session?.coachCode]);
 
-  async function toggleContacted(lead: EnquiryLead) {
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const list = leads ?? [];
+    if (!q) return list;
+    return list.filter((lead) =>
+      [
+        lead.clientName,
+        lead.clientMobile,
+        lead.clientEmail,
+        lead.lookingFor,
+        lead.notes,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(q),
+    );
+  }, [leads, query]);
+
+  const paged = usePagedRows(filtered, perPage);
+  const badge =
+    leads == null ? "Loading…" : (
+      `${paged.total} Lead${paged.total === 1 ? "" : "s"}`
+    );
+
+  async function toggleContacted(lead: EnquiryLead, checked: boolean) {
     setSavingId(lead.id);
     try {
-      await updateEnquiryLead({
-        leadId: lead.id,
-        isContacted: !lead.isContacted,
-      });
+      await updateEnquiryLead({ leadId: lead.id, isContacted: checked });
       setLeads((prev) =>
-        (prev ?? []).map((l) =>
-          l.id === lead.id ? { ...l, isContacted: !l.isContacted } : l,
+        (prev ?? []).map((item) =>
+          item.id === lead.id ? { ...item, isContacted: checked } : item,
         ),
       );
       setError(null);
-      setNotice(lead.isContacted ? "Lead reopened." : "Marked as contacted.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update lead.");
     } finally {
@@ -70,14 +88,16 @@ export function LeadsListView() {
   }
 
   async function saveNotes(lead: EnquiryLead, notes: string) {
+    if (notes === lead.notes) return;
     setSavingId(lead.id);
     try {
       await updateEnquiryLead({ leadId: lead.id, notes });
       setLeads((prev) =>
-        (prev ?? []).map((l) => (l.id === lead.id ? { ...l, notes } : l)),
+        (prev ?? []).map((item) =>
+          item.id === lead.id ? { ...item, notes } : item,
+        ),
       );
       setError(null);
-      setNotice("Notes saved.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save notes.");
     } finally {
@@ -85,117 +105,128 @@ export function LeadsListView() {
     }
   }
 
-  const openCount = leads?.filter((l) => !l.isContacted).length ?? 0;
-
   return (
     <div>
-      <PracticePageHeader
-        title="Leads"
-        description="Enquiries from your public profile and directory."
-        icon={<Inbox className="size-5" aria-hidden />}
-      />
+      <CltPageHead title="Leads" crumb="Leads" />
       {error ?
-        <AlertBanner tone="error">{error}</AlertBanner>
+        <p className="rg-alert">{error}</p>
       : null}
-      {notice ?
-        <AlertBanner tone="success">{notice}</AlertBanner>
-      : null}
-
-      {leads == null ?
-        <LeadListSkeleton rows={5} />
-      : !leads.length ?
-        <PracticeEmpty
-          icon={<Inbox className="size-5" aria-hidden />}
-          title="No leads yet"
-          body="When someone enquires on your public page, they show up here."
-        />
-      : <section className="mc-panel">
-          <div className="flex items-baseline justify-between gap-3 border-b border-line px-5 py-4">
-            <h2 className="font-display text-lg font-bold text-ink">
-              Enquiries
-            </h2>
-            <p className="text-sm text-ink-muted">
-              {openCount} open of {leads.length}
-            </p>
+      <div className="clt-card">
+        <div className="clt-card-header">
+          <h2>
+            <i className="fas fa-filter" /> Enquiry Leads
+          </h2>
+          <span className="clt-total-badge">{badge}</span>
+        </div>
+        <div className="clt-card-body">
+          <CltTableTools
+            selectId="ldEntriesSelect"
+            perPage={perPage}
+            onPerPage={(value) => {
+              setPerPage(value);
+              paged.setPage(1);
+            }}
+            query={query}
+            onQuery={(value) => {
+              setQuery(value);
+              paged.setPage(1);
+            }}
+          />
+          <div className="clt-table-wrap">
+            <table className="clt-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Mobile</th>
+                  <th>Email</th>
+                  <th>Looking For</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leads == null ?
+                  <tr className="clt-skeleton-row">
+                    <td colSpan={7}>Loading…</td>
+                  </tr>
+                : paged.slice.length === 0 ?
+                  <tr className="clt-no-results">
+                    <td colSpan={7}>
+                      <i className="fas fa-inbox" />
+                      No leads found.
+                    </td>
+                  </tr>
+                : paged.slice.map((lead) => (
+                    <tr key={lead.id}>
+                      <td>{lead.dateLabel || "—"}</td>
+                      <td>{lead.clientName || "—"}</td>
+                      <td>
+                        {lead.clientMobile ?
+                          <a
+                            href={`tel:${lead.clientMobile}`}
+                            className="clt-mobile-link"
+                          >
+                            {lead.clientMobile}
+                          </a>
+                        : "—"}
+                      </td>
+                      <td>
+                        {lead.clientEmail ?
+                          <a href={`mailto:${lead.clientEmail}`}>
+                            {lead.clientEmail}
+                          </a>
+                        : "—"}
+                      </td>
+                      <td>{lead.lookingFor || "—"}</td>
+                      <td>
+                        <label
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={lead.isContacted}
+                            disabled={savingId === lead.id}
+                            onChange={(event) =>
+                              void toggleContacted(lead, event.target.checked)
+                            }
+                          />
+                          {lead.isContacted ? "Contacted" : "New"}
+                        </label>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          className="clt-form-control"
+                          style={{ minWidth: 140 }}
+                          placeholder="Add note…"
+                          defaultValue={lead.notes}
+                          disabled={savingId === lead.id}
+                          onBlur={(event) =>
+                            void saveNotes(lead, event.target.value)
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
           </div>
-          <ul className="divide-y divide-line">
-            {leads.map((lead) => (
-              <li
-                key={lead.id}
-                className={cn(
-                  "min-w-0 px-4 py-4 sm:px-[22px]",
-                  lead.isContacted && "bg-paper/70",
-                )}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-display font-bold text-ink">
-                      {lead.clientName || "Lead"}
-                    </p>
-                    <p className="mt-0.5 text-xs text-ink-muted">
-                      {lead.dateLabel || "Recent"}
-                      {lead.lookingFor ? `, ${lead.lookingFor}` : ""}
-                    </p>
-                  </div>
-                  <span
-                    className={cn(
-                      "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold",
-                      lead.isContacted ?
-                        "bg-paper-elevated text-ink-muted"
-                      : "bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]",
-                    )}
-                  >
-                    {lead.isContacted ? "Contacted" : "Open"}
-                  </span>
-                </div>
-                <div className="mt-3 flex flex-col gap-1 text-sm">
-                  {lead.clientMobile ?
-                    <a
-                      href={`tel:${lead.clientMobile}`}
-                      className="inline-flex min-h-11 items-center font-semibold break-all text-mc-secondary hover:underline"
-                    >
-                      {lead.clientMobile}
-                    </a>
-                  : null}
-                  {lead.clientEmail ?
-                    <a
-                      href={`mailto:${lead.clientEmail}`}
-                      className="inline-flex min-h-11 items-center break-all text-ink-muted hover:text-mc-secondary"
-                    >
-                      {lead.clientEmail}
-                    </a>
-                  : null}
-                </div>
-                <label className="mt-3 block">
-                  <span className="mc-field-label">
-                    Notes for {lead.clientName || "this lead"}
-                  </span>
-                  <textarea
-                    className="mc-field min-h-[4.5rem] w-full"
-                    defaultValue={lead.notes}
-                    onBlur={(e) => {
-                      const next = e.target.value.trim();
-                      if (next !== lead.notes) void saveNotes(lead, next);
-                    }}
-                  />
-                </label>
-                <button
-                  type="button"
-                  className="mc-btn-secondary mt-3 w-full sm:w-auto"
-                  disabled={savingId === lead.id}
-                  onClick={() => void toggleContacted(lead)}
-                >
-                  {savingId === lead.id ?
-                    "Saving"
-                  : lead.isContacted ?
-                    "Reopen"
-                  : "Mark contacted"}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      }
+          <CltPager
+            page={paged.page}
+            pages={paged.pages}
+            start={paged.start}
+            end={paged.end}
+            total={paged.total}
+            onPage={paged.setPage}
+          />
+        </div>
+      </div>
     </div>
   );
 }

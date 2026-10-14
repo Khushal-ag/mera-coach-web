@@ -1,5 +1,6 @@
-import { HeartPulse } from "lucide-react";
+import Image from "next/image";
 
+import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
 /**
@@ -17,8 +18,14 @@ export function BrandLockup({
 
   return (
     <span className={cn("inline-flex min-w-0 items-center gap-2.5", className)}>
-      <span className="inline-flex size-[42px] shrink-0 items-center justify-center rounded-xl bg-[image:var(--mc-gradient)] text-white">
-        <HeartPulse className="size-5" strokeWidth={2.25} aria-hidden />
+      <span className="inline-flex size-[42px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
+        <Image
+          src={siteConfig.brand.logoMark}
+          alt=""
+          width={42}
+          height={42}
+          className="size-full object-contain"
+        />
       </span>
       <span className="min-w-0 leading-tight">
         <span

@@ -1,31 +1,271 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 
-import { Download } from "lucide-react";
-
-import type { BmiReport } from "@/types/practice";
+import type { BmiMeasurement, BmiReport } from "@/types/practice";
 
 import { useAuth } from "@/components/auth-provider";
-import {
-  PracticeEmpty,
-  PracticePageHeader,
-} from "@/components/practice/page-header";
-import { ClientBmiSkeleton } from "@/components/skeletons/client-profile-skeleton";
-import { AlertBanner } from "@/components/ui/alert-banner";
 import { downloadAuthedPdf } from "@/lib/api/pdf";
 import { fetchBmiReport } from "@/lib/api/practice";
-import { formatBmi, getBmi, getBmiCategory } from "@/lib/bmi";
 
-function historyBmiLabel(row: {
-  bmi?: number | null;
-  height?: string | number | null;
-  weight?: string | number | null;
+function fmt(value: number | null | undefined, digits: number) {
+  if (value == null || Number.isNaN(value)) return "—";
+  return Number(value).toFixed(digits);
+}
+
+function bmiTone(bmi?: number | null) {
+  if (bmi == null || bmi <= 0)
+    return { color: "neutral", label: "—", sub: "No BMI yet" };
+  if (bmi < 18.5)
+    return { color: "warn", label: "Underweight", sub: "Below normal range" };
+  if (bmi < 25) return { color: "ok", label: "Normal", sub: "Healthy range" };
+  if (bmi < 30)
+    return { color: "warn", label: "Overweight", sub: "Above normal" };
+  if (bmi < 35)
+    return { color: "danger", label: "Obese I", sub: "Requires attention" };
+  if (bmi < 40)
+    return { color: "danger", label: "Obese II", sub: "Requires attention" };
+  return { color: "danger", label: "Obese III", sub: "Requires attention" };
+}
+
+function fatTone(fat: number | null | undefined, gender?: string) {
+  const male = gender === "M";
+  const norm = male ? "M norm: 10–20%" : "F norm: 18–28%";
+  if (fat == null) return { color: "neutral", norm };
+  const high = male ? fat > 25 : fat > 32;
+  return { color: high ? "danger" : "ok", norm };
+}
+
+function initials(name?: string) {
+  const words = (name ?? "").trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return "?";
+  if (words.length === 1) return words[0]!.slice(0, 2).toUpperCase();
+  return `${words[0]![0]}${words[words.length - 1]![0]}`.toUpperCase();
+}
+
+function genderLabel(gender?: string) {
+  if (gender === "M") return "Male";
+  if (gender === "F") return "Female";
+  return gender || "—";
+}
+
+function chipClass(bmi?: number) {
+  if (bmi == null) return "o";
+  if (bmi >= 25) return "r";
+  if (bmi >= 18.5) return "g";
+  return "o";
+}
+
+function HistoryRow({
+  row,
+  latest,
+  gender,
+}: {
+  row: BmiMeasurement;
+  latest?: boolean;
+  gender?: string;
 }) {
-  if (row.bmi && row.bmi > 0) return formatBmi(row.bmi);
-  const computed = getBmi(row.height ?? "", row.weight ?? "");
-  return computed ? formatBmi(computed) : "-";
+  const fatHigh =
+    gender === "M" ? (row.bodyFatPct ?? 0) > 25 : (row.bodyFatPct ?? 0) > 32;
+  return (
+    <tr className={latest ? "latest" : undefined}>
+      <td>{row.assessmentDate || "—"}</td>
+      <td>{row.height ?? "—"}</td>
+      <td>{fmt(row.weight, 3)}</td>
+      <td>
+        {latest && row.bodyFatPct != null ?
+          <span className={`chip ${fatHigh ? "r" : "g"}`}>
+            {fmt(row.bodyFatPct, 2)}
+          </span>
+        : fmt(row.bodyFatPct, 2)}
+      </td>
+      <td>{row.visceralFat ?? "—"}</td>
+      <td>
+        {row.skeletalMusclePct && row.skeletalMusclePct > 0 ?
+          fmt(row.skeletalMusclePct, 2)
+        : "—"}
+      </td>
+      <td>{row.bodyAge && row.bodyAge > 0 ? `${row.bodyAge} yrs` : "—"}</td>
+      <td>
+        {row.restingMetabolism && row.restingMetabolism > 0 ?
+          row.restingMetabolism.toLocaleString()
+        : "—"}
+      </td>
+      <td>
+        {latest && row.bmi != null ?
+          <span className={`chip ${chipClass(row.bmi)}`}>
+            {fmt(row.bmi, 2)}
+          </span>
+        : fmt(row.bmi, 2)}
+      </td>
+    </tr>
+  );
+}
+
+function ReportBody({ report }: { report: BmiReport }) {
+  const current = report.current;
+  const tone = bmiTone(current?.bmi);
+  const fat = fatTone(current?.bodyFatPct, report.client.gender);
+  const delta = report.weightDelta;
+  const needsToLose = (delta ?? 0) > 0;
+  const coachLabel = report.coach.businessName || report.coach.coachName || "—";
+  const address = [
+    report.coach.address,
+    report.coach.email,
+    report.coach.mobile,
+  ]
+    .filter(Boolean)
+    .join(" | ");
+
+  return (
+    <div className="page">
+      <div className="header-card">
+        <div className="brand">
+          {report.coach.logoUrl ?
+            <img className="brand-logo" src={report.coach.logoUrl} alt="" />
+          : <div className="brand-initials">{initials(coachLabel)}</div>}
+          <div className="brand-text">
+            <h1>{coachLabel}</h1>
+            <p>{address || "—"}</p>
+          </div>
+        </div>
+        <div className="patient-info">
+          <div className="pi-item">
+            <label>Patient</label>
+            <span>{report.client.clientName || "—"}</span>
+          </div>
+          <div className="pi-item">
+            <label>Age / Sex</label>
+            <span>{`${report.client.age || "—"} Yrs / ${genderLabel(report.client.gender)}`}</span>
+          </div>
+          <div className="pi-item">
+            <label>Location</label>
+            <span>{report.client.location || "—"}</span>
+          </div>
+          <div className="pi-item">
+            <label>Date</label>
+            <span>{current?.assessmentDate || report.reportDate || "—"}</span>
+          </div>
+        </div>
+      </div>
+      <div className="stat-row">
+        <div className={`stat-card ${tone.color}`}>
+          <div className="stat-label">Classification</div>
+          <div className={`stat-value ${tone.color}`}>
+            {report.bmiCategory || tone.label}
+          </div>
+          <div className="stat-sub">{tone.sub}</div>
+        </div>
+        <div className={`stat-card ${tone.color}`}>
+          <div className="stat-label">Current BMI</div>
+          <div className={`stat-value ${tone.color}`}>
+            {fmt(current?.bmi, 2)}
+          </div>
+          <div className="stat-sub">Range: 18.5–24.9 normal</div>
+        </div>
+        <div className={`stat-card ${fat.color}`}>
+          <div className="stat-label">Body Fat %</div>
+          <div className={`stat-value ${fat.color}`}>
+            {current?.bodyFatPct != null ?
+              `${fmt(current.bodyFatPct, 2)}%`
+            : "—"}
+          </div>
+          <div className="stat-sub">{fat.norm}</div>
+        </div>
+        <div className="stat-card ok">
+          <div className="stat-label">Target Weight</div>
+          <div className="stat-value ok">{fmt(report.targetWeight, 2)}</div>
+          <div className="stat-sub">kg to achieve</div>
+        </div>
+        <div
+          className={`stat-card ${
+            delta == null ? "neutral"
+            : needsToLose ? "neutral"
+            : "ok"
+          }`}
+        >
+          <div className="stat-label">
+            {delta == null ?
+              "Weight goal"
+            : needsToLose ?
+              "To Lose"
+            : "To Gain"}
+          </div>
+          <div
+            className={`stat-value ${
+              delta == null ? "neutral"
+              : needsToLose ? "neutral"
+              : "ok"
+            }`}
+          >
+            {delta == null ?
+              "—"
+            : `${needsToLose ? "−" : "+"}${Math.abs(delta).toFixed(1)}`}
+          </div>
+          <div className="stat-sub">kg total goal</div>
+        </div>
+      </div>
+      <div className="table-card">
+        <div className="card-header">
+          <h2>Measurement History</h2>
+          <div className="tag">BMI Report</div>
+        </div>
+        <div className="clt-table-wrap">
+          <table className="h-table">
+            <thead>
+              <tr>
+                {[
+                  "Date",
+                  "Ht (cm)",
+                  "Wt (kg)",
+                  "FAT %",
+                  "VFA",
+                  "SM %",
+                  "Body Age",
+                  "RM (kcal)",
+                  "BMI",
+                ].map((heading) => (
+                  <th key={heading}>{heading}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <HistoryRow
+                row={current ?? {}}
+                latest
+                gender={report.client.gender}
+              />
+              {report.history && report.history.length > 0 ?
+                <>
+                  <tr className="sep-row">
+                    <td colSpan={9}>— Past History —</td>
+                  </tr>
+                  {report.history.map((row, index) => (
+                    <HistoryRow
+                      key={`${row.assessmentDate ?? "row"}-${index}`}
+                      row={row}
+                      gender={report.client.gender}
+                    />
+                  ))}
+                </>
+              : null}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div className="footer-card">
+        Consult a doctor before making changes if: Pregnant · Heart disease ·
+        Kidney conditions · Any serious medical illness.
+        <br />
+        <strong>
+          THIS REPORT IS FOR INFORMATIONAL PURPOSES ONLY. WE DON&apos;T DIAGNOSE
+          OR TREAT ANY MEDICAL CONDITION.
+        </strong>
+      </div>
+    </div>
+  );
 }
 
 export function ClientBmiReportView({
@@ -56,7 +296,7 @@ export function ClientBmiReportView({
         .catch((err) => {
           if (!cancelled)
             setError(
-              err instanceof Error ? err.message : "Could not load BMI report.",
+              err instanceof Error ? err.message : "Failed to load report.",
             );
         })
         .finally(() => {
@@ -69,14 +309,6 @@ export function ClientBmiReportView({
     };
   }, [session?.coachCode, code]);
 
-  const current = report?.current;
-  const displayBmi =
-    current?.bmi && current.bmi > 0 ?
-      current.bmi
-    : getBmi(current?.height ?? "", current?.weight ?? "");
-  const category =
-    report?.bmiCategory || getBmiCategory(displayBmi)?.label || "-";
-
   async function onPdf() {
     if (!session?.coachCode) return;
     setPdfBusy(true);
@@ -84,10 +316,7 @@ export function ClientBmiReportView({
     try {
       await downloadAuthedPdf(
         "v1/Client/bmi-report-pdf",
-        {
-          coachCode: session.coachCode,
-          clientCode: code,
-        },
+        { coachCode: session.coachCode, clientCode: code },
         "bmi-report.pdf",
       );
     } catch (err) {
@@ -99,218 +328,41 @@ export function ClientBmiReportView({
     }
   }
 
-  const clientName = report?.client.clientName?.trim() || "Client";
   const clientHref = `/dashboard/clients/${encodeURIComponent(code)}`;
-  const description =
-    clientName === "Client" ?
-      report?.reportDate ?
-        `Latest measurements, ${report.reportDate}.`
-      : "Measurements from this client's checkups."
-    : report?.reportDate ?
-      `Latest measurements for ${clientName}, ${report.reportDate}.`
-    : `Measurements from ${clientName}'s checkups.`;
-  const reportActions = (
-    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end print:hidden">
-      <button
-        type="button"
-        className="mc-btn-secondary w-full sm:w-auto"
-        onClick={() => window.print()}
-      >
-        Print
-      </button>
-      <button
-        type="button"
-        className="mc-btn-primary w-full sm:w-auto"
-        disabled={pdfBusy}
-        onClick={() => void onPdf()}
-      >
-        <Download className="size-4" aria-hidden />
-        {pdfBusy ? "Preparing…" : "Download PDF"}
-      </button>
-    </div>
-  );
 
   return (
-    <div className="min-w-0 print:max-w-none">
-      {embedded ?
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="font-display text-xl font-bold tracking-tight text-ink">
-              BMI report
-            </h2>
-            <p className="mt-1 text-sm text-ink-muted">{description}</p>
-          </div>
-          {reportActions}
-        </div>
-      : <PracticePageHeader
-          title="BMI report"
-          back={{
-            href: clientHref,
-            label: `Back to ${clientName === "Client" ? "client" : clientName}`,
-          }}
-          description={description}
-          className="print:shadow-none"
-          action={reportActions}
-        />
-      }
-
-      {error ?
-        <AlertBanner tone="error">{error}</AlertBanner>
-      : null}
+    <div className="bmi-report">
+      <div className="print-bar">
+        {embedded ? null : (
+          <Link href={clientHref} className="btn-back">
+            ← Back
+          </Link>
+        )}
+        <button
+          type="button"
+          className="btn-pdf"
+          disabled={pdfBusy}
+          onClick={() => void onPdf()}
+        >
+          {pdfBusy ? "Preparing…" : "Download PDF"}
+        </button>
+      </div>
       {pdfError ?
-        <AlertBanner tone="error">{pdfError}</AlertBanner>
+        <div className="error-card">{pdfError}</div>
       : null}
-
       {loading ?
-        <ClientBmiSkeleton />
-      : !report ?
-        <PracticeEmpty
-          title="No BMI report yet"
-          body="Run a checkup to capture measurements for this client."
-        />
-      : <div className="space-y-8">
-          <section aria-labelledby="current-metrics" className="mc-panel">
-            <div className="grid lg:grid-cols-[minmax(0,16rem)_1fr]">
-              <div className="bg-mc-secondary px-6 py-6 text-white">
-                <p className="font-display text-sm font-semibold text-white/80">
-                  BMI
-                </p>
-                <p className="mt-2 font-display text-6xl leading-none font-bold tabular-nums">
-                  {displayBmi != null ? formatBmi(displayBmi) : "-"}
-                </p>
-                <p className="mt-3 text-sm text-white/80">{category}</p>
-              </div>
-              <div className="px-5 py-5 sm:px-6">
-                <h2
-                  id="current-metrics"
-                  className="font-display text-lg font-bold tracking-tight text-ink"
-                >
-                  Current metrics
-                </h2>
-                <dl className="mt-4 grid gap-x-6 gap-y-5 border-t border-line pt-4 sm:grid-cols-2">
-                  {(
-                    [
-                      [
-                        "Weight",
-                        current?.weight != null ? `${current.weight} kg` : "-",
-                      ],
-                      [
-                        "Height",
-                        current?.height != null ? `${current.height} cm` : "-",
-                      ],
-                      [
-                        "Body fat",
-                        current?.bodyFatPct != null ?
-                          `${current.bodyFatPct}%`
-                        : "-",
-                      ],
-                      [
-                        "Visceral fat",
-                        current?.visceralFat != null ?
-                          String(current.visceralFat)
-                        : "-",
-                      ],
-                      [
-                        "Skeletal muscle",
-                        current?.skeletalMusclePct != null ?
-                          `${current.skeletalMusclePct}%`
-                        : "-",
-                      ],
-                      [
-                        "Resting metabolism",
-                        current?.restingMetabolism != null ?
-                          `${current.restingMetabolism} kcal`
-                        : "-",
-                      ],
-                      [
-                        "Body age",
-                        current?.bodyAge != null ?
-                          `${current.bodyAge} yrs`
-                        : "-",
-                      ],
-                    ] as const
-                  ).map(([label, value]) => (
-                    <div key={label}>
-                      <dt className="text-xs font-medium text-ink-muted">
-                        {label}
-                      </dt>
-                      <dd className="mt-1 text-sm font-semibold text-ink">
-                        {value}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            </div>
-          </section>
-
-          {report.history && report.history.length > 0 ?
-            <section aria-labelledby="bmi-history">
-              <h2
-                id="bmi-history"
-                className="mb-4 font-display text-xl font-bold tracking-tight text-ink"
-              >
-                History
-              </h2>
-              <div className="mc-roster">
-                <ul className="divide-y divide-line md:hidden">
-                  {report.history.map((row, i) => (
-                    <li
-                      key={`${row.assessmentDate}-${i}`}
-                      className="px-4 py-3"
-                    >
-                      <p className="font-display font-bold text-ink">
-                        {row.assessmentDate || "Checkup"}
-                      </p>
-                      <p className="mt-1 text-sm text-ink-muted">
-                        BMI {historyBmiLabel(row)}
-                        {", "}
-                        {row.weight != null ? `${row.weight} kg` : "Weight -"}
-                        {", "}
-                        {row.bodyFatPct != null ?
-                          `${row.bodyFatPct}% fat`
-                        : "Body fat -"}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-                <div className="hidden overflow-x-auto md:block">
-                  <table className="w-full text-left text-sm">
-                    <thead className="mc-roster-head">
-                      <tr>
-                        <th className="px-4 py-2">Date</th>
-                        <th className="px-4 py-2">BMI</th>
-                        <th className="px-4 py-2">Weight</th>
-                        <th className="px-4 py-2">Body fat</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-line">
-                      {report.history.map((row, i) => (
-                        <tr key={`${row.assessmentDate}-${i}`}>
-                          <td className="px-4 py-2">
-                            {row.assessmentDate || "-"}
-                          </td>
-                          <td className="px-4 py-2 tabular-nums">
-                            {historyBmiLabel(row)}
-                          </td>
-                          <td className="px-4 py-2 tabular-nums">
-                            {row.weight ?? "-"}
-                          </td>
-                          <td className="px-4 py-2 tabular-nums">
-                            {row.bodyFatPct != null ?
-                              `${row.bodyFatPct}%`
-                            : "-"}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </section>
-          : null}
+        <div className="loading-wrap">
+          <p>Loading report…</p>
         </div>
-      }
+      : error ?
+        <div className="error-card">
+          <strong>Error:</strong> {error}
+        </div>
+      : !report ?
+        <div className="error-card">
+          BMI Health Report is not available for this client.
+        </div>
+      : <ReportBody report={report} />}
     </div>
   );
 }

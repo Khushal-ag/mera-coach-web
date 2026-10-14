@@ -1,21 +1,14 @@
 "use client";
 
-import { useEffect, useId, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { Menu, X } from "lucide-react";
+import type { ReactNode } from "react";
 
 import { useAuth } from "@/components/auth-provider";
-import { BrandLockup } from "@/components/brand-lockup";
 import { siteConfig } from "@/config/site";
-import { cn } from "@/lib/utils";
-
-/** Match nav hrefs on segment boundaries so `/coach` does not highlight on `/coach-login`. */
-function isNavActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
 
 const headerListeners = new Set<() => void>();
 let headerHydrated = false;
@@ -34,7 +27,6 @@ function subscribeHeaderHydration(listener: () => void) {
   };
 }
 
-/** False for SSR and the hydrating render. True after that paint. */
 function useHeaderHydrated() {
   return useSyncExternalStore(
     subscribeHeaderHydration,
@@ -50,74 +42,50 @@ function premiumHref(session: { coachId: number; coachCode: string }) {
   return qs.toString() ? `/premium?${qs.toString()}` : "/premium";
 }
 
-function HeaderActions({
-  surface,
-  signedIn,
-  session,
-  onNavigate,
-  onLogout,
-}: {
-  surface: "light" | "dark";
-  signedIn: boolean;
-  session: { coachId: number; coachCode: string } | null;
-  onNavigate: () => void;
-  onLogout: () => void;
-}) {
-  // Stay on Login / Join through hydration. A stored session is applied
-  // only after that first paint, so it cannot disagree with the server HTML.
-  const hydrated = useHeaderHydrated();
+function isNavActive(pathname: string, href: string) {
+  if (href === "#") return false;
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
-  const width = surface === "dark" ? "w-full" : "w-full sm:w-auto";
-  const secondary =
-    surface === "dark" ?
-      `mc-btn-outline-on-dark min-h-11 justify-center px-4 text-sm ${width}`
-    : `mc-btn-secondary min-h-11 justify-center px-4 text-sm ${width}`;
-  const primary = `mc-btn-primary min-h-11 justify-center px-5 text-sm ${width}`;
-  if (hydrated && signedIn && session) {
+function NavAnchor({
+  href,
+  className,
+  children,
+  onClick,
+}: {
+  href: string;
+  className?: string;
+  children: ReactNode;
+  onClick?: () => void;
+}) {
+  if (href === "#") {
     return (
-      <>
-        <Link
-          href={premiumHref(session)}
-          className={secondary}
-          onClick={onNavigate}
-        >
-          Premium
-        </Link>
-        <Link href="/dashboard" className={secondary} onClick={onNavigate}>
-          Dashboard
-        </Link>
-        <button type="button" className={primary} onClick={onLogout}>
-          Logout
-        </button>
-      </>
+      <a href="#" className={className} onClick={onClick}>
+        {children}
+      </a>
     );
   }
-
   return (
-    <>
-      <Link href="/coach-login" className={secondary} onClick={onNavigate}>
-        Login
-      </Link>
-      <Link href="/register" className={primary} onClick={onNavigate}>
-        Join Free
-      </Link>
-    </>
+    <Link href={href} className={className} onClick={onClick}>
+      {children}
+    </Link>
   );
 }
 
 export function SiteHeader() {
   const pathname = usePathname();
   const { session, ready, logout } = useAuth();
+  const hydrated = useHeaderHydrated();
   const [open, setOpen] = useState(false);
   const [openForPath, setOpenForPath] = useState(pathname);
-  const navId = useId();
 
   if (openForPath !== pathname) {
     setOpenForPath(pathname);
     if (open) setOpen(false);
   }
 
-  const signedIn = ready && !!session;
+  const signedIn = hydrated && ready && !!session;
 
   useEffect(() => {
     if (!open) return;
@@ -133,135 +101,156 @@ export function SiteHeader() {
     };
   }, [open]);
 
-  const linkClass = (href: string) =>
-    cn(
-      "flex min-h-11 items-center rounded-lg px-4 font-display text-sm font-medium whitespace-nowrap transition-colors",
-      isNavActive(pathname, href) ?
-        "bg-mc-primary-light font-semibold text-mc-primary"
-      : "text-ink hover:bg-mc-primary-light hover:text-mc-primary",
-    );
-
-  const actions = (
-    <HeaderActions
-      surface="light"
-      signedIn={signedIn}
-      session={session}
-      onNavigate={() => setOpen(false)}
-      onLogout={() => {
-        setOpen(false);
-        void logout();
-      }}
-    />
-  );
+  const close = () => setOpen(false);
 
   return (
-    <header className="sticky top-0 z-50">
-      <div className="bg-[color:var(--paper)]/96 text-ink shadow-[0_1px_20px_rgba(44,24,16,0.08)] backdrop-blur-md">
-        <div className="container flex h-[4.5rem] items-center justify-between gap-3">
-          <Link
-            href="/"
-            className="flex min-h-11 min-w-0 items-center"
-            onClick={() => setOpen(false)}
-            aria-label={siteConfig.name}
-          >
-            <BrandLockup variant="workspace" />
-          </Link>
-
-          <nav className="hidden min-w-0 flex-1 items-center justify-center lg:flex">
-            <ul className="flex items-center gap-0.5">
-              {siteConfig.nav.map((item) => {
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={linkClass(item.href)}
-                      aria-current={
-                        isNavActive(pathname, item.href) ? "page" : undefined
-                      }
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-
-          <div className="hidden items-center gap-2 lg:flex">{actions}</div>
-
-          <button
-            type="button"
-            className="inline-flex size-11 shrink-0 items-center justify-center rounded-[10px] border-2 border-mc-secondary bg-white text-mc-secondary lg:hidden"
-            aria-expanded={open}
-            aria-controls={navId}
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ?
-              <X className="size-5" aria-hidden />
-            : <Menu className="size-5" aria-hidden />}
-          </button>
-        </div>
-      </div>
-
-      {open ?
-        <div className="lg:hidden">
-          <button
-            type="button"
-            className="fixed inset-0 z-40 bg-black/40"
-            aria-label="Close menu"
-            onClick={() => setOpen(false)}
-          />
-          <aside
-            id={navId}
-            className="fixed inset-y-0 right-0 z-50 flex w-[min(20rem,calc(100vw-2.5rem))] flex-col border-l border-line bg-white px-5 py-6 text-ink shadow-[-12px_0_40px_rgba(44,24,16,0.16)]"
-          >
-            <div className="flex items-center justify-end">
-              <button
-                type="button"
-                className="inline-flex size-11 items-center justify-center rounded-xl border-2 border-mc-secondary bg-white text-mc-secondary"
-                aria-label="Close menu"
-                onClick={() => setOpen(false)}
-              >
-                <X className="size-5" aria-hidden />
-              </button>
-            </div>
-            <nav className="mt-8 flex flex-1 flex-col gap-1">
-              {siteConfig.nav.map((item) => {
-                const active = isNavActive(pathname, item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      "flex min-h-12 items-center rounded-xl px-3 font-display text-base font-semibold",
-                      active ?
-                        "bg-mc-primary-light text-mc-primary"
-                      : "text-ink hover:bg-mc-primary-light hover:text-mc-primary",
-                    )}
-                    aria-current={active ? "page" : undefined}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-            <div className="flex flex-col gap-2 border-t border-line pt-4">
-              <HeaderActions
-                surface="light"
-                signedIn={signedIn}
-                session={session}
-                onNavigate={() => setOpen(false)}
-                onLogout={() => {
-                  setOpen(false);
-                  void logout();
-                }}
+    <header className="mc-public">
+      <nav className="navbar" id="navbar">
+        <div className="container">
+          <Link href="/" className="nav-logo" onClick={close}>
+            <div className="nav-logo-icon">
+              <Image
+                src={siteConfig.brand.logoMark}
+                alt=""
+                width={42}
+                height={42}
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
             </div>
-          </aside>
+            <div className="nav-logo-text">
+              <span>Mera Coach</span>
+              <span>Wellness Platform</span>
+            </div>
+          </Link>
+          <div className="nav-links">
+            {siteConfig.nav.map((item) => (
+              <NavAnchor
+                key={item.label}
+                href={item.href}
+                className={
+                  isNavActive(pathname, item.href) ? "active" : undefined
+                }
+              >
+                {item.label}
+              </NavAnchor>
+            ))}
+          </div>
+          <div className="nav-actions">
+            {signedIn && session ?
+              <>
+                <Link href={premiumHref(session)} className="btn btn-outline">
+                  Premium
+                </Link>
+                <Link href="/dashboard" className="btn btn-outline">
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => {
+                    close();
+                    void logout();
+                  }}
+                >
+                  Logout
+                </button>
+              </>
+            : <>
+                <Link href="/coach-login" className="btn btn-outline">
+                  Login
+                </Link>
+                <Link href="/register" className="btn btn-primary">
+                  <i className="fas fa-user-plus" /> Join Free
+                </Link>
+              </>
+            }
+          </div>
+          <button
+            type="button"
+            className="hamburger"
+            id="hamburger"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((value) => !value)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
-      : null}
+      </nav>
+
+      <div
+        className={open ? "overlay show" : "overlay"}
+        id="overlay"
+        onClick={close}
+      />
+
+      <div className={open ? "mobile-nav open" : "mobile-nav"} id="mobileNav">
+        <button
+          type="button"
+          className="mobile-close"
+          onClick={close}
+          aria-label="Close menu"
+        >
+          <i className="fas fa-times" />
+        </button>
+        {siteConfig.nav.map((item) => (
+          <NavAnchor
+            key={`m-${item.label}`}
+            href={item.label === "Contact" ? "#" : item.href}
+            onClick={close}
+          >
+            {item.label}
+          </NavAnchor>
+        ))}
+        {signedIn && session ?
+          <>
+            <Link
+              href={premiumHref(session)}
+              className="btn btn-outline"
+              style={{ marginTop: 20 }}
+              onClick={close}
+            >
+              Premium
+            </Link>
+            <Link href="/dashboard" className="btn btn-outline" onClick={close}>
+              Dashboard
+            </Link>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => {
+                close();
+                void logout();
+              }}
+            >
+              Logout
+            </button>
+          </>
+        : <>
+            <Link
+              href="/coach-login"
+              className="btn btn-outline"
+              style={{ marginTop: 20 }}
+              onClick={close}
+            >
+              Login
+            </Link>
+            <Link href="/register" className="btn btn-primary" onClick={close}>
+              Join Free
+            </Link>
+            <Link
+              href="/register"
+              className="btn btn-secondary"
+              style={{ marginTop: 6 }}
+              onClick={close}
+            >
+              Become a Coach
+            </Link>
+          </>
+        }
+      </div>
     </header>
   );
 }

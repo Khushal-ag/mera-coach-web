@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+@import "./public.css";
+@import "./dashboard.css";
 
 /*
   Visual language from the old Mera Coach site (meracoachweb site.css).

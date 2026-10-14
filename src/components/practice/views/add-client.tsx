@@ -74,7 +74,7 @@ export function AddClientView() {
     return (
       <div className="min-w-0 space-y-4">
         <PracticePageHeader
-          title="Add client"
+          title="New Client"
           crumbs={[
             { label: "Home", href: "/dashboard" },
             { label: "Clients", href: "/dashboard/clients" },
@@ -109,7 +109,7 @@ export function AddClientView() {
   return (
     <AssessmentWizard
       flow="add"
-      title="Add client"
+      title="New Client"
       description="Fill each section, then save it on the client."
       back={{ href: "/dashboard/clients", label: "Back to clients" }}
       coachCode={session.coachCode}

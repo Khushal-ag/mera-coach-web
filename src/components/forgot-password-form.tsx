@@ -4,8 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { AlertBanner } from "@/components/ui/alert-banner";
-import { TextField } from "@/components/ui/field";
 import { requestForgotPassword, resetCoachPassword } from "@/lib/api/practice";
 
 type Step = "request" | "confirm";
@@ -81,56 +79,72 @@ export function ForgotPasswordForm() {
 
   if (step === "confirm") {
     return (
-      <form
-        className="mx-auto w-full max-w-md space-y-5"
-        onSubmit={(e) => void onConfirm(e)}
-      >
+      <form className="lg-form" onSubmit={(e) => void onConfirm(e)}>
         {info ?
-          <AlertBanner tone="success">{info}</AlertBanner>
+          <div className="rg-info-note">
+            <i className="fas fa-check-circle" />
+            <div>{info}</div>
+          </div>
         : null}
         {error ?
-          <AlertBanner tone="error">{error}</AlertBanner>
+          <div className="rg-alert">
+            <i className="fas fa-exclamation-circle" />
+            <span>{error}</span>
+          </div>
         : null}
-        <TextField
-          label="Reset code"
-          autoComplete="one-time-code"
-          required
-          tone="light"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          disabled={busy}
-        />
-        <TextField
-          label="New password"
-          type="password"
-          autoComplete="new-password"
-          required
-          tone="light"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          disabled={busy}
-        />
-        <TextField
-          label="Confirm new password"
-          type="password"
-          autoComplete="new-password"
-          required
-          tone="light"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          disabled={busy}
-        />
-        <button
-          type="submit"
-          disabled={busy}
-          aria-busy={busy}
-          className="mc-btn-primary mc-btn-auth mt-1 w-full"
-        >
+        <div className="lg-field">
+          <label htmlFor="resetCode">
+            <i className="fas fa-key" /> Reset code
+          </label>
+          <div className="lg-input-wrap">
+            <input
+              id="resetCode"
+              autoComplete="one-time-code"
+              required
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              disabled={busy}
+            />
+          </div>
+        </div>
+        <div className="lg-field">
+          <label htmlFor="newPassword">
+            <i className="fas fa-lock" /> New password
+          </label>
+          <div className="lg-input-wrap">
+            <input
+              id="newPassword"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              disabled={busy}
+            />
+          </div>
+        </div>
+        <div className="lg-field">
+          <label htmlFor="confirmPassword">
+            <i className="fas fa-lock" /> Confirm new password
+          </label>
+          <div className="lg-input-wrap">
+            <input
+              id="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              disabled={busy}
+            />
+          </div>
+        </div>
+        <button type="submit" disabled={busy} className="lg-submit-btn">
           {busy ? "Updating password" : "Update password"}
         </button>
         <button
           type="button"
-          className="inline-flex min-h-11 w-full items-center justify-center text-sm font-semibold text-mc-secondary underline-offset-2 hover:underline"
+          className="btn rg-btn-back"
           disabled={busy}
           onClick={() => {
             setError(null);
@@ -140,50 +154,41 @@ export function ForgotPasswordForm() {
         >
           Back to email / mobile
         </button>
-        <p className="border-t border-line pt-5 text-center text-sm text-ink-muted">
-          <Link
-            href="/coach-login"
-            className="inline-flex min-h-11 items-center font-semibold text-mc-secondary hover:underline"
-          >
-            Back to sign in
-          </Link>
+        <p className="lg-register-link">
+          <Link href="/coach-login">Back to sign in</Link>
         </p>
       </form>
     );
   }
 
   return (
-    <form
-      className="mx-auto w-full max-w-md space-y-5"
-      onSubmit={(e) => void onRequest(e)}
-    >
+    <form className="lg-form" onSubmit={(e) => void onRequest(e)}>
       {error ?
-        <AlertBanner tone="error">{error}</AlertBanner>
+        <div className="rg-alert">
+          <i className="fas fa-exclamation-circle" />
+          <span>{error}</span>
+        </div>
       : null}
-      <TextField
-        label="Email or mobile"
-        required
-        autoComplete="username"
-        tone="light"
-        value={userName}
-        onChange={(e) => setUserName(e.target.value)}
-        disabled={busy}
-      />
-      <button
-        type="submit"
-        disabled={busy}
-        aria-busy={busy}
-        className="mc-btn-primary mc-btn-auth mt-1 w-full"
-      >
+      <div className="lg-field">
+        <label htmlFor="resetUser">
+          <i className="fas fa-user" /> Email or mobile
+        </label>
+        <div className="lg-input-wrap">
+          <input
+            id="resetUser"
+            autoComplete="username"
+            required
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            disabled={busy}
+          />
+        </div>
+      </div>
+      <button type="submit" disabled={busy} className="lg-submit-btn">
         {busy ? "Sending code" : "Send reset code"}
       </button>
-      <p className="border-t border-line pt-5 text-center text-sm text-ink-muted">
-        <Link
-          href="/coach-login"
-          className="inline-flex min-h-11 items-center font-semibold text-mc-secondary hover:underline"
-        >
-          Back to sign in
-        </Link>
+      <p className="lg-register-link">
+        <Link href="/coach-login">Back to sign in</Link>
       </p>
     </form>
   );

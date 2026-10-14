@@ -1,0 +1,913 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+
+import type { MasterOption } from "@/lib/api/master";
+import type { CoachPublicListItem } from "@/types/coach";
+
+import { MenuSelect } from "@/components/ui/menu-select";
+import { env } from "@/config/env";
+import { resolveMediaUrl } from "@/lib/media/media-url";
+
+type Query = {
+  search: string;
+  coachTypeCode: string;
+  country: string;
+  state: string;
+  city: string;
+  page: number;
+};
+
+const DEMO_CARDS = [
+  {
+    cat: "fitness",
+    image:
+      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=600&fit=crop&crop=faces&q=80",
+    name: "Rahul Sharma",
+    badge: "Fitness Trainer",
+    badgeClass: "",
+    specialty: "Fitness & Strength Training",
+    specClass: "",
+    rating: "4.9",
+    reviews: "238",
+    years: "8 Yrs",
+    city: "Delhi",
+    bio: "Certified strength and conditioning specialist helping clients build lean muscle and sustainable fitness habits.",
+    tags: ["Weight Loss", "Muscle Building", "HIIT"],
+    tagClass: "",
+    clients: "180+",
+  },
+  {
+    cat: "yoga",
+    image:
+      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&h=600&fit=crop&crop=faces&q=80",
+    name: "Priya Mehta",
+    badge: "Yoga Trainer",
+    badgeClass: "badge-yoga",
+    specialty: "Yoga & Mindfulness",
+    specClass: "spec-yoga",
+    rating: "5.0",
+    reviews: "314",
+    years: "10 Yrs",
+    city: "Mumbai",
+    bio: "RYT-500 certified yoga teacher specializing in therapeutic yoga, pranayama and guided meditation for all ages.",
+    tags: ["Meditation", "Pranayama", "Flexibility"],
+    tagClass: "tag-yoga",
+    clients: "260+",
+  },
+  {
+    cat: "nutrition",
+    image:
+      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=600&fit=crop&crop=faces&q=80",
+    name: "Dr. Ananya Singh",
+    badge: "Nutrition Expert",
+    badgeClass: "badge-nutrition",
+    specialty: "Clinical Nutritionist",
+    specClass: "spec-nutrition",
+    rating: "4.8",
+    reviews: "192",
+    years: "12 Yrs",
+    city: "Bangalore",
+    bio: "PhD in Nutritional Sciences crafting personalized diet plans that are science-backed, realistic and delicious.",
+    tags: ["Diet Plans", "Diabetes", "Weight Loss"],
+    tagClass: "tag-nutrition",
+    clients: "320+",
+  },
+  {
+    cat: "health",
+    image:
+      "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=600&fit=crop&crop=faces&q=80",
+    name: "Vikram Nair",
+    badge: "Health Coach",
+    badgeClass: "",
+    specialty: "Holistic Health & Wellness",
+    specClass: "",
+    rating: "4.9",
+    reviews: "156",
+    years: "7 Yrs",
+    city: "Pune",
+    bio: "Integrative health coach combining Ayurveda, modern nutrition and lifestyle medicine for whole-body wellness.",
+    tags: ["Ayurveda", "Stress Mgmt", "Detox"],
+    tagClass: "",
+    clients: "140+",
+  },
+  {
+    cat: "women",
+    image:
+      "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=600&h=600&fit=crop&crop=faces&q=80",
+    name: "Sunita Rao",
+    badge: "Women Wellness",
+    badgeClass: "badge-women",
+    specialty: "Women's Health Expert",
+    specClass: "spec-women",
+    rating: "4.9",
+    reviews: "278",
+    years: "9 Yrs",
+    city: "Chennai",
+    bio: "Specialized in hormonal health, PCOD management, postpartum recovery and women's fitness at every life stage.",
+    tags: ["PCOD", "Postpartum", "Hormones"],
+    tagClass: "tag-women",
+    clients: "210+",
+  },
+  {
+    cat: "lifestyle",
+    image:
+      "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&h=600&fit=crop&crop=faces&q=80",
+    name: "Arjun Kapoor",
+    badge: "Lifestyle Mentor",
+    badgeClass: "badge-lifestyle",
+    specialty: "Lifestyle & Habit Coach",
+    specClass: "spec-lifestyle",
+    rating: "4.7",
+    reviews: "134",
+    years: "6 Yrs",
+    city: "Hyderabad",
+    bio: "Helping working professionals build powerful daily habits, beat burnout and create a life they love through sustainable routines.",
+    tags: ["Habits", "Productivity", "Burnout"],
+    tagClass: "tag-lifestyle",
+    clients: "95+",
+  },
+] as const;
+
+function typeClass(type: string, kind: "badge" | "tag" | "spec") {
+  const key = type.toLowerCase();
+  const name =
+    key === "yoga" ? "yoga"
+    : key === "nutrition" ? "nutrition"
+    : key === "women" ? "women"
+    : key === "lifestyle" ? "lifestyle"
+    : "";
+  if (!name) return "";
+  if (kind === "badge") return `badge-${name}`;
+  if (kind === "tag") return `tag-${name}`;
+  return `spec-${name}`;
+}
+
+function Stars({ rating }: { rating: number }) {
+  return (
+    <>
+      {[1, 2, 3, 4, 5].map((star) => {
+        const icon =
+          rating >= star ? "fas fa-star"
+          : rating >= star - 0.5 ? "fas fa-star-half-alt"
+          : "far fa-star";
+        return <i key={star} className={`${icon} cl-star`} />;
+      })}
+    </>
+  );
+}
+
+function coachHref(coach: CoachPublicListItem) {
+  return coach.coachCode ?
+      `/coach/${encodeURIComponent(coach.coachCode)}`
+    : `/coach/${coach.coachId}`;
+}
+
+function pageHref(query: Query, page: number) {
+  const params = new URLSearchParams();
+  params.set("pageNum", String(page));
+  if (query.search) params.set("search", query.search);
+  if (query.coachTypeCode) params.set("coachTypeCode", query.coachTypeCode);
+  if (query.country) params.set("country", query.country);
+  if (query.state) params.set("state", query.state);
+  if (query.city) params.set("city", query.city);
+  return `/coach?${params}`;
+}
+
+async function fetchPlaces(itemType: string, filterText: string) {
+  if (!env.apiBaseUrl || !filterText) return [] as MasterOption[];
+  const params = new URLSearchParams({ itemType, filterText });
+  const response = await fetch(
+    `${env.apiBaseUrl}/v1/Master/GetMasterItem?${params}`,
+  );
+  const data = (await response.json()) as {
+    responseObj?: Array<Record<string, unknown>>;
+    ResponseObj?: Array<Record<string, unknown>>;
+  };
+  const rows = data.responseObj ?? data.ResponseObj ?? [];
+  return rows
+    .map((row) => ({
+      code: String(row.itemCode ?? row.ItemCode ?? "").trim(),
+      label: String(row.itemName ?? row.ItemName ?? "").trim(),
+    }))
+    .filter((row) => row.code && row.label);
+}
+
+export function CoachListView({
+  coaches,
+  categories,
+  countries,
+  totalCount,
+  totalPages,
+  loadError,
+  query,
+}: {
+  coaches: CoachPublicListItem[];
+  categories: MasterOption[];
+  countries: MasterOption[];
+  totalCount: number;
+  totalPages: number;
+  loadError: string;
+  query: Query;
+}) {
+  const [listView, setListView] = useState(false);
+  const [sort, setSort] = useState("rating");
+  const [minRating, setMinRating] = useState(0);
+  const [expMin, setExpMin] = useState(0);
+  const [expMax, setExpMax] = useState(999);
+  const [states, setStates] = useState<MasterOption[]>([]);
+  const [cities, setCities] = useState<MasterOption[]>([]);
+
+  useEffect(() => {
+    if (!query.country) return;
+    let cancelled = false;
+    void fetchPlaces("State", query.country).then((next) => {
+      if (cancelled) return;
+      setStates(next);
+      if (query.state) {
+        void fetchPlaces("City", query.state).then((cityRows) => {
+          if (!cancelled) setCities(cityRows);
+        });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [query.country, query.state]);
+
+  const ordered = useMemo(() => {
+    const copy = [...coaches];
+    copy.sort((a, b) => {
+      if (sort === "reviews") return b.reviewCount - a.reviewCount;
+      if (sort === "exp") return b.experienceYears - a.experienceYears;
+      if (sort === "newest") return b.coachId - a.coachId;
+      return b.rating - a.rating;
+    });
+    return copy;
+  }, [coaches, sort]);
+
+  const rangeStart = totalCount > 0 ? (query.page - 1) * 10 + 1 : 0;
+  const rangeEnd = totalCount > 0 ? rangeStart + coaches.length - 1 : 0;
+
+  function selectCategory(code: string) {
+    const select = document.getElementById(
+      "fCoachType",
+    ) as HTMLSelectElement | null;
+    const form = document.getElementById(
+      "filterForm",
+    ) as HTMLFormElement | null;
+    if (select) select.value = code;
+    form?.requestSubmit();
+  }
+
+  async function onCountryChange(country: string) {
+    setStates([]);
+    setCities([]);
+    const stateEl = document.getElementById(
+      "fState",
+    ) as HTMLSelectElement | null;
+    const cityEl = document.getElementById("fCity") as HTMLSelectElement | null;
+    if (stateEl) stateEl.value = "";
+    if (cityEl) cityEl.value = "";
+    if (!country) return;
+    setStates(await fetchPlaces("State", country));
+  }
+
+  async function onStateChange(state: string) {
+    setCities([]);
+    const cityEl = document.getElementById("fCity") as HTMLSelectElement | null;
+    if (cityEl) cityEl.value = "";
+    if (!state) return;
+    setCities(await fetchPlaces("City", state));
+  }
+
+  const pageStartRaw = Math.max(1, query.page - 2);
+  const pageEnd = Math.min(totalPages, pageStartRaw + 4);
+  const pageStart = Math.max(1, pageEnd - 4);
+
+  return (
+    <div className="mc-public">
+      <section className="cl-banner">
+        <div className="cl-banner-shapes">
+          <div className="cl-bs cl-bs-1" />
+          <div className="cl-bs cl-bs-2" />
+          <div className="cl-bs cl-bs-3" />
+        </div>
+        <div className="container">
+          <div className="cl-banner-inner">
+            <nav className="cl-breadcrumb" aria-label="breadcrumb">
+              <Link href="/">
+                <i className="fas fa-home" /> Home
+              </Link>
+              <i className="fas fa-chevron-right cl-bc-sep" />
+              <span>Find a Coach</span>
+            </nav>
+            <h1 className="cl-banner-title">
+              Find Your <em>Perfect Coach</em>
+            </h1>
+            <p className="cl-banner-subtitle">
+              Browse 500+ verified coaches across Health, Fitness, Yoga,
+              Nutrition and Lifestyle. Your transformation starts here.
+            </p>
+            <div className="cl-cat-pills">
+              <a
+                href="#"
+                className={
+                  query.coachTypeCode ? "cl-cat-pill" : "cl-cat-pill active"
+                }
+                data-cat="all"
+                onClick={(event) => {
+                  event.preventDefault();
+                  selectCategory("");
+                }}
+              >
+                <i className="fas fa-th-large" /> All Coaches
+              </a>
+              {categories.map((category) => (
+                <a
+                  key={category.code}
+                  href="#"
+                  className={
+                    query.coachTypeCode === category.code ?
+                      "cl-cat-pill active"
+                    : "cl-cat-pill"
+                  }
+                  onClick={(event) => {
+                    event.preventDefault();
+                    selectCategory(category.code);
+                  }}
+                >
+                  <i className={category.iconClass || "fas fa-user"} />{" "}
+                  {category.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="cl-body">
+        <div className="container">
+          <div className="cl-layout">
+            <div className="cl-main">
+              <form action="/coach" className="cl-main-search" id="searchForm">
+                <div className="cl-main-search-wrap">
+                  <i className="fas fa-search cl-main-search-icon" />
+                  <input
+                    type="text"
+                    name="search"
+                    defaultValue={query.search}
+                    placeholder="Search by name, city, state, service, coach type..."
+                    aria-label="Search coaches"
+                    autoComplete="off"
+                    onChange={(event) => {
+                      const hidden = document.getElementById(
+                        "fSearch",
+                      ) as HTMLInputElement | null;
+                      if (hidden) hidden.value = event.target.value;
+                    }}
+                  />
+                  {query.search ?
+                    <button
+                      type="button"
+                      className="cl-search-clear"
+                      title="Clear search"
+                      onClick={() => {
+                        const input = document.querySelector(
+                          "#searchForm input[name='search']",
+                        ) as HTMLInputElement | null;
+                        const hidden = document.getElementById(
+                          "fSearch",
+                        ) as HTMLInputElement | null;
+                        if (input) input.value = "";
+                        if (hidden) hidden.value = "";
+                        document.getElementById("searchForm")?.dispatchEvent(
+                          new Event("submit", {
+                            cancelable: true,
+                            bubbles: true,
+                          }),
+                        );
+                        (
+                          document.getElementById(
+                            "searchForm",
+                          ) as HTMLFormElement | null
+                        )?.requestSubmit();
+                      }}
+                    >
+                      <i className="fas fa-times" />
+                    </button>
+                  : null}
+                  <button type="submit" aria-label="Submit search">
+                    <i className="fas fa-search" /> Search
+                  </button>
+                </div>
+              </form>
+
+              <div className="cl-filter-bar">
+                <div className="cl-result-info">
+                  <i className="fas fa-users cl-result-icon" />
+                  {totalCount > 0 ?
+                    <span>
+                      Showing{" "}
+                      <strong>
+                        {rangeStart}–{rangeEnd}
+                      </strong>{" "}
+                      of <strong>{totalCount}</strong> coaches
+                    </span>
+                  : <span>
+                      Showing <strong>6</strong> featured coaches
+                    </span>
+                  }
+                  {loadError ?
+                    <span className="text-danger ms-2">
+                      <i className="fas fa-exclamation-circle" /> {loadError}
+                    </span>
+                  : null}
+                </div>
+                <div className="cl-filter-controls">
+                  <MenuSelect
+                    aria-label="Sort coaches"
+                    skin="public"
+                    className="ui-select cl-sort-select"
+                    value={sort}
+                    options={[
+                      { value: "rating", label: "Sort: Top Rated" },
+                      { value: "reviews", label: "Sort: Most Reviewed" },
+                      { value: "exp", label: "Sort: Most Experience" },
+                      { value: "newest", label: "Sort: Newest" },
+                    ]}
+                    onChange={(event) => setSort(event.target.value)}
+                  />
+                  <div
+                    className="cl-view-toggle"
+                    role="group"
+                    aria-label="View mode"
+                  >
+                    <button
+                      type="button"
+                      className={
+                        listView ? "cl-view-btn" : "cl-view-btn active"
+                      }
+                      title="Grid View"
+                      onClick={() => setListView(false)}
+                    >
+                      <i className="fas fa-th-large" />
+                    </button>
+                    <button
+                      type="button"
+                      className={
+                        listView ? "cl-view-btn active" : "cl-view-btn"
+                      }
+                      title="List View"
+                      onClick={() => setListView(true)}
+                    >
+                      <i className="fas fa-list" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className={
+                  listView ? "cl-coach-grid cl-list-view" : "cl-coach-grid"
+                }
+                id="coachGrid"
+              >
+                {ordered.map((coach) => {
+                  const hidden =
+                    coach.rating < minRating ||
+                    coach.experienceYears < expMin ||
+                    coach.experienceYears > expMax;
+                  const photo = resolveMediaUrl(coach.profile_Pic_Url);
+                  const label = coach.coachTypeName || coach.coachTypeCode;
+                  const years =
+                    coach.experienceYears > 0 ?
+                      `${coach.experienceYears} Yr${coach.experienceYears > 1 ? "s" : ""}`
+                    : "New";
+                  const tags = coach.serviceNames
+                    .split(",")
+                    .map((tag) => tag.trim())
+                    .filter(Boolean)
+                    .slice(0, 3);
+                  return (
+                    <div
+                      key={coach.coachId || coach.coachCode}
+                      className="cl-coach-card"
+                      data-cat={coach.coachTypeCode.toLowerCase()}
+                      data-rating={coach.rating.toFixed(1)}
+                      data-exp={coach.experienceYears}
+                      style={hidden ? { display: "none" } : undefined}
+                    >
+                      <div className="cl-card-img">
+                        {photo ?
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={photo} alt={coach.coachName} />
+                        : <div className="cl-card-img-placeholder">
+                            <i className="fas fa-user-circle" />
+                          </div>
+                        }
+                        <span
+                          className={`cl-card-badge ${typeClass(coach.coachTypeCode, "badge")}`.trim()}
+                        >
+                          {label}
+                        </span>
+                        <span className="cl-card-status online">
+                          <span className="cl-status-dot" /> Online
+                        </span>
+                      </div>
+                      <div className="cl-card-body">
+                        <div className="cl-coach-name">{coach.coachName}</div>
+                        <div
+                          className={`cl-coach-specialty ${typeClass(coach.coachTypeCode, "spec")}`.trim()}
+                        >
+                          {label}
+                        </div>
+                        <div className="cl-coach-meta">
+                          <span>
+                            <Stars rating={coach.rating} />{" "}
+                            {coach.rating.toFixed(1)}{" "}
+                            <em>({coach.reviewCount})</em>
+                          </span>
+                          <span>
+                            <i className="fas fa-briefcase" /> {years}
+                          </span>
+                          {coach.city_Cd ?
+                            <span>
+                              <i className="fas fa-map-marker-alt" />{" "}
+                              {coach.city_Cd}
+                            </span>
+                          : null}
+                        </div>
+                        {coach.coachDesc ?
+                          <p className="cl-coach-bio">{coach.coachDesc}</p>
+                        : null}
+                        {tags.length > 0 ?
+                          <div className="cl-coach-tags">
+                            {tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className={`cl-tag ${typeClass(coach.coachTypeCode, "tag")}`.trim()}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        : null}
+                        <div className="cl-card-footer">
+                          {coach.happyClientCount > 0 ?
+                            <div className="cl-coach-clients">
+                              Clients:{" "}
+                              <strong>{coach.happyClientCount}+</strong>
+                            </div>
+                          : <div />}
+                          <Link
+                            href={coachHref(coach)}
+                            className="btn cl-btn-view"
+                          >
+                            View Profile
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {DEMO_CARDS.map((card) => (
+                  <div
+                    key={card.name}
+                    className="cl-coach-card"
+                    data-cat={card.cat}
+                  >
+                    <div className="cl-card-img">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={card.image} alt={card.name} />
+                      <span
+                        className={`cl-card-badge ${card.badgeClass}`.trim()}
+                      >
+                        {card.badge}
+                      </span>
+                      <span className="cl-card-status online">
+                        <span className="cl-status-dot" /> Online
+                      </span>
+                    </div>
+                    <div className="cl-card-body">
+                      <div className="cl-coach-name">{card.name}</div>
+                      <div
+                        className={`cl-coach-specialty ${card.specClass}`.trim()}
+                      >
+                        {card.specialty}
+                      </div>
+                      <div className="cl-coach-meta">
+                        <span>
+                          <i className="fas fa-star cl-star" /> {card.rating}{" "}
+                          <em>({card.reviews})</em>
+                        </span>
+                        <span>
+                          <i className="fas fa-briefcase" /> {card.years}
+                        </span>
+                        <span>
+                          <i className="fas fa-map-marker-alt" /> {card.city}
+                        </span>
+                      </div>
+                      <p className="cl-coach-bio">{card.bio}</p>
+                      <div className="cl-coach-tags">
+                        {card.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className={`cl-tag ${card.tagClass}`.trim()}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="cl-card-footer">
+                        <div className="cl-coach-clients">
+                          Clients: <strong>{card.clients}</strong>
+                        </div>
+                        <a href="#" className="btn cl-btn-view">
+                          View Profile
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {totalPages > 1 ?
+                <div className="cl-pagination">
+                  {query.page > 1 ?
+                    <Link
+                      href={pageHref(query, query.page - 1)}
+                      className="cl-page-btn"
+                    >
+                      <i className="fas fa-chevron-left" />
+                    </Link>
+                  : <span className="cl-page-btn cl-page-disabled">
+                      <i className="fas fa-chevron-left" />
+                    </span>
+                  }
+                  {pageStart > 1 ?
+                    <>
+                      <Link href={pageHref(query, 1)} className="cl-page-btn">
+                        1
+                      </Link>
+                      {pageStart > 2 ?
+                        <span className="cl-page-ellipsis">…</span>
+                      : null}
+                    </>
+                  : null}
+                  {Array.from(
+                    { length: pageEnd - pageStart + 1 },
+                    (_, index) => {
+                      const page = pageStart + index;
+                      return page === query.page ?
+                          <span key={page} className="cl-page-btn active">
+                            {page}
+                          </span>
+                        : <Link
+                            key={page}
+                            href={pageHref(query, page)}
+                            className="cl-page-btn"
+                          >
+                            {page}
+                          </Link>;
+                    },
+                  )}
+                  {pageEnd < totalPages ?
+                    <>
+                      {pageEnd < totalPages - 1 ?
+                        <span className="cl-page-ellipsis">…</span>
+                      : null}
+                      <Link
+                        href={pageHref(query, totalPages)}
+                        className="cl-page-btn"
+                      >
+                        {totalPages}
+                      </Link>
+                    </>
+                  : null}
+                  {query.page < totalPages ?
+                    <Link
+                      href={pageHref(query, query.page + 1)}
+                      className="cl-page-btn"
+                    >
+                      <i className="fas fa-chevron-right" />
+                    </Link>
+                  : <span className="cl-page-btn cl-page-disabled">
+                      <i className="fas fa-chevron-right" />
+                    </span>
+                  }
+                </div>
+              : null}
+            </div>
+
+            <aside className="cl-sidebar">
+              <form action="/coach" id="filterForm">
+                <input
+                  type="hidden"
+                  name="search"
+                  id="fSearch"
+                  defaultValue={query.search}
+                />
+                <input type="hidden" name="pageNum" value="1" />
+                <div className="cl-widget cl-filter-widget">
+                  <div className="cl-widget-head">
+                    <i className="fas fa-sliders-h" /> Filter Coaches
+                  </div>
+                  <div className="cl-widget-body cl-filter-body">
+                    <div className="cl-ff">
+                      <label className="cl-ff-label" htmlFor="fCoachType">
+                        <i className="fas fa-th-large" /> Category
+                      </label>
+                      <MenuSelect
+                        name="coachTypeCode"
+                        id="fCoachType"
+                        skin="public"
+                        className="ui-select"
+                        defaultValue={query.coachTypeCode}
+                        aria-label="All Categories"
+                        placeholder="All Categories"
+                        options={[
+                          { value: "", label: "All Categories" },
+                          ...categories.map((category) => ({
+                            value: category.code,
+                            label: category.label,
+                          })),
+                        ]}
+                      />
+                    </div>
+                    <div className="cl-ff-row">
+                      <div className="cl-ff">
+                        <label className="cl-ff-label" htmlFor="fCountry">
+                          <i className="fas fa-globe" /> Country
+                        </label>
+                        <MenuSelect
+                          name="country"
+                          id="fCountry"
+                          skin="public"
+                          className="ui-select"
+                          defaultValue={query.country}
+                          aria-label="All"
+                          placeholder="All"
+                          options={[
+                            { value: "", label: "All" },
+                            ...countries.map((country) => ({
+                              value: country.code,
+                              label: country.label,
+                            })),
+                          ]}
+                          onChange={(event) =>
+                            void onCountryChange(event.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="cl-ff">
+                        <label className="cl-ff-label" htmlFor="fState">
+                          <i className="fas fa-map" /> State
+                        </label>
+                        <MenuSelect
+                          name="state"
+                          id="fState"
+                          skin="public"
+                          className="ui-select"
+                          defaultValue={query.state}
+                          aria-label="All"
+                          placeholder="All"
+                          options={[
+                            { value: "", label: "All" },
+                            ...states.map((state) => ({
+                              value: state.code,
+                              label: state.label,
+                            })),
+                          ]}
+                          onChange={(event) =>
+                            void onStateChange(event.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="cl-ff">
+                      <label className="cl-ff-label" htmlFor="fCity">
+                        <i className="fas fa-city" /> City
+                      </label>
+                      <MenuSelect
+                        name="city"
+                        id="fCity"
+                        skin="public"
+                        className="ui-select"
+                        defaultValue={query.city}
+                        aria-label="All Cities"
+                        placeholder="All Cities"
+                        options={[
+                          { value: "", label: "All Cities" },
+                          ...cities.map((city) => ({
+                            value: city.code,
+                            label: city.label,
+                          })),
+                        ]}
+                      />
+                    </div>
+                    <div className="cl-ff-divider" />
+                    <div className="cl-ff">
+                      <label className="cl-ff-label">
+                        <i className="fas fa-star cl-star" /> Min Rating
+                      </label>
+                      <div className="cl-ff-pills">
+                        {[
+                          { label: "All", min: 0 },
+                          { label: "4.0+", min: 4 },
+                          { label: "4.5+", min: 4.5 },
+                        ].map((pill) => (
+                          <button
+                            key={pill.label}
+                            type="button"
+                            className={
+                              minRating === pill.min ?
+                                "cl-ff-pill active"
+                              : "cl-ff-pill"
+                            }
+                            onClick={() => setMinRating(pill.min)}
+                          >
+                            {pill.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="cl-ff">
+                      <label className="cl-ff-label">
+                        <i className="fas fa-briefcase" /> Experience
+                      </label>
+                      <div className="cl-ff-pills">
+                        {[
+                          { label: "Any", min: 0, max: 999 },
+                          { label: "1–3y", min: 1, max: 3 },
+                          { label: "3–5y", min: 3, max: 5 },
+                          { label: "5–10y", min: 5, max: 10 },
+                          { label: "10y+", min: 10, max: 999 },
+                        ].map((pill) => (
+                          <button
+                            key={pill.label}
+                            type="button"
+                            className={
+                              expMin === pill.min && expMax === pill.max ?
+                                "cl-ff-pill active"
+                              : "cl-ff-pill"
+                            }
+                            onClick={() => {
+                              setExpMin(pill.min);
+                              setExpMax(pill.max);
+                            }}
+                          >
+                            {pill.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="cl-ff-divider" />
+                    <button type="submit" className="cl-ff-apply">
+                      <i className="fas fa-check" /> Apply Filters
+                    </button>
+                    <Link href="/coach" className="cl-ff-clear">
+                      <i className="fas fa-times" /> Clear All
+                    </Link>
+                  </div>
+                </div>
+              </form>
+
+              <div className="cl-widget cl-cta-widget">
+                <div className="cl-cta-glow" />
+                <div className="cl-cta-inner">
+                  <div className="cl-cta-icon-wrap">
+                    <i className="fas fa-chalkboard-teacher" />
+                  </div>
+                  <h3>Become a Coach</h3>
+                  <p>
+                    Join our growing community and reach thousands of clients
+                    looking for your expertise.
+                  </p>
+                  <ul className="cl-cta-perks">
+                    <li>
+                      <i className="fas fa-check-circle" /> Free profile setup
+                    </li>
+                    <li>
+                      <i className="fas fa-check-circle" /> Access to 10,000+
+                      clients
+                    </li>
+                    <li>
+                      <i className="fas fa-check-circle" /> Manage bookings
+                      easily
+                    </li>
+                  </ul>
+                  <Link href="/register" className="cl-btn-join">
+                    <i className="fas fa-rocket" /> Get Started Free
+                  </Link>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

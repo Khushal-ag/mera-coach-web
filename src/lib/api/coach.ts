@@ -119,6 +119,8 @@ function normalizeProfile(payload: unknown): CoachProfile | null {
 export async function fetchPublicCoaches(params?: {
   search?: string;
   city?: string;
+  country?: string;
+  state?: string;
   coachTypeCode?: string;
   minRating?: number;
   /** Server sort: rating (default) | reviews | experience — same as app. */
@@ -129,6 +131,8 @@ export async function fetchPublicCoaches(params?: {
   const query = new URLSearchParams();
   if (params?.search) query.set("search", params.search);
   if (params?.city) query.set("city", params.city);
+  if (params?.country) query.set("country", params.country);
+  if (params?.state) query.set("state", params.state);
   if (params?.coachTypeCode) query.set("coachTypeCode", params.coachTypeCode);
   if (params?.minRating != null)
     query.set("minRating", String(params.minRating));

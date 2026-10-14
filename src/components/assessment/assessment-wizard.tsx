@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Check } from "lucide-react";
@@ -15,7 +16,6 @@ import type {
   GeneratedDietPlan,
 } from "@/types/practice";
 
-import { PracticePageHeader } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { SelectField, TextAreaField, TextField } from "@/components/ui/field";
 import {
@@ -50,24 +50,24 @@ type WizardFlow = "add" | "checkup" | "dietPlan";
 type PhaseId = "identity" | "lifestyle" | "meals" | "bmi" | "diet" | "complete";
 
 const ADD_PHASES: { id: PhaseId; label: string }[] = [
-  { id: "identity", label: "Identity" },
-  { id: "lifestyle", label: "Lifestyle" },
-  { id: "meals", label: "Meals" },
-  { id: "bmi", label: "BMI" },
-  { id: "diet", label: "Diet plan" },
+  { id: "identity", label: "Client Details" },
+  { id: "lifestyle", label: "Lifestyle & Health" },
+  { id: "meals", label: "Current Diet" },
+  { id: "bmi", label: "BMI Detail" },
+  { id: "diet", label: "AI Diet Plan" },
   { id: "complete", label: "Done" },
 ];
 
 const CHECKUP_PHASES: { id: PhaseId; label: string }[] = [
-  { id: "identity", label: "Identity" },
-  { id: "lifestyle", label: "Lifestyle" },
-  { id: "meals", label: "Meals" },
-  { id: "bmi", label: "BMI" },
+  { id: "identity", label: "Client Details" },
+  { id: "lifestyle", label: "Lifestyle & Health" },
+  { id: "meals", label: "Current Diet" },
+  { id: "bmi", label: "BMI Detail" },
   { id: "complete", label: "Done" },
 ];
 
 const DIET_PHASES: { id: PhaseId; label: string }[] = [
-  { id: "diet", label: "Diet plan" },
+  { id: "diet", label: "AI Diet Plan" },
   { id: "complete", label: "Done" },
 ];
 
@@ -234,7 +234,6 @@ export function AssessmentWizard({
   initialForm,
   initialIds = {},
   title,
-  description,
   crumbs,
   back,
   finishRedirect,
@@ -510,39 +509,53 @@ export function AssessmentWizard({
   return (
     <div className="min-w-0">
       {embedded ? null : (
-        <PracticePageHeader
-          title={title}
-          crumbs={back ? undefined : crumbs}
-          back={back}
-          description={
-            description ?? "Fill each section, then save it on the client."
-          }
-        />
-      )}
-      <ol className="mb-6 flex flex-wrap gap-2" aria-label="Wizard steps">
-        {phases
-          .filter((p) => p.id !== "complete")
-          .map((p, i) => {
-            const active = phases[step]?.id === p.id;
-            const done = i < step;
-            return (
-              <li
-                key={p.id}
-                aria-current={active ? "step" : undefined}
-                className={
-                  active ?
-                    "rounded-full bg-mc-secondary px-3.5 py-1.5 font-display text-xs font-bold text-white"
-                  : done ?
-                    "rounded-full bg-mc-secondary-light px-3.5 py-1.5 font-display text-xs font-bold text-mc-secondary"
-                  : "rounded-full border border-[#e5d5c5] bg-white px-3.5 py-1.5 font-display text-xs font-semibold text-ink-muted"
-
-                }
+        <div className="clt-page-head" style={{ marginBottom: 20 }}>
+          <div>
+            <h1 className="clt-page-title">{title}</h1>
+            <nav className="clt-breadcrumb">
+              <Link href={crumbs?.[0]?.href ?? "/dashboard"}>
+                <i className="fas fa-home" /> Home
+              </Link>
+              <i className="fas fa-chevron-right" />
+              <Link
+                href={back?.href ?? crumbs?.[1]?.href ?? "/dashboard/clients"}
               >
-                {p.label}
-              </li>
-            );
-          })}
-      </ol>
+                Clients
+              </Link>
+              <i className="fas fa-chevron-right" />
+              <span>{title}</span>
+            </nav>
+          </div>
+        </div>
+      )}
+      <div className="stepper-wrap">
+        <div className="stepper" aria-label="Wizard steps">
+          {phases
+            .filter((p) => p.id !== "complete")
+            .flatMap((p, i, list) => {
+              const active = phases[step]?.id === p.id;
+              const done = i < step;
+              const item = (
+                <div
+                  key={p.id}
+                  className={`step-item${active ? "active" : ""}${done ? "done" : ""}`}
+                  aria-current={active ? "step" : undefined}
+                >
+                  <div className="step-circle">{i + 1}</div>
+                  <div className="step-label">{p.label}</div>
+                </div>
+              );
+              if (i === list.length - 1) return [item];
+              return [
+                item,
+                <div
+                  key={`${p.id}-line`}
+                  className={`step-line${done ? "done" : ""}`}
+                />,
+              ];
+            })}
+        </div>
+      </div>
 
       {error ?
         <div className="mb-4">
