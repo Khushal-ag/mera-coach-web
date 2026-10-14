@@ -1,18 +1,17 @@
-import { Suspense } from "react";
+import { cache, Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import type { Metadata } from "next";
 
 import type { CoachProfile } from "@/types/coach";
 
-import { MobileEnquiryBar } from "@/components/coach-profile/mobile-enquiry-bar";
-import { ProfileAbout } from "@/components/coach-profile/profile-about";
 import { ProfileEnquiryPanel } from "@/components/coach-profile/profile-enquiry-panel";
 import { ProfileEvents } from "@/components/coach-profile/profile-events";
 import { ProfileExpertise } from "@/components/coach-profile/profile-expertise";
 import { ProfileHero } from "@/components/coach-profile/profile-hero";
 import { ProfilePackages } from "@/components/coach-profile/profile-packages";
 import { ProfileStats } from "@/components/coach-profile/profile-stats";
+import { CoachProfileSkeleton } from "@/components/skeletons/coach-profile-skeleton";
 import { siteConfig } from "@/config/site";
 import { fetchCoachProfile, isApiSuccess } from "@/lib/api";
 import { getUpcomingCoachEvents } from "@/lib/coach/events";
@@ -27,7 +26,9 @@ import { resolveMediaUrl } from "@/lib/media/media-url";
 
 type Params = Promise<{ code: string }>;
 
-async function loadCoach(code: string): Promise<CoachProfile | null> {
+const loadCoach = cache(async function loadCoach(
+  code: string,
+): Promise<CoachProfile | null> {
   const asId = Number(code);
   const response = await fetchCoachProfile(
     Number.isFinite(asId) && asId > 0 && String(asId) === code ?
@@ -36,7 +37,7 @@ async function loadCoach(code: string): Promise<CoachProfile | null> {
   );
   if (!isApiSuccess(response) || !response.responseObj) return null;
   return response.responseObj;
-}
+});
 
 function buildLocationLabel(coach: CoachProfile): string | null {
   const parts = [
@@ -46,23 +47,6 @@ function buildLocationLabel(coach: CoachProfile): string | null {
   ].filter(Boolean);
   if (!parts.length) return null;
   // Avoid "Mumbai · Mumbai"
-  const unique: string[] = [];
-  for (const part of parts) {
-    if (!unique.some((u) => u.toLowerCase() === part!.toLowerCase())) {
-      unique.push(part!);
-    }
-  }
-  return unique.join(", ");
-}
-
-function buildLocationDetail(coach: CoachProfile): string | null {
-  const parts = [
-    coach.add_Line?.trim(),
-    coach.locality?.trim(),
-    [coach.city_Cd?.trim(), coach.state_Cd?.trim()].filter(Boolean).join(", "),
-    coach.country_Cd?.trim(),
-  ].filter(Boolean);
-  if (!parts.length) return null;
   const unique: string[] = [];
   for (const part of parts) {
     if (!unique.some((u) => u.toLowerCase() === part!.toLowerCase())) {
@@ -120,31 +104,82 @@ export async function generateMetadata({
 
 export default function CoachProfilePage({ params }: { params: Params }) {
   return (
-    <Suspense fallback={<CoachProfileFallback />}>
-      <CoachProfileBody params={params} />
-    </Suspense>
+    <>
+      <Suspense fallback={<CoachProfileSkeleton />}>
+        <ProfileTop params={params} />
+      </Suspense>
+      <HowICoach />
+      <Suspense fallback={null}>
+        <ProfileBottom params={params} />
+      </Suspense>
+    </>
   );
 }
 
-async function CoachProfileBody({ params }: { params: Params }) {
-  const { code } = await params;
-  let coach: CoachProfile | null = null;
-  try {
-    coach = await loadCoach(code);
-  } catch {
-    coach = null;
-  }
+async function ProfileTop({ params }: { params: Params }) {
+  const coach = await loadCoachOrNull(params);
   if (!coach) notFound();
+  const view = profileView(coach);
+  return (
+    <>
+      <ProfileHero
+        coach={coach}
+        whatsappUrl={view.whatsappUrl}
+        locationLabel={view.locationLabel}
+      />
+      <ProfileStats stats={view.stats} />
+      <section className="bg-paper py-14 sm:py-16">
+        <div className="container">
+          <ProfileExpertise tags={view.tags} coachType={coach.coachTypeName} />
+        </div>
+      </section>
+      <ProfileEnquiryPanel
+        coachCode={coach.coachCode}
+        coachName={coach.coachName}
+        lookingForOptions={view.lookingForOptions}
+      />
+    </>
+  );
+}
 
-  const tags = splitServiceNames(coach.serviceNames);
+async function ProfileBottom({ params }: { params: Params }) {
+  const coach = await loadCoachOrNull(params);
+  if (!coach) return null;
   const packages = coach.packages ?? [];
   const events = getUpcomingCoachEvents(
     coach.events ?? [],
     await publicEventCutoffMs(),
   );
+  const firstName = coach.coachName.trim().split(/\s+/)[0] || coach.coachName;
+  const hasExtras = packages.length > 0 || events.length > 0;
+  return (
+    <>
+      {hasExtras ?
+        <section className="bg-paper py-14 sm:py-16">
+          <div className="container space-y-12">
+            <ProfilePackages packages={packages} coachName={firstName} />
+            <ProfileEvents events={events} />
+          </div>
+        </section>
+      : null}
+    </>
+  );
+}
+
+async function loadCoachOrNull(params: Params) {
+  const { code } = await params;
+  try {
+    return await loadCoach(code);
+  } catch {
+    return null;
+  }
+}
+
+function profileView(coach: CoachProfile) {
+  const tags = splitServiceNames(coach.serviceNames);
+  const packages = coach.packages ?? [];
   const whatsappUrl = whatsAppUrlFromMobile(coach.mobile);
   const locationLabel = buildLocationLabel(coach);
-  const locationDetail = buildLocationDetail(coach);
   const stats = buildPublicProfileStats({
     clientCount: coach.happyClientCount,
     experience: coach.experienceYears ?? 0,
@@ -154,84 +189,79 @@ async function CoachProfileBody({ params }: { params: Params }) {
     certificationCount: coach.certificationCount,
   });
   const lookingForOptions = buildEnquiryLookingForOptions({
-    packageNames: packages.map((p) => p.name),
+    packageNames: packages.map((item) => item.name),
     serviceNames: coach.serviceNames,
   });
-  const bio = coach.coachDesc?.trim() || null;
-  const firstName = coach.coachName.trim().split(/\s+/)[0] || coach.coachName;
-
-  return (
-    <>
-      <ProfileHero
-        coach={coach}
-        whatsappUrl={whatsappUrl}
-        locationLabel={locationLabel}
-      />
-      <ProfileStats stats={stats} />
-
-      <section className="bg-[color:var(--mc-explore-canvas)] pt-10 pb-28 sm:pt-12 lg:pt-14 lg:pb-16">
-        <div className="container grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-start lg:gap-12">
-          <div className="min-w-0 space-y-10 sm:space-y-12">
-            <ProfileAbout
-              coachName={firstName}
-              bio={bio}
-              language={coach.localLanguage?.trim() || null}
-              locationDetail={locationDetail}
-            />
-            <ProfileExpertise tags={tags} />
-            <ProfilePackages packages={packages} coachName={firstName} />
-            <ProfileEvents events={events} />
-          </div>
-
-          <ProfileEnquiryPanel
-            coachCode={coach.coachCode}
-            coachName={coach.coachName}
-            lookingForOptions={lookingForOptions}
-            whatsappUrl={whatsappUrl}
-          />
-        </div>
-      </section>
-
-      <MobileEnquiryBar
-        coachFirstName={firstName}
-        coachName={coach.coachName}
-        whatsappUrl={whatsappUrl}
-      />
-    </>
-  );
+  return {
+    tags,
+    whatsappUrl,
+    locationLabel,
+    stats,
+    lookingForOptions,
+  };
 }
 
-function CoachProfileFallback() {
+const processSteps = [
+  {
+    n: "01",
+    title: "Free discovery call",
+    body: "A first conversation about the goal, the week, and what has already been tried.",
+  },
+  {
+    n: "02",
+    title: "Personalised plan",
+    body: "A programme built around the body, the schedule, and the target.",
+  },
+  {
+    n: "03",
+    title: "Execute and adjust",
+    body: "Follow the plan with check-ins so it changes when life does.",
+  },
+  {
+    n: "04",
+    title: "Celebrate and level up",
+    body: "Mark what changed, then set the next target together.",
+  },
+] as const;
+
+function HowICoach() {
   return (
-    <>
-      <section className="bg-[color:var(--mc-explore-canvas)] pt-5 pb-8 sm:pt-6 sm:pb-10">
-        <div className="container">
-          <div className="h-4 w-40 animate-pulse rounded bg-line" />
+    <section
+      id="process"
+      className="bg-[color:var(--paper-elevated)] py-16 sm:py-20"
+    >
+      <div className="container">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="inline-flex rounded-full border border-mc-secondary/20 bg-mc-secondary-light px-3 py-1 font-display text-xs font-bold text-mc-secondary">
+            My process
+          </p>
+          <h2 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+            How I coach you
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-ink-muted">
+            A four-step shape coaches on Mera Coach use. The details live in the
+            enquiry.
+          </p>
         </div>
-        <div className="mt-4 h-40 animate-pulse bg-line sm:mt-5 sm:h-48 lg:h-56" />
-        <div className="container">
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-            <div className="-mt-16 size-32 shrink-0 animate-pulse rounded-full bg-line ring-4 ring-[color:var(--mc-explore-canvas)] sm:-mt-20 sm:size-40 lg:-mt-24 lg:size-44" />
-            <div className="w-full min-w-0 flex-1 space-y-3 sm:pb-2">
-              <div className="mx-auto h-5 w-36 animate-pulse rounded-full bg-line sm:mx-0" />
-              <div className="mx-auto h-8 w-48 animate-pulse rounded bg-line sm:mx-0" />
-              <div className="mx-auto h-4 w-40 animate-pulse rounded bg-line sm:mx-0" />
-              <div className="mx-auto mt-2 h-11 w-40 animate-pulse rounded-full bg-line sm:mx-0" />
-            </div>
-          </div>
-        </div>
-      </section>
-      <section className="bg-[color:var(--mc-explore-canvas)] py-10 sm:py-14">
-        <div
-          className="container space-y-4"
-          aria-busy="true"
-          aria-label="Loading coach profile"
-        >
-          <div className="h-6 w-32 animate-pulse rounded bg-line" />
-          <div className="h-4 w-full max-w-2xl animate-pulse rounded bg-line" />
-          <div className="h-4 w-full max-w-xl animate-pulse rounded bg-line" />
-        </div>
-      </section>
-    </>
+        <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {processSteps.map((step) => (
+            <li
+              key={step.n}
+              className="rounded-[20px] border border-line bg-white p-5 shadow-[0_8px_24px_rgba(44,24,16,0.05)]"
+            >
+              <span className="font-display text-2xl font-extrabold text-[color:var(--mc-accent)]">
+                {step.n}
+              </span>
+              <h3 className="mt-2 font-display text-base font-bold text-ink">
+                {step.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+                {step.body}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
   );
 }

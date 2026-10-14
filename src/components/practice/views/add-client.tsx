@@ -6,70 +6,58 @@ import { useRouter } from "next/navigation";
 
 import { AssessmentWizardLazy as AssessmentWizard } from "@/components/assessment/assessment-wizard-lazy";
 import { useAuth } from "@/components/auth-provider";
-import {
-  PracticePageHeader,
-  PracticeRosterSkeleton,
-} from "@/components/practice/page-header";
+import { PracticePageHeader } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { isSubscriptionRequired } from "@/config/practice";
-import {
-  fetchAuthedCoachProfile,
-  fetchCoachPremiumOffer,
-} from "@/lib/api/practice";
+import { ADD_CLIENT_PREMIUM_HREF } from "@/lib/add-client-access";
+import { fetchAuthedCoachProfile } from "@/lib/api/practice";
+import { ensurePremiumStatus } from "@/lib/auth/premium-status";
+
+function subscriptionError(err: unknown) {
+  return err instanceof Error ?
+      err.message
+    : "Could not check subscription. Try again.";
+}
 
 export function AddClientView() {
   const { session } = useAuth();
   const router = useRouter();
-  const [status, setStatus] = useState<
-    "checking" | "ready" | "blocked" | "check-failed"
-  >("checking");
   const [message, setMessage] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
   const [countryCd, setCountryCd] = useState("IN");
+  const required = isSubscriptionRequired();
+  const paid = session?.premiumPaid;
+  const allowed = !required || paid === true;
 
   useEffect(() => {
+    if (!required || paid !== false) return;
+    router.replace(ADD_CLIENT_PREMIUM_HREF);
+  }, [paid, required, router]);
+
+  useEffect(() => {
+    if (!required || typeof paid === "boolean") return;
     let cancelled = false;
-    const timer = window.setTimeout(() => {
-      if (!isSubscriptionRequired()) {
-        if (!cancelled) setStatus("ready");
-        return;
-      }
-      void fetchCoachPremiumOffer()
-        .then((offer) => {
-          if (cancelled) return;
-          if (offer.isPaid) setStatus("ready");
-          else {
-            setStatus("blocked");
-            const qs = new URLSearchParams();
-            if (session?.coachId) qs.set("coachId", String(session.coachId));
-            if (session?.coachCode) qs.set("coachCode", session.coachCode);
-            qs.set("reason", "add-client");
-            router.replace(`/premium?${qs.toString()}`);
-          }
-        })
-        .catch((err) => {
-          if (!cancelled) {
-            setStatus("check-failed");
-            setMessage(
-              err instanceof Error ?
-                err.message
-              : "Could not check subscription. Try again.",
-            );
-          }
-        });
-    }, 0);
+    void ensurePremiumStatus()
+      .then((next) => {
+        if (cancelled || next !== false) return;
+        router.replace(ADD_CLIENT_PREMIUM_HREF);
+      })
+      .catch((err) => {
+        if (!cancelled) setMessage(subscriptionError(err));
+      });
     return () => {
       cancelled = true;
-      window.clearTimeout(timer);
     };
-  }, [router, session?.coachCode, session?.coachId]);
+  }, [attempt, paid, required, router]);
 
   useEffect(() => {
-    if (status !== "ready") return;
+    if (!allowed) return;
     let cancelled = false;
     const timer = window.setTimeout(() => {
       void fetchAuthedCoachProfile()
-        .then((p) => {
-          if (!cancelled && p?.country_Cd) setCountryCd(p.country_Cd);
+        .then((profile) => {
+          if (!cancelled && profile?.country_Cd)
+            setCountryCd(profile.country_Cd);
         })
         .catch(() => undefined);
     }, 0);
@@ -77,66 +65,36 @@ export function AddClientView() {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [status]);
+  }, [allowed]);
 
-  if (status === "checking" || status === "blocked") {
-    return (
-      <div aria-busy="true">
-        <span className="sr-only">
-          {status === "blocked" ? "Redirecting to Premium" : "Checking access"}
-        </span>
-        <PracticeRosterSkeleton rows={4} />
-      </div>
-    );
-  }
+  if (required && paid === false) return null;
 
-  if (status === "check-failed") {
+  if (required && typeof paid !== "boolean") {
+    if (!message) return null;
     return (
-      <div className="mx-auto max-w-xl space-y-4">
+      <div className="min-w-0 space-y-4">
         <PracticePageHeader
           title="Add client"
+          crumbs={[
+            { label: "Home", href: "/dashboard" },
+            { label: "Clients", href: "/dashboard/clients" },
+            { label: "Add client" },
+          ]}
           description="We could not verify your Premium status."
         />
-        {message ?
-          <AlertBanner tone="error">{message}</AlertBanner>
-        : null}
-        <div className="flex flex-wrap gap-3">
+        <AlertBanner tone="error">{message}</AlertBanner>
+        <div className="flex flex-col gap-3 sm:flex-row">
           <button
             type="button"
-            className="mc-btn-primary"
+            className="mc-btn-primary w-full sm:w-auto"
             onClick={() => {
-              setStatus("checking");
               setMessage(null);
-              void fetchCoachPremiumOffer()
-                .then((offer) => {
-                  if (offer.isPaid) setStatus("ready");
-                  else {
-                    setStatus("blocked");
-                    const qs = new URLSearchParams();
-                    if (session?.coachId)
-                      qs.set("coachId", String(session.coachId));
-                    if (session?.coachCode)
-                      qs.set("coachCode", session.coachCode);
-                    qs.set("reason", "add-client");
-                    router.replace(`/premium?${qs.toString()}`);
-                  }
-                })
-                .catch((err) => {
-                  setStatus("check-failed");
-                  setMessage(
-                    err instanceof Error ?
-                      err.message
-                    : "Could not check subscription. Try again.",
-                  );
-                });
+              setAttempt((n) => n + 1);
             }}
           >
             Try again
           </button>
-          <Link
-            href="/dashboard"
-            className="mc-btn-secondary inline-flex items-center"
-          >
+          <Link href="/dashboard" className="mc-btn-secondary w-full sm:w-auto">
             Back to dashboard
           </Link>
         </div>
@@ -152,9 +110,16 @@ export function AddClientView() {
     <AssessmentWizard
       flow="add"
       title="Add client"
+      description="Fill each section, then save it on the client."
+      back={{ href: "/dashboard/clients", label: "Back to clients" }}
       coachCode={session.coachCode}
       savedBy={session.fullName}
       countryCd={countryCd}
+      finishRedirect={(ids) =>
+        ids.clientCode ?
+          `/dashboard/clients/${encodeURIComponent(ids.clientCode)}`
+        : "/dashboard/clients"
+      }
     />
   );
 }

@@ -80,27 +80,90 @@ export default function ServicesPage() {
         </div>
       </PageBanner>
 
-      <section className="bg-[color:var(--mc-explore-canvas)] py-14 sm:py-16">
-        <div className="container grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(23,134,118,0.12)]">
-            <Image
-              src={photography.services}
-              alt="Coach watching a kettlebell setup in a daylight studio"
-              fill
-              priority
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 42vw"
-            />
+      <div className="border-b border-line bg-white">
+        <div className="container flex gap-2 overflow-x-auto py-3">
+          {offerings.map((item) => (
+            <a
+              key={item.title}
+              href={`#${item.title.toLowerCase().replace(/\s+/g, "-")}`}
+              className="inline-flex min-h-11 shrink-0 items-center rounded-full bg-mc-secondary-light px-4 text-sm font-semibold text-mc-secondary"
+            >
+              {item.title}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <section id="coaching" className="bg-paper py-14 sm:py-16">
+        <div className="container">
+          <div className="grid items-center gap-8 lg:grid-cols-[0.72fr_1.28fr]">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(44,24,16,0.12)]">
+              <Image
+                src={photography.services}
+                alt="Coach watching a kettlebell setup in a daylight studio"
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 34vw"
+              />
+            </div>
+            <div>
+              <p className="inline-flex rounded-full border border-mc-secondary/20 bg-mc-secondary-light px-3 py-1 font-display text-xs font-bold text-mc-secondary">
+                Coaching programs
+              </p>
+              <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-ink">
+                Expert-led coaching programs
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-muted">
+                Exercise, nutrition, and diet programs sit with the same coach
+                tools used to manage clients.
+              </p>
+            </div>
           </div>
-          <div className="grid gap-4">
+          <div className="mt-8 grid gap-5 lg:grid-cols-3">
             {offerings.map((item) => (
               <article
                 key={item.title}
-                className="rounded-2xl border border-line bg-white p-5 shadow-[0_8px_24px_rgba(23,134,118,0.05)]"
+                id={item.title.toLowerCase().replace(/\s+/g, "-")}
+                className="flex flex-col overflow-hidden rounded-[20px] border border-line bg-white shadow-[0_8px_24px_rgba(44,24,16,0.05)]"
               >
-                <h2 className="font-display text-lg font-bold text-ink">
-                  {item.title}
-                </h2>
+                <div className="bg-mc-secondary px-5 py-4 text-white">
+                  <h3 className="font-display text-lg font-bold">
+                    {item.title}
+                  </h3>
+                </div>
+                <p className="flex-1 p-5 text-sm leading-relaxed text-ink-muted">
+                  {item.body}
+                </p>
+                <div className="px-5 pb-5">
+                  <Link
+                    href="/coach"
+                    className="text-sm font-semibold text-mc-secondary"
+                  >
+                    Find a coach
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[image:var(--mc-gradient)] py-16 text-white sm:py-20">
+        <div className="container">
+          <h2 className="font-display text-3xl font-extrabold tracking-tight">
+            Manage every client professionally
+          </h2>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/75">
+            Profiles, assessments, and reports live next to the public page.
+          </p>
+          <div className="mt-8 grid gap-5 lg:grid-cols-3">
+            {clientTools.map((item) => (
+              <article
+                key={item.title}
+                className="rounded-[20px] bg-white p-5 text-ink"
+              >
+                <h3 className="font-display text-lg font-bold">{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-muted">
                   {item.body}
                 </p>
@@ -110,68 +173,25 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      <section className="mc-gradient-header py-16 text-white sm:py-20 lg:py-24">
-        <div className="container grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
-          <div>
-            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
-              Manage every client professionally
-            </h2>
-            <p className="mt-4 max-w-[40ch] text-sm leading-relaxed text-white/75 sm:text-base">
-              Run your coaching business with clarity, from first assessment to
-              follow-up.
-            </p>
-            <Link
-              href="/register"
-              className="mc-btn-primary mt-8 w-full sm:w-auto"
-            >
-              Start as a Coach
-            </Link>
-          </div>
-          <ul className="divide-y divide-white/15 border-y border-white/15">
-            {clientTools.map((item) => (
-              <li
-                key={item.title}
-                className="py-6 first:pt-0 last:pb-0 sm:py-7"
-              >
-                <h3 className="font-display text-xl font-bold">{item.title}</h3>
-                <p className="mt-2 max-w-[48ch] text-sm leading-relaxed text-white/70">
-                  {item.body}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className="bg-mc-accent-ink py-16 text-white sm:py-20 lg:py-24">
+      <section className="bg-paper py-16 sm:py-20">
         <div className="container">
-          <h2 className="max-w-xl font-display text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+          <h2 className="font-display text-3xl font-extrabold tracking-tight text-ink">
             Show progress. Build trust.
           </h2>
-          <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-white/75 sm:text-base">
-            Help clients stay motivated with clear signals of improvement.
-          </p>
-          <div className="mt-10 grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12">
-            <div>
-              <h3 className="font-display text-2xl font-bold sm:text-3xl">
-                {progressPoints[0].title}
-              </h3>
-              <p className="mt-3 max-w-[36ch] text-sm leading-relaxed text-white/70 sm:text-base">
-                {progressPoints[0].body}
-              </p>
-            </div>
-            <div className="space-y-6 border-t border-white/15 pt-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-10">
-              {progressPoints.slice(1).map((item) => (
-                <div key={item.title}>
-                  <h3 className="font-display text-lg font-bold sm:text-xl">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/70">
-                    {item.body}
-                  </p>
-                </div>
-              ))}
-            </div>
+          <div className="mt-8 grid gap-5 lg:grid-cols-3">
+            {progressPoints.map((item) => (
+              <article
+                key={item.title}
+                className="rounded-[20px] border border-line bg-white p-5"
+              >
+                <h3 className="font-display text-lg font-bold text-ink">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+                  {item.body}
+                </p>
+              </article>
+            ))}
           </div>
         </div>
       </section>

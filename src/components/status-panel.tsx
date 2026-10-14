@@ -42,7 +42,7 @@ export function StatusPanel({
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto w-full max-w-lg overflow-hidden rounded-[24px] border border-line bg-white shadow-[0_24px_60px_rgba(23,134,118,0.12)]">
+      <div className="relative z-10 mx-auto w-full max-w-lg overflow-hidden rounded-[24px] border border-line bg-white shadow-[0_24px_60px_rgba(44,24,16,0.12)]">
         <div className="bg-[image:var(--mc-gradient)] px-6 py-8 text-white">
           {fullViewport ?
             <Image

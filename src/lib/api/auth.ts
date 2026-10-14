@@ -5,6 +5,7 @@ import { apiFetch } from "@/lib/api/client";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { ApiRequestError } from "@/lib/api/types";
 import { hashPassword } from "@/lib/auth/hash";
+import { ensurePremiumStatus } from "@/lib/auth/premium-status";
 import { saveSession } from "@/lib/auth/session";
 import { sessionFromLoginResult } from "@/lib/auth/session-from-login";
 
@@ -57,6 +58,7 @@ export async function loginCoach(
     }
 
     saveSession(session);
+    void ensurePremiumStatus().catch(() => undefined);
     return { error: null, session };
   } catch (error) {
     if (error instanceof ApiRequestError) {

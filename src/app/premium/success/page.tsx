@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 
 import { AppHandoffCta } from "@/components/app-handoff-cta";
 import { PageBanner } from "@/components/marketing/page-banner";
+import { RefreshPremiumStatus } from "@/components/refresh-premium-status";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { premiumPaidDeepLink } from "@/lib/app-deep-link";
 
@@ -72,7 +73,8 @@ async function PremiumSuccessBody({
   const openAppHref = premiumPaidDeepLink();
 
   return (
-    <div className="space-y-6 rounded-[22px] border border-line bg-white p-5 shadow-[0_16px_40px_rgba(23,134,118,0.08)] sm:p-8">
+    <div className="space-y-6 rounded-[22px] border border-line bg-white p-5 shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:p-8">
+      <RefreshPremiumStatus />
       <AlertBanner tone="success">
         {params.plan ?
           <>

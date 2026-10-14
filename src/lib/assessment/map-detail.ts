@@ -1,5 +1,6 @@
 import type { AssessmentFormState, ClientDetail } from "@/types/practice";
 
+import { toApiDate } from "@/lib/dates";
 import { blankAssessmentForm, emptyMeals } from "@/types/practice";
 
 function splitCsv(value?: string): string[] {
@@ -27,7 +28,7 @@ export function detailToForm(detail: ClientDetail): AssessmentFormState {
     mobileNo: detail.mobileNo ?? "",
     emailId: detail.emailId ?? "",
     location: detail.location ?? "",
-    dob: (detail.dob ?? "").slice(0, 10),
+    dob: toApiDate(detail.dob) ?? "",
     gender: normalizeGenderCode(detail.gender),
     age: detail.age != null ? String(detail.age) : "",
     weight: detail.weight != null ? String(detail.weight) : "",

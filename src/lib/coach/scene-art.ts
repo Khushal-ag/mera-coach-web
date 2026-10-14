@@ -7,16 +7,16 @@ export function categoryScene(typeName: string): {
 } {
   const t = typeName.toLowerCase();
   if (/(yoga|zumba)/.test(t)) {
-    return { src: photography.bannerYoga, accent: "#178676" };
+    return { src: photography.bannerYoga, accent: "#1b4332" };
   }
   if (/(nutri|diet)/.test(t)) {
-    return { src: photography.bannerNutrition, accent: "#e8a317" };
+    return { src: photography.bannerNutrition, accent: "#c9882a" };
   }
   if (/(gym|fitness|personal|weight|transform)/.test(t)) {
-    return { src: photography.bannerFitness, accent: "#d05c26" };
+    return { src: photography.bannerFitness, accent: "#c04b2b" };
   }
   if (/(well|health|holistic|lifestyle)/.test(t)) {
-    return { src: photography.bannerWellness, accent: "#178676" };
+    return { src: photography.bannerWellness, accent: "#1b4332" };
   }
-  return { src: photography.bannerWellness, accent: "#d05c26" };
+  return { src: photography.bannerWellness, accent: "#c04b2b" };
 }

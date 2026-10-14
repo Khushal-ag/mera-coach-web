@@ -1,16 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
-
-import { ArrowLeft } from "lucide-react";
 
 import type { AssessmentFormState, AssessmentIds } from "@/types/practice";
 
 import { AssessmentWizardLazy as AssessmentWizard } from "@/components/assessment/assessment-wizard-lazy";
 import { useAuth } from "@/components/auth-provider";
-import { PracticeRosterSkeleton } from "@/components/practice/page-header";
+import { PracticePageHeader } from "@/components/practice/page-header";
+import { ClientCheckupSkeleton } from "@/components/skeletons/client-profile-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import {
   fetchAuthedCoachProfile,
@@ -19,7 +17,11 @@ import {
 } from "@/lib/api/practice";
 import { detailToForm } from "@/lib/assessment/map-detail";
 
-export function ClientCheckupView() {
+export function ClientCheckupView({
+  embedded = false,
+}: {
+  embedded?: boolean;
+}) {
   const params = useParams<{ code: string }>();
   const code = decodeURIComponent(params.code ?? "");
   const { session } = useAuth();
@@ -61,43 +63,63 @@ export function ClientCheckupView() {
     };
   }, [code]);
 
+  const clientHref = `/dashboard/clients/${encodeURIComponent(code)}`;
+  const clientName = form?.clientName?.trim() || "Client";
+
   if (!session?.coachCode) {
     return <p className="text-sm text-ink-muted">Sign in required.</p>;
   }
 
   if (loading) {
-    return <PracticeRosterSkeleton rows={4} />;
+    return (
+      <div className="min-w-0">
+        {embedded ? null : (
+          <PracticePageHeader
+            title="Checkup"
+            back={{ href: clientHref, label: "Back to client" }}
+            description="Loading this client's checkup."
+          />
+        )}
+        <ClientCheckupSkeleton />
+      </div>
+    );
   }
 
   if (error || !form) {
     return (
-      <div className="space-y-4">
+      <div className="min-w-0 space-y-4">
+        {embedded ? null : (
+          <PracticePageHeader
+            title="Checkup"
+            back={{ href: clientHref, label: "Back to client" }}
+            description="This checkup could not be opened."
+          />
+        )}
         <AlertBanner tone="error">{error ?? "Client not found."}</AlertBanner>
-        <Link
-          href="/dashboard/checkups"
-          className="inline-flex items-center gap-1 text-sm font-semibold text-mc-secondary"
-        >
-          <ArrowLeft className="size-3.5" aria-hidden />
-          Back to checkups
-        </Link>
       </div>
     );
   }
 
   return (
-    <div>
-      <nav className="mb-4">
-        <Link
-          href={`/dashboard/clients/${encodeURIComponent(code)}`}
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-mc-secondary hover:underline"
-        >
-          <ArrowLeft className="size-3.5" aria-hidden />
-          Client profile
-        </Link>
-      </nav>
+    <div id="client-checkup" className="min-w-0">
+      {embedded ?
+        <h2 className="mb-4 font-display text-xl font-bold tracking-tight text-ink">
+          Checkup
+        </h2>
+      : null}
       <AssessmentWizard
         flow="checkup"
-        title={`Checkup for ${form.clientName || code}`}
+        embedded={embedded}
+        title={clientName}
+        description="Checkup. Update this assessment, then save it on their profile."
+        back={
+          embedded ? undefined : (
+            {
+              href: clientHref,
+              label: `Back to ${clientName === "Client" ? "client" : clientName}`,
+            }
+          )
+        }
         coachCode={session.coachCode}
         savedBy={session.fullName}
         countryCd={countryCd}

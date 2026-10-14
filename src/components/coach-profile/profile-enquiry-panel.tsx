@@ -4,52 +4,49 @@ type ProfileEnquiryPanelProps = {
   coachCode: string;
   coachName: string;
   lookingForOptions: string[];
-  whatsappUrl: string | null;
 };
 
 export function ProfileEnquiryPanel({
   coachCode,
   coachName,
   lookingForOptions,
-  whatsappUrl,
 }: ProfileEnquiryPanelProps) {
-  const firstName = coachName.split(" ")[0] || coachName;
-
   return (
-    <aside
-      id="enquiry"
-      className="scroll-mt-24 overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface shadow-[var(--mc-shadow-lg)] lg:sticky lg:top-24"
+    <section
+      id="contact"
+      className="relative scroll-mt-24 overflow-hidden bg-[image:var(--mc-gradient)] py-16 sm:py-20"
     >
-      <div className="border-b border-line bg-mc-primary-light px-5 py-5 sm:px-7 sm:py-6">
-        <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
-          Start with {firstName}
-        </h2>
-        <p className="mt-2 text-sm leading-relaxed text-ink-muted">
-          Share a few details. Coaches typically reply within 24 hours. No
-          payment required to enquire.
-        </p>
-      </div>
-      <div className="p-5 sm:p-7">
-        <CoachEnquiryForm
-          coachCode={coachCode}
-          coachName={coachName}
-          lookingForOptions={lookingForOptions}
-        />
-
-        {whatsappUrl ?
-          <p className="mt-5 border-t border-line pt-4 text-center text-sm text-ink-muted">
-            Prefer chat?{" "}
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-[color:var(--mc-whatsapp)] hover:underline"
-            >
-              Message on WhatsApp
-            </a>
+      <div className="container">
+        <div
+          id="enquiry"
+          className="mx-auto max-w-3xl rounded-[24px] bg-white p-6 text-ink shadow-[0_20px_60px_rgba(0,0,0,0.18)] sm:p-8"
+        >
+          <p className="inline-flex rounded-full bg-[color:var(--mc-accent-light)] px-3 py-1 font-display text-xs font-bold text-[color:var(--mc-accent)]">
+            Get in touch
           </p>
-        : null}
+          <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight">
+            Book your{" "}
+            <em className="text-[color:var(--mc-accent)] not-italic">free</em>{" "}
+            consultation
+          </h2>
+          <p className="mt-2 max-w-lg text-sm leading-relaxed text-ink-muted">
+            {coachName} gets this enquiry from the public page. There is no fee
+            to send it.
+          </p>
+          <div className="mt-6">
+            <CoachEnquiryForm
+              coachCode={coachCode}
+              coachName={coachName}
+              lookingForOptions={lookingForOptions}
+            />
+          </div>
+          <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-2 border-t border-line pt-4 text-xs font-semibold text-ink-muted">
+            <li>Free to send</li>
+            <li>No account required</li>
+            <li>No payment on this form</li>
+          </ul>
+        </div>
       </div>
-    </aside>
+    </section>
   );
 }

@@ -1,79 +1,38 @@
-import Image from "next/image";
+import { HeartPulse } from "lucide-react";
 
-import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
 /**
- * App wordmark: "Mera" in teal, "Coach" in orange, plus "Wellness Platform".
- * - `workspace`: light chrome (header, dashboard rail)
- * - `nav`: dark chrome (deep teal surfaces without a site header)
- * - `full` / `mark`: brand image assets
+ * Wordmark: gradient heartbeat tile, "Mera Coach", "Wellness Platform".
+ * `workspace` is the cream header. `nav` is the forest sidebar and footer.
  */
 export function BrandLockup({
   variant = "nav",
   className,
-  priority,
 }: {
-  variant?: "nav" | "workspace" | "full" | "mark";
+  variant?: "nav" | "workspace";
   className?: string;
-  priority?: boolean;
 }) {
-  if (variant === "full") {
-    return (
-      <Image
-        src={siteConfig.brand.logoFull}
-        alt={siteConfig.name}
-        width={1034}
-        height={837}
-        className={cn("h-auto w-full object-contain", className)}
-        priority={priority}
-      />
-    );
-  }
-
-  if (variant === "mark") {
-    return (
-      <Image
-        src={siteConfig.brand.logoMark}
-        alt={siteConfig.name}
-        width={560}
-        height={565}
-        className={cn("object-contain", className)}
-        priority={priority}
-      />
-    );
-  }
-
   const onDark = variant === "nav";
 
   return (
     <span className={cn("inline-flex min-w-0 items-center gap-2.5", className)}>
-      <span
-        className={cn(
-          "inline-flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-xl sm:size-10",
-          onDark ? "bg-white/12 ring-1 ring-white/20" : "bg-mc-secondary-light",
-        )}
-      >
-        <Image
-          src={siteConfig.brand.logoMark}
-          alt=""
-          width={40}
-          height={40}
-          className="size-7 object-contain sm:size-8"
-          priority={priority}
-        />
+      <span className="inline-flex size-[42px] shrink-0 items-center justify-center rounded-xl bg-[image:var(--mc-gradient)] text-white">
+        <HeartPulse className="size-5" strokeWidth={2.25} aria-hidden />
       </span>
       <span className="min-w-0 leading-tight">
-        <span className="block truncate font-display text-base font-extrabold tracking-tight sm:text-lg">
-          <span className={onDark ? "text-mc-brand-mera" : "text-mc-secondary"}>
-            Mera
-          </span>
-          <span className="text-mc-brand-coach">Coach</span>
+        <span
+          className={cn(
+            "block truncate font-display text-xl leading-none font-extrabold",
+            onDark ? "text-white" : "text-ink",
+          )}
+        >
+          Mera Coach
         </span>
         <span
           className={cn(
-            "block truncate font-sans text-[11px] font-medium tracking-wide",
-            onDark ? "text-white/45" : "text-ink-muted",
+            "mt-0.5 block truncate text-[11px] font-medium tracking-wide",
+            onDark ? "text-white/40" : "text-ink-muted",
           )}
         >
           Wellness Platform

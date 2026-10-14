@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 type Crumb = { label: string; href?: string };
 
 const trust = [
-  { value: "500+", label: "Coach profiles" },
-  { value: "Free", label: "To enquire" },
-  { value: "1", label: "Practice home" },
+  "A public page people can browse",
+  "Client tools in the same account",
+  "Enquiries with no fee to send",
 ] as const;
 
 /**
@@ -95,7 +95,7 @@ export function AuthShell({
 
         <div
           className={cn(
-            "mx-auto overflow-hidden rounded-[24px] bg-white shadow-[0_30px_80px_rgba(23,134,118,0.16)]",
+            "mx-auto overflow-hidden rounded-[24px] bg-white shadow-[0_30px_80px_rgba(44,24,16,0.16)]",
             layout === "card" ? "w-full max-w-[47.5rem]"
             : layout === "wide" ?
               "grid w-full max-w-[73.5rem] lg:grid-cols-[minmax(22rem,26rem)_minmax(0,1fr)]"
@@ -114,7 +114,7 @@ export function AuthShell({
                 sizes="(max-width: 768px) 100vw, 760px"
               />
               <div
-                className="absolute inset-0 bg-[linear-gradient(105deg,rgba(23,134,118,0.94)_0%,rgba(23,134,118,0.78)_52%,rgba(23,134,118,0.5)_100%)]"
+                className="absolute inset-0 bg-[linear-gradient(105deg,rgba(15,32,24,0.92)_0%,rgba(27,67,50,0.78)_52%,rgba(27,67,50,0.5)_100%)]"
                 aria-hidden
               />
               <div className="relative z-10 flex h-full flex-col justify-end p-6 sm:p-8">
@@ -156,37 +156,20 @@ export function AuthShell({
                   </p>
                 : null}
               </div>
-              <div className="relative z-10 mt-8 space-y-4">
-                <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/12 bg-white/8 p-3">
-                  {trust.map((item) => (
-                    <div key={item.label} className="text-center">
-                      <p className="font-display text-lg font-extrabold text-[color:var(--mc-accent)]">
-                        {item.value}
-                      </p>
-                      <p className="text-[10px] text-white/80">{item.label}</p>
-                    </div>
-                  ))}
-                </div>
-                <blockquote className="rounded-2xl border border-white/12 bg-white/8 p-4">
-                  <p className="text-sm leading-relaxed text-white/80">
-                    “The public page and the client list finally live in the
-                    same account. I spend the hour coaching, not hunting notes.”
-                  </p>
-                  <footer className="mt-3 flex items-center gap-3">
-                    <span className="grid size-9 place-items-center rounded-full bg-white/15 font-display text-xs font-bold">
-                      AK
-                    </span>
-                    <span>
-                      <strong className="block text-sm">
-                        A coach on Mera Coach
-                      </strong>
-                      <span className="text-xs text-white/80">
-                        Practice owner
-                      </span>
-                    </span>
-                  </footer>
-                </blockquote>
-              </div>
+              <ul className="relative z-10 mt-8 space-y-3">
+                {trust.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-3 rounded-2xl border border-white/12 bg-white/8 px-4 py-3 text-sm leading-relaxed text-white/85"
+                  >
+                    <span
+                      className="mt-1.5 size-2 shrink-0 rounded-full bg-[color:var(--mc-accent)]"
+                      aria-hidden
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </aside>
           : null}
 

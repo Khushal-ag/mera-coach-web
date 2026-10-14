@@ -2,13 +2,19 @@
 
 import { useState } from "react";
 
+import { Share2 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 type ShareProfileButtonProps = {
   coachName: string;
+  /** Public profile URL. Defaults to the current page without a hash. */
+  url?: string;
   className?: string;
   label?: string;
-  variant?: "primary" | "outline-on-dark" | "secondary" | "ghost-on-dark";
+  disabled?: boolean;
+  variant?:
+    "primary" | "outline-on-dark" | "secondary" | "quiet" | "quiet-on-dark";
 };
 
 async function copyProfileUrl(url: string): Promise<boolean> {
@@ -38,15 +44,19 @@ async function copyProfileUrl(url: string): Promise<boolean> {
 
 export function ShareProfileButton({
   coachName,
+  url: urlProp,
   className,
   label = "Share profile",
+  disabled,
   variant = "outline-on-dark",
 }: ShareProfileButtonProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
 
   async function shareProfile() {
+    if (disabled) return;
     const url =
-      typeof window !== "undefined" ? window.location.href.split("#")[0] : "";
+      urlProp?.trim() ||
+      (typeof window !== "undefined" ? window.location.href.split("#")[0] : "");
     if (!url) return;
 
     const title = `${coachName} on Mera Coach`;
@@ -73,23 +83,28 @@ export function ShareProfileButton({
     window.setTimeout(() => setFeedback(null), 2500);
   }
 
+  const quiet = variant === "quiet" || variant === "quiet-on-dark";
   const variantClass =
     variant === "primary" ? "mc-btn-primary"
     : variant === "secondary" ? "mc-btn-secondary"
-    : variant === "ghost-on-dark" ?
-      "inline-flex items-center justify-center rounded-full border border-white/25 bg-white/10 font-semibold text-white backdrop-blur-sm transition hover:bg-white/18"
+    : variant === "quiet" ?
+      "inline-flex min-h-11 items-center gap-1.5 px-1 text-sm font-semibold text-mc-secondary underline-offset-4 hover:underline"
+    : variant === "quiet-on-dark" ?
+      "inline-flex min-h-11 items-center gap-1.5 px-1 text-sm font-semibold text-white/75 underline-offset-4 hover:text-white hover:underline"
     : "mc-btn-outline-on-dark";
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => void shareProfile()}
-        className={cn(variantClass, "min-h-12 px-7 text-sm", className)}
-        aria-live="polite"
-      >
-        {feedback ?? label}
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={() => void shareProfile()}
+      disabled={disabled}
+      className={cn(variantClass, !quiet && "min-h-11 px-4 text-sm", className)}
+      aria-live="polite"
+    >
+      {quiet && !feedback ?
+        <Share2 className="size-4" aria-hidden />
+      : null}
+      {feedback ?? label}
+    </button>
   );
 }

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 
 import type { ClientSummary } from "@/types/practice";
 
@@ -11,11 +11,10 @@ import { useAuth } from "@/components/auth-provider";
 import {
   PracticeEmpty,
   PracticePageHeader,
-  PracticeRosterSkeleton,
   PracticeSearch,
 } from "@/components/practice/page-header";
+import { ClientsTableSkeleton } from "@/components/skeletons/table-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
-import { photography } from "@/config/photography";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import { fetchClientList } from "@/lib/api/practice";
 import { cn } from "@/lib/utils";
@@ -32,7 +31,7 @@ function statusTone(status?: string) {
 
 export function ClientsListView() {
   const { session } = useAuth();
-  const { openAddClient, checking, error: gateError } = useOpenAddClient();
+  const { openAddClient, error: gateError } = useOpenAddClient();
   const [rows, setRows] = useState<ClientSummary[] | null>(null);
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -77,14 +76,13 @@ export function ClientsListView() {
       <button
         type="button"
         className="mc-btn-primary w-full sm:w-auto"
-        disabled={checking}
         onClick={() => void openAddClient()}
       >
         <Plus className="size-4" strokeWidth={2.25} aria-hidden />
-        {checking ? "Checking…" : "Add client"}
+        Add client
       </button>
     ),
-    [checking, openAddClient],
+    [openAddClient],
   );
 
   const countLabel =
@@ -93,10 +91,11 @@ export function ClientsListView() {
     );
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div>
       <PracticePageHeader
         title="Clients"
-        description="Search your roster, open a profile, or start a new assessment."
+        description="Everyone on your roster."
+        icon={<Users className="size-5" aria-hidden />}
         action={addButton}
       />
 
@@ -107,27 +106,27 @@ export function ClientsListView() {
         <AlertBanner tone="error">{gateError}</AlertBanner>
       : null}
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <PracticeSearch
           id="client-search"
-          label="Search clients"
+          label="Search"
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Name or mobile"
           autoComplete="off"
+          className="max-w-sm"
         />
         {countLabel ?
-          <p className="text-sm text-ink-muted tabular-nums">{countLabel}</p>
+          <p className="text-sm text-ink-muted">{countLabel}</p>
         : null}
       </div>
 
       {loading && rows == null ?
-        <PracticeRosterSkeleton />
+        <ClientsTableSkeleton />
       : !rows?.length ?
         <PracticeEmpty
-          image={search.trim() ? undefined : photography.emptyClients}
-          imageAlt="A folded towel and a closed notebook on a gym bench"
+          icon={<Users className="size-5" aria-hidden />}
           title={search.trim() ? "No matches" : "No clients yet"}
           body={
             search.trim() ?

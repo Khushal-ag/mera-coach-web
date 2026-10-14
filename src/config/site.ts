@@ -50,10 +50,11 @@ export const siteConfig = {
 
   nav: [
     { label: "Home", href: "/" },
-    { label: "Find A Coach", href: "/coach" },
+    { label: "Find a Coach", href: "/coach" },
+    { label: "Features", href: "/services" },
     { label: "BMI", href: "/bmi" },
-    { label: "Services", href: "/services" },
-    { label: "Join us", href: "/register" },
+    { label: "About", href: "/#path" },
+    { label: "Blog", href: "/#tips" },
   ] as const,
 
   /**
@@ -73,7 +74,6 @@ export const siteConfig = {
   /** Brand assets — same as mera-coach-app `assets/brand`. */
   brand: {
     logoMark: "/mc-images/logo-mark.png",
-    logoFull: "/mc-images/logo-full.png",
   },
 
   /** Open Graph / Twitter share image (1200×630). */
@@ -93,7 +93,7 @@ export const siteConfig = {
     icon512: "/icon-512.png",
   },
 
-  themeColor: "#178676",
+  themeColor: "#1b4332",
 
   robots: {
     index: true,

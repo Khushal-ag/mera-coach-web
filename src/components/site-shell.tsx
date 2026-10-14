@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/site-header";
 
 function HeaderFallback() {
   return (
-    <div className="sticky top-0 z-50 h-[7.4rem] bg-[color:var(--paper)] shadow-[0_8px_24px_rgba(23,134,118,0.08)]" />
+    <div className="sticky top-0 z-50 h-[4.5rem] bg-[color:var(--paper)] shadow-[0_1px_20px_rgba(44,24,16,0.08)]" />
   );
 }
 

@@ -1,9 +1,17 @@
+import { Children, isValidElement, useId } from "react";
+
+import type { ReactNode } from "react";
+
+import type { MenuOption } from "@/components/ui/menu-select";
+
+import { MenuSelect } from "@/components/ui/menu-select";
 import { cn } from "@/lib/utils";
 
 type Tone = "light" | "dark";
 
 type FieldShellProps = {
   label: React.ReactNode;
+  labelId?: string;
   htmlFor?: string;
   required?: boolean;
   hint?: React.ReactNode;
@@ -15,6 +23,7 @@ type FieldShellProps = {
 
 function FieldShell({
   label,
+  labelId,
   htmlFor,
   required,
   hint,
@@ -26,6 +35,7 @@ function FieldShell({
   return (
     <div className={cn("block", className)}>
       <label
+        id={labelId}
         htmlFor={htmlFor}
         className={cn(
           "mc-field-label",
@@ -148,18 +158,57 @@ export function TextAreaField({
   );
 }
 
-type SelectProps = Omit<
-  React.ComponentPropsWithoutRef<"select">,
-  "className"
-> & {
+type SelectValue = string | number | readonly string[];
+
+type SelectProps = {
   label: React.ReactNode;
   hint?: React.ReactNode;
   error?: React.ReactNode;
   tone?: Tone;
   className?: string;
   inputClassName?: string;
+  id?: string;
+  name?: string;
+  required?: boolean;
+  disabled?: boolean;
+  value?: SelectValue;
+  defaultValue?: SelectValue;
+  onChange?: (event: { target: { value: string; name: string } }) => void;
   children: React.ReactNode;
 };
+
+function optionLabel(node: unknown): string {
+  if (node == null || typeof node === "boolean") return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(optionLabel).join("");
+  return "";
+}
+
+function optionsFromChildren(children: ReactNode): MenuOption[] {
+  const options: MenuOption[] = [];
+  Children.forEach(children, (child) => {
+    if (!isValidElement(child) || child.type !== "option") return;
+    const props = child.props as {
+      value?: string | number;
+      disabled?: boolean;
+      children?: ReactNode;
+    };
+    const label = optionLabel(props.children).trim();
+    options.push({
+      value: props.value == null ? label : String(props.value),
+      label,
+      disabled: props.disabled,
+    });
+  });
+  return options;
+}
+
+function singleValue(value: SelectValue | undefined): string | undefined {
+  if (value == null) return undefined;
+  if (typeof value === "string" || typeof value === "number")
+    return String(value);
+  return value[0] == null ? "" : String(value[0]);
+}
 
 export function SelectField({
   label,
@@ -169,15 +218,21 @@ export function SelectField({
   className,
   inputClassName,
   id,
+  name,
   required,
+  disabled,
+  value,
+  defaultValue,
+  onChange,
   children,
-  ...props
 }: SelectProps) {
-  const fieldId =
-    id ?? (typeof props.name === "string" ? props.name : undefined);
+  const autoId = useId();
+  const fieldId = id ?? name ?? autoId;
+  const labelId = `${fieldId}-label`;
   return (
     <FieldShell
       label={label}
+      labelId={labelId}
       htmlFor={fieldId}
       required={required}
       hint={hint}
@@ -185,20 +240,20 @@ export function SelectField({
       tone={tone}
       className={className}
     >
-      <select
+      <MenuSelect
         id={fieldId}
+        aria-labelledby={labelId}
+        name={name}
         required={required}
-        aria-invalid={error ? true : undefined}
-        className={cn(
-          "mc-field",
-          tone === "dark" && "mc-field-dark",
-          error && "mc-field-error",
-          inputClassName,
-        )}
-        {...props}
-      >
-        {children}
-      </select>
+        disabled={disabled}
+        tone={tone}
+        invalid={Boolean(error)}
+        className={inputClassName}
+        options={optionsFromChildren(children)}
+        value={singleValue(value)}
+        defaultValue={singleValue(defaultValue)}
+        onChange={onChange}
+      />
     </FieldShell>
   );
 }

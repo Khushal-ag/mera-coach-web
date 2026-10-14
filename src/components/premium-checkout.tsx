@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
 
+import { Check } from "lucide-react";
+
 import type { CoachCatalogPlan, CoachSuggestedPromo } from "@/types/premium";
 
 import { CoachPhoto } from "@/components/coach-photo";
@@ -12,6 +14,7 @@ import { TextField } from "@/components/ui/field";
 import { fetchCoachProfile } from "@/lib/api/coach";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { confirmPremiumOrder, createPremiumOrder } from "@/lib/api/premium";
+import { refreshPremiumStatus } from "@/lib/auth/premium-status";
 import { resolveCoachPhotoUrl } from "@/lib/media/media-url";
 import {
   formatInr,
@@ -116,6 +119,15 @@ function fallbackCoachLabel(): string {
   return "Your coach account";
 }
 
+/** Matches the app: shortest active plan until the coach picks another. */
+function defaultPlanId(plans: CoachCatalogPlan[]): string {
+  const shortest = plans.reduce<CoachCatalogPlan | undefined>((best, plan) => {
+    if (!best || plan.durationMonths < best.durationMonths) return plan;
+    return best;
+  }, undefined);
+  return shortest ? String(shortest.planId) : "";
+}
+
 export function PremiumCheckout({
   plans,
   promo,
@@ -144,7 +156,7 @@ export function PremiumCheckout({
     : null,
   );
   const [coachLoading, setCoachLoading] = useState(identified);
-  const [planId, setPlanId] = useState(plans[0] ? String(plans[0].planId) : "");
+  const [planId, setPlanId] = useState(() => defaultPlanId(plans));
   const [promoCode, setPromoCode] = useState(suggestedPromo?.code ?? "");
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
@@ -320,6 +332,11 @@ export function PremiumCheckout({
             if (periodEnd) qs.set("periodEnd", periodEnd);
             if (paidCoachId > 0) qs.set("coachId", String(paidCoachId));
             if (resolvedCode) qs.set("coachCode", resolvedCode);
+            try {
+              await refreshPremiumStatus();
+            } catch {
+              // Success page retries. Checkout still continues.
+            }
             router.push(`/premium/success?${qs.toString()}`);
           } catch (error) {
             checkoutLock.current = false;
@@ -331,7 +348,7 @@ export function PremiumCheckout({
             );
           }
         },
-        theme: { color: "#178676" },
+        theme: { color: "#c04b2b" },
         modal: {
           ondismiss: () => {
             checkoutLock.current = false;
@@ -402,7 +419,11 @@ export function PremiumCheckout({
         <AlertBanner tone="info">
           No premium plans are available right now. Please try again later.
         </AlertBanner>
-      : <div className="grid min-w-0 gap-4 md:grid-cols-2">
+      : <div
+          className="grid min-w-0 gap-4 md:grid-cols-2"
+          role="radiogroup"
+          aria-label="Premium plans"
+        >
           {plans.map((plan) => {
             const active = String(plan.planId) === String(selected?.planId);
             const monthly = planPayableMonthly(plan);
@@ -412,17 +433,50 @@ export function PremiumCheckout({
               <button
                 key={plan.planId}
                 type="button"
+                role="radio"
+                aria-checked={active}
+                tabIndex={active ? 0 : -1}
                 onClick={() => setPlanId(String(plan.planId))}
-                className={`min-h-11 min-w-0 rounded-[var(--radius-md)] border p-4 text-left transition active:scale-[0.99] sm:p-5 ${
+                onKeyDown={(event) => {
+                  const forward =
+                    event.key === "ArrowRight" || event.key === "ArrowDown";
+                  const backward =
+                    event.key === "ArrowLeft" || event.key === "ArrowUp";
+                  if (!forward && !backward) return;
+                  event.preventDefault();
+                  const index = plans.findIndex(
+                    (item) => String(item.planId) === String(selected?.planId),
+                  );
+                  const delta = forward ? 1 : -1;
+                  const next =
+                    plans[(index + delta + plans.length) % plans.length];
+                  if (!next) return;
+                  setPlanId(String(next.planId));
+                  const group = event.currentTarget.parentElement;
+                  const target = group?.querySelector<HTMLButtonElement>(
+                    `[data-plan-id="${next.planId}"]`,
+                  );
+                  target?.focus();
+                }}
+                data-plan-id={plan.planId}
+                className={`relative min-h-11 min-w-0 cursor-pointer rounded-[var(--radius-md)] border-2 p-4 text-left transition focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-mc-primary active:scale-[0.99] sm:p-5 ${
                   active ?
-                    "border-mc-secondary bg-surface shadow-[0_12px_28px_rgba(23,134,118,0.16)] ring-2 ring-mc-secondary/25"
-                  : "border-line bg-surface hover:border-mc-secondary/40"
+                    "border-mc-secondary bg-[#d6ede5] shadow-[0_10px_24px_rgba(27,67,50,0.14)] ring-2 ring-mc-secondary"
+                  : "border-line bg-white hover:border-mc-secondary/35"
                 }`}
               >
-                <p className="text-xs font-semibold text-mc-secondary">
-                  {plan.durationMonths}{" "}
-                  {plan.durationMonths === 1 ? "month" : "months"}
-                </p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-xs font-semibold text-mc-secondary">
+                    {plan.durationMonths}{" "}
+                    {plan.durationMonths === 1 ? "month" : "months"}
+                  </p>
+                  {active ?
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-mc-secondary px-2 py-0.5 text-[11px] font-bold tracking-wide text-white">
+                      <Check className="size-3.5" strokeWidth={3} aria-hidden />
+                      Selected
+                    </span>
+                  : null}
+                </div>
                 <h3 className="mt-1 truncate font-display text-xl font-bold text-ink">
                   {plan.planName}
                 </h3>

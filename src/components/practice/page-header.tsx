@@ -1,87 +1,100 @@
-import Image from "next/image";
 import Link from "next/link";
+
+import { ArrowLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+export type PracticeCrumb = {
+  label: string;
+  href?: string;
+};
+
+export type PracticeBackLink = {
+  href: string;
+  label: string;
+};
+
+/**
+ * Coach surfaces use one radius: 16px panels, 10px controls, pill chips.
+ * The gold rule sits on the page title only.
+ */
 export function PracticePageHeader({
   title,
   description,
   action,
+  crumbs,
+  back,
+  leading,
+  icon,
   className,
-  image,
-  variant = "work",
 }: {
   title: string;
-  description?: string;
+  description?: React.ReactNode;
   action?: React.ReactNode;
+  crumbs?: PracticeCrumb[];
+  back?: PracticeBackLink;
+  leading?: React.ReactNode;
+  icon?: React.ReactNode;
   className?: string;
-  /** Required when `variant` is `band`. One dashboard photograph, not a shared wallpaper. */
-  image?: string;
-  /** `band` is the overview only. Working pages stay typographic. */
-  variant?: "work" | "band";
 }) {
-  if (variant === "band" && image) {
-    return (
-      <header
-        className={cn(
-          "relative mb-6 overflow-hidden rounded-[var(--radius-md)] text-white sm:mb-8",
-          className,
-        )}
-      >
-        <div className="relative min-h-[11rem] sm:min-h-[12.5rem]">
-          <Image
-            src={image}
-            alt="Coach writing notes between sets"
-            fill
-            priority
-            sizes="(max-width: 1024px) 100vw, 72rem"
-            className="object-cover object-[center_42%]"
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-[color:var(--mc-secondary)]/88 via-[color:var(--mc-secondary)]/55 to-[color:var(--mc-header-top)]/30"
-            aria-hidden
-          />
-          <div className="relative flex min-h-[11rem] flex-col justify-end gap-4 px-5 py-5 sm:min-h-[12.5rem] sm:flex-row sm:items-end sm:justify-between sm:px-7 sm:py-6">
-            <div className="max-w-[62ch] min-w-0">
-              <h1 className="font-display text-2xl font-bold tracking-tight break-words text-white sm:text-3xl">
-                {title}
-              </h1>
-              {description ?
-                <p className="mt-1.5 text-sm leading-relaxed text-white/85">
+  return (
+    <header className={cn("mb-8 min-w-0", className)}>
+      {back ?
+        <Link
+          href={back.href}
+          className="mb-3 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-mc-secondary hover:underline"
+        >
+          <ArrowLeft className="size-3.5 shrink-0" aria-hidden />
+          {back.label}
+        </Link>
+      : crumbs?.length ?
+        <nav
+          aria-label="Breadcrumb"
+          className="mb-3 flex flex-wrap items-center gap-1.5 text-[13px] text-ink-muted"
+        >
+          {crumbs.map((crumb, index) => (
+            <span
+              key={`${crumb.label}-${index}`}
+              className="inline-flex items-center gap-1.5"
+            >
+              {index > 0 ?
+                <ChevronRight className="size-2.5 shrink-0" aria-hidden />
+              : null}
+              {crumb.href ?
+                <Link
+                  href={crumb.href}
+                  className="font-semibold text-mc-secondary hover:underline"
+                >
+                  {crumb.label}
+                </Link>
+              : <span>{crumb.label}</span>}
+            </span>
+          ))}
+        </nav>
+      : null}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex min-w-0 items-start gap-4">
+          {icon ?
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-mc-secondary-light text-mc-secondary">
+              {icon}
+            </span>
+          : leading}
+          <div className="min-w-0">
+            <h1 className="font-display text-[1.85rem] leading-[1.15] font-bold tracking-tight text-ink sm:text-[2.15rem]">
+              {title}
+            </h1>
+            <div
+              className="mt-3 h-1 w-11 rounded-full bg-mc-brand-coach"
+              aria-hidden
+            />
+            {description != null && description !== "" ?
+              typeof description === "string" ?
+                <p className="mt-3 max-w-[62ch] text-[15px] leading-relaxed text-ink-muted">
                   {description}
                 </p>
-              : null}
-            </div>
-            {action ?
-              <div className="w-full shrink-0 sm:w-auto">{action}</div>
+              : <div className="mt-3 min-w-0">{description}</div>
             : null}
           </div>
-        </div>
-      </header>
-    );
-  }
-
-  return (
-    <header
-      className={cn(
-        "mb-6 overflow-hidden rounded-[22px] bg-[image:var(--mc-gradient)] text-white shadow-[0_16px_40px_rgba(0,75,62,0.18)] sm:mb-8 print:bg-white print:bg-none print:text-ink print:shadow-none",
-        className,
-      )}
-    >
-      <div className="flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-end sm:justify-between sm:px-7 sm:py-6">
-        <div className="max-w-[65ch] min-w-0">
-          <h1 className="font-display text-[1.75rem] leading-[1.15] font-extrabold tracking-tight text-white sm:text-[2rem] print:text-ink">
-            {title}
-          </h1>
-          <div
-            className="mt-3 h-1 w-12 rounded-full bg-[color:var(--mc-accent)] print:bg-mc-secondary"
-            aria-hidden
-          />
-          {description ?
-            <p className="mt-3 text-sm leading-relaxed text-white/75 print:text-ink-muted">
-              {description}
-            </p>
-          : null}
         </div>
         {action ?
           <div className="w-full shrink-0 sm:w-auto">{action}</div>
@@ -91,55 +104,61 @@ export function PracticePageHeader({
   );
 }
 
+/** Left-aligned empty state. The action sits with the sentence, not in the middle of the page. */
 export function PracticeEmpty({
   title,
   body,
   href,
   cta,
   action,
-  image,
-  imageAlt = "",
+  icon,
+  stacked = false,
+  plain = false,
+  className,
 }: {
   title: string;
   body: string;
   href?: string;
   cta?: string;
   action?: React.ReactNode;
-  image?: string;
-  imageAlt?: string;
+  icon?: React.ReactNode;
+  stacked?: boolean;
+  plain?: boolean;
+  className?: string;
 }) {
   return (
-    <div className="overflow-hidden rounded-[var(--radius-md)] border border-dashed border-line bg-surface">
-      <div
-        className={
-          image ? "grid sm:grid-cols-[7.75rem_minmax(0,1fr)]" : undefined
-        }
-      >
-        {image ?
-          <div className="relative h-32 sm:h-auto sm:min-h-32">
-            <Image
-              src={image}
-              alt={imageAlt}
-              fill
-              className="object-cover"
-              sizes="140px"
-            />
-          </div>
+    <div
+      className={cn(
+        "flex h-full flex-col items-start justify-center gap-4",
+        plain ? "px-1 py-4" : (
+          "rounded-2xl border border-l-[3px] border-[#e5d5c5] border-l-mc-secondary bg-[#fdf8f2] px-5 py-6"
+        ),
+        !plain &&
+          !stacked &&
+          "sm:flex-row sm:items-center sm:justify-between sm:gap-8",
+        className,
+      )}
+    >
+      <div className="flex min-w-0 items-start gap-3">
+        {icon ?
+          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-mc-secondary-light text-mc-secondary">
+            {icon}
+          </span>
         : null}
-        <div className="px-6 py-8 sm:px-8">
-          <p className="font-display text-xl font-bold text-ink">{title}</p>
-          <p className="mt-2 max-w-[42ch] text-sm leading-relaxed text-ink-muted">
+        <div className="min-w-0">
+          <p className="font-display text-lg font-bold text-ink">{title}</p>
+          <p className="mt-1.5 max-w-[46ch] text-sm leading-relaxed text-ink-muted">
             {body}
           </p>
-          {action ?
-            <div className="mt-5">{action}</div>
-          : href && cta ?
-            <Link href={href} className="mc-btn-primary mt-5 w-fit">
-              {cta}
-            </Link>
-          : null}
         </div>
       </div>
+      {action ?
+        <div className="shrink-0">{action}</div>
+      : href && cta ?
+        <Link href={href} className="mc-btn-primary w-full shrink-0 sm:w-auto">
+          {cta}
+        </Link>
+      : null}
     </div>
   );
 }
@@ -159,24 +178,6 @@ export function PracticeSearch({
         {label}
       </label>
       <input id={id} className="mc-field" {...props} />
-    </div>
-  );
-}
-
-export function PracticeRosterSkeleton({ rows = 6 }: { rows?: number }) {
-  return (
-    <div className="mc-roster" aria-busy="true" aria-live="polite">
-      <span className="sr-only">Loading</span>
-      {Array.from({ length: rows }).map((_, i) => (
-        <div
-          key={i}
-          className="flex items-center gap-4 border-b border-line px-4 py-4 last:border-b-0"
-        >
-          <div className="mc-skeleton h-4 w-36" />
-          <div className="mc-skeleton hidden h-4 w-24 sm:block" />
-          <div className="mc-skeleton ml-auto h-4 w-16" />
-        </div>
-      ))}
     </div>
   );
 }

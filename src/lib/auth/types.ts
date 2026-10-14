@@ -9,4 +9,9 @@ export type CoachSession = {
   coachCode: string;
   fullName: string;
   email?: string;
+  /**
+   * Cached GET /v1/Coach/premium `isPaid`.
+   * Undefined until the first load after login or session restore.
+   */
+  premiumPaid?: boolean;
 };

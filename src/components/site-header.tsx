@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -15,6 +15,32 @@ import { cn } from "@/lib/utils";
 function isNavActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+const headerListeners = new Set<() => void>();
+let headerHydrated = false;
+
+function subscribeHeaderHydration(listener: () => void) {
+  headerListeners.add(listener);
+  if (!headerHydrated) {
+    queueMicrotask(() => {
+      if (headerHydrated) return;
+      headerHydrated = true;
+      headerListeners.forEach((notify) => notify());
+    });
+  }
+  return () => {
+    headerListeners.delete(listener);
+  };
+}
+
+/** False for SSR and the hydrating render. True after that paint. */
+function useHeaderHydrated() {
+  return useSyncExternalStore(
+    subscribeHeaderHydration,
+    () => headerHydrated,
+    () => false,
+  );
 }
 
 function premiumHref(session: { coachId: number; coachCode: string }) {
@@ -37,14 +63,17 @@ function HeaderActions({
   onNavigate: () => void;
   onLogout: () => void;
 }) {
+  // Stay on Login / Join through hydration. A stored session is applied
+  // only after that first paint, so it cannot disagree with the server HTML.
+  const hydrated = useHeaderHydrated();
+
   const width = surface === "dark" ? "w-full" : "w-full sm:w-auto";
   const secondary =
     surface === "dark" ?
       `mc-btn-outline-on-dark min-h-11 justify-center px-4 text-sm ${width}`
     : `mc-btn-secondary min-h-11 justify-center px-4 text-sm ${width}`;
   const primary = `mc-btn-primary min-h-11 justify-center px-5 text-sm ${width}`;
-
-  if (signedIn && session) {
+  if (hydrated && signedIn && session) {
     return (
       <>
         <Link
@@ -106,10 +135,10 @@ export function SiteHeader() {
 
   const linkClass = (href: string) =>
     cn(
-      "flex min-h-11 items-center rounded-lg px-3 font-display text-sm font-medium whitespace-nowrap transition-colors lg:px-3.5",
+      "flex min-h-11 items-center rounded-lg px-4 font-display text-sm font-medium whitespace-nowrap transition-colors",
       isNavActive(pathname, href) ?
-        "bg-mc-secondary-light font-semibold text-mc-secondary"
-      : "text-ink hover:bg-mc-secondary-light hover:text-mc-secondary",
+        "bg-mc-primary-light font-semibold text-mc-primary"
+      : "text-ink hover:bg-mc-primary-light hover:text-mc-primary",
     );
 
   const actions = (
@@ -127,37 +156,20 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="bg-[image:linear-gradient(90deg,var(--mc-header-top),var(--mc-header-bottom))] text-white">
-        <div className="container flex h-9 items-center justify-between gap-3 text-[11px] sm:text-xs">
-          <p className="truncate font-medium tracking-wide text-white/80">
-            Wellness platform for coaches and the people who train with them
-          </p>
-          <p className="hidden shrink-0 items-center gap-3 sm:flex">
-            <Link href="/bmi" className="hover:text-mc-brand-coach">
-              BMI calculator
-            </Link>
-            <Link href="/premium" className="hover:text-mc-brand-coach">
-              Premium
-            </Link>
-          </p>
-        </div>
-      </div>
-
-      <div className="border-b-[3px] border-mc-secondary bg-[color:var(--paper)]/96 text-ink shadow-[0_8px_24px_rgba(23,134,118,0.08)] backdrop-blur-md">
-        <div className="container flex h-[4.25rem] items-center justify-between gap-3">
+      <div className="bg-[color:var(--paper)]/96 text-ink shadow-[0_1px_20px_rgba(44,24,16,0.08)] backdrop-blur-md">
+        <div className="container flex h-[4.5rem] items-center justify-between gap-3">
           <Link
             href="/"
             className="flex min-h-11 min-w-0 items-center"
             onClick={() => setOpen(false)}
             aria-label={siteConfig.name}
           >
-            <BrandLockup variant="workspace" priority />
+            <BrandLockup variant="workspace" />
           </Link>
 
           <nav className="hidden min-w-0 flex-1 items-center justify-center lg:flex">
             <ul className="flex items-center gap-0.5">
               {siteConfig.nav.map((item) => {
-                if (signedIn && item.href === "/register") return null;
                 return (
                   <li key={item.href}>
                     <Link
@@ -179,7 +191,7 @@ export function SiteHeader() {
 
           <button
             type="button"
-            className="inline-flex size-11 shrink-0 items-center justify-center rounded-[10px] border border-line text-ink lg:hidden"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-[10px] border-2 border-mc-secondary bg-white text-mc-secondary lg:hidden"
             aria-expanded={open}
             aria-controls={navId}
             aria-label={open ? "Close menu" : "Open menu"}
@@ -202,12 +214,12 @@ export function SiteHeader() {
           />
           <aside
             id={navId}
-            className="fixed inset-y-0 right-0 z-50 flex w-[min(20rem,calc(100vw-2.5rem))] flex-col border-l border-line bg-white px-5 py-6 text-ink shadow-[-12px_0_40px_rgba(23,134,118,0.16)]"
+            className="fixed inset-y-0 right-0 z-50 flex w-[min(20rem,calc(100vw-2.5rem))] flex-col border-l border-line bg-white px-5 py-6 text-ink shadow-[-12px_0_40px_rgba(44,24,16,0.16)]"
           >
             <div className="flex items-center justify-end">
               <button
                 type="button"
-                className="inline-flex size-11 items-center justify-center rounded-xl border border-line text-ink"
+                className="inline-flex size-11 items-center justify-center rounded-xl border-2 border-mc-secondary bg-white text-mc-secondary"
                 aria-label="Close menu"
                 onClick={() => setOpen(false)}
               >
@@ -216,7 +228,6 @@ export function SiteHeader() {
             </div>
             <nav className="mt-8 flex flex-1 flex-col gap-1">
               {siteConfig.nav.map((item) => {
-                if (signedIn && item.href === "/register") return null;
                 const active = isNavActive(pathname, item.href);
                 return (
                   <Link
@@ -226,8 +237,8 @@ export function SiteHeader() {
                     className={cn(
                       "flex min-h-12 items-center rounded-xl px-3 font-display text-base font-semibold",
                       active ?
-                        "bg-mc-secondary-light text-mc-secondary"
-                      : "text-ink hover:bg-mc-secondary-light hover:text-mc-secondary",
+                        "bg-mc-primary-light text-mc-primary"
+                      : "text-ink hover:bg-mc-primary-light hover:text-mc-primary",
                     )}
                     aria-current={active ? "page" : undefined}
                   >

@@ -1,16 +1,16 @@
-import { Montserrat, Poppins } from "next/font/google";
+import { Nunito, Poppins } from "next/font/google";
 
-/** Headings: app Montserrat. */
-export const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["600", "700", "800"],
-});
-
-/** Body copy: app Poppins. */
+/** Headings: old site Poppins. */
 export const poppins = Poppins({
   variable: "--font-poppins",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800", "900"],
+});
+
+/** Body copy: old site Nunito. */
+export const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
   display: "swap",
   weight: ["400", "500", "600", "700", "800"],

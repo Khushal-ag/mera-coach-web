@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-import { PracticeRosterSkeleton } from "@/components/practice/page-header";
+import { ClientCheckupSkeleton } from "@/components/skeletons/client-profile-skeleton";
 
 /** Checkup / diet / add-client wizard. Loaded only on those dashboard routes. */
 export const AssessmentWizardLazy = dynamic(
@@ -11,6 +11,6 @@ export const AssessmentWizardLazy = dynamic(
       (mod) => mod.AssessmentWizard,
     ),
   {
-    loading: () => <PracticeRosterSkeleton rows={6} />,
+    loading: () => <ClientCheckupSkeleton />,
   },
 );

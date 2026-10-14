@@ -7,19 +7,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { CoachCatalogPlan, CoachSuggestedPromo } from "@/types/premium";
 
 import { useAuth } from "@/components/auth-provider";
+import { RefreshPremiumStatus } from "@/components/refresh-premium-status";
+import { PremiumCheckoutSkeleton } from "@/components/skeletons/premium-plans-skeleton";
 import { useMounted } from "@/hooks/use-mounted";
 
 const PremiumCheckout = dynamic(
   () =>
     import("@/components/premium-checkout").then((mod) => mod.PremiumCheckout),
   {
-    loading: () => (
-      <div className="space-y-3" aria-busy="true" aria-label="Loading checkout">
-        <div className="h-8 w-40 animate-pulse rounded bg-line" />
-        <div className="h-24 animate-pulse rounded-[var(--radius-md)] bg-line" />
-        <div className="h-12 animate-pulse rounded-full bg-line" />
-      </div>
-    ),
+    loading: () => <PremiumCheckoutSkeleton />,
   },
 );
 
@@ -72,13 +68,16 @@ export function PremiumCheckoutAuth({
   const displayName = fromApp ? "" : (sessionCoach?.fullName.trim() ?? "");
 
   return (
-    <PremiumCheckout
-      key={`${coachId}:${coachCode}:${displayName}`}
-      plans={plans}
-      promo={promo}
-      initialCoachId={coachId}
-      initialCoachCode={coachCode}
-      displayName={displayName}
-    />
+    <>
+      <RefreshPremiumStatus />
+      <PremiumCheckout
+        key={`${coachId}:${coachCode}:${displayName}`}
+        plans={plans}
+        promo={promo}
+        initialCoachId={coachId}
+        initialCoachCode={coachCode}
+        displayName={displayName}
+      />
+    </>
   );
 }

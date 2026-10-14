@@ -1,51 +1,55 @@
 import Link from "next/link";
 
+import { Mail } from "lucide-react";
+
+import { BrandLockup } from "@/components/brand-lockup";
 import { siteConfig } from "@/config/site";
 
 const platformLinks = [
-  { label: "Find a coach", href: "/coach" },
-  { label: "Services", href: "/services" },
-  { label: "BMI calculator", href: "/bmi" },
+  { label: "Find a Coach", href: "/coach" },
+  { label: "Features", href: "/services" },
+  { label: "BMI Calculator", href: "/bmi" },
+  { label: "Tips", href: "/#tips" },
   { label: "Feedback", href: "/feedback" },
 ] as const;
 
 const coachLinks = [
-  { label: "Become a coach", href: "/register" },
-  { label: "Coach login", href: "/coach-login" },
+  { label: "Become a Coach", href: "/register" },
+  { label: "Coach Login", href: "/coach-login" },
+  { label: "Coach Dashboard", href: "/dashboard" },
   { label: "Premium", href: "/premium" },
-  { label: "Member login", href: "/member-login" },
 ] as const;
 
 const companyLinks = [
-  { label: "Privacy", href: "/privacy" },
-  { label: "Terms", href: "/terms" },
+  { label: "About", href: "/#path" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Service", href: "/terms" },
+  { label: "Feedback", href: "/feedback" },
 ] as const;
 
 const linkClass =
-  "inline-flex min-h-11 items-center text-sm text-white/80 transition-colors hover:text-mc-brand-coach";
+  "inline-flex min-h-11 items-center text-sm text-white/55 transition-colors hover:text-mc-primary";
 
 export function SiteFooter() {
   return (
     <footer className="bg-mc-header-bottom text-white">
-      <div className="container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_0.8fr_0.9fr_1fr] lg:gap-12 lg:py-16">
-        <div>
-          <p className="font-display text-sm font-bold text-white">
-            Mera Coach
-          </p>
-          <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/80">
-            India&apos;s coaching and wellness platform connecting people with
-            health, fitness, yoga, and nutrition coaches, and giving those
-            coaches one place to run the practice.
+      <div className="container grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8">
+        <div className="sm:col-span-2 lg:col-span-1">
+          <BrandLockup variant="nav" />
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/55">
+            India&apos;s coaching and wellness platform. Find a health, fitness,
+            yoga, or nutrition coach, or run your own practice from one public
+            page.
           </p>
         </div>
 
         <div>
-          <h2 className="font-display text-sm font-bold text-white">
+          <h2 className="font-display text-[15px] font-bold text-white">
             Platform
           </h2>
           <ul className="mt-3">
             {platformLinks.map((link) => (
-              <li key={link.href}>
+              <li key={link.href + link.label}>
                 <Link href={link.href} className={linkClass}>
                   {link.label}
                 </Link>
@@ -55,8 +59,8 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h2 className="font-display text-sm font-bold text-white">
-            For coaches
+          <h2 className="font-display text-[15px] font-bold text-white">
+            For Coaches
           </h2>
           <ul className="mt-3">
             {coachLinks.map((link) => (
@@ -70,26 +74,12 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h2 className="font-display text-sm font-bold text-white">Contact</h2>
-          <ul className="mt-3 space-y-2 text-sm text-white/80">
-            <li>
-              <a
-                href={`mailto:${siteConfig.email.team}`}
-                className="inline-flex min-h-11 items-center break-all hover:text-mc-brand-coach"
-              >
-                {siteConfig.email.team}
-              </a>
-            </li>
-            <li className="leading-relaxed">
-              Questions about a coach profile or Premium checkout.
-            </li>
-          </ul>
-          <h3 className="mt-6 font-display text-sm font-bold text-white">
+          <h2 className="font-display text-[15px] font-bold text-white">
             Company
-          </h3>
-          <ul className="mt-2">
+          </h2>
+          <ul className="mt-3">
             {companyLinks.map((link) => (
-              <li key={link.href}>
+              <li key={link.href + link.label}>
                 <Link href={link.href} className={linkClass}>
                   {link.label}
                 </Link>
@@ -97,12 +87,45 @@ export function SiteFooter() {
             ))}
           </ul>
         </div>
+
+        <div>
+          <h2 className="font-display text-[15px] font-bold text-white">
+            Contact Us
+          </h2>
+          <ul className="mt-4 space-y-3 text-sm text-white/55">
+            <li>
+              <a
+                href={`mailto:${siteConfig.email.team}`}
+                className="inline-flex min-h-11 items-start gap-2 break-all hover:text-mc-primary"
+              >
+                <Mail className="mt-0.5 size-4 shrink-0" aria-hidden />
+                {siteConfig.email.team}
+              </a>
+            </li>
+            <li>
+              <a
+                href={`mailto:${siteConfig.email.support}`}
+                className="inline-flex min-h-11 items-start gap-2 break-all hover:text-mc-primary"
+              >
+                <Mail className="mt-0.5 size-4 shrink-0" aria-hidden />
+                {siteConfig.email.support}
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
 
-      <div className="border-t border-white/10">
-        <div className="container flex flex-col gap-2 py-5 text-sm text-white/75 sm:flex-row sm:items-center sm:justify-between">
+      <div className="border-t border-white/8">
+        <div className="container flex flex-col gap-3 py-5 text-[13px] text-white/40 sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 Mera Coach. All rights reserved.</p>
-          <p>Made for a healthier coaching practice.</p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            <Link href="/privacy" className="hover:text-white">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-white">
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

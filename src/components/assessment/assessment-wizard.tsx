@@ -6,6 +6,10 @@ import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 
 import type {
+  PracticeBackLink,
+  PracticeCrumb,
+} from "@/components/practice/page-header";
+import type {
   AssessmentFormState,
   AssessmentIds,
   GeneratedDietPlan,
@@ -38,6 +42,7 @@ import {
 } from "@/lib/api/practice";
 import { computeBmiMetrics } from "@/lib/assessment/bmi-metrics";
 import { formatBmi } from "@/lib/bmi";
+import { toApiDate } from "@/lib/dates";
 import { blankAssessmentForm } from "@/types/practice";
 
 type WizardFlow = "add" | "checkup" | "dietPlan";
@@ -74,7 +79,13 @@ type Props = {
   initialForm?: AssessmentFormState;
   initialIds?: AssessmentIds;
   title: string;
+  description?: string;
+  crumbs?: PracticeCrumb[];
+  back?: PracticeBackLink;
   finishRedirect?: (ids: AssessmentIds) => string;
+  onFinished?: (ids: AssessmentIds) => void;
+  /** Skip the page title so a parent shell (client profile tabs) stays put. */
+  embedded?: boolean;
 };
 
 function ChipMulti({
@@ -100,8 +111,8 @@ function ChipMulti({
               type="button"
               className={
                 on ?
-                  "rounded-full border border-[color:var(--mc-secondary)] bg-[color:var(--mc-secondary-light)] px-3 py-1.5 text-xs font-semibold text-mc-secondary"
-                : "rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-muted hover:border-[color:var(--mc-secondary)]/40"
+                  "rounded-full border-2 border-mc-secondary bg-mc-secondary px-3 py-1.5 text-xs font-semibold text-white"
+                : "rounded-full border-2 border-mc-secondary bg-white px-3 py-1.5 text-xs font-semibold text-mc-secondary hover:bg-mc-secondary hover:text-white"
               }
               onClick={() => {
                 if (opt.toLowerCase().includes("none of the")) {
@@ -129,27 +140,32 @@ function ChipMulti({
 
 function DietPlanView({ plan }: { plan: GeneratedDietPlan }) {
   return (
-    <div className="space-y-4">
-      <dl className="mc-stat-strip">
-        <div className="mc-stat">
-          <dt className="text-xs font-medium text-ink-muted">Daily target</dt>
-          <dd className="font-display text-2xl font-bold text-ink tabular-nums">
-            {plan.summary.dailyCalTarget || "-"} kcal
-          </dd>
+    <div className="space-y-5">
+      <div className="grid items-stretch gap-3 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
+        <div className="rounded-2xl bg-mc-secondary px-5 py-5 text-white">
+          <p className="font-display text-sm font-semibold text-white/80">
+            Daily target
+          </p>
+          <p className="mt-2 font-display text-4xl leading-none font-bold tabular-nums">
+            {plan.summary.dailyCalTarget || "-"}
+          </p>
+          <p className="mt-2 text-sm text-white/75">kcal</p>
         </div>
-        <div className="mc-stat">
-          <dt className="text-xs font-medium text-ink-muted">BMI category</dt>
-          <dd className="font-display text-2xl font-bold text-ink">
-            {plan.summary.bmiCategory || "-"}
-          </dd>
+        <div className="grid gap-3">
+          <div className="rounded-2xl border border-[#e5d5c5] bg-[#fdf8f2] px-4 py-3">
+            <p className="text-sm text-ink-muted">BMI category</p>
+            <p className="mt-1 font-display text-xl font-bold text-ink">
+              {plan.summary.bmiCategory || "-"}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-[#e5d5c5] bg-[#fdf8f2] px-4 py-3">
+            <p className="text-sm text-ink-muted">BMI</p>
+            <p className="mt-1 font-display text-xl font-bold text-mc-secondary tabular-nums">
+              {plan.summary.bmi ? formatBmi(plan.summary.bmi) : "-"}
+            </p>
+          </div>
         </div>
-        <div className="mc-stat">
-          <dt className="text-xs font-medium text-ink-muted">BMI</dt>
-          <dd className="font-display text-2xl font-bold text-ink tabular-nums">
-            {plan.summary.bmi ? formatBmi(plan.summary.bmi) : "-"}
-          </dd>
-        </div>
-      </dl>
+      </div>
       {(plan.recommendations.waterIntake ||
         plan.recommendations.foodsToAvoid ||
         plan.recommendations.supplements ||
@@ -181,12 +197,9 @@ function DietPlanView({ plan }: { plan: GeneratedDietPlan }) {
           : null}
         </div>
       )}
-      <ul className="grid gap-3">
+      <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-[#e5d5c5]">
         {plan.weeklyPlan.map((meal, i) => (
-          <li
-            key={`${meal.mealType}-${i}`}
-            className="rounded-[var(--radius-sm)] border border-line px-4 py-3"
-          >
+          <li key={`${meal.mealType}-${i}`} className="px-4 py-3">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <p className="font-semibold text-ink">{meal.mealType}</p>
               <p className="text-xs text-ink-muted">
@@ -221,7 +234,12 @@ export function AssessmentWizard({
   initialForm,
   initialIds = {},
   title,
+  description,
+  crumbs,
+  back,
   finishRedirect,
+  onFinished,
+  embedded = false,
 }: Props) {
   const router = useRouter();
   const phases = useMemo(() => {
@@ -409,6 +427,19 @@ export function AssessmentWizard({
     return true;
   }
 
+  function openSavedClient(next: AssessmentIds = ids) {
+    if (onFinished) {
+      onFinished(next);
+      return;
+    }
+    const dest =
+      finishRedirect?.(next) ??
+      (next.clientCode ?
+        `/dashboard/clients/${encodeURIComponent(next.clientCode)}`
+      : "/dashboard/clients");
+    router.push(dest);
+  }
+
   async function onNext() {
     if (saving) return;
     setSaving(true);
@@ -418,20 +449,13 @@ export function AssessmentWizard({
         const ok = await commitPhase();
         if (!ok) return;
       }
-      if (step >= phases.length - 1 || phase.id === "complete") {
-        const dest =
-          finishRedirect?.(ids) ??
-          (ids.clientCode ?
-            `/dashboard/clients/${encodeURIComponent(ids.clientCode)}`
-          : "/dashboard/clients");
-        router.push(dest);
+      const finishing =
+        phase.id === "complete" || phases[step + 1]?.id === "complete";
+      if (finishing) {
+        openSavedClient(ids);
         return;
       }
-      const nextStep = step + 1;
-      setStep(nextStep);
-      if (phases[nextStep]?.id === "complete") {
-        // Auto-advance finish for visual complete step
-      }
+      setStep(step + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -484,11 +508,17 @@ export function AssessmentWizard({
       phases[phases.length - 1]?.id === "complete");
 
   return (
-    <div className="mx-auto w-full max-w-[47.5rem]">
-      <PracticePageHeader
-        title={title}
-        description="Fill each section, then save it on the client."
-      />
+    <div className="min-w-0">
+      {embedded ? null : (
+        <PracticePageHeader
+          title={title}
+          crumbs={back ? undefined : crumbs}
+          back={back}
+          description={
+            description ?? "Fill each section, then save it on the client."
+          }
+        />
+      )}
       <ol className="mb-6 flex flex-wrap gap-2" aria-label="Wizard steps">
         {phases
           .filter((p) => p.id !== "complete")
@@ -501,10 +531,10 @@ export function AssessmentWizard({
                 aria-current={active ? "step" : undefined}
                 className={
                   active ?
-                    "rounded-full bg-mc-primary px-3.5 py-1.5 font-display text-xs font-bold text-white shadow-[0_6px_16px_rgba(208,92,38,0.28)]"
+                    "rounded-full bg-mc-secondary px-3.5 py-1.5 font-display text-xs font-bold text-white"
                   : done ?
-                    "rounded-full bg-[color:var(--mc-secondary-light)] px-3.5 py-1.5 font-display text-xs font-bold text-mc-secondary"
-                  : "rounded-full bg-paper-elevated px-3.5 py-1.5 font-display text-xs font-semibold text-ink-muted"
+                    "rounded-full bg-mc-secondary-light px-3.5 py-1.5 font-display text-xs font-bold text-mc-secondary"
+                  : "rounded-full border border-[#e5d5c5] bg-white px-3.5 py-1.5 font-display text-xs font-semibold text-ink-muted"
 
                 }
               >
@@ -520,401 +550,406 @@ export function AssessmentWizard({
         </div>
       : null}
 
-      <div className="mc-panel p-6 sm:p-8">
+      <div className="mc-panel">
         {phase.id !== "complete" ?
-          <h2 className="mb-5 font-display text-lg font-bold text-ink">
+          <h2 className="border-b border-line px-5 py-4 font-display text-lg font-bold tracking-tight text-ink sm:px-6">
             {phase.label}
           </h2>
         : null}
-        {phase.id === "identity" ?
-          <div className="space-y-4">
-            <TextField
-              label="Full name"
-              required
-              value={form.clientName}
-              onChange={(e) => patch("clientName", e.target.value)}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
+        <div className="p-5 sm:p-6">
+          {phase.id === "identity" ?
+            <div className="space-y-4">
               <TextField
-                label="Mobile"
+                label="Full name"
                 required
-                inputMode="tel"
-                value={form.mobileNo}
-                onChange={(e) => patch("mobileNo", e.target.value)}
+                value={form.clientName}
+                onChange={(e) => patch("clientName", e.target.value)}
               />
-              <TextField
-                label="Email"
-                type="email"
-                value={form.emailId}
-                onChange={(e) => patch("emailId", e.target.value)}
-              />
-              <TextField
-                label="Location"
-                value={form.location}
-                onChange={(e) => patch("location", e.target.value)}
-              />
-              <SelectField
-                label="Gender"
-                required
-                value={form.gender}
-                onChange={(e) => patch("gender", e.target.value)}
-              >
-                <option value="">Select</option>
-                <option value="M">Male</option>
-                <option value="F">Female</option>
-              </SelectField>
-              <TextField
-                label="Date of birth"
-                type="date"
-                value={form.dob}
-                onChange={(e) => patch("dob", e.target.value)}
-              />
-              <TextField
-                label="Age"
-                type="number"
-                value={form.age}
-                onChange={(e) => patch("age", e.target.value)}
-              />
-              <TextField
-                label="Weight (kg)"
-                type="number"
-                step="0.1"
-                required
-                value={form.weight}
-                onChange={(e) => patch("weight", e.target.value)}
-              />
-              <TextField
-                label="Height (cm)"
-                type="number"
-                step="0.1"
-                required
-                value={form.height}
-                onChange={(e) => patch("height", e.target.value)}
-              />
-            </div>
-          </div>
-        : null}
-
-        {phase.id === "lifestyle" ?
-          <div className="space-y-5">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <SelectField
-                label="Food preference"
-                required
-                value={form.foodPreference}
-                onChange={(e) => patch("foodPreference", e.target.value)}
-              >
-                <option value="">Select</option>
-                {FOOD_PREFERENCES.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </SelectField>
-              <SelectField
-                label="Regional cuisine"
-                value={form.regionalCuisine}
-                onChange={(e) => patch("regionalCuisine", e.target.value)}
-              >
-                <option value="">Select</option>
-                {REGIONAL_CUISINES.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </SelectField>
-              <SelectField
-                label="Physical activity"
-                value={form.physicalActivity}
-                onChange={(e) => patch("physicalActivity", e.target.value)}
-              >
-                <option value="">Select</option>
-                {PHYSICAL_ACTIVITY_LEVELS.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </SelectField>
-              <SelectField
-                label="Work type"
-                value={form.workType}
-                onChange={(e) => patch("workType", e.target.value)}
-              >
-                <option value="">Select</option>
-                {WORK_TYPES.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </SelectField>
-              <SelectField
-                label="Sleep duration"
-                value={form.sleepDuration}
-                onChange={(e) => patch("sleepDuration", e.target.value)}
-              >
-                <option value="">Select</option>
-                {SLEEP_DURATIONS.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </SelectField>
-              <SelectField
-                label="Pregnancy / breastfeeding"
-                value={form.pregnancy}
-                onChange={(e) => patch("pregnancy", e.target.value)}
-              >
-                {PREGNANCY_BF_OPTIONS.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </SelectField>
-              <SelectField
-                label="Primary goal"
-                required
-                value={form.primaryGoal}
-                onChange={(e) => patch("primaryGoal", e.target.value)}
-              >
-                <option value="">Select</option>
-                {PRIMARY_GOALS.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </SelectField>
-              <SelectField
-                label="Target timeline"
-                value={form.targetTimeline}
-                onChange={(e) => patch("targetTimeline", e.target.value)}
-              >
-                <option value="">Select</option>
-                {TARGET_TIMELINES.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </SelectField>
-            </div>
-            <ChipMulti
-              label="Medical conditions"
-              options={MEDICAL_CONDITIONS}
-              values={form.medicalConditions}
-              onChange={(v) => patch("medicalConditions", v)}
-            />
-            <ChipMulti
-              label="Food allergies"
-              options={FOOD_ALLERGIES}
-              values={form.foodAllergies}
-              onChange={(v) => patch("foodAllergies", v)}
-            />
-            <TextAreaField
-              label="Additional notes"
-              value={form.additionalNotes}
-              onChange={(e) => patch("additionalNotes", e.target.value)}
-            />
-          </div>
-        : null}
-
-        {phase.id === "meals" ?
-          <div className="space-y-4">
-            <p className="text-sm text-ink-muted">
-              Capture current daily intake as free text per meal slot.
-            </p>
-            {MEAL_SLOTS.map((slot) => (
-              <div
-                key={slot.id}
-                className="grid gap-3 border-b border-line pb-4 last:border-0 sm:grid-cols-[1fr_7rem]"
-              >
-                <TextAreaField
-                  label={slot.label}
-                  rows={2}
-                  value={form.meals[slot.id].text}
-                  onChange={(e) =>
-                    patch("meals", {
-                      ...form.meals,
-                      [slot.id]: {
-                        ...form.meals[slot.id],
-                        text: e.target.value,
-                      },
-                    })
-                  }
+              <div className="grid gap-4 sm:grid-cols-2">
+                <TextField
+                  label="Mobile"
+                  required
+                  inputMode="tel"
+                  value={form.mobileNo}
+                  onChange={(e) => patch("mobileNo", e.target.value)}
                 />
                 <TextField
-                  label="kcal"
+                  label="Email"
+                  type="email"
+                  value={form.emailId}
+                  onChange={(e) => patch("emailId", e.target.value)}
+                />
+                <TextField
+                  label="Location"
+                  value={form.location}
+                  onChange={(e) => patch("location", e.target.value)}
+                />
+                <SelectField
+                  label="Gender"
+                  required
+                  value={form.gender}
+                  onChange={(e) => patch("gender", e.target.value)}
+                >
+                  <option value="">Select</option>
+                  <option value="M">Male</option>
+                  <option value="F">Female</option>
+                </SelectField>
+                <TextField
+                  label="Date of birth"
+                  type="date"
+                  value={toApiDate(form.dob) ?? ""}
+                  onChange={(e) => patch("dob", e.target.value)}
+                />
+                <TextField
+                  label="Age"
                   type="number"
-                  value={
-                    form.meals[slot.id].calories ?
-                      String(form.meals[slot.id].calories)
-                    : ""
-                  }
-                  onChange={(e) =>
-                    patch("meals", {
-                      ...form.meals,
-                      [slot.id]: {
-                        ...form.meals[slot.id],
-                        calories: Number(e.target.value) || 0,
-                      },
-                    })
-                  }
+                  value={form.age}
+                  onChange={(e) => patch("age", e.target.value)}
+                />
+                <TextField
+                  label="Weight (kg)"
+                  type="number"
+                  step="0.1"
+                  required
+                  value={form.weight}
+                  onChange={(e) => patch("weight", e.target.value)}
+                />
+                <TextField
+                  label="Height (cm)"
+                  type="number"
+                  step="0.1"
+                  required
+                  value={form.height}
+                  onChange={(e) => patch("height", e.target.value)}
                 />
               </div>
-            ))}
-          </div>
-        : null}
+            </div>
+          : null}
 
-        {phase.id === "bmi" ?
-          <div className="space-y-4">
-            {!metrics ?
+          {phase.id === "lifestyle" ?
+            <div className="space-y-5">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <SelectField
+                  label="Food preference"
+                  required
+                  value={form.foodPreference}
+                  onChange={(e) => patch("foodPreference", e.target.value)}
+                >
+                  <option value="">Select</option>
+                  {FOOD_PREFERENCES.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </SelectField>
+                <SelectField
+                  label="Regional cuisine"
+                  value={form.regionalCuisine}
+                  onChange={(e) => patch("regionalCuisine", e.target.value)}
+                >
+                  <option value="">Select</option>
+                  {REGIONAL_CUISINES.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </SelectField>
+                <SelectField
+                  label="Physical activity"
+                  value={form.physicalActivity}
+                  onChange={(e) => patch("physicalActivity", e.target.value)}
+                >
+                  <option value="">Select</option>
+                  {PHYSICAL_ACTIVITY_LEVELS.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </SelectField>
+                <SelectField
+                  label="Work type"
+                  value={form.workType}
+                  onChange={(e) => patch("workType", e.target.value)}
+                >
+                  <option value="">Select</option>
+                  {WORK_TYPES.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </SelectField>
+                <SelectField
+                  label="Sleep duration"
+                  value={form.sleepDuration}
+                  onChange={(e) => patch("sleepDuration", e.target.value)}
+                >
+                  <option value="">Select</option>
+                  {SLEEP_DURATIONS.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </SelectField>
+                <SelectField
+                  label="Pregnancy / breastfeeding"
+                  value={form.pregnancy}
+                  onChange={(e) => patch("pregnancy", e.target.value)}
+                >
+                  {PREGNANCY_BF_OPTIONS.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </SelectField>
+                <SelectField
+                  label="Primary goal"
+                  required
+                  value={form.primaryGoal}
+                  onChange={(e) => patch("primaryGoal", e.target.value)}
+                >
+                  <option value="">Select</option>
+                  {PRIMARY_GOALS.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </SelectField>
+                <SelectField
+                  label="Target timeline"
+                  value={form.targetTimeline}
+                  onChange={(e) => patch("targetTimeline", e.target.value)}
+                >
+                  <option value="">Select</option>
+                  {TARGET_TIMELINES.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </SelectField>
+              </div>
+              <ChipMulti
+                label="Medical conditions"
+                options={MEDICAL_CONDITIONS}
+                values={form.medicalConditions}
+                onChange={(v) => patch("medicalConditions", v)}
+              />
+              <ChipMulti
+                label="Food allergies"
+                options={FOOD_ALLERGIES}
+                values={form.foodAllergies}
+                onChange={(v) => patch("foodAllergies", v)}
+              />
+              <TextAreaField
+                label="Additional notes"
+                value={form.additionalNotes}
+                onChange={(e) => patch("additionalNotes", e.target.value)}
+              />
+            </div>
+          : null}
+
+          {phase.id === "meals" ?
+            <div className="space-y-4">
               <p className="text-sm text-ink-muted">
-                Height, weight, age, and gender are needed to compute BMI.
+                Capture current daily intake as free text per meal slot.
               </p>
-            : <dl className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
-                {(
-                  [
-                    ["BMI", formatBmi(metrics.bmi)],
-                    ["Category", metrics.bmiCategory],
-                    ["Body fat", `${metrics.bodyFatPct}%`],
-                    ["Visceral fat", String(metrics.visceralFat)],
-                    ["Skeletal muscle", `${metrics.skeletalMusclePct}%`],
-                    ["Resting metabolism", `${metrics.restingMetabolism} kcal`],
-                    ["Body age", `${metrics.bodyAge} yrs`],
-                  ] as const
-                ).map(([label, value], index) => (
-                  <div
-                    key={label}
-                    className={index === 0 ? "sm:col-span-2" : undefined}
-                  >
-                    <dt className="text-xs font-medium text-ink-muted">
-                      {label}
-                    </dt>
-                    <dd
-                      className={
-                        index === 0 ?
-                          "mt-1 font-display text-3xl font-bold text-ink tabular-nums"
-                        : "mt-1 text-sm font-semibold text-ink"
-                      }
-                    >
-                      {value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            }
-          </div>
-        : null}
+              {MEAL_SLOTS.map((slot) => (
+                <div
+                  key={slot.id}
+                  className="grid gap-3 border-b border-line pb-4 last:border-0 sm:grid-cols-[1fr_7rem]"
+                >
+                  <TextAreaField
+                    label={slot.label}
+                    rows={2}
+                    value={form.meals[slot.id].text}
+                    onChange={(e) =>
+                      patch("meals", {
+                        ...form.meals,
+                        [slot.id]: {
+                          ...form.meals[slot.id],
+                          text: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                  <TextField
+                    label="kcal"
+                    type="number"
+                    value={
+                      form.meals[slot.id].calories ?
+                        String(form.meals[slot.id].calories)
+                      : ""
+                    }
+                    onChange={(e) =>
+                      patch("meals", {
+                        ...form.meals,
+                        [slot.id]: {
+                          ...form.meals[slot.id],
+                          calories: Number(e.target.value) || 0,
+                        },
+                      })
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          : null}
 
-        {phase.id === "diet" ?
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                className="mc-btn-primary"
-                disabled={generating}
-                onClick={() => void onGenerateDiet()}
-              >
-                {generating ?
-                  "Generating…"
-                : form.dietPlan ?
-                  "Regenerate plan"
-                : "Generate AI diet plan"}
-              </button>
-              {flow === "add" && (aiUnavailable || form.dietPlan) ?
+          {phase.id === "bmi" ?
+            <div className="space-y-4">
+              {!metrics ?
+                <p className="text-sm text-ink-muted">
+                  Height, weight, age, and gender are needed to compute BMI.
+                </p>
+              : <dl className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
+                  {(
+                    [
+                      ["BMI", formatBmi(metrics.bmi)],
+                      ["Category", metrics.bmiCategory],
+                      ["Body fat", `${metrics.bodyFatPct}%`],
+                      ["Visceral fat", String(metrics.visceralFat)],
+                      ["Skeletal muscle", `${metrics.skeletalMusclePct}%`],
+                      [
+                        "Resting metabolism",
+                        `${metrics.restingMetabolism} kcal`,
+                      ],
+                      ["Body age", `${metrics.bodyAge} yrs`],
+                    ] as const
+                  ).map(([label, value], index) => (
+                    <div
+                      key={label}
+                      className={index === 0 ? "sm:col-span-2" : undefined}
+                    >
+                      <dt className="text-xs font-medium text-ink-muted">
+                        {label}
+                      </dt>
+                      <dd
+                        className={
+                          index === 0 ?
+                            "mt-1 font-display text-3xl font-bold text-ink tabular-nums"
+                          : "mt-1 text-sm font-semibold text-ink"
+                        }
+                      >
+                        {value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              }
+            </div>
+          : null}
+
+          {phase.id === "diet" ?
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  className="mc-btn-secondary"
-                  disabled={saving}
-                  onClick={() => {
-                    void (async () => {
-                      setSaving(true);
-                      try {
-                        if (form.dietPlan && hasUnsavedDietPlan) {
-                          await saveDietPlan({
-                            ids,
-                            coachCode,
-                            savedBy,
-                            plan: form.dietPlan,
-                          });
-                        }
-                        await finishAssessment({
-                          ids,
-                          savedBy,
-                          metrics,
-                          bmiAlreadySaved: bmiSaved,
-                        });
-                        setStep(phases.findIndex((p) => p.id === "complete"));
-                      } catch (err) {
-                        setError(
-                          err instanceof Error ?
-                            err.message
-                          : "Could not finish.",
-                        );
-                      } finally {
-                        setSaving(false);
-                      }
-                    })();
-                  }}
+                  className="mc-btn-primary"
+                  disabled={generating}
+                  onClick={() => void onGenerateDiet()}
                 >
-                  Skip / finish without AI
+                  {generating ?
+                    "Generating…"
+                  : form.dietPlan ?
+                    "Regenerate plan"
+                  : "Generate AI diet plan"}
                 </button>
-              : null}
+                {flow === "add" && (aiUnavailable || form.dietPlan) ?
+                  <button
+                    type="button"
+                    className="mc-btn-secondary"
+                    disabled={saving}
+                    onClick={() => {
+                      void (async () => {
+                        setSaving(true);
+                        try {
+                          if (form.dietPlan && hasUnsavedDietPlan) {
+                            await saveDietPlan({
+                              ids,
+                              coachCode,
+                              savedBy,
+                              plan: form.dietPlan,
+                            });
+                          }
+                          await finishAssessment({
+                            ids,
+                            savedBy,
+                            metrics,
+                            bmiAlreadySaved: bmiSaved,
+                          });
+                          openSavedClient(ids);
+                        } catch (err) {
+                          setError(
+                            err instanceof Error ?
+                              err.message
+                            : "Could not finish.",
+                          );
+                        } finally {
+                          setSaving(false);
+                        }
+                      })();
+                    }}
+                  >
+                    Skip / finish without AI
+                  </button>
+                : null}
+              </div>
+              {form.dietPlan ?
+                <DietPlanView plan={form.dietPlan} />
+              : <p className="text-sm text-ink-muted">
+                  Generate a plan from the client profile and current meals, or
+                  finish without AI if the service is unavailable.
+                </p>
+              }
             </div>
-            {form.dietPlan ?
-              <DietPlanView plan={form.dietPlan} />
-            : <p className="text-sm text-ink-muted">
-                Generate a plan from the client profile and current meals, or
-                finish without AI if the service is unavailable.
+          : null}
+
+          {phase.id === "complete" ?
+            <div className="flex flex-col items-start gap-3 py-4">
+              <span className="inline-flex size-12 items-center justify-center rounded-full bg-[color:var(--mc-secondary-light)] text-mc-secondary">
+                <Check className="size-6" aria-hidden />
+              </span>
+              <p className="font-display text-xl font-bold text-ink">
+                Assessment saved
               </p>
-            }
-          </div>
-        : null}
+              <p className="text-sm text-ink-muted">
+                You can open BMI and diet reports from the client profile.
+              </p>
+            </div>
+          : null}
 
-        {phase.id === "complete" ?
-          <div className="flex flex-col items-start gap-3 py-4">
-            <span className="inline-flex size-12 items-center justify-center rounded-full bg-[color:var(--mc-secondary-light)] text-mc-secondary">
-              <Check className="size-6" aria-hidden />
-            </span>
-            <p className="font-display text-xl font-bold text-ink">
-              Assessment saved
-            </p>
-            <p className="text-sm text-ink-muted">
-              You can open BMI and diet reports from the client profile.
-            </p>
-          </div>
-        : null}
-
-        <div className="mt-8 flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:flex-wrap">
-          {step > 0 && phase.id !== "complete" ?
+          <div className="mt-8 flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:flex-wrap">
+            {step > 0 && phase.id !== "complete" ?
+              <button
+                type="button"
+                className="mc-btn-secondary w-full sm:w-auto"
+                disabled={saving}
+                onClick={() => {
+                  setError(null);
+                  setStep((s) => Math.max(0, s - 1));
+                }}
+              >
+                Back
+              </button>
+            : null}
             <button
               type="button"
-              className="mc-btn-secondary w-full sm:w-auto"
-              disabled={saving}
-              onClick={() => {
-                setError(null);
-                setStep((s) => Math.max(0, s - 1));
-              }}
+              className="mc-btn-primary w-full sm:w-auto sm:min-w-[8rem]"
+              disabled={saving || generating}
+              onClick={() => void onNext()}
             >
-              Back
+              {saving ?
+                "Saving"
+              : phase.id === "complete" || isLastContent ?
+                phase.id === "complete" ?
+                  "Open client"
+                : flow === "checkup" ?
+                  "Save checkup"
+                : flow === "dietPlan" ?
+                  "Save plan"
+                : "Save & finish"
+              : "Next"}
             </button>
-          : null}
-          <button
-            type="button"
-            className="mc-btn-primary w-full sm:w-auto sm:min-w-[8rem]"
-            disabled={saving || generating}
-            onClick={() => void onNext()}
-          >
-            {saving ?
-              "Saving"
-            : phase.id === "complete" || isLastContent ?
-              phase.id === "complete" ?
-                "Open client"
-              : flow === "checkup" ?
-                "Save checkup"
-              : flow === "dietPlan" ?
-                "Save plan"
-              : "Save & finish"
-            : "Next"}
-          </button>
+          </div>
         </div>
       </div>
     </div>

@@ -12,6 +12,7 @@ import {
 import type { CoachSession } from "@/lib/auth/types";
 
 import { markClientReady, useMounted } from "@/hooks/use-mounted";
+import { ensurePremiumStatus } from "@/lib/auth/premium-status";
 import {
   clearSession,
   getSession,
@@ -44,8 +45,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-    reloadSession();
+    const restored = reloadSession();
     markClientReady();
+    if (restored && typeof restored.premiumPaid !== "boolean") {
+      void ensurePremiumStatus().catch(() => undefined);
+    }
   }, []);
 
   const setSession = useCallback((next: CoachSession | null) => {

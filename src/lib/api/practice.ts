@@ -27,6 +27,7 @@ import {
 } from "@/lib/assessment/normalize-diet-plan";
 import { parseCoachEvents, pickEventsRaw } from "@/lib/coach/events";
 import { parseCoachPackages, pickPackagesRaw } from "@/lib/coach/packages";
+import { formatLocalDate, toApiDate } from "@/lib/dates";
 import { emptyMeals } from "@/types/practice";
 
 function mapClientListItem(raw: Record<string, unknown>): ClientSummary {
@@ -190,7 +191,7 @@ export async function fetchClientDetail(params: {
 export function resolveCheckupAssessmentIds(
   detail: ClientDetail,
 ): AssessmentIds {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = formatLocalDate();
   const isToday = (detail.assessmentDate ?? "").trim() === today;
   return {
     clientCode: detail.clientCode,
@@ -201,7 +202,6 @@ export function resolveCheckupAssessmentIds(
 export async function saveClientDetail(
   input: SaveClientDetailInput,
 ): Promise<{ clientCode: string; assessmentCode: string }> {
-  const today = new Date().toISOString().slice(0, 10);
   const raw = await authedFetch<Record<string, unknown>>(
     "v1/Client/save-client-detail",
     {
@@ -215,9 +215,9 @@ export async function saveClientDetail(
         emailId: input.emailId ?? "",
         alternateMobileNo: "",
         location: input.location ?? "",
-        dob: input.dob ?? "",
+        dob: toApiDate(input.dob),
         gender: input.gender ?? "",
-        assessmentDate: today,
+        assessmentDate: formatLocalDate(),
         age: input.age ?? 0,
         weight: input.weight ?? 0,
         height: input.height ?? 0,
@@ -279,16 +279,31 @@ export async function updateEnquiryLead(params: {
   });
 }
 
+/** Same truthiness as the app premium flag: boolean, 1, or "true"/"1". */
+function readPaidFlag(value: unknown): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value === 1;
+  if (typeof value === "string") {
+    const s = value.trim().toLowerCase();
+    return s === "1" || s === "true";
+  }
+  return false;
+}
+
 /**
  * Same paid semantics as app `mapPremiumOffer`: when a subscription object is
  * present, `status === "active"` wins over a bare isPaid flag.
  */
 export async function fetchCoachPremiumOffer(): Promise<CoachPremiumOffer> {
-  const raw = await authedFetch<Record<string, unknown>>("v1/Coach/premium");
-  const paidFlag = Boolean(
+  const raw = await authedFetch<Record<string, unknown> | null>(
+    "v1/Coach/premium",
+  );
+  if (!raw || typeof raw !== "object") {
+    throw new Error("Could not check subscription. Try again.");
+  }
+  const paidFlag = readPaidFlag(
     pick(raw, "isPaid", "IsPaid", "is_paid", "isPremium", "IsPremium") ??
-    pick(raw, "paid", "Paid") ??
-    false,
+      pick(raw, "paid", "Paid"),
   );
   const subscriptionRaw = pick<Record<string, unknown>>(
     raw,

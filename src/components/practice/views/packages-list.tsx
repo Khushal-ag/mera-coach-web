@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { Package } from "lucide-react";
+
 import type { CoachPackage, CoachProfile } from "@/types/coach";
 
 import { useAuth } from "@/components/auth-provider";
@@ -9,8 +11,8 @@ import { CoverImageField } from "@/components/media/cover-image-field";
 import {
   PracticeEmpty,
   PracticePageHeader,
-  PracticeRosterSkeleton,
 } from "@/components/practice/page-header";
+import { PackageCardsSkeleton } from "@/components/skeletons/packages-events-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextField } from "@/components/ui/field";
 import {
@@ -119,22 +121,42 @@ export function PackagesListView() {
     edit((prev) => [...prev, emptyPackage()]);
   }
 
+  const canAdd = !loading && packages.length < MAX_COACH_PACKAGES;
+
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="min-w-0">
       <PracticePageHeader
         title="Packages"
         description={`Up to ${MAX_COACH_PACKAGES} offers on your public coach page.`}
+        icon={<Package className="size-5" aria-hidden />}
         action={
-          dirty ?
-            <button
-              type="button"
-              className="mc-btn-primary w-full sm:w-auto"
-              disabled={busy}
-              aria-busy={busy}
-              onClick={() => void save()}
-            >
-              {busy ? "Saving" : "Save packages"}
-            </button>
+          (canAdd && packages.length > 0) || dirty ?
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
+              {canAdd && packages.length > 0 ?
+                <button
+                  type="button"
+                  className={
+                    dirty ?
+                      "mc-btn-secondary w-full sm:w-auto"
+                    : "mc-btn-primary w-full sm:w-auto"
+                  }
+                  onClick={addPackage}
+                >
+                  Add package
+                </button>
+              : null}
+              {dirty ?
+                <button
+                  type="button"
+                  className="mc-btn-primary w-full sm:w-auto"
+                  disabled={busy}
+                  aria-busy={busy}
+                  onClick={() => void save()}
+                >
+                  {busy ? "Saving" : "Save packages"}
+                </button>
+              : null}
+            </div>
           : null
         }
       />
@@ -147,9 +169,10 @@ export function PackagesListView() {
       : null}
 
       {loading ?
-        <PracticeRosterSkeleton rows={3} />
+        <PackageCardsSkeleton />
       : !packages.length ?
         <PracticeEmpty
+          icon={<Package className="size-5" aria-hidden />}
           title="No packages yet"
           body="Add a package clients can see on your public profile."
           action={
@@ -164,11 +187,11 @@ export function PackagesListView() {
         />
       : null}
 
-      <div className="space-y-4">
+      <div className="grid gap-4">
         {packages.map((pkg) => (
-          <div key={pkg.id} className="mc-panel p-4 sm:p-5">
+          <div key={pkg.id} className="mc-panel min-w-0 p-4 sm:p-5">
             <div className="mb-3 flex items-center justify-between">
-              <p className="font-display font-bold text-ink">
+              <p className="font-display text-lg font-bold tracking-tight text-ink">
                 {pkg.name.trim() || "New package"}
               </p>
               <button
@@ -251,16 +274,6 @@ export function PackagesListView() {
           </div>
         ))}
       </div>
-
-      {!loading && packages.length > 0 && packages.length < MAX_COACH_PACKAGES ?
-        <button
-          type="button"
-          className="mc-btn-secondary mt-4 w-full sm:w-auto"
-          onClick={addPackage}
-        >
-          Add package
-        </button>
-      : null}
     </div>
   );
 }

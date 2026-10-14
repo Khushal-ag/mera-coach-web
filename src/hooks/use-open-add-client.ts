@@ -1,22 +1,23 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { useAuth } from "@/components/auth-provider";
 import { isSubscriptionRequired } from "@/config/practice";
-import { fetchCoachPremiumOffer } from "@/lib/api/practice";
+import {
+  ADD_CLIENT_PREMIUM_HREF,
+  resolveAddClientAccess,
+} from "@/lib/add-client-access";
+import { ensurePremiumStatus } from "@/lib/auth/premium-status";
+import { getSession } from "@/lib/auth/session";
 
 /**
- * Mirrors app `useOpenAddClient`: when subscription is required and unpaid,
- * send the coach to Premium; otherwise open the add-client form.
+ * Add Client uses the premium flag already stored on the session.
+ * A click does not wait on the network when that flag is known.
  */
 export function useOpenAddClient() {
   const router = useRouter();
-  const { session } = useAuth();
-  const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const busy = useRef(false);
 
   const openAddClient = useCallback(async () => {
     setError(null);
@@ -24,31 +25,29 @@ export function useOpenAddClient() {
       router.push("/dashboard/clients/new");
       return;
     }
-    if (busy.current) return;
-    busy.current = true;
-    setChecking(true);
-    try {
-      const offer = await fetchCoachPremiumOffer();
-      if (offer.isPaid) {
-        router.push("/dashboard/clients/new");
-      } else {
-        const qs = new URLSearchParams();
-        if (session?.coachId) qs.set("coachId", String(session.coachId));
-        if (session?.coachCode) qs.set("coachCode", session.coachCode);
-        qs.set("reason", "add-client");
-        router.push(`/premium?${qs.toString()}`);
+    let paid = getSession()?.premiumPaid;
+    if (typeof paid !== "boolean") {
+      try {
+        paid = await ensurePremiumStatus();
+      } catch (err) {
+        setError(
+          err instanceof Error ?
+            err.message
+          : "Could not check subscription. Try again.",
+        );
+        return;
       }
-    } catch (err) {
-      setError(
-        err instanceof Error ?
-          err.message
-        : "Could not check subscription. Try again.",
-      );
-    } finally {
-      busy.current = false;
-      setChecking(false);
     }
-  }, [router, session]);
+    if (typeof paid !== "boolean") {
+      setError("Could not check subscription. Try again.");
+      return;
+    }
+    router.push(
+      resolveAddClientAccess(true, paid) === "wizard" ?
+        "/dashboard/clients/new"
+      : ADD_CLIENT_PREMIUM_HREF,
+    );
+  }, [router]);
 
-  return { openAddClient, checking, error };
+  return { openAddClient, error };
 }

@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 
-import { ArrowLeft } from "lucide-react";
+import { KeyRound } from "lucide-react";
 
 import { PracticePageHeader } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
@@ -47,19 +46,12 @@ export function ChangePasswordView() {
   }
 
   return (
-    <div className="mx-auto max-w-lg">
-      <nav className="mb-4">
-        <Link
-          href="/dashboard/profile"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-mc-secondary hover:underline"
-        >
-          <ArrowLeft className="size-3.5" aria-hidden />
-          Profile
-        </Link>
-      </nav>
+    <div className="min-w-0">
       <PracticePageHeader
         title="Change password"
+        back={{ href: "/dashboard/profile", label: "Back to profile" }}
         description="Update the password for your coach login."
+        icon={<KeyRound className="size-5" aria-hidden />}
       />
       {error ?
         <AlertBanner tone="error">{error}</AlertBanner>
@@ -68,7 +60,7 @@ export function ChangePasswordView() {
         <AlertBanner tone="success">{message}</AlertBanner>
       : null}
       <form
-        className="mc-panel mt-4 space-y-4 p-5"
+        className="mc-panel max-w-lg space-y-4 p-5 sm:p-6"
         onSubmit={(e) => void onSubmit(e)}
       >
         <TextField

@@ -34,7 +34,13 @@ export function getSession(): CoachSession | null {
 }
 
 export function saveSession(session: CoachSession): void {
-  current = session;
+  const previous = current;
+  const premiumPaid =
+    typeof session.premiumPaid === "boolean" ? session.premiumPaid
+    : previous && previous.token === session.token ? previous.premiumPaid
+    : undefined;
+  current =
+    typeof premiumPaid === "boolean" ? { ...session, premiumPaid } : session;
   if (canUseStorage()) {
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));

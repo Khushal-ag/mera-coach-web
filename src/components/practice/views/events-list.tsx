@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { CalendarDays } from "lucide-react";
+
 import type { CoachEvent, CoachProfile } from "@/types/coach";
 
 import { useAuth } from "@/components/auth-provider";
@@ -9,11 +11,10 @@ import { CoverImageField } from "@/components/media/cover-image-field";
 import {
   PracticeEmpty,
   PracticePageHeader,
-  PracticeRosterSkeleton,
 } from "@/components/practice/page-header";
+import { EventCardsSkeleton } from "@/components/skeletons/packages-events-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextField } from "@/components/ui/field";
-import { photography } from "@/config/photography";
 import {
   fetchAuthedCoachProfile,
   saveCoachPackagesEvents,
@@ -123,22 +124,42 @@ export function EventsListView() {
     edit((prev) => [...prev, emptyEvent()]);
   }
 
+  const canAdd = !loading && events.length < MAX_COACH_EVENTS;
+
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="min-w-0">
       <PracticePageHeader
         title="Events"
         description={`Up to ${MAX_COACH_EVENTS} events for your public showcase.`}
+        icon={<CalendarDays className="size-5" aria-hidden />}
         action={
-          dirty ?
-            <button
-              type="button"
-              className="mc-btn-primary w-full sm:w-auto"
-              disabled={busy}
-              aria-busy={busy}
-              onClick={() => void save()}
-            >
-              {busy ? "Saving" : "Save events"}
-            </button>
+          (canAdd && events.length > 0) || dirty ?
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
+              {canAdd && events.length > 0 ?
+                <button
+                  type="button"
+                  className={
+                    dirty ?
+                      "mc-btn-secondary w-full sm:w-auto"
+                    : "mc-btn-primary w-full sm:w-auto"
+                  }
+                  onClick={addEvent}
+                >
+                  Add event
+                </button>
+              : null}
+              {dirty ?
+                <button
+                  type="button"
+                  className="mc-btn-primary w-full sm:w-auto"
+                  disabled={busy}
+                  aria-busy={busy}
+                  onClick={() => void save()}
+                >
+                  {busy ? "Saving" : "Save events"}
+                </button>
+              : null}
+            </div>
           : null
         }
       />
@@ -151,11 +172,10 @@ export function EventsListView() {
       : null}
 
       {loading ?
-        <PracticeRosterSkeleton rows={3} />
+        <EventCardsSkeleton />
       : !events.length ?
         <PracticeEmpty
-          image={photography.emptyEvents}
-          imageAlt="Three people stretching together in a park"
+          icon={<CalendarDays className="size-5" aria-hidden />}
           title="No events yet"
           body="Add workshops or community sessions for your public page."
           action={
@@ -170,11 +190,11 @@ export function EventsListView() {
         />
       : null}
 
-      <div className="space-y-4">
+      <div className="grid gap-4">
         {events.map((evt) => (
-          <div key={evt.id} className="mc-panel p-4 sm:p-5">
+          <div key={evt.id} className="mc-panel min-w-0 p-4 sm:p-5">
             <div className="mb-3 flex items-center justify-between">
-              <p className="font-display font-bold text-ink">
+              <p className="font-display text-lg font-bold tracking-tight text-ink">
                 {evt.title.trim() || "New event"}
               </p>
               <button
@@ -278,16 +298,6 @@ export function EventsListView() {
           </div>
         ))}
       </div>
-
-      {!loading && events.length > 0 && events.length < MAX_COACH_EVENTS ?
-        <button
-          type="button"
-          className="mc-btn-secondary mt-4 w-full sm:w-auto"
-          onClick={addEvent}
-        >
-          Add event
-        </button>
-      : null}
     </div>
   );
 }

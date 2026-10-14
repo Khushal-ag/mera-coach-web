@@ -1,9 +1,9 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
-import { ArrowRight, ClipboardCheck, Inbox, Plus, Users } from "lucide-react";
+import { ArrowRight, CalendarClock, Inbox, Plus, Users } from "lucide-react";
 
 import type {
   ClientSummary,
@@ -14,25 +14,21 @@ import type {
 import { useAuth } from "@/components/auth-provider";
 import {
   PracticeEmpty,
-  PracticeRosterSkeleton,
+  PracticePageHeader,
 } from "@/components/practice/page-header";
+import {
+  DashboardCheckupsSkeleton,
+  DashboardClientsSkeleton,
+  DashboardLeadsSkeleton,
+  DashboardMetricValueSkeleton,
+} from "@/components/skeletons/dashboard-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
-import { photography } from "@/config/photography";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import {
-  fetchAuthedCoachProfile,
   fetchClientList,
   fetchEnquiryLeads,
   fetchRecheckupList,
 } from "@/lib/api/practice";
-import { getProfileCompletion } from "@/lib/profile-completion";
-
-function greetingFor(date: Date) {
-  const h = date.getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
-}
 
 function attentionLine({
   loading,
@@ -55,11 +51,9 @@ function attentionLine({
   if (leads > 0) {
     parts.push(leads === 1 ? "1 lead is open" : `${leads} leads are open`);
   }
-  if (parts.length > 0) {
-    return `${parts.join(", and ")}. Start there, or add a client.`;
-  }
-  if (clients === 0) return "Add your first client to start an assessment.";
-  return "You're caught up. Add a client when someone new is ready to train.";
+  if (parts.length > 0) return `${parts.join(", and ")}.`;
+  if (clients === 0) return "Your roster is empty.";
+  return "You're caught up.";
 }
 
 function MetricCard({
@@ -68,47 +62,35 @@ function MetricCard({
   hint,
   href,
   loading,
-  tone,
   icon,
+  tone,
 }: {
   label: string;
   value: string;
   hint: string;
   href: string;
   loading?: boolean;
-  tone: "teal" | "amber" | "terracotta";
   icon: React.ReactNode;
+  tone: string;
 }) {
-  const iconClass =
-    tone === "amber" ? "bg-[color:var(--mc-accent)]"
-    : tone === "terracotta" ? "bg-mc-primary"
-    : "bg-mc-secondary";
-  const accent =
-    tone === "amber" ? "border-l-[color:var(--mc-accent)]"
-    : tone === "terracotta" ? "border-l-mc-primary"
-    : "border-l-mc-secondary";
   return (
     <Link
       href={href}
-      className={`flex items-center gap-4 rounded-[16px] border border-l-4 border-line bg-white p-4 shadow-[0_8px_24px_rgba(23,134,118,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(23,134,118,0.1)] ${accent}`}
+      className="flex h-full min-h-[11.5rem] flex-col rounded-2xl border border-[#e5d5c5] bg-white px-5 py-5 shadow-[0_1px_2px_rgba(44,24,16,0.04),0_8px_24px_rgba(27,67,50,0.06)] transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(27,67,50,0.1)] active:translate-y-px"
     >
-      <span
-        className={`grid size-12 shrink-0 place-items-center rounded-xl text-white ${iconClass}`}
-      >
+      <span className={`grid size-11 place-items-center rounded-xl ${tone}`}>
         {icon}
       </span>
-      <span className="min-w-0">
-        {loading ?
-          <span className="mc-skeleton block h-8 w-12" />
-        : <span className="block font-display text-3xl font-extrabold tracking-tight text-ink tabular-nums">
-            {value}
-          </span>
-        }
-        <span className="block font-display text-sm font-bold text-ink">
-          {label}
+      {loading ?
+        <DashboardMetricValueSkeleton />
+      : <span className="mt-4 font-display text-4xl leading-none font-bold text-ink tabular-nums">
+          {value}
         </span>
-        <span className="block text-xs text-ink-muted">{hint}</span>
+      }
+      <span className="mt-3 font-display text-sm font-bold text-ink">
+        {label}
       </span>
+      <span className="mt-1 text-sm text-ink-muted">{hint}</span>
     </Link>
   );
 }
@@ -118,20 +100,34 @@ function SectionHead({
   title,
   href,
   action,
+  icon,
+  tone,
 }: {
   id: string;
   title: string;
   href: string;
   action: string;
+  icon: React.ReactNode;
+  tone: string;
 }) {
   return (
-    <div className="mb-3 flex items-center justify-between gap-3">
-      <h2 id={id} className="font-display text-lg font-bold text-ink">
-        {title}
-      </h2>
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="flex min-w-0 items-center gap-3">
+        <span
+          className={`grid size-10 shrink-0 place-items-center rounded-xl ${tone}`}
+        >
+          {icon}
+        </span>
+        <h2
+          id={id}
+          className="font-display text-lg font-bold tracking-tight text-ink"
+        >
+          {title}
+        </h2>
+      </div>
       <Link
         href={href}
-        className="inline-flex min-h-11 items-center text-sm font-semibold text-mc-secondary hover:underline"
+        className="inline-flex min-h-11 shrink-0 items-center text-sm font-semibold text-mc-secondary hover:underline"
       >
         {action}
       </Link>
@@ -139,60 +135,8 @@ function SectionHead({
   );
 }
 
-function DashboardIntro({
-  greeting,
-  firstName,
-  attention,
-  checking,
-  onAdd,
-}: {
-  greeting: string;
-  firstName: string;
-  attention: string;
-  checking: boolean;
-  onAdd: () => void;
-}) {
-  return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <p className="max-w-xl text-sm leading-relaxed text-ink-muted">
-        <span className="font-display text-base font-bold text-ink">
-          {greeting}, {firstName}.
-        </span>{" "}
-        {attention}
-      </p>
-      <button
-        type="button"
-        disabled={checking}
-        onClick={onAdd}
-        className="mc-btn-primary w-full shrink-0 sm:w-auto"
-      >
-        <Plus className="size-4" strokeWidth={2.25} aria-hidden />
-        {checking ? "Checking…" : "Add client"}
-      </button>
-    </div>
-  );
-}
-
-function DashboardIntroLive({
-  firstName,
-  attention,
-  checking,
-  onAdd,
-}: {
-  firstName: string;
-  attention: string;
-  checking: boolean;
-  onAdd: () => void;
-}) {
-  return (
-    <DashboardIntro
-      greeting={greetingFor(new Date())}
-      firstName={firstName}
-      attention={attention}
-      checking={checking}
-      onAdd={onAdd}
-    />
-  );
+function firstName(fullName: string) {
+  return fullName.trim().split(/\s+/)[0] ?? "";
 }
 
 function dueLabel(item: RecheckupDueClient) {
@@ -203,14 +147,12 @@ function dueLabel(item: RecheckupDueClient) {
 
 export function DashboardHomeView() {
   const { session } = useAuth();
-  const { openAddClient, checking, error: gateError } = useOpenAddClient();
+  const { openAddClient, error: gateError } = useOpenAddClient();
   const [clients, setClients] = useState<ClientSummary[]>([]);
   const [leads, setLeads] = useState<EnquiryLead[]>([]);
   const [due, setDue] = useState<RecheckupDueClient[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [listing, setListing] = useState<"unknown" | "on" | "off">("unknown");
-  const [listingMissing, setListingMissing] = useState<string[]>([]);
 
   useEffect(() => {
     if (!session?.coachCode) return;
@@ -223,34 +165,12 @@ export function DashboardHomeView() {
         fetchClientList({ coachCode }),
         fetchEnquiryLeads(coachCode),
         fetchRecheckupList({ coachCode }),
-        fetchAuthedCoachProfile(),
       ]).then((results) => {
         if (cancelled) return;
-        const [c, l, d, profileResult] = results;
+        const [c, l, d] = results;
         if (c.status === "fulfilled") setClients(c.value);
         if (l.status === "fulfilled") setLeads(l.value);
         if (d.status === "fulfilled") setDue(d.value);
-        if (profileResult.status === "fulfilled" && profileResult.value) {
-          const coach = profileResult.value;
-          const completion = getProfileCompletion({
-            coachName: coach.coachName,
-            coachTypeCode: coach.coachTypeCode,
-            city_Cd: coach.city_Cd,
-            tagline: coach.tagline,
-            coachDesc: coach.coachDesc,
-            serviceCodes: coach.serviceCodes,
-            experienceYears: coach.experienceYears,
-            happyClientCount: coach.happyClientCount,
-            pinCode: coach.pinCode,
-            locality: coach.locality,
-            add_Line: coach.add_Line,
-            profile_Pic_Url: coach.profile_Pic_Url,
-            isProfileVisible: coach.isProfileVisible,
-            missingPublicFields: coach.missingPublicFields,
-          });
-          setListing(coach.isProfileVisible === false ? "off" : "on");
-          setListingMissing(completion.missingLabels);
-        }
         const metricFailures = [c, l, d].filter((r) => r.status === "rejected");
         if (metricFailures.length === 3) {
           setError("Could not load dashboard metrics. Try refreshing.");
@@ -270,7 +190,6 @@ export function DashboardHomeView() {
     [due],
   );
 
-  const firstName = session?.fullName?.split(" ")[0] || "Coach";
   const attention = attentionLine({
     loading,
     due: due.length,
@@ -281,26 +200,57 @@ export function DashboardHomeView() {
   const duePreview = dueSorted.slice(0, 6);
   const leadPreview = openLeads.slice(0, 6);
 
+  const helloName = firstName(session?.fullName ?? "");
+  const metrics = [
+    {
+      key: "clients",
+      label: "Clients",
+      hint: "On your roster",
+      value: clients.length,
+      href: "/dashboard/clients",
+      loading: loading && clients.length === 0,
+      tone: "bg-mc-secondary-light text-mc-secondary",
+      icon: <Users className="size-5" aria-hidden />,
+    },
+    {
+      key: "leads",
+      label: "Open leads",
+      hint: openLeads.length > 0 ? "Waiting on you" : "None open",
+      value: openLeads.length,
+      href: "/dashboard/leads",
+      loading: loading && leads.length === 0,
+      tone: "bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]",
+      icon: <Inbox className="size-5" aria-hidden />,
+    },
+    {
+      key: "due",
+      label: "Checkups due",
+      hint: due.length > 0 ? "Follow up today" : "None waiting",
+      value: due.length,
+      href: "/dashboard/checkups",
+      loading: loading && due.length === 0,
+      tone: "bg-mc-primary-light text-mc-primary",
+      icon: <CalendarClock className="size-5" aria-hidden />,
+    },
+  ];
+
   return (
-    <div className="mx-auto w-full max-w-7xl">
-      <Suspense
-        fallback={
-          <DashboardIntro
-            greeting="Hello"
-            firstName={firstName}
-            attention={attention}
-            checking={checking}
-            onAdd={() => void openAddClient()}
-          />
+    <div className="min-w-0">
+      <PracticePageHeader
+        title={helloName ? `Hello, ${helloName}` : "Hello"}
+        description={attention}
+        icon={<Users className="size-5" aria-hidden />}
+        action={
+          <button
+            type="button"
+            onClick={() => void openAddClient()}
+            className="mc-btn-primary w-full sm:w-auto"
+          >
+            <Plus className="size-4" strokeWidth={2.25} aria-hidden />
+            Add client
+          </button>
         }
-      >
-        <DashboardIntroLive
-          firstName={firstName}
-          attention={attention}
-          checking={checking}
-          onAdd={() => void openAddClient()}
-        />
-      </Suspense>
+      />
 
       {error ?
         <AlertBanner tone="error">{error}</AlertBanner>
@@ -309,87 +259,49 @@ export function DashboardHomeView() {
         <AlertBanner tone="error">{gateError}</AlertBanner>
       : null}
 
-      <section aria-label="Key metrics" className="grid gap-4 md:grid-cols-3">
-        <MetricCard
-          label="Total clients"
-          hint="On your roster"
-          value={String(clients.length)}
-          href="/dashboard/clients"
-          loading={loading && clients.length === 0}
-          tone="teal"
-          icon={<Users className="size-5" aria-hidden />}
-        />
-        <MetricCard
-          label="Open leads"
-          hint="Waiting on you"
-          value={String(openLeads.length)}
-          href="/dashboard/leads"
-          loading={loading && leads.length === 0}
-          tone="amber"
-          icon={<Inbox className="size-5" aria-hidden />}
-        />
-        <MetricCard
-          label="Checkups due"
-          hint={due.length > 0 ? "Follow up today" : "None waiting"}
-          value={String(due.length)}
-          href="/dashboard/checkups"
-          loading={loading && due.length === 0}
-          tone="terracotta"
-          icon={<ClipboardCheck className="size-5" aria-hidden />}
-        />
+      <section
+        aria-label="Key metrics"
+        className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-3"
+      >
+        {metrics.map((metric) => (
+          <MetricCard
+            key={metric.key}
+            label={metric.label}
+            hint={metric.hint}
+            value={String(metric.value)}
+            href={metric.href}
+            loading={metric.loading}
+            icon={metric.icon}
+            tone={metric.tone}
+          />
+        ))}
       </section>
 
-      <div className="mt-5 rounded-[var(--radius-md)] border border-mc-secondary/20 bg-mc-secondary-light px-5 py-5 sm:px-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="max-w-xl">
-            <h2 className="font-display text-xl font-bold tracking-tight text-ink">
-              {listing === "off" ?
-                "Your listing is off until the profile is complete"
-              : <>
-                  Coaches with a complete profile{" "}
-                  <span className="text-mc-primary">get found first</span>
-                </>
-              }
-            </h2>
-            <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
-              {listing === "off" ?
-                listingMissing.length ?
-                  `Save these details on your profile: ${listingMissing.join(", ")}. Find a Coach lists a profile once every required field is saved.`
-                : "Save your profile again. Find a Coach lists a profile once every required field is saved."
-
-              : "Photo, services, and city are what people read before they enquire."
-              }
-            </p>
-          </div>
-          <Link
-            href={
-              listing === "on" && session?.coachCode ?
-                `/coach/${encodeURIComponent(session.coachCode)}`
-              : "/dashboard/profile"
-            }
-            className="mc-btn-primary w-full shrink-0 sm:w-auto"
-          >
-            {listing === "on" ? "Open public profile" : "Update profile"}
-          </Link>
-        </div>
-      </div>
-
-      <div className="mt-6 grid gap-6 md:mt-8 md:grid-cols-2 md:gap-5 lg:gap-6">
-        <section aria-labelledby="due-heading" className="min-w-0">
+      <div className="mt-8 grid grid-cols-1 items-stretch gap-4 md:grid-cols-2">
+        <section
+          aria-labelledby="due-heading"
+          className="flex h-full min-h-[18rem] min-w-0 flex-col rounded-2xl border border-[#e5d5c5] bg-white p-5 shadow-[0_1px_2px_rgba(44,24,16,0.04),0_8px_24px_rgba(27,67,50,0.06)]"
+        >
           <SectionHead
             id="due-heading"
             title="Checkups due"
             href="/dashboard/checkups"
             action="View all"
+            tone="bg-mc-primary-light text-mc-primary"
+            icon={<CalendarClock className="size-5" aria-hidden />}
           />
           {loading ?
-            <PracticeRosterSkeleton rows={4} />
+            <DashboardCheckupsSkeleton />
           : duePreview.length === 0 ?
             <PracticeEmpty
+              plain
+              stacked
+              className="min-h-40 flex-1"
+              icon={<CalendarClock className="size-5" aria-hidden />}
               title="No checkups overdue"
               body="Due clients will show up here when a follow-up is waiting."
             />
-          : <>
+          : <div className="min-w-0 flex-1">
               <ul className="mc-roster divide-y divide-line md:hidden">
                 {duePreview.map((item) => {
                   const clientHref =
@@ -398,7 +310,7 @@ export function DashboardHomeView() {
                     : "/dashboard/clients";
                   const checkupHref =
                     item.clientCode ?
-                      `/dashboard/clients/${encodeURIComponent(item.clientCode)}/checkup`
+                      `/dashboard/clients/${encodeURIComponent(item.clientCode)}?tab=checkup`
                     : "/dashboard/checkups";
                   return (
                     <li
@@ -483,7 +395,7 @@ export function DashboardHomeView() {
                           <Link
                             href={
                               item.clientCode ?
-                                `/dashboard/clients/${encodeURIComponent(item.clientCode)}/checkup`
+                                `/dashboard/clients/${encodeURIComponent(item.clientCode)}?tab=checkup`
                               : "/dashboard/checkups"
                             }
                             className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-mc-secondary"
@@ -498,37 +410,34 @@ export function DashboardHomeView() {
                   </tbody>
                 </table>
               </div>
-            </>
+            </div>
           }
         </section>
 
-        <section aria-labelledby="leads-heading" className="min-w-0">
+        <section
+          aria-labelledby="leads-heading"
+          className="flex h-full min-h-[18rem] min-w-0 flex-col rounded-2xl border border-[#e5d5c5] bg-white p-5 shadow-[0_1px_2px_rgba(44,24,16,0.04),0_8px_24px_rgba(27,67,50,0.06)]"
+        >
           <SectionHead
             id="leads-heading"
             title="Open leads"
             href="/dashboard/leads"
             action="View all"
+            tone="bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]"
+            icon={<Inbox className="size-5" aria-hidden />}
           />
           {loading ?
-            <PracticeRosterSkeleton rows={4} />
+            <DashboardLeadsSkeleton />
           : leadPreview.length === 0 ?
             <PracticeEmpty
-              image={photography.emptyLeads}
-              imageAlt="A coach holding a phone between sessions"
+              plain
+              stacked
+              className="min-h-40 flex-1"
+              icon={<Inbox className="size-5" aria-hidden />}
               title="No open enquiries"
-              body={
-                listing === "off" ?
-                  "Your Find a Coach listing is off until the required profile details are saved."
-                : "Share your public profile so new clients can reach you."
-              }
-              href={
-                listing === "on" && session?.coachCode ?
-                  `/coach/${encodeURIComponent(session.coachCode)}`
-                : "/dashboard/profile"
-              }
-              cta={listing === "on" ? "Open profile" : "Update profile"}
+              body="Enquiries from your public page show up here."
             />
-          : <ul className="mc-roster divide-y divide-line">
+          : <ul className="mc-roster min-w-0 flex-1 divide-y divide-line">
               {leadPreview.map((lead) => (
                 <li key={lead.id}>
                   <Link
@@ -541,7 +450,7 @@ export function DashboardHomeView() {
                       </p>
                       <p className="truncate text-xs text-ink-muted">
                         {lead.lookingFor || lead.clientMobile || "Enquiry"}
-                        {lead.dateLabel ? ` · ${lead.dateLabel}` : ""}
+                        {lead.dateLabel ? `, ${lead.dateLabel}` : ""}
                       </p>
                     </div>
                     <ArrowRight
@@ -560,27 +469,24 @@ export function DashboardHomeView() {
         className="mt-8 min-w-0 md:mt-10"
         aria-labelledby="roster-heading"
       >
-        <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="mb-4 flex items-end justify-between gap-3">
           <h2
             id="roster-heading"
-            className="font-display text-lg font-bold text-ink"
+            className="font-display text-xl font-bold tracking-tight text-ink"
           >
             Recent clients
           </h2>
           <Link
             href="/dashboard/clients"
-            className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-mc-secondary hover:underline"
+            className="inline-flex min-h-11 items-center text-sm font-semibold text-mc-secondary hover:underline"
           >
-            <Users className="size-3.5" aria-hidden />
-            Full roster
+            View all
           </Link>
         </div>
         {loading ?
-          <PracticeRosterSkeleton rows={5} />
+          <DashboardClientsSkeleton />
         : recentClients.length === 0 ?
           <PracticeEmpty
-            image={photography.emptyClients}
-            imageAlt="A folded towel and a closed notebook on a gym bench"
             title="No clients yet"
             body="Use Add client above to start an assessment."
           />
@@ -606,7 +512,7 @@ export function DashboardHomeView() {
                             client.status,
                           ]
                             .filter(Boolean)
-                            .join(" · ") || "No contact details"}
+                            .join(", ") || "No contact details"}
                         </p>
                       </div>
                       <span className="shrink-0 text-sm font-semibold text-mc-secondary">

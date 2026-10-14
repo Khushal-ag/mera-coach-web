@@ -8,12 +8,10 @@ import {
   CalendarDays,
   ChevronDown,
   ClipboardCheck,
-  Crown,
-  ExternalLink,
   Inbox,
+  KeyRound,
   LayoutDashboard,
   LogOut,
-  Menu,
   Package,
   UserRound,
   Users,
@@ -54,33 +52,21 @@ function navActive(pathname: string, href: string, exact?: boolean) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function premiumHref(session: { coachId: number; coachCode: string }) {
-  const qs = new URLSearchParams();
-  if (session.coachId > 0) qs.set("coachId", String(session.coachId));
-  if (session.coachCode) qs.set("coachCode", session.coachCode);
-  return qs.toString() ? `/premium?${qs.toString()}` : "/premium";
-}
-
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return "C";
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  if (parts.length === 1) return parts[0]!.slice(0, 1).toUpperCase();
   return `${parts[0]![0]}${parts[parts.length - 1]![0]}`.toUpperCase();
 }
 
-function pageTitle(pathname: string) {
-  if (pathname === "/dashboard") return "Overview";
-  const hit = practiceNav.find((item) =>
-    navActive(pathname, item.href, "exact" in item && item.exact),
-  );
-  return hit?.label ?? "Coaching";
-}
-
 const railLink =
-  "mc-press group relative flex min-h-11 items-center gap-2.5 rounded-xl px-3 font-display text-sm font-medium text-ink-muted transition-[background-color,color,transform] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-mc-secondary-light hover:text-mc-secondary focus-visible:ring-2 focus-visible:ring-mc-secondary focus-visible:outline-none active:scale-[0.98]";
+  "group relative flex min-h-11 items-center gap-3 rounded-xl px-3.5 font-display text-[13.5px] font-medium text-white/60 transition-colors hover:bg-white/8 hover:text-white focus-visible:ring-2 focus-visible:ring-[color:var(--mc-accent)] focus-visible:outline-none";
 
 const railLinkActive =
-  "bg-mc-secondary-light font-bold text-mc-secondary hover:bg-mc-secondary-light hover:text-mc-secondary";
+  "bg-[color:var(--mc-accent)]/18 font-bold text-[color:var(--mc-accent)] hover:bg-[color:var(--mc-accent)]/18 hover:text-[color:var(--mc-accent)]";
+
+const menuLink =
+  "flex min-h-11 items-center gap-2.5 px-4 text-[13.5px] text-ink hover:bg-[color:var(--paper-elevated)]";
 
 export function PracticeShell({ children }: { children: React.ReactNode }) {
   const { session, logout } = useAuth();
@@ -132,12 +118,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
   // RequireAuth only mounts this after session is resolved post-hydration.
   if (!session) return null;
 
-  const profileHref =
-    session.coachCode ?
-      `/coach/${encodeURIComponent(session.coachCode)}`
-    : "/coach";
-
-  const navLinks = (
+  const renderNav = () => (
     <nav className="flex flex-1 flex-col gap-0.5" aria-label="Coaching">
       {practiceNav.map((item) => {
         const active = navActive(
@@ -155,14 +136,14 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
           >
             {active ?
               <span
-                className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-mc-secondary"
+                className="absolute top-1/2 left-0 h-[22px] w-[3px] -translate-y-1/2 rounded-r bg-[color:var(--mc-accent)]"
                 aria-hidden
               />
             : null}
             <span
               className={cn(
-                "inline-flex size-4 shrink-0 items-center justify-center",
-                active ? "text-mc-secondary" : "text-ink-muted",
+                "inline-flex size-5 shrink-0 items-center justify-center",
+                active ? "text-[color:var(--mc-accent)]" : "text-white/60",
               )}
             >
               {iconByHref[item.href]}
@@ -174,72 +155,58 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
     </nav>
   );
 
-  const utilityLinks = (
-    <div className="space-y-0.5">
-      <Link
-        href={premiumHref(session)}
-        onClick={() => setOpen(false)}
-        className={railLink}
-      >
-        <Crown
-          className="size-4 shrink-0 text-mc-accent"
-          strokeWidth={1.75}
-          aria-hidden
-        />
-        Premium
-      </Link>
-      <Link
-        href={profileHref}
-        onClick={() => setOpen(false)}
-        className={railLink}
-      >
-        <ExternalLink
-          className="size-4 shrink-0 text-ink-muted"
-          strokeWidth={1.75}
-          aria-hidden
-        />
-        Public profile
-      </Link>
-      <button
-        type="button"
-        onClick={() => {
-          setOpen(false);
-          void logout();
-        }}
-        className={cn(
-          railLink,
-          "w-full text-[color:var(--mc-destructive)] hover:bg-[color:var(--mc-destructive-soft)] hover:text-[color:var(--mc-destructive)]",
-        )}
-      >
-        <LogOut
-          className="size-4 shrink-0 text-[color:var(--mc-destructive)]"
-          strokeWidth={1.75}
-          aria-hidden
-        />
-        Log out
-      </button>
-    </div>
+  const renderLogout = () => (
+    <button
+      type="button"
+      onClick={() => {
+        setOpen(false);
+        void logout();
+      }}
+      className={cn(
+        railLink,
+        "w-full text-[#ffb4b4] hover:bg-[#ff6464]/10 hover:text-[#ff8080]",
+      )}
+    >
+      <LogOut
+        className="size-4 shrink-0 text-[#ffb4b4]"
+        strokeWidth={1.75}
+        aria-hidden
+      />
+      Log out
+    </button>
   );
 
   const mark = initials(session.fullName);
-  const title = pageTitle(pathname);
+
+  const renderBrand = () => (
+    <Link
+      href="/dashboard"
+      onClick={() => setOpen(false)}
+      className="inline-flex rounded-xl focus-visible:ring-2 focus-visible:ring-[color:var(--mc-accent)] focus-visible:outline-none"
+      aria-label="Mera Coach home"
+    >
+      <BrandLockup variant="nav" />
+    </Link>
+  );
 
   return (
-    <div className="flex min-h-dvh bg-paper text-ink">
-      <aside className="sticky top-0 hidden h-dvh w-[252px] shrink-0 flex-col border-r border-line bg-white px-3 py-5 text-ink shadow-[4px_0_24px_rgba(23,134,118,0.08)] lg:flex">
-        <Link href="/dashboard" className="mb-4 block px-1">
-          <BrandLockup variant="workspace" />
-        </Link>
-        <div className="mx-2 mb-3 h-px bg-line" />
-        {navLinks}
-        <div className="mt-auto border-t border-line pt-3">{utilityLinks}</div>
+    <div className="coach-app flex min-h-dvh bg-[#f5ede0] text-ink">
+      <aside className="sticky top-0 hidden h-dvh w-[252px] shrink-0 flex-col bg-[image:linear-gradient(180deg,#0f1e14_0%,#1b4332_55%,#163528_100%)] text-white shadow-[8px_0_28px_rgba(27,67,50,0.16)] lg:flex">
+        <div className="px-5 pt-[22px] pb-4">{renderBrand()}</div>
+        <div className="mx-5 mb-2 h-px bg-white/10" />
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-2">
+          {renderNav()}
+        </div>
+        <div className="border-t border-white/8 px-3 py-3">
+          {renderLogout()}
+        </div>
       </aside>
 
       {open ?
         <div className="lg:hidden">
           <button
             type="button"
-            className="fixed inset-0 z-40 bg-[color:var(--ink)]/40"
+            className="fixed inset-0 z-40 bg-black/45"
             aria-label="Close menu"
             onClick={() => setOpen(false)}
           />
@@ -248,130 +215,122 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
             role="dialog"
             aria-modal="true"
             aria-label="Coaching menu"
-            className="fixed inset-y-0 left-0 z-50 flex w-[min(18rem,calc(100vw-3rem))] flex-col overflow-y-auto border-r border-line bg-white px-3 py-5 text-ink shadow-[8px_0_32px_rgba(23,134,118,0.16)]"
+            className="fixed inset-y-0 left-0 z-50 flex w-[252px] max-w-[calc(100vw-3rem)] flex-col overflow-y-auto bg-[image:linear-gradient(180deg,#0f1e14_0%,#1b4332_55%,#163528_100%)] text-white shadow-[8px_0_28px_rgba(27,67,50,0.16)]"
           >
-            <div className="mb-4 flex items-center justify-between gap-2 px-1">
-              <Link href="/dashboard" onClick={() => setOpen(false)}>
-                <BrandLockup variant="workspace" />
-              </Link>
+            <div className="flex items-start justify-between gap-2 px-5 pt-[22px] pb-4">
+              <div className="min-w-0">{renderBrand()}</div>
               <button
                 type="button"
-                className="mc-press inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-line bg-paper text-ink"
+                className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-white hover:bg-white/8"
                 aria-label="Close menu"
                 onClick={() => setOpen(false)}
               >
                 <X className="size-5" aria-hidden />
               </button>
             </div>
-            <div className="mx-2 mb-3 h-px bg-line" />
-            {navLinks}
-            <div className="mt-auto border-t border-line pt-3">
-              {utilityLinks}
+            <div className="mx-5 mb-2 h-px bg-white/10" />
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-2">
+              {renderNav()}
+            </div>
+            <div className="border-t border-white/8 px-3 py-3">
+              {renderLogout()}
             </div>
           </aside>
         </div>
       : null}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b border-line bg-white text-ink shadow-[0_2px_12px_rgba(23,134,118,0.1)]">
-          <div className="flex min-h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-            <div className="flex min-w-0 items-center gap-3">
-              <button
-                type="button"
-                className="mc-press inline-flex size-11 items-center justify-center rounded-[var(--radius-sm)] border border-line bg-paper text-ink transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.98] lg:hidden"
-                aria-expanded={open}
-                aria-controls={navId}
-                aria-label="Open menu"
-                onClick={() => setOpen(true)}
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-[#e5d5c5] bg-[#fdf8f2] px-4 text-ink sm:px-7">
+          <button
+            type="button"
+            className="inline-flex size-11 shrink-0 flex-col items-center justify-center gap-[5px] rounded-lg lg:hidden"
+            aria-expanded={open}
+            aria-controls={navId}
+            aria-label="Open menu"
+            onClick={() => setOpen(true)}
+          >
+            <span className="block h-0.5 w-[18px] rounded-full bg-ink" />
+            <span className="block h-0.5 w-[18px] rounded-full bg-ink" />
+            <span className="block h-0.5 w-[18px] rounded-full bg-ink" />
+          </button>
+
+          <div className="relative ml-auto" ref={accountMenuRef}>
+            <button
+              type="button"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-mc-secondary bg-white py-1 pr-3 pl-1 text-ink shadow-[0_1px_2px_rgba(44,24,16,0.04)] hover:bg-mc-secondary-light focus-visible:ring-2 focus-visible:ring-mc-secondary focus-visible:outline-none"
+              aria-expanded={menuOpen}
+              aria-haspopup="menu"
+              aria-label={`Account menu for ${session.fullName}`}
+              onClick={() => setMenuOpen((v) => !v)}
+            >
+              <span className="grid size-8 place-items-center rounded-full bg-[image:linear-gradient(135deg,#1b4332,#2d6a4f)] font-display text-xs font-extrabold text-white">
+                {mark}
+              </span>
+              <span className="max-w-[7.5rem] truncate font-display text-[13px] font-semibold text-ink sm:max-w-[11rem] sm:text-sm">
+                {session.fullName}
+              </span>
+              <ChevronDown
+                className={cn(
+                  "size-3 shrink-0 text-mc-secondary transition-transform duration-200",
+                  menuOpen && "rotate-180",
+                )}
+                aria-hidden
+              />
+            </button>
+            {menuOpen ?
+              <div
+                role="menu"
+                className="absolute right-0 z-40 mt-2.5 w-[230px] overflow-hidden rounded-2xl border border-line bg-white shadow-[0_8px_32px_rgba(27,67,50,0.14)]"
               >
-                <Menu className="size-5" aria-hidden />
-              </button>
-              {pathname === "/dashboard" ?
-                <h1 className="truncate font-display text-lg font-bold tracking-tight text-ink">
-                  {title}
-                </h1>
-              : <p className="truncate font-display text-lg font-bold tracking-tight text-ink">
-                  {title}
+                <p className="border-b border-line px-4 py-3 text-[11.5px] text-ink-muted">
+                  {session.email || "Coach account"}
                 </p>
-              }
-            </div>
-            <div className="relative" ref={accountMenuRef}>
-              <button
-                type="button"
-                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-paper py-1 pr-2 pl-1.5 focus-visible:ring-2 focus-visible:ring-mc-secondary focus-visible:outline-none sm:pr-3"
-                aria-expanded={menuOpen}
-                aria-haspopup="menu"
-                aria-label={`Account menu for ${session.fullName}`}
-                onClick={() => setMenuOpen((v) => !v)}
-              >
-                <span className="bg-mc-secondary-dark grid size-8 place-items-center rounded-full font-display text-[11px] font-bold text-white">
-                  {mark}
-                </span>
-                <span className="hidden max-w-[11rem] truncate font-display text-sm font-semibold text-ink sm:block">
-                  {session.fullName}
-                </span>
-                <ChevronDown
-                  className={cn(
-                    "size-4 shrink-0 text-ink-muted transition-transform duration-200",
-                    menuOpen && "rotate-180",
-                  )}
-                  aria-hidden
-                />
-              </button>
-              {menuOpen ?
-                <div
-                  role="menu"
-                  className="absolute right-0 z-40 mt-2 w-56 overflow-hidden rounded-2xl border border-line bg-white py-2 shadow-[0_16px_40px_rgba(23,134,118,0.12)]"
+                <Link
+                  href="/dashboard/profile"
+                  role="menuitem"
+                  className={menuLink}
+                  onClick={() => setMenuOpen(false)}
                 >
-                  <p className="px-4 pt-2 font-display text-sm font-bold text-ink sm:sr-only">
-                    {session.fullName}
-                  </p>
-                  <p className="px-4 py-2 text-xs text-ink-muted">
-                    {session.email || "Coach account"}
-                  </p>
-                  <Link
-                    href="/dashboard/profile"
-                    role="menuitem"
-                    className="flex min-h-11 items-center px-4 text-sm font-semibold text-ink hover:bg-paper"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    My profile
-                  </Link>
-                  <Link
-                    href={profileHref}
-                    role="menuitem"
-                    className="flex min-h-11 items-center px-4 text-sm font-semibold text-ink hover:bg-paper"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Public page
-                  </Link>
-                  <Link
-                    href={premiumHref(session)}
-                    role="menuitem"
-                    className="flex min-h-11 items-center px-4 text-sm font-semibold text-ink hover:bg-paper"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Premium
-                  </Link>
-                  <button
-                    type="button"
-                    role="menuitem"
-                    className="flex min-h-11 w-full items-center px-4 text-left text-sm font-semibold text-[color:var(--mc-destructive)] hover:bg-paper"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      void logout();
-                    }}
-                  >
-                    Log out
-                  </button>
-                </div>
-              : null}
-            </div>
+                  <UserRound
+                    className="size-3.5 text-mc-secondary"
+                    aria-hidden
+                  />
+                  My profile
+                </Link>
+                <Link
+                  href="/dashboard/profile/password"
+                  role="menuitem"
+                  className={menuLink}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <KeyRound
+                    className="size-3.5 text-mc-secondary"
+                    aria-hidden
+                  />
+                  Change password
+                </Link>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="flex min-h-11 w-full items-center gap-2.5 border-t border-line px-4 text-left text-[13.5px] font-semibold text-[color:var(--mc-primary)] hover:bg-[#fff0ee]"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    void logout();
+                  }}
+                >
+                  <LogOut className="size-3.5" aria-hidden />
+                  Log out
+                </button>
+              </div>
+            : null}
           </div>
         </header>
 
-        <main className="min-w-0 flex-1 overflow-x-clip px-4 py-6 sm:px-6 sm:py-7 lg:px-8">
-          <div key={pathname} className="mc-enter">
+        <main className="min-w-0 flex-1 overflow-x-clip bg-[#f5ede0] px-4 pt-6 pb-12 sm:px-7 sm:pt-8 sm:pb-16">
+          <div
+            key={pathname}
+            className="mc-enter mx-auto w-full max-w-6xl min-w-0"
+          >
             {children}
           </div>
         </main>

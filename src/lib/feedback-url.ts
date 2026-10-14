@@ -22,17 +22,3 @@ export function buildFeedbackWebUrl(params: {
   const qs = new URLSearchParams({ coachCode, clientCode });
   return `${base}/feedback?${qs.toString()}`;
 }
-
-export function buildFeedbackShareBody(params: {
-  clientName?: string;
-  coachName?: string;
-  feedbackUrl: string;
-}): string {
-  const clientFirst = params.clientName?.trim().split(/\s+/)[0];
-  const greeting = clientFirst ? `Hi ${clientFirst}` : "Hi";
-  const coachBit =
-    params.coachName?.trim() ?
-      ` for your coach ${params.coachName.trim()}`
-    : " for your coach";
-  return `${greeting}, please share quick feedback${coachBit} on Mera Coach:\n${params.feedbackUrl}`;
-}

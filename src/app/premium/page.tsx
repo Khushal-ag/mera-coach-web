@@ -8,6 +8,7 @@ import type { CoachCatalogPlan, CoachSuggestedPromo } from "@/types/premium";
 
 import { PageBanner } from "@/components/marketing/page-banner";
 import { PremiumCheckoutAuth } from "@/components/premium-checkout-auth";
+import { PremiumPlansSkeleton } from "@/components/skeletons/premium-plans-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { photography } from "@/config/photography";
 import { fetchPremiumPlans, firstApiError, isApiSuccess } from "@/lib/api";
@@ -49,8 +50,42 @@ export default function PremiumPage({
         subtitle="Unlimited clients, packages, and the public page tools. One plan, checkout on the website."
       />
       <section className="bg-mc-secondary-light py-10 sm:py-14">
-        <div className="container max-w-6xl">
-          <Suspense fallback={<PremiumCatalogSkeleton />}>
+        <div className="container grid max-w-6xl gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+          <aside className="space-y-5">
+            <div className="relative aspect-[16/10] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(44,24,16,0.12)]">
+              <Image
+                src={photography.premium}
+                alt="A quiet stretch in a coaching studio"
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 380px"
+              />
+            </div>
+            <div className="rounded-[22px] border border-line bg-white p-5 shadow-[0_8px_24px_rgba(44,24,16,0.06)] sm:p-6">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]">
+                  <Crown className="size-5" strokeWidth={1.75} aria-hidden />
+                </span>
+                <h2 className="font-display text-lg font-bold text-ink">
+                  What you get
+                </h2>
+              </div>
+              <ul className="mt-4 space-y-3">
+                {FALLBACK_FEATURES.map((feature) => (
+                  <li key={feature} className="flex items-start gap-3 text-sm">
+                    <Check
+                      className="mt-0.5 size-4 shrink-0 text-mc-secondary"
+                      strokeWidth={2.25}
+                      aria-hidden
+                    />
+                    <span className="text-ink">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </aside>
+          <Suspense fallback={<PremiumPlansSkeleton />}>
             <PremiumCatalog searchParams={searchParams} />
           </Suspense>
         </div>
@@ -71,7 +106,6 @@ async function PremiumCatalog({
 
   let plans: CoachCatalogPlan[] = [];
   let promo: CoachSuggestedPromo | null | undefined = null;
-  let catalogFeatures: string[] = [];
   let errorMessage: string | null = null;
 
   try {
@@ -81,101 +115,41 @@ async function PremiumCatalog({
     } else {
       plans = response.responseObj?.plans ?? [];
       promo = response.responseObj?.promo;
-      const fromCatalog = response.responseObj?.features;
-      if (Array.isArray(fromCatalog) && fromCatalog.length > 0) {
-        catalogFeatures = fromCatalog.map(String);
-      }
     }
   } catch (error) {
     errorMessage =
       error instanceof Error ? error.message : "Could not load plans.";
   }
 
-  const features =
-    catalogFeatures.length > 0 ? catalogFeatures : [...FALLBACK_FEATURES];
-
   return (
-    <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-      <aside className="space-y-5">
-        <div className="relative aspect-[16/10] overflow-hidden rounded-[22px] shadow-[0_12px_36px_rgba(23,134,118,0.12)]">
-          <Image
-            src={photography.premium}
-            alt="A quiet stretch in a coaching studio"
-            fill
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 380px"
-          />
-        </div>
-        <div className="rounded-[22px] border border-line bg-white p-5 shadow-[0_8px_24px_rgba(23,134,118,0.06)] sm:p-6">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex size-11 items-center justify-center rounded-xl bg-[color:var(--mc-accent-light)] text-[color:var(--mc-accent)]">
-              <Crown className="size-5" strokeWidth={1.75} aria-hidden />
-            </span>
-            <h2 className="font-display text-lg font-bold text-ink">
-              What you get
-            </h2>
-          </div>
-          <ul className="mt-4 space-y-3">
-            {features.map((feature) => (
-              <li key={feature} className="flex items-start gap-3 text-sm">
-                <Check
-                  className="mt-0.5 size-4 shrink-0 text-mc-secondary"
-                  strokeWidth={2.25}
-                  aria-hidden
-                />
-                <span className="text-ink">{feature}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </aside>
+    <div className="min-w-0">
+      {fromAddClient ?
+        <AlertBanner tone="info" className="mb-5">
+          Adding a client needs an active subscription.
+        </AlertBanner>
+      : null}
 
-      <div className="min-w-0">
-        {fromAddClient ?
-          <AlertBanner tone="info" className="mb-5">
-            Premium is required to add clients. Choose a plan below to unlock
-            Add Client for your coaching.
+      <div className="overflow-hidden rounded-[22px] border border-line bg-white p-4 shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:p-8">
+        {errorMessage ?
+          <AlertBanner tone="error" className="mb-6">
+            {errorMessage}
           </AlertBanner>
         : null}
-
-        <div className="overflow-hidden rounded-[22px] border border-line bg-white p-4 shadow-[0_16px_40px_rgba(23,134,118,0.08)] sm:p-8">
-          {errorMessage ?
-            <AlertBanner tone="error" className="mb-6">
-              {errorMessage}
-            </AlertBanner>
-          : null}
-          <PremiumCheckoutAuth
-            plans={plans}
-            promo={promo}
-            initialCoachId={initialCoachId}
-            initialCoachCode={initialCoachCode}
-          />
-        </div>
-        <p className="mt-6 text-center text-sm text-ink-muted lg:text-left">
-          Pay Now in the app opens checkout for your account. On the web, sign
-          in first. New here?{" "}
-          <Link href="/register" className="font-semibold text-mc-secondary">
-            Start as a Coach
-          </Link>
-          .
-        </p>
+        <PremiumCheckoutAuth
+          plans={plans}
+          promo={promo}
+          initialCoachId={initialCoachId}
+          initialCoachCode={initialCoachCode}
+        />
       </div>
-    </div>
-  );
-}
-
-function PremiumCatalogSkeleton() {
-  return (
-    <div
-      className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12"
-      aria-busy="true"
-      aria-label="Loading Premium"
-    >
-      <div className="space-y-6">
-        <div className="aspect-[16/10] animate-pulse rounded-[var(--radius-lg)] bg-line lg:aspect-[3/4]" />
-        <div className="h-72 animate-pulse rounded-[var(--radius-md)] bg-line" />
-      </div>
-      <div className="h-[28rem] animate-pulse rounded-[var(--radius-md)] bg-line" />
+      <p className="mt-6 text-center text-sm text-ink-muted lg:text-left">
+        Pay Now in the app opens checkout for your account. On the web, sign in
+        first. New here?{" "}
+        <Link href="/register" className="font-semibold text-mc-secondary">
+          Start as a Coach
+        </Link>
+        .
+      </p>
     </div>
   );
 }
