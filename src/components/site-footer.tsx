@@ -13,7 +13,6 @@ const SOCIALS = [
 ] as const;
 
 export function SiteFooter() {
-  const socialLinks = SOCIALS.filter((item) => env.social[item.key]);
   return (
     <div className="mc-public">
       <footer className="footer">
@@ -44,21 +43,21 @@ export function SiteFooter() {
                 you with verified Health, Fitness, Yoga, Nutrition and Lifestyle
                 coaches for every goal.
               </p>
-              {socialLinks.length > 0 ?
-                <div className="footer-social">
-                  {socialLinks.map((item) => (
-                    <a
-                      key={item.key}
-                      href={env.social[item.key]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Mera Coach on ${item.label}`}
-                    >
-                      <i className={item.icon} />
-                    </a>
-                  ))}
-                </div>
-              : null}
+              <div className="footer-social">
+                {SOCIALS.map((item) => (
+                  <a
+                    key={item.key}
+                    href={env.social[item.key] || "#"}
+                    target={env.social[item.key] ? "_blank" : undefined}
+                    rel={
+                      env.social[item.key] ? "noopener noreferrer" : undefined
+                    }
+                    aria-label={`Mera Coach on ${item.label}`}
+                  >
+                    <i className={item.icon} />
+                  </a>
+                ))}
+              </div>
             </div>
             <div className="footer-col">
               <h4 aria-level={3}>Platform</h4>

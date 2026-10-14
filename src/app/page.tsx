@@ -9,7 +9,6 @@ import {
   HomeSearchSection,
   HomeStories,
 } from "@/components/home/home-live";
-import { ListEmpty } from "@/components/list-empty";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
@@ -25,6 +24,51 @@ const PROOF = [
   "https://randomuser.me/api/portraits/men/32.jpg",
   "https://randomuser.me/api/portraits/women/68.jpg",
   "https://randomuser.me/api/portraits/men/75.jpg",
+];
+
+const BLOG_POSTS = [
+  {
+    image:
+      "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&auto=format&fit=crop&q=80",
+    imageAlt: "Nutrition Blog",
+    category: "Nutrition",
+    categoryStyle: undefined,
+    date: "May 20, 2026",
+    title: "10 Superfoods That Can Transform Your Health in 30 Days",
+    summary:
+      "Discover science-backed superfoods that your nutrition coach recommends for improved energy, immunity and overall wellness...",
+    authorAvatar: "https://randomuser.me/api/portraits/women/68.jpg",
+    authorName: "Dr. Ananya Singh",
+    readTime: "5 min read",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&auto=format&fit=crop&q=80",
+    imageAlt: "Yoga Blog",
+    category: "Yoga",
+    categoryStyle: { background: "#f3e8ff", color: "#9333ea" },
+    date: "May 18, 2026",
+    title: "Morning Yoga Routine: 15 Minutes to a Productive Day",
+    summary:
+      "Start your day right with this expert-designed morning yoga sequence that boosts energy, reduces anxiety and sharpens focus...",
+    authorAvatar: "https://randomuser.me/api/portraits/women/44.jpg",
+    authorName: "Priya Mehta",
+    readTime: "4 min read",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=80",
+    imageAlt: "Fitness Blog",
+    category: "Fitness",
+    categoryStyle: { background: "#fdf3e0", color: "#c9882a" },
+    date: "May 15, 2026",
+    title: "Beginner's Guide to Starting Your Fitness Journey at Any Age",
+    summary:
+      "Whether you're 25 or 65, it's never too late or too early. Here's your complete beginner-friendly guide to getting fit...",
+    authorAvatar: "https://randomuser.me/api/portraits/men/32.jpg",
+    authorName: "Rahul Sharma",
+    readTime: "6 min read",
+  },
 ];
 
 export default function HomePage() {
@@ -50,8 +94,8 @@ export default function HomePage() {
               <em>Business</em>
             </h1>
             <p className="hero-subtitle">
-              Manage clients, track progress and build your coaching brand, all
-              in one powerful platform designed for health coaches.
+              Manage clients, track progress and build your coaching brand
+              &mdash; all in one powerful platform designed for health coaches.
             </p>
             <div className="hero-ctas">
               <Link href="/register" className="btn btn-gold">
@@ -212,8 +256,8 @@ export default function HomePage() {
             </h2>
             <p className="section-subtitle">
               One powerful platform with all the tools to manage, grow and
-              showcase your coaching business, so you can focus on what matters
-              most: your clients.
+              showcase your coaching business &mdash; so you can focus on what
+              matters most: your clients.
             </p>
           </div>
           <div className="features-grid">
@@ -316,15 +360,15 @@ export default function HomePage() {
               <p>
                 Build your personal landing page, define your coaching services
                 and upload your success stories. Your profile is your digital
-                storefront, so make it shine.
+                storefront &mdash; make it shine.
               </p>
             </div>
             <div className="step-card">
               <div className="step-num">3</div>
               <h3>Start Managing Clients</h3>
               <p>
-                Begin adding clients, tracking their progress and managing
-                leads, all from one clean dashboard. Watch your coaching
+                Begin adding clients, tracking their progress and managing leads
+                &mdash; all from one clean dashboard. Watch your coaching
                 practice grow, day by day.
               </p>
             </div>
@@ -344,8 +388,8 @@ export default function HomePage() {
             </div>
             <h2 className="section-title">Choose Your Path</h2>
             <p className="section-subtitle">
-              Mera Coach serves both coaches and members, pick your path and let
-              us do the rest.
+              Mera Coach serves both coaches and members &mdash; pick your path
+              and let us do the rest.
             </p>
           </div>
           <div className="path-grid">
@@ -367,7 +411,7 @@ export default function HomePage() {
                 </div>
                 <h3>Built for Coaches</h3>
                 <p>
-                  Run, grow and scale your coaching practice, from client
+                  Run, grow and scale your coaching practice &mdash; from client
                   management to building your personal brand online.
                 </p>
                 <ul className="path-features">
@@ -479,7 +523,39 @@ export default function HomePage() {
               journey.
             </p>
           </div>
-          <ListEmpty title="No articles yet." icon="fas fa-pen-fancy" />
+          <div className="blog-grid">
+            {BLOG_POSTS.map((post) => (
+              <div key={post.title} className="blog-card">
+                <div className="blog-img">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={post.image} alt={post.imageAlt} />
+                </div>
+                <div className="blog-body">
+                  <div className="blog-meta">
+                    <span className="blog-cat" style={post.categoryStyle}>
+                      {post.category}
+                    </span>
+                    <span className="blog-date">
+                      <i className="fas fa-calendar" /> {post.date}
+                    </span>
+                  </div>
+                  <h3>{post.title}</h3>
+                  <p>{post.summary}</p>
+                  <div className="blog-author">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={post.authorAvatar} alt={post.authorName} />
+                    <span>{post.authorName}</span>
+                    <span className="blog-read">{post.readTime}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <a href="#" className="btn btn-outline">
+              <i className="fas fa-book-open" /> Read All Articles
+            </a>
+          </div>
         </div>
       </section>
 

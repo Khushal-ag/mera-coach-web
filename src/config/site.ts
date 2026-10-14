@@ -52,6 +52,7 @@ export const siteConfig = {
     { label: "Find a Coach", href: "/coach" },
     { label: "Features", href: "/services" },
     { label: "About Us", href: "/#about" },
+    { label: "Blog", href: "/#blog" },
     { label: "Contact", href: "/contact" },
   ] as const,
 

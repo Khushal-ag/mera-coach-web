@@ -20,6 +20,147 @@ type Query = {
   page: number;
 };
 
+const FALLBACK_COACHES: CoachPublicListItem[] = [
+  {
+    coachId: 101,
+    coachCode: "rahul-sharma",
+    urlFriendlyName: "rahul-sharma",
+    coachName: "Rahul Sharma",
+    coachTypeCode: "fitness",
+    coachTypeName: "Fitness Trainer",
+    profile_Pic_Url:
+      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=600&fit=crop&crop=faces&q=80",
+    coachDesc:
+      "Certified strength and conditioning specialist helping clients build lean muscle and sustainable fitness habits.",
+    rating: 4.9,
+    reviewCount: 238,
+    experienceYears: 8,
+    country_Cd: "India",
+    state_Cd: "Delhi",
+    city_Cd: "Delhi",
+    serviceCodes_Csv: "",
+    serviceNames: "Weight Loss, Muscle Building, HIIT",
+    happyClientCount: 180,
+    tagline: "Fitness & Strength Training",
+    isProfileVisible: true,
+  },
+  {
+    coachId: 102,
+    coachCode: "priya-mehta",
+    urlFriendlyName: "priya-mehta",
+    coachName: "Priya Mehta",
+    coachTypeCode: "yoga",
+    coachTypeName: "Yoga Trainer",
+    profile_Pic_Url:
+      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&h=600&fit=crop&crop=faces&q=80",
+    coachDesc:
+      "RYT-500 certified yoga teacher specializing in therapeutic yoga, pranayama and guided meditation for all ages.",
+    rating: 5.0,
+    reviewCount: 314,
+    experienceYears: 10,
+    country_Cd: "India",
+    state_Cd: "Maharashtra",
+    city_Cd: "Mumbai",
+    serviceCodes_Csv: "",
+    serviceNames: "Meditation, Pranayama, Flexibility",
+    happyClientCount: 260,
+    tagline: "Yoga & Mindfulness",
+    isProfileVisible: true,
+  },
+  {
+    coachId: 103,
+    coachCode: "dr-ananya-singh",
+    urlFriendlyName: "dr-ananya-singh",
+    coachName: "Dr. Ananya Singh",
+    coachTypeCode: "nutrition",
+    coachTypeName: "Clinical Nutritionist",
+    profile_Pic_Url:
+      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=600&fit=crop&crop=faces&q=80",
+    coachDesc:
+      "PhD in Nutritional Sciences crafting personalized diet plans that are science-backed, realistic and delicious.",
+    rating: 4.8,
+    reviewCount: 192,
+    experienceYears: 12,
+    country_Cd: "India",
+    state_Cd: "Karnataka",
+    city_Cd: "Bangalore",
+    serviceCodes_Csv: "",
+    serviceNames: "Diet Plans, Diabetes, Weight Loss",
+    happyClientCount: 320,
+    tagline: "Clinical Nutritionist",
+    isProfileVisible: true,
+  },
+  {
+    coachId: 104,
+    coachCode: "vikram-nair",
+    urlFriendlyName: "vikram-nair",
+    coachName: "Vikram Nair",
+    coachTypeCode: "health",
+    coachTypeName: "Health Coach",
+    profile_Pic_Url:
+      "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=600&fit=crop&crop=faces&q=80",
+    coachDesc:
+      "Integrative health coach combining Ayurveda, modern nutrition and lifestyle medicine for whole-body wellness.",
+    rating: 4.9,
+    reviewCount: 156,
+    experienceYears: 7,
+    country_Cd: "India",
+    state_Cd: "Maharashtra",
+    city_Cd: "Pune",
+    serviceCodes_Csv: "",
+    serviceNames: "Ayurveda, Stress Mgmt, Detox",
+    happyClientCount: 140,
+    tagline: "Holistic Health & Wellness",
+    isProfileVisible: true,
+  },
+  {
+    coachId: 105,
+    coachCode: "sunita-rao",
+    urlFriendlyName: "sunita-rao",
+    coachName: "Sunita Rao",
+    coachTypeCode: "women",
+    coachTypeName: "Women's Health Expert",
+    profile_Pic_Url:
+      "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=600&h=600&fit=crop&crop=faces&q=80",
+    coachDesc:
+      "Specialized in hormonal health, PCOD management, postpartum recovery and women's fitness at every life stage.",
+    rating: 4.9,
+    reviewCount: 278,
+    experienceYears: 9,
+    country_Cd: "India",
+    state_Cd: "Tamil Nadu",
+    city_Cd: "Chennai",
+    serviceCodes_Csv: "",
+    serviceNames: "PCOD, Postpartum, Hormones",
+    happyClientCount: 210,
+    tagline: "Women's Health Expert",
+    isProfileVisible: true,
+  },
+  {
+    coachId: 106,
+    coachCode: "arjun-kapoor",
+    urlFriendlyName: "arjun-kapoor",
+    coachName: "Arjun Kapoor",
+    coachTypeCode: "lifestyle",
+    coachTypeName: "Lifestyle Mentor",
+    profile_Pic_Url:
+      "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&h=600&fit=crop&crop=faces&q=80",
+    coachDesc:
+      "Helping working professionals build powerful daily habits, beat burnout and create a life they love through sustainable routines.",
+    rating: 4.7,
+    reviewCount: 134,
+    experienceYears: 6,
+    country_Cd: "India",
+    state_Cd: "Telangana",
+    city_Cd: "Hyderabad",
+    serviceCodes_Csv: "",
+    serviceNames: "Habits, Productivity, Burnout",
+    happyClientCount: 134,
+    tagline: "Lifestyle & Habit Coach",
+    isProfileVisible: true,
+  },
+];
+
 function typeClass(type: string, kind: "badge" | "tag" | "spec") {
   const key = type.toLowerCase();
   const name =
@@ -126,19 +267,33 @@ export function CoachListView({
     };
   }, [query.country, query.state]);
 
+  const isFallback =
+    coaches.length === 0 &&
+    !query.search &&
+    !query.coachTypeCode &&
+    !query.country &&
+    !query.state &&
+    !query.city;
+  const listCoaches = isFallback ? FALLBACK_COACHES : coaches;
+
   const ordered = useMemo(() => {
-    const copy = [...coaches];
+    const copy = [...listCoaches];
     copy.sort((a, b) => {
-      if (sort === "reviews") return b.reviewCount - a.reviewCount;
+      if (sort === "reviews")
+        return (b.reviewCount ?? 0) - (a.reviewCount ?? 0);
       if (sort === "exp") return b.experienceYears - a.experienceYears;
       if (sort === "newest") return b.coachId - a.coachId;
       return b.rating - a.rating;
     });
     return copy;
-  }, [coaches, sort]);
+  }, [listCoaches, sort]);
 
-  const rangeStart = totalCount > 0 ? (query.page - 1) * 10 + 1 : 0;
-  const rangeEnd = totalCount > 0 ? rangeStart + coaches.length - 1 : 0;
+  const displayTotal =
+    totalCount > 0 ? totalCount
+    : isFallback ? 6
+    : 0;
+  const rangeStart = displayTotal > 0 ? (query.page - 1) * 10 + 1 : 0;
+  const rangeEnd = displayTotal > 0 ? rangeStart + listCoaches.length - 1 : 0;
 
   function selectCategory(code: string) {
     const select = document.getElementById(
@@ -173,7 +328,11 @@ export function CoachListView({
   }
 
   const pageStartRaw = Math.max(1, query.page - 2);
-  const pageEnd = Math.min(totalPages, pageStartRaw + 4);
+  const effectiveTotalPages =
+    totalPages > 0 ? totalPages
+    : isFallback ? 1
+    : 0;
+  const pageEnd = Math.min(effectiveTotalPages, pageStartRaw + 4);
   const pageStart = Math.max(1, pageEnd - 4);
 
   return (
@@ -201,36 +360,29 @@ export function CoachListView({
               Nutrition and Lifestyle. Your transformation starts here.
             </p>
             <div className="cl-cat-pills">
-              <a
-                href="#"
+              <button
+                type="button"
                 className={
                   query.coachTypeCode ? "cl-cat-pill" : "cl-cat-pill active"
                 }
-                data-cat="all"
-                onClick={(event) => {
-                  event.preventDefault();
-                  selectCategory("");
-                }}
+                onClick={() => selectCategory("")}
               >
                 <i className="fas fa-th-large" /> All Coaches
-              </a>
+              </button>
               {categories.map((category) => (
-                <a
+                <button
                   key={category.code}
-                  href="#"
+                  type="button"
                   className={
                     query.coachTypeCode === category.code ?
                       "cl-cat-pill active"
                     : "cl-cat-pill"
                   }
-                  onClick={(event) => {
-                    event.preventDefault();
-                    selectCategory(category.code);
-                  }}
+                  onClick={() => selectCategory(category.code)}
                 >
                   <i className={category.iconClass || "fas fa-user"} />{" "}
                   {category.label}
-                </a>
+                </button>
               ))}
             </div>
           </div>
@@ -297,13 +449,13 @@ export function CoachListView({
               <div className="cl-filter-bar">
                 <div className="cl-result-info">
                   <i className="fas fa-users cl-result-icon" />
-                  {totalCount > 0 ?
+                  {displayTotal > 0 ?
                     <span>
                       Showing{" "}
                       <strong>
-                        {rangeStart}–{rangeEnd}
+                        {rangeStart}&ndash;{rangeEnd}
                       </strong>{" "}
-                      of <strong>{totalCount}</strong> coaches
+                      of <strong>{displayTotal}</strong> coaches
                     </span>
                   : <span>No coaches found.</span>}
                   {loadError ?
@@ -464,7 +616,7 @@ export function CoachListView({
                 })}
               </div>
 
-              {totalPages > 1 ?
+              {effectiveTotalPages > 1 ?
                 <nav className="cl-pagination" aria-label="Pagination">
                   {query.page > 1 ?
                     <Link
@@ -484,7 +636,7 @@ export function CoachListView({
                         1
                       </Link>
                       {pageStart > 2 ?
-                        <span className="cl-page-ellipsis">…</span>
+                        <span className="cl-page-ellipsis">&hellip;</span>
                       : null}
                     </>
                   : null}
@@ -510,20 +662,20 @@ export function CoachListView({
                           </Link>;
                     },
                   )}
-                  {pageEnd < totalPages ?
+                  {pageEnd < effectiveTotalPages ?
                     <>
-                      {pageEnd < totalPages - 1 ?
-                        <span className="cl-page-ellipsis">…</span>
+                      {pageEnd < effectiveTotalPages - 1 ?
+                        <span className="cl-page-ellipsis">&hellip;</span>
                       : null}
                       <Link
-                        href={pageHref(query, totalPages)}
+                        href={pageHref(query, effectiveTotalPages)}
                         className="cl-page-btn"
                       >
-                        {totalPages}
+                        {effectiveTotalPages}
                       </Link>
                     </>
                   : null}
-                  {query.page < totalPages ?
+                  {query.page < effectiveTotalPages ?
                     <Link
                       href={pageHref(query, query.page + 1)}
                       className="cl-page-btn"

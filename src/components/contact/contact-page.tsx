@@ -200,8 +200,8 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
           </h1>
           <p className="contact-hero-sub">
             Whether you&apos;re a coach ready to grow, a client seeking
-            guidance, or a brand looking to partner, we&apos;d love to hear from
-            you.
+            guidance, or a brand looking to partner &mdash; we&apos;d love to
+            hear from you.
           </p>
         </div>
       </section>

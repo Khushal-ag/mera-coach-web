@@ -57,8 +57,8 @@ export function HomeAppPromo() {
               </h2>
               <p className="app-promo-desc">
                 The Mera Coach app lets you find verified coaches, track your
-                fitness goals, log BMI, and chat with your coach, all from your
-                phone. Available soon on Android &amp; iOS.
+                fitness goals, log BMI, and chat with your coach &mdash; all
+                from your phone. Available soon on Android &amp; iOS.
               </p>
               <ul className="app-promo-features">
                 <li>
@@ -107,7 +107,7 @@ export function HomeAppPromo() {
                 </a>
               </div>
               <p className="app-promo-coming">
-                <i className="fas fa-clock" /> Launching soon:{" "}
+                <i className="fas fa-clock" /> Launching soon &mdash;{" "}
                 <a
                   href="#app-notify"
                   onClick={openNotify}

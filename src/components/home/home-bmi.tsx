@@ -205,7 +205,6 @@ export function HomeBmi() {
                   id="bmi-gender"
                   aria-label="Select Gender"
                   skin="public"
-                  className="ui-select"
                   value={gender}
                   placeholder="Select Gender"
                   options={[

@@ -204,6 +204,15 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                   </span>
                 </div>
               : null}
+              <button
+                type="button"
+                className="cl-notif-btn"
+                title="Notifications"
+                aria-label="Notifications"
+              >
+                <i className="fas fa-bell" />
+                <span className="cl-notif-dot" />
+              </button>
               <Link
                 href="/dashboard"
                 className="cl-home-btn"

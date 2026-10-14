@@ -446,11 +446,11 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      <section className="sv-cta">
+      <section className="sv-final-cta sv-cta">
         <div className="container">
-          <div className="sv-cta-inner">
-            <div className="sv-cta-text">
-              <div className="section-tag sv-cta-tag">
+          <div className="sv-fca-inner sv-cta-inner">
+            <div className="sv-fca-left sv-cta-text">
+              <div className="section-tag sv-fca-tag sv-cta-tag">
                 <i className="fas fa-rocket" /> Get Started Today
               </div>
               <h2>
@@ -462,7 +462,7 @@ export default function ServicesPage() {
                 Join 500+ coaches who are already using Mera Coach to manage
                 clients, deliver better results and grow their business.
               </p>
-              <div className="sv-cta-btns">
+              <div className="sv-fca-btns sv-cta-btns">
                 <Link href="/register" className="btn sv-btn-book">
                   <i className="fas fa-user-tie" /> Register as a Coach
                 </Link>
@@ -470,6 +470,13 @@ export default function ServicesPage() {
                   <i className="fas fa-search" /> Find a Coach
                 </Link>
               </div>
+            </div>
+            <div className="sv-fca-right">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&auto=format&fit=crop&q=80"
+                alt="Coaching Practice"
+              />
             </div>
           </div>
         </div>

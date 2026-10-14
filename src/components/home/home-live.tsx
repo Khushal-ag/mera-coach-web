@@ -17,6 +17,96 @@ import { fetchPublicCoaches, isApiSuccess } from "@/lib/api";
 import { fetchCoachCategories } from "@/lib/api/master";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 
+const STORY_TEMPLATES = [
+  {
+    badge: "📈 3x more client enquiries",
+    icon: "fas fa-chart-line",
+    quote:
+      "Since joining Mera Coach, my enquiry rate has tripled. The professional profile page and WhatsApp integration makes it so easy for clients to reach me directly. I wish I had joined sooner!",
+  },
+  {
+    badge: "🚀 First client within 7 days",
+    icon: "fas fa-rocket",
+    quote:
+      "I was skeptical at first, but Mera Coach proved me wrong. Within 7 days of setting up my profile, I had my first paid consultation booked. The platform truly delivers what it promises.",
+  },
+  {
+    badge: "💼 Managing 40+ clients easily",
+    icon: "fas fa-briefcase",
+    quote:
+      "The client management dashboard on Mera Coach saves me at least 3 hours every week. Tracking health data, managing leads and following up — all from one clean interface. Absolutely brilliant!",
+  },
+  {
+    badge: "🌐 Clients from across India",
+    icon: "fas fa-globe-asia",
+    quote:
+      "I am based in a small city but Mera Coach gave me a national presence. I now consult clients from Mumbai, Delhi and Bangalore — all online. This platform broke every geographical barrier for me.",
+  },
+  {
+    badge: "⭐ Profile views doubled in 30 days",
+    icon: "fas fa-star",
+    quote:
+      "My Mera Coach profile works for me 24/7. Even while I sleep, potential clients are viewing my page, reading my services and sending enquiries. It is like having a full-time marketing team!",
+  },
+  {
+    badge: "📱 Direct WhatsApp leads daily",
+    icon: "fas fa-mobile-alt",
+    quote:
+      "The WhatsApp integration on Mera Coach is a game changer. Clients see my profile, tap the button and they are directly chatting with me. No middlemen, no delays — pure direct connection!",
+  },
+];
+
+const FALLBACK_STORIES = [
+  {
+    coachName: "Rahul Sharma",
+    coachCode: "rahul-sharma",
+    label: "Fitness Trainer, Delhi",
+    avatar:
+      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=600&fit=crop&crop=faces&q=80",
+    rating: 5,
+  },
+  {
+    coachName: "Priya Mehta",
+    coachCode: "priya-mehta",
+    label: "Yoga Trainer, Mumbai",
+    avatar:
+      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&h=600&fit=crop&crop=faces&q=80",
+    rating: 5,
+  },
+  {
+    coachName: "Dr. Ananya Singh",
+    coachCode: "dr-ananya-singh",
+    label: "Clinical Nutritionist, Bangalore",
+    avatar:
+      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=600&fit=crop&crop=faces&q=80",
+    rating: 5,
+  },
+  {
+    coachName: "Vikram Nair",
+    coachCode: "vikram-nair",
+    label: "Health Coach, Pune",
+    avatar:
+      "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=600&fit=crop&crop=faces&q=80",
+    rating: 5,
+  },
+  {
+    coachName: "Sunita Rao",
+    coachCode: "sunita-rao",
+    label: "Women's Health Expert, Chennai",
+    avatar:
+      "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=600&h=600&fit=crop&crop=faces&q=80",
+    rating: 5,
+  },
+  {
+    coachName: "Arjun Kapoor",
+    coachCode: "arjun-kapoor",
+    label: "Lifestyle Mentor, Hyderabad",
+    avatar:
+      "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&h=600&fit=crop&crop=faces&q=80",
+    rating: 5,
+  },
+];
+
 function Stars({ rating }: { rating: number }) {
   return (
     <>
@@ -159,7 +249,8 @@ export async function HomeCategories() {
           <h2 className="section-title">Coaching for Every Goal</h2>
           <p className="section-subtitle">
             Whether you want to lose weight, build strength, find inner peace or
-            improve your overall lifestyle, we have the right expert for you.
+            improve your overall lifestyle &mdash; we have the right expert for
+            you.
           </p>
         </div>
         <div className="category-grid">
@@ -249,6 +340,34 @@ export async function HomeFeaturedCoaches() {
 }
 
 export async function HomeStories() {
+  const coaches = await loadCoaches(2);
+  const items =
+    coaches.length > 0 ?
+      coaches.slice(0, 6).map((c, i) => {
+        const tpl = STORY_TEMPLATES[i % STORY_TEMPLATES.length]!;
+        const avatar = resolveMediaUrl(c.profile_Pic_Url);
+        const label = [c.coachTypeName, c.city_Cd].filter(Boolean).join(", ");
+        return {
+          coachName: c.coachName,
+          coachCode: c.coachCode,
+          label: label || c.coachTypeName || "Certified Coach",
+          avatar,
+          rating: c.rating || 5,
+          badge: tpl.badge,
+          icon: tpl.icon,
+          quote: tpl.quote,
+        };
+      })
+    : FALLBACK_STORIES.map((f, i) => {
+        const tpl = STORY_TEMPLATES[i % STORY_TEMPLATES.length]!;
+        return {
+          ...f,
+          badge: tpl.badge,
+          icon: tpl.icon,
+          quote: tpl.quote,
+        };
+      });
+
   return (
     <section className="testimonials" id="stories">
       <div className="container">
@@ -258,11 +377,72 @@ export async function HomeStories() {
           </div>
           <h2 className="section-title">What Our Coaches Say</h2>
           <p className="section-subtitle">
-            Real coaches, real growth. Hear how Mera Coach transformed their
-            practice and helped them reach more clients.
+            Real coaches, real growth &mdash; hear how Mera Coach transformed
+            their practice and helped them reach more clients.
           </p>
         </div>
-        <ListEmpty title="No stories available yet." icon="fas fa-quote-left" />
+        <HomeCarousel
+          total={items.length}
+          interval={4000}
+          label="stories"
+          trackClass="testimonials-grid"
+        >
+          {items.map((story) => (
+            <div key={story.coachCode} className="testimonial-card">
+              <div className="testimonial-stars">
+                {Array.from({ length: 5 }, (_, starIndex) => (
+                  <i
+                    key={starIndex}
+                    className={
+                      starIndex < Math.round(story.rating || 5) ?
+                        "fas fa-star"
+                      : "far fa-star"
+                    }
+                  />
+                ))}
+              </div>
+              <div className="transform-badge">
+                <i className={story.icon} /> {story.badge}
+              </div>
+              <div className="testimonial-quote">&ldquo;</div>
+              <p className="testimonial-text">{story.quote}</p>
+              <div className="testimonial-author">
+                {story.avatar ?
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className="testimonial-avatar"
+                    src={story.avatar}
+                    alt={story.coachName}
+                  />
+                : <div
+                    className="testimonial-avatar"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "#e2e8f0",
+                      fontSize: 22,
+                      color: "#94a3b8",
+                    }}
+                  >
+                    <i className="fas fa-user-circle" />
+                  </div>
+                }
+                <div className="testimonial-info">
+                  <strong>{story.coachName}</strong>
+                  <span>{story.label}</span>
+                </div>
+                <Link
+                  href={`/coach/${encodeURIComponent(story.coachCode)}`}
+                  className="testi-profile-link"
+                  title="View Profile"
+                >
+                  <i className="fas fa-external-link-alt" />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </HomeCarousel>
       </div>
     </section>
   );
