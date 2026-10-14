@@ -4,8 +4,10 @@ import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
   title: "Member Login | Mera Coach",
-  description: "Member access for Mera Coach clients.",
+  description:
+    "Member sign in information for Mera Coach clients, who use the Mera Coach app with credentials shared by their coach.",
   path: "/member-login",
+  noindex: true,
   absolute: true,
 });
 

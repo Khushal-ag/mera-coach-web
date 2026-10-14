@@ -79,8 +79,8 @@ export function TextField({
   required,
   ...props
 }: InputProps) {
-  const fieldId =
-    id ?? (typeof props.name === "string" ? props.name : undefined);
+  const autoId = useId();
+  const fieldId = id ?? (typeof props.name === "string" ? props.name : autoId);
   return (
     <FieldShell
       label={label}
@@ -130,8 +130,8 @@ export function TextAreaField({
   required,
   ...props
 }: TextAreaProps) {
-  const fieldId =
-    id ?? (typeof props.name === "string" ? props.name : undefined);
+  const autoId = useId();
+  const fieldId = id ?? (typeof props.name === "string" ? props.name : autoId);
   return (
     <FieldShell
       label={label}

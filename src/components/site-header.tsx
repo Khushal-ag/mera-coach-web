@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { useAuth } from "@/components/auth-provider";
+import { CoachAvatar } from "@/components/coach-avatar";
 import { siteConfig } from "@/config/site";
 
 const headerListeners = new Set<() => void>();
@@ -53,11 +54,13 @@ function NavAnchor({
   className,
   children,
   onClick,
+  "aria-current": ariaCurrent,
 }: {
   href: string;
   className?: string;
   children: ReactNode;
   onClick?: () => void;
+  "aria-current"?: "page";
 }) {
   if (href === "#") {
     return (
@@ -67,7 +70,12 @@ function NavAnchor({
     );
   }
   return (
-    <Link href={href} className={className} onClick={onClick}>
+    <Link
+      href={href}
+      className={className}
+      aria-current={ariaCurrent}
+      onClick={onClick}
+    >
       {children}
     </Link>
   );
@@ -130,6 +138,9 @@ export function SiteHeader() {
                 className={
                   isNavActive(pathname, item.href) ? "active" : undefined
                 }
+                aria-current={
+                  isNavActive(pathname, item.href) ? "page" : undefined
+                }
               >
                 {item.label}
               </NavAnchor>
@@ -165,6 +176,20 @@ export function SiteHeader() {
               </>
             }
           </div>
+          {signedIn && session ?
+            <Link
+              href="/dashboard"
+              className="nav-avatar"
+              aria-label={`Open dashboard for ${session.fullName}`}
+              onClick={close}
+            >
+              <CoachAvatar
+                name={session.fullName}
+                photo={session.profileUrl}
+                className="nav-avatar-img"
+              />
+            </Link>
+          : null}
           <button
             type="button"
             className="hamburger"
@@ -198,7 +223,9 @@ export function SiteHeader() {
         {siteConfig.nav.map((item) => (
           <NavAnchor
             key={`m-${item.label}`}
-            href={item.label === "Contact" ? "#" : item.href}
+            href={item.href}
+            className={isNavActive(pathname, item.href) ? "active" : undefined}
+            aria-current={isNavActive(pathname, item.href) ? "page" : undefined}
             onClick={close}
           >
             {item.label}

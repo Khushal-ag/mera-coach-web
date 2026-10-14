@@ -13,6 +13,7 @@ export const metadata = publicPageMetadata({
   description:
     "Grow your coaching business with Mera Coach Premium. Unlimited clients, packages, and coaching tools. Secure checkout on the website.",
   path: "/premium",
+  noindex: true,
   absolute: true,
 });
 

@@ -8,6 +8,10 @@ import { authedFetch } from "@/lib/api/authed";
 import { apiFetch } from "@/lib/api/client";
 import { firstApiError, isApiSuccess, pick } from "@/lib/api/normalize";
 import { ApiRequestError } from "@/lib/api/types";
+import {
+  COACH_GALLERY_DOC_TYPE,
+  COACH_GALLERY_REF_TYPE,
+} from "@/types/document";
 
 function normalizeUploadResult(raw: unknown): UploadDocumentResult | null {
   if (typeof raw === "string") {
@@ -36,9 +40,12 @@ function normalizeDocId(raw: unknown): number {
  */
 export async function uploadDocument(
   body: UploadDocumentInput,
+  /** Registration token, only for the first upload before the coach has signed in. */
+  token?: string,
 ): Promise<UploadDocumentResult> {
   const response = await apiFetch<unknown>("/v1/Document/upload", {
     method: "POST",
+    ...(token ? { bearer: token } : {}),
     body: JSON.stringify({
       base64DataUrl: body.base64DataUrl,
       coachCode: body.coachCode,
@@ -67,11 +74,19 @@ export async function uploadDocument(
   return result;
 }
 
-/** @deprecated Prefer uploadDocument — kept for register/coach media call sites. */
-export async function uploadCoachDocument(
-  body: UploadDocumentInput,
-): Promise<UploadDocumentResult> {
-  return uploadDocument(body);
+function normalizeDocumentList(rows: unknown[] | null): DocumentListItem[] {
+  return (rows ?? [])
+    .map((row) => {
+      const r = (row ?? {}) as Record<string, unknown>;
+      const filePath = String(pick(r, "filePath", "FilePath") ?? "").trim();
+      const fcdtRaw = pick(r, "fcdt", "FCDT");
+      return {
+        docId: normalizeDocId(pick(r, "docId", "DocId")),
+        filePath,
+        fcdt: typeof fcdtRaw === "string" ? fcdtRaw : undefined,
+      } satisfies DocumentListItem;
+    })
+    .filter((item) => item.docId > 0 && item.filePath.length > 0);
 }
 
 export async function listDocuments(params: {
@@ -89,18 +104,27 @@ export async function listDocuments(params: {
       docType: params.docType,
     },
   });
-  return (data ?? [])
-    .map((row) => {
-      const r = (row ?? {}) as Record<string, unknown>;
-      const filePath = String(pick(r, "filePath", "FilePath") ?? "").trim();
-      const fcdtRaw = pick(r, "fcdt", "FCDT");
-      return {
-        docId: normalizeDocId(pick(r, "docId", "DocId")),
-        filePath,
-        fcdt: typeof fcdtRaw === "string" ? fcdtRaw : undefined,
-      } satisfies DocumentListItem;
-    })
-    .filter((item) => item.docId > 0 && item.filePath.length > 0);
+  return normalizeDocumentList(data);
+}
+
+/** Anonymous gallery for a public coach page. Empty when the coach has no photos. */
+export async function listPublicCoachGallery(
+  coachCode: string,
+): Promise<DocumentListItem[]> {
+  const code = coachCode.trim();
+  if (!code) return [];
+  const query = new URLSearchParams({
+    coachCode: code,
+    refCode: code,
+    refType: COACH_GALLERY_REF_TYPE,
+    docType: COACH_GALLERY_DOC_TYPE,
+  });
+  const response = await apiFetch<unknown[] | null>(
+    `/v1/Document/list?${query}`,
+    { next: { revalidate: 60 }, skipAuth: true },
+  );
+  if (!isApiSuccess(response) || !response.responseObj) return [];
+  return normalizeDocumentList(response.responseObj);
 }
 
 export async function deleteDocument(params: {

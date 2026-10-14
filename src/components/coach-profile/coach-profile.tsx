@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import type { ReactNode } from "react";
 
+import { ListEmpty } from "@/components/list-empty";
 import { MenuSelect } from "@/components/ui/menu-select";
 import { siteConfig } from "@/config/site";
 import { submitCoachEnquiry } from "@/lib/api/coach";
@@ -23,9 +24,26 @@ export type CoachProfileDetails = {
   rating: number;
   photoSrc: string;
   whatsappUrl: string;
+  packages: {
+    id: string;
+    name: string;
+    price: string;
+    duration: string;
+    description: string;
+    imageSrc: string;
+  }[];
+  events: {
+    id: string;
+    title: string;
+    when: string;
+    location: string;
+    href: string;
+    imageSrc: string;
+  }[];
+  gallery: { id: string; src: string }[];
 };
 
-const ADVICE = "Not sure yet — need advice";
+const ADVICE = "Not sure yet, need advice";
 
 type ModalState =
   | { kind: "success"; title: string; enquiry?: boolean }
@@ -94,6 +112,12 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
     wa: `https://wa.me/?text=${shareText}`,
   };
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=144x144&color=1b1b2f&bgcolor=ffffff&data=${encodeURIComponent(profileUrl)}`;
+  const lookingFor = [
+    ...coach.services,
+    ...coach.packages
+      .map((pkg) => pkg.name)
+      .filter((name) => !coach.services.includes(name)),
+  ];
 
   useEffect(() => {
     if (!modal) return;
@@ -396,23 +420,17 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                         <div className="cp-exp-icon">
                           <i className="fas fa-medal" />
                         </div>
-                        <h4>{svc}</h4>
+                        <h4 aria-level={3}>{svc}</h4>
                         <p>
                           Expert guidance and personalised approach to help you
                           achieve lasting results.
                         </p>
                       </div>
                     ))
-                  : <div className="cp-exp-card">
-                      <div className="cp-exp-icon">
-                        <i className="fas fa-heart" />
-                      </div>
-                      <h4>Holistic Wellness</h4>
-                      <p>
-                        Comprehensive coaching to help you achieve your health
-                        and wellness goals.
-                      </p>
-                    </div>
+                  : <ListEmpty
+                      title="Services not listed yet."
+                      icon="fas fa-heart"
+                    />
                   }
                 </div>
               </section>
@@ -424,38 +442,7 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                   {coach.coachName}
                 </div>
                 <div className="cp-sbw-blog-list">
-                  <a href="#" className="cp-sb-blog-item">
-                    <div className="cp-sb-blog-thumb">
-                      <img
-                        src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=200&h=160&fit=crop&q=80"
-                        alt=""
-                      />
-                    </div>
-                    <div className="cp-sb-blog-text">
-                      <span className="cp-sb-blog-cat">Wellness</span>
-                      <h4>5 Habits That Transform Your Health Journey</h4>
-                      <span className="cp-sb-blog-date">
-                        <i className="fas fa-calendar-alt" /> Jun 10, 2026
-                      </span>
-                    </div>
-                  </a>
-                  <a href="#" className="cp-sb-blog-item">
-                    <div className="cp-sb-blog-thumb">
-                      <img
-                        src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=200&h=160&fit=crop&q=80"
-                        alt=""
-                      />
-                    </div>
-                    <div className="cp-sb-blog-text">
-                      <span className="cp-sb-blog-cat cat-nutrition">
-                        Nutrition
-                      </span>
-                      <h4>How to Build a Sustainable Wellness Routine</h4>
-                      <span className="cp-sb-blog-date">
-                        <i className="fas fa-calendar-alt" /> Jun 01, 2026
-                      </span>
-                    </div>
-                  </a>
+                  <ListEmpty title="No articles yet." icon="fas fa-pen-fancy" />
                 </div>
               </div>
               <div className="cp-sb-widget cp-sb-badge">
@@ -498,6 +485,113 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
         </div>
       </div>
 
+      {coach.packages.length > 0 ?
+        <section className="cp-showcase" id="packages">
+          <div className="container">
+            <div className="section-header">
+              <div className="section-tag">
+                <i className="fas fa-box" /> Packages
+              </div>
+              <h2 className="section-title">Coaching Packages</h2>
+              <p className="section-subtitle">
+                Offers {coach.coachName} lists on this profile.
+              </p>
+            </div>
+            <div className="cp-offer-grid">
+              {coach.packages.map((pkg) => (
+                <article className="cp-offer-card" key={pkg.id}>
+                  {pkg.imageSrc ?
+                    <img src={pkg.imageSrc} alt="" />
+                  : null}
+                  <div className="cp-offer-body">
+                    <h3>{pkg.name}</h3>
+                    {pkg.price || pkg.duration ?
+                      <p className="cp-offer-meta">
+                        {[pkg.price, pkg.duration].filter(Boolean).join(" · ")}
+                      </p>
+                    : null}
+                    {pkg.description ?
+                      <p>{pkg.description}</p>
+                    : null}
+                    <button
+                      type="button"
+                      className="btn btn-outline"
+                      onClick={() => {
+                        setService(pkg.name);
+                        document
+                          .getElementById("contact")
+                          ?.scrollIntoView({ behavior: "smooth" });
+                      }}
+                    >
+                      Enquire about this
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      : null}
+
+      {coach.gallery.length > 0 ?
+        <section className="cp-showcase cp-showcase-alt" id="gallery">
+          <div className="container">
+            <div className="section-header">
+              <div className="section-tag">
+                <i className="fas fa-images" /> Gallery
+              </div>
+              <h2 className="section-title">Photo Gallery</h2>
+            </div>
+            <div className="cp-gallery-grid">
+              {coach.gallery.map((photo) => (
+                <img key={photo.id} src={photo.src} alt="" />
+              ))}
+            </div>
+          </div>
+        </section>
+      : null}
+
+      {coach.events.length > 0 ?
+        <section className="cp-showcase" id="events">
+          <div className="container">
+            <div className="section-header">
+              <div className="section-tag">
+                <i className="fas fa-calendar-alt" /> Events
+              </div>
+              <h2 className="section-title">Upcoming Events</h2>
+            </div>
+            <div className="cp-offer-grid">
+              {coach.events.map((evt) => (
+                <article className="cp-offer-card" key={evt.id}>
+                  {evt.imageSrc ?
+                    <img src={evt.imageSrc} alt="" />
+                  : null}
+                  <div className="cp-offer-body">
+                    <h3>{evt.title}</h3>
+                    {evt.when ?
+                      <p className="cp-offer-meta">{evt.when}</p>
+                    : null}
+                    {evt.location ?
+                      <p>{evt.location}</p>
+                    : null}
+                    {evt.href ?
+                      <a
+                        className="btn btn-outline"
+                        href={evt.href}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Event details
+                      </a>
+                    : null}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      : null}
+
       <section className="cp-contact" id="contact">
         <div className="cp-contact-shapes">
           <div className="cp-cs cp-cs-1" />
@@ -517,7 +611,7 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                   Consultation
                 </h2>
                 <p>
-                  {coach.coachName} personally responds within 24 hours — zero
+                  {coach.coachName} personally responds within 24 hours, zero
                   cost, zero commitment.
                 </p>
               </div>
@@ -568,7 +662,7 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                       placeholder="Select a service..."
                       options={[
                         { value: "", label: "Select a service..." },
-                        ...coach.services.map((svc) => ({
+                        ...lookingFor.map((svc) => ({
                           value: svc,
                           label: svc,
                         })),
@@ -590,7 +684,7 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                       <i className="fas fa-spinner fa-spin" /> Sending...
                     </>
                   : <>
-                      <i className="fas fa-paper-plane" /> Send My Request —
+                      <i className="fas fa-paper-plane" /> Send My Request:
                       It&apos;s Free!
                       <span className="cp-cf-arrow">
                         <i className="fas fa-arrow-right" />
@@ -673,9 +767,9 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
             <div className="cp-step">
               <div className="cp-step-num">01</div>
               <div className="cp-step-content">
-                <h4>Free Discovery Call</h4>
+                <h4 aria-level={3}>Free Discovery Call</h4>
                 <p>
-                  We start with a 30-minute call — no cost, no commitment. I
+                  We start with a 30-minute call, no cost, no commitment. I
                   understand your goals, lifestyle and any limitations.
                 </p>
               </div>
@@ -683,9 +777,9 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
             <div className="cp-step">
               <div className="cp-step-num">02</div>
               <div className="cp-step-content">
-                <h4>Personalised Plan</h4>
+                <h4 aria-level={3}>Personalised Plan</h4>
                 <p>
-                  I build your custom programme from scratch — tailored to your
+                  I build your custom programme from scratch, tailored to your
                   body, schedule and targets.
                 </p>
               </div>
@@ -693,7 +787,7 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
             <div className="cp-step">
               <div className="cp-step-num">03</div>
               <div className="cp-step-content">
-                <h4>Execute &amp; Adjust</h4>
+                <h4 aria-level={3}>Execute &amp; Adjust</h4>
                 <p>
                   You follow the plan with full support from me. I track
                   progress weekly and keep you motivated.
@@ -703,7 +797,7 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
             <div className="cp-step">
               <div className="cp-step-num">04</div>
               <div className="cp-step-content">
-                <h4>Celebrate &amp; Level Up</h4>
+                <h4 aria-level={3}>Celebrate &amp; Level Up</h4>
                 <p>
                   Milestones are celebrated, results documented and we set the
                   next target together.
@@ -727,109 +821,7 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
               Hear from people who&apos;ve lived the transformation.
             </p>
           </div>
-          <div className="cp-testi-carousel" id="testiCarousel">
-            <div className="cp-testi-viewport" id="testiViewport">
-              <div className="cp-testi-track" id="testiTrack">
-                <div className="cp-testi-card">
-                  <div className="cp-testi-quote-icon">
-                    <i className="fas fa-quote-left" />
-                  </div>
-                  <div className="cp-testi-stars">
-                    <i className="fas fa-star" />
-                    <i className="fas fa-star" />
-                    <i className="fas fa-star" />
-                    <i className="fas fa-star" />
-                    <i className="fas fa-star" />
-                  </div>
-                  <p className="cp-testi-text">
-                    &quot;Completely changed my perspective on health. The
-                    personalised approach and constant support made all the
-                    difference. I&apos;ve never felt stronger or more
-                    confident!&quot;
-                  </p>
-                  <div className="cp-testi-footer">
-                    <img
-                      className="cp-testi-avatar"
-                      src="https://randomuser.me/api/portraits/men/45.jpg"
-                      alt="Arjun Mehta"
-                    />
-                    <div className="cp-testi-author">
-                      <strong>Arjun Mehta</strong>
-                      <span>
-                        <i className="fas fa-map-marker-alt" /> Delhi
-                        &nbsp;·&nbsp; 3-Month Programme
-                      </span>
-                    </div>
-                    <div className="cp-testi-result">
-                      <i className="fas fa-fire" /> Lost 14 kg
-                    </div>
-                  </div>
-                  <div className="cp-testi-before-after">
-                    <div>
-                      <span>Before</span>
-                      <strong>98 kg</strong>
-                    </div>
-                    <i className="fas fa-long-arrow-alt-right" />
-                    <div>
-                      <span>After</span>
-                      <strong>84 kg</strong>
-                    </div>
-                    <div className="cp-testi-verified">
-                      <i className="fas fa-check-circle" /> Verified
-                    </div>
-                  </div>
-                </div>
-                <div className="cp-testi-card">
-                  <div className="cp-testi-quote-icon">
-                    <i className="fas fa-quote-left" />
-                  </div>
-                  <div className="cp-testi-stars">
-                    <i className="fas fa-star" />
-                    <i className="fas fa-star" />
-                    <i className="fas fa-star" />
-                    <i className="fas fa-star" />
-                    <i className="fas fa-star" />
-                  </div>
-                  <p className="cp-testi-text">
-                    &quot;The coaching was seamless, the plan was practical and
-                    the results speak for themselves. Highly recommended to
-                    anyone serious about their wellness journey!&quot;
-                  </p>
-                  <div className="cp-testi-footer">
-                    <img
-                      className="cp-testi-avatar"
-                      src="https://randomuser.me/api/portraits/women/33.jpg"
-                      alt="Preethi Nair"
-                    />
-                    <div className="cp-testi-author">
-                      <strong>Preethi Nair</strong>
-                      <span>
-                        <i className="fas fa-map-marker-alt" /> Mumbai
-                        &nbsp;·&nbsp; Online Programme
-                      </span>
-                    </div>
-                    <div className="cp-testi-result">
-                      <i className="fas fa-dumbbell" /> +6 kg muscle
-                    </div>
-                  </div>
-                  <div className="cp-testi-before-after">
-                    <div>
-                      <span>Before</span>
-                      <strong>52 kg</strong>
-                    </div>
-                    <i className="fas fa-long-arrow-alt-right" />
-                    <div>
-                      <span>After</span>
-                      <strong>58 kg</strong>
-                    </div>
-                    <div className="cp-testi-verified">
-                      <i className="fas fa-check-circle" /> Verified
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ListEmpty title="No client stories yet." icon="fas fa-quote-left" />
         </div>
       </section>
 

@@ -2,13 +2,7 @@
 
 export { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 
-export {
-  fetchCoachProfile,
-  fetchPublicCities,
-  fetchPublicCoaches,
-} from "@/lib/api/coach";
-
-export { fetchCoachCategories } from "@/lib/api/master";
+export { fetchCoachProfile, fetchPublicCoaches } from "@/lib/api/coach";
 
 export { fetchPremiumPlans } from "@/lib/api/premium";
 

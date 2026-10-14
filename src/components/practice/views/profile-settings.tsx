@@ -3,8 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
-import { KeyRound, LifeBuoy, MapPin, Trash2, UserRound } from "lucide-react";
-
 import type { PickedImage } from "@/components/media/image-picker";
 import type { MasterOption } from "@/lib/api/master";
 import type { CoachProfile } from "@/types/coach";
@@ -17,12 +15,14 @@ import { ImagePicker } from "@/components/media/image-picker";
 import { PracticePageHeader } from "@/components/practice/page-header";
 import { PhotoGallery } from "@/components/practice/photo-gallery";
 import { ServiceMultiSelect } from "@/components/practice/service-multi-select";
+import { SupportActions } from "@/components/practice/support-dialog";
 import {
   ProfileFormSkeleton,
   ProfileViewSkeleton,
 } from "@/components/skeletons/profile-view-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
-import { SelectField, TextAreaField, TextField } from "@/components/ui/field";
+import { TextAreaField } from "@/components/ui/field";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { env } from "@/config/env";
 import { usePinLocationLookup } from "@/hooks/use-pin-location-lookup";
 import { updateCoachMedia } from "@/lib/api/coach";
@@ -43,7 +43,7 @@ import {
 } from "@/lib/media/image-file";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 import { getProfileCompletion } from "@/lib/profile-completion";
-import { accountDeletionMailto, supportMailto } from "@/lib/support";
+import { cn } from "@/lib/utils";
 import {
   COACH_GALLERY_DOC_TYPE,
   COACH_GALLERY_MAX_PHOTOS,
@@ -172,6 +172,7 @@ export function ProfileSettingsView() {
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [editStep, setEditStep] = useState(1);
   const [savedKey, setSavedKey] = useState("");
   const [baseline, setBaseline] = useState<ProfileText | null>(null);
   const pageTopRef = useRef<HTMLDivElement>(null);
@@ -440,6 +441,7 @@ export function ProfileSettingsView() {
   function startEdit() {
     setError(null);
     setMessage(null);
+    setEditStep(1);
     setEditing(true);
   }
 
@@ -560,6 +562,16 @@ export function ProfileSettingsView() {
 
   async function save() {
     if (!profile || !profileDirty) return;
+    if (!coachName.trim() || !coachTypeCode) {
+      setEditStep(1);
+      setMessage(null);
+      setError(
+        !coachName.trim() ?
+          "Display name is required."
+        : "Please select a coach category.",
+      );
+      return;
+    }
     setBusy(true);
     setError(null);
     setMessage(null);
@@ -666,7 +678,9 @@ export function ProfileSettingsView() {
     <div ref={pageTopRef} className="min-w-0">
       <PracticePageHeader
         title={editing ? "Edit profile" : "Profile"}
-        icon={<UserRound className="size-5" aria-hidden />}
+        icon={
+          <i className="fas fa-user" style={{ fontSize: 20 }} aria-hidden />
+        }
         description={
           editing ?
             "Update the photo, name, services, and details on your public page."
@@ -713,7 +727,7 @@ export function ProfileSettingsView() {
               <div className="relative z-10 -mt-12 mb-4 size-24 shrink-0 sm:-mt-16 sm:mb-0 sm:size-[7.5rem]">
                 <div className="relative size-full overflow-hidden rounded-full border-4 border-white bg-mc-secondary shadow-[0_8px_24px_rgba(27,67,50,0.18)]">
                   <CoachPhoto
-                    src={photoSrc}
+                    src={photoSrc || logoSrc}
                     alt=""
                     name={displayName}
                     className="object-cover"
@@ -736,7 +750,11 @@ export function ProfileSettingsView() {
                   {categoryLabel || "Category not set"}
                 </p>
                 <p className="mt-1 inline-flex max-w-full items-center gap-1.5 text-sm break-words text-ink-muted">
-                  <MapPin className="size-3.5 shrink-0" aria-hidden />
+                  <i
+                    className="fas fa-map-marker-alt"
+                    style={{ fontSize: 14 }}
+                    aria-hidden
+                  />
                   {placeLabel || "City not set"}
                 </p>
                 {tagline.trim() ?
@@ -815,14 +833,6 @@ export function ProfileSettingsView() {
               : profile.isProfileVisible ?
                 "Listed on Find a Coach."
               : "Share this page when you want someone to open your profile."}
-              {publicUrl ?
-                <>
-                  {" "}
-                  <span className="font-medium break-all text-ink">
-                    {publicUrl}
-                  </span>
-                </>
-              : null}
             </p>
           </div>
         </section>
@@ -889,196 +899,486 @@ export function ProfileSettingsView() {
       {editing ?
         !profile ?
           <ProfileFormSkeleton />
-        : <form
-            className="mc-panel max-w-3xl space-y-4 p-5"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void save();
-            }}
-          >
-            <ImagePicker
-              label="Cover image"
-              hint="Wide banner for your public profile. JPG, PNG, or WebP · max 2 MB"
-              value={coverPick}
-              currentUrl={coverUrl}
-              onChange={(file) => setSlot("cover", file)}
-              disabled={busy}
-              aspectClassName="h-20 w-36"
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <ImagePicker
-                label="Logo"
-                value={logoPick}
-                currentUrl={logoUrl}
-                onChange={(file) => setSlot("logo", file)}
-                disabled={busy}
-              />
-              <ImagePicker
-                label="Profile photo"
-                name={coachName}
-                value={photoPick}
-                currentUrl={profilePicUrl}
-                onChange={(file) => setSlot("photo", file)}
-                disabled={busy}
-              />
-            </div>
+        : <div className="mc-public">
+            <div className="rg-page" style={{ padding: 0, maxWidth: 860 }}>
+              <form
+                className="rg-card"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (editStep === 4) void save();
+                }}
+              >
+                <div className="rg-card-head">
+                  <div className="rg-head-blobs">
+                    <div className="rg-hb rg-hb-1" />
+                    <div className="rg-hb rg-hb-2" />
+                  </div>
+                  <div className="rg-head-inner">
+                    <div className="rg-head-icon">
+                      <i className="fas fa-chalkboard-teacher" />
+                    </div>
+                    <div>
+                      <h1>My Profile</h1>
+                      <p>
+                        Keep your profile up to date to attract more clients
+                      </p>
+                    </div>
+                  </div>
+                  <div className="rg-steps" style={{ display: "flex" }}>
+                    <div
+                      className={cn(
+                        "rg-step",
+                        editStep === 1 ? "rg-step-active" : "",
+                        editStep > 1 ? "rg-step-complete" : "",
+                      )}
+                      onClick={() => setEditStep(1)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className="rg-step-circle">
+                        <span className="rg-step-num">1</span>
+                        <i className="fas fa-check rg-step-done" />
+                      </div>
+                      <span>Basic Info</span>
+                    </div>
+                    <div className="rg-step-line" />
+                    <div
+                      className={cn(
+                        "rg-step",
+                        editStep === 2 ? "rg-step-active" : "",
+                        editStep > 2 ? "rg-step-complete" : "",
+                      )}
+                      onClick={() => setEditStep(2)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className="rg-step-circle">
+                        <span className="rg-step-num">2</span>
+                        <i className="fas fa-check rg-step-done" />
+                      </div>
+                      <span>Coach Details</span>
+                    </div>
+                    <div className="rg-step-line" />
+                    <div
+                      className={cn(
+                        "rg-step",
+                        editStep === 3 ? "rg-step-active" : "",
+                        editStep > 3 ? "rg-step-complete" : "",
+                      )}
+                      onClick={() => setEditStep(3)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className="rg-step-circle">
+                        <span className="rg-step-num">3</span>
+                        <i className="fas fa-check rg-step-done" />
+                      </div>
+                      <span>Contact</span>
+                    </div>
+                    <div className="rg-step-line" />
+                    <div
+                      className={cn(
+                        "rg-step",
+                        editStep === 4 ? "rg-step-active" : "",
+                        editStep > 4 ? "rg-step-complete" : "",
+                      )}
+                      onClick={() => setEditStep(4)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className="rg-step-circle">
+                        <span className="rg-step-num">4</span>
+                        <i className="fas fa-check rg-step-done" />
+                      </div>
+                      <span>Profile</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="rg-card-body">
+                  <div
+                    className={cn(
+                      "rg-panel",
+                      editStep === 1 ? "" : "rg-hidden",
+                    )}
+                  >
+                    <div className="rg-section-head">
+                      <div className="rg-sh-icon rg-sh-green">
+                        <i className="fas fa-user-check" />
+                      </div>
+                      <div>
+                        <h2>Basic Information</h2>
+                        <p>Core identity and login details</p>
+                      </div>
+                    </div>
+                    <div className="rg-grid">
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-user" /> Display name
+                        </label>
+                        <input
+                          value={coachName}
+                          onChange={(e) => setCoachName(e.target.value)}
+                          aria-required="true"
+                        />
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-layer-group" /> Coach category
+                        </label>
+                        <MenuSelect
+                          skin="public"
+                          className="ui-select"
+                          value={coachTypeCode}
+                          options={[
+                            { value: "", label: "-- Select a category --" },
+                            ...categories.map((c) => ({
+                              value: c.code,
+                              label: c.label,
+                            })),
+                          ]}
+                          onChange={(e) => {
+                            setCoachTypeCode(e.target.value);
+                            setServiceCodes([]);
+                          }}
+                        />
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-mobile-alt" /> Mobile number
+                        </label>
+                        <input
+                          value={mobile}
+                          onChange={(e) => setMobile(e.target.value)}
+                          maxLength={10}
+                        />
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-envelope" /> Email address
+                        </label>
+                        <input
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          type="email"
+                        />
+                      </div>
+                    </div>
+                    <div className="rg-nav">
+                      <button
+                        type="button"
+                        className="btn rg-btn-next"
+                        onClick={() => setEditStep(2)}
+                      >
+                        Next: Coach Details <i className="fas fa-arrow-right" />
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    className={cn(
+                      "rg-panel",
+                      editStep === 2 ? "" : "rg-hidden",
+                    )}
+                  >
+                    <div className="rg-section-head">
+                      <div className="rg-sh-icon rg-sh-gold">
+                        <i className="fas fa-briefcase" />
+                      </div>
+                      <div>
+                        <h2>Coach Details</h2>
+                        <p>Your expertise, services and experience</p>
+                      </div>
+                    </div>
+                    <div className="rg-grid">
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-building" /> Business name
+                        </label>
+                        <input
+                          value={businessName}
+                          onChange={(e) => setBusinessName(e.target.value)}
+                        />
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-quote-left" /> Tagline
+                        </label>
+                        <input
+                          value={tagline}
+                          onChange={(e) => setTagline(e.target.value)}
+                        />
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-award" /> Experience (years)
+                        </label>
+                        <input
+                          value={experienceYears}
+                          onChange={(e) => setExperienceYears(e.target.value)}
+                          type="number"
+                          min={0}
+                        />
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-smile" /> Happy clients
+                        </label>
+                        <input
+                          value={happyClients}
+                          onChange={(e) => setHappyClients(e.target.value)}
+                          type="number"
+                          min={0}
+                        />
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-certificate" /> Certifications
+                        </label>
+                        <input
+                          value={certifications}
+                          onChange={(e) => setCertifications(e.target.value)}
+                          type="number"
+                          min={0}
+                        />
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-language" /> Local language
+                        </label>
+                        <input
+                          value={localLanguage}
+                          onChange={(e) => setLocalLanguage(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <ServiceMultiSelect
+                        options={visibleServiceOptions}
+                        selected={serviceCodes}
+                        onChange={setServiceCodes}
+                        loading={servicesLoading}
+                        disabled={busy || !coachTypeCode}
+                        hint="Pick services for your category (same master list as the app)."
+                      />
+                    </div>
+                    <div className="rg-nav">
+                      <button
+                        type="button"
+                        className="btn rg-btn-back"
+                        onClick={() => setEditStep(1)}
+                      >
+                        <i className="fas fa-arrow-left" /> Back
+                      </button>
+                      <button
+                        type="button"
+                        className="btn rg-btn-next"
+                        onClick={() => setEditStep(3)}
+                      >
+                        Next: Contact & Location{" "}
+                        <i className="fas fa-arrow-right" />
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    className={cn(
+                      "rg-panel",
+                      editStep === 3 ? "" : "rg-hidden",
+                    )}
+                  >
+                    <div className="rg-section-head">
+                      <div className="rg-sh-icon rg-sh-green">
+                        <i className="fas fa-map-marker-alt" />
+                      </div>
+                      <div>
+                        <h2>Contact & Location</h2>
+                        <p>Where clients can find you</p>
+                      </div>
+                    </div>
+                    <div className="rg-grid">
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-map-pin" /> PIN code
+                        </label>
+                        <input
+                          value={pinCode}
+                          onChange={(e) => setPinCode(e.target.value)}
+                          inputMode="numeric"
+                        />
+                        {pinLookup.lookingUp ?
+                          <span className="rg-field-note">
+                            Looking up city…
+                          </span>
+                        : null}
+                        {pinLookup.error ?
+                          <span className="rg-field-note">
+                            {pinLookup.error}
+                          </span>
+                        : null}
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-location-arrow" /> Locality
+                        </label>
+                        <input
+                          value={locality}
+                          onChange={(e) => setLocality(e.target.value)}
+                        />
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-city" /> City
+                        </label>
+                        <input
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                        />
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-map" /> State
+                        </label>
+                        <input
+                          value={stateCd}
+                          onChange={(e) => setStateCd(e.target.value)}
+                        />
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-globe" /> Country code
+                        </label>
+                        <input
+                          value={countryCd}
+                          onChange={(e) => setCountryCd(e.target.value)}
+                        />
+                      </div>
+                      <div className="rg-field rg-col-2">
+                        <label>
+                          <i className="fas fa-home" /> Address line
+                        </label>
+                        <input
+                          value={addLine}
+                          onChange={(e) => setAddLine(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="rg-nav">
+                      <button
+                        type="button"
+                        className="btn rg-btn-back"
+                        onClick={() => setEditStep(2)}
+                      >
+                        <i className="fas fa-arrow-left" /> Back
+                      </button>
+                      <button
+                        type="button"
+                        className="btn rg-btn-next"
+                        onClick={() => setEditStep(4)}
+                      >
+                        Next: Profile & Media{" "}
+                        <i className="fas fa-arrow-right" />
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    className={cn(
+                      "rg-panel",
+                      editStep === 4 ? "" : "rg-hidden",
+                    )}
+                  >
+                    <div className="rg-section-head">
+                      <div className="rg-sh-icon rg-sh-red">
+                        <i className="fas fa-id-card" />
+                      </div>
+                      <div>
+                        <h2>Profile & Media</h2>
+                        <p>Photos and what clients read about you</p>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <ImagePicker
+                        label="Cover image"
+                        hint="Wide banner for your public profile. JPG, PNG, or WebP · max 2 MB"
+                        value={coverPick}
+                        currentUrl={coverUrl}
+                        onChange={(file) => setSlot("cover", file)}
+                        disabled={busy}
+                        aspectClassName="h-20 w-36"
+                      />
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <ImagePicker
+                          label="Logo"
+                          value={logoPick}
+                          currentUrl={logoUrl}
+                          onChange={(file) => setSlot("logo", file)}
+                          disabled={busy}
+                        />
+                        <ImagePicker
+                          label="Profile photo"
+                          name={coachName}
+                          value={photoPick}
+                          currentUrl={profilePicUrl}
+                          onChange={(file) => setSlot("photo", file)}
+                          disabled={busy}
+                        />
+                      </div>
 
-            <TextField
-              label="Display name"
-              value={coachName}
-              onChange={(e) => setCoachName(e.target.value)}
-              required
-            />
-            <TextField
-              label="Business name"
-              value={businessName}
-              onChange={(e) => setBusinessName(e.target.value)}
-            />
-            <SelectField
-              label="Coach category"
-              value={coachTypeCode}
-              required
-              onChange={(e) => {
-                setCoachTypeCode(e.target.value);
-                setServiceCodes([]);
-              }}
-            >
-              <option value="">Select category</option>
-              {categories.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.label}
-                </option>
-              ))}
-            </SelectField>
-            <ServiceMultiSelect
-              options={visibleServiceOptions}
-              selected={serviceCodes}
-              onChange={setServiceCodes}
-              loading={servicesLoading}
-              disabled={busy || !coachTypeCode}
-              hint="Pick services for your category (same master list as the app)."
-            />
-            <TextField
-              label="Tagline"
-              value={tagline}
-              onChange={(e) => setTagline(e.target.value)}
-            />
-            <TextAreaField
-              label="About"
-              value={coachDesc}
-              onChange={(e) => setCoachDesc(e.target.value)}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <TextField
-                label="Locality"
-                value={locality}
-                onChange={(e) => setLocality(e.target.value)}
-              />
-              <TextField
-                label="Address line"
-                value={addLine}
-                onChange={(e) => setAddLine(e.target.value)}
-              />
-              <TextField
-                label="PIN code"
-                value={pinCode}
-                inputMode="numeric"
-                onChange={(e) => setPinCode(e.target.value)}
-                hint={pinLookup.lookingUp ? "Looking up city…" : undefined}
-                error={pinLookup.error || undefined}
-              />
-              <TextField
-                label="City"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-              />
-              <TextField
-                label="State"
-                value={stateCd}
-                onChange={(e) => setStateCd(e.target.value)}
-              />
-              <TextField
-                label="Country code"
-                value={countryCd}
-                onChange={(e) => setCountryCd(e.target.value)}
-              />
-              <TextField
-                label="Mobile"
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
-              />
-              <TextField
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <TextField
-                label="Local language"
-                value={localLanguage}
-                onChange={(e) => setLocalLanguage(e.target.value)}
-              />
-              <TextField
-                label="Experience (years)"
-                type="number"
-                value={experienceYears}
-                onChange={(e) => setExperienceYears(e.target.value)}
-              />
-              <TextField
-                label="Happy clients"
-                type="number"
-                value={happyClients}
-                onChange={(e) => setHappyClients(e.target.value)}
-              />
-              <TextField
-                label="Certifications"
-                type="number"
-                value={certifications}
-                onChange={(e) => setCertifications(e.target.value)}
-              />
+                      <TextAreaField
+                        label="About"
+                        value={coachDesc}
+                        onChange={(e) => setCoachDesc(e.target.value)}
+                      />
+                      <TextAreaField
+                        label="BMI report template notes"
+                        value={bmiTemplate}
+                        onChange={(e) => setBmiTemplate(e.target.value)}
+                      />
+                      <TextAreaField
+                        label="Diet chart template notes"
+                        value={dietTemplate}
+                        onChange={(e) => setDietTemplate(e.target.value)}
+                      />
+                      <div className="rounded-[var(--radius-sm)] border border-line bg-paper px-4 py-3">
+                        <p className="text-sm font-semibold text-ink">
+                          Find a Coach visibility
+                        </p>
+                        <p className="mt-1 text-sm leading-relaxed text-ink-muted">
+                          {profile.isProfileVisible ?
+                            "Listed. It stays on Find a Coach while the required public fields are filled in."
+                          : completion.missingLabels.length ?
+                            `Not listed yet. Still needed: ${completion.missingLabels.join(", ")}.`
+                          : "Not listed yet. Save again once the required public fields are filled in."
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    <div className="rg-nav">
+                      <button
+                        type="button"
+                        className="btn rg-btn-back"
+                        onClick={() => setEditStep(3)}
+                      >
+                        <i className="fas fa-arrow-left" /> Back
+                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          type="button"
+                          className="btn rg-btn-back"
+                          onClick={cancelEdit}
+                          disabled={busy}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="btn rg-btn-next"
+                          disabled={busy || !profileDirty}
+                          aria-busy={busy}
+                        >
+                          {busy ? "Saving…" : "Save Profile"}{" "}
+                          <i className="fas fa-check" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
             </div>
-            <TextAreaField
-              label="BMI report template notes"
-              value={bmiTemplate}
-              onChange={(e) => setBmiTemplate(e.target.value)}
-            />
-            <TextAreaField
-              label="Diet chart template notes"
-              value={dietTemplate}
-              onChange={(e) => setDietTemplate(e.target.value)}
-            />
-            <div className="rounded-[var(--radius-sm)] border border-line bg-paper px-4 py-3">
-              <p className="text-sm font-semibold text-ink">
-                Find a Coach visibility
-              </p>
-              <p className="mt-1 text-sm leading-relaxed text-ink-muted">
-                {profile.isProfileVisible ?
-                  "Listed. It stays on Find a Coach while the required public fields are filled in."
-                : completion.missingLabels.length ?
-                  `Not listed yet. Still needed: ${completion.missingLabels.join(", ")}.`
-                : "Not listed yet. Save again once the required public fields are filled in."
-                }
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <button
-                type="submit"
-                className="mc-btn-primary w-full sm:w-auto"
-                disabled={busy || !profileDirty}
-                aria-busy={busy}
-              >
-                {busy ? "Saving" : "Save"}
-              </button>
-              <button
-                type="button"
-                className="mc-btn-secondary w-full sm:w-auto"
-                onClick={cancelEdit}
-                disabled={busy}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
+          </div>
 
       : null}
 
@@ -1088,23 +1388,10 @@ export function ProfileSettingsView() {
             href="/dashboard/profile/password"
             className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[10px] border-2 border-mc-secondary bg-white px-4 font-display text-[13px] font-semibold text-mc-secondary hover:bg-mc-secondary-light sm:w-auto"
           >
-            <KeyRound className="size-4 shrink-0" aria-hidden />
+            <i className="fas fa-key" style={{ fontSize: 16 }} aria-hidden />
             Change password
           </Link>
-          <a
-            href={supportMailto()}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[10px] border-2 border-mc-secondary bg-white px-4 font-display text-[13px] font-semibold text-mc-secondary hover:bg-mc-secondary-light sm:w-auto"
-          >
-            <LifeBuoy className="size-4 shrink-0" aria-hidden />
-            Help &amp; Support
-          </a>
-          <a
-            href={accountDeletionMailto()}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[10px] border-2 border-mc-destructive bg-[var(--mc-destructive-soft)] px-4 font-display text-[13px] font-semibold text-mc-destructive hover:bg-white sm:w-auto"
-          >
-            <Trash2 className="size-4 shrink-0" aria-hidden />
-            Delete account
-          </a>
+          <SupportActions />
         </div>
       : null}
     </div>

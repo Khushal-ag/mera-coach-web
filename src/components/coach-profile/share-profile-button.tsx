@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-import { Share2 } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 type ShareProfileButtonProps = {
@@ -102,7 +100,7 @@ export function ShareProfileButton({
       aria-live="polite"
     >
       {quiet && !feedback ?
-        <Share2 className="size-4" aria-hidden />
+        <i className="fas fa-share-alt" style={{ fontSize: 16 }} aria-hidden />
       : null}
       {feedback ?? label}
     </button>

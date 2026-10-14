@@ -8,7 +8,7 @@ import { publicPageMetadata } from "@/lib/seo";
 export const metadata = publicPageMetadata({
   title: "Contact Us | Mera Coach",
   description:
-    "Whether you're a coach ready to grow, a client seeking guidance, or a brand looking to partner — we'd love to hear from you.",
+    "Whether you're a coach ready to grow, a client seeking guidance, or a brand looking to partner, we'd love to hear from you.",
   path: "/contact",
   absolute: true,
 });

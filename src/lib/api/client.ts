@@ -14,6 +14,8 @@ type ApiFetchOptions = RequestInit & {
   cache?: RequestCache;
   /** Skip Authorization even if a coach session exists (rare). */
   skipAuth?: boolean;
+  /** Use this token instead of the session token, for example the registration upload token. */
+  bearer?: string;
 };
 
 function apiUrl(path: string) {
@@ -30,8 +32,8 @@ export async function apiFetch<T>(
   path: string,
   init?: ApiFetchOptions,
 ): Promise<GenericResponse<T>> {
-  const { next, cache, headers, skipAuth, ...rest } = init ?? {};
-  const token = skipAuth ? null : getCurrentToken();
+  const { next, cache, headers, skipAuth, bearer, ...rest } = init ?? {};
+  const token = bearer ?? (skipAuth ? null : getCurrentToken());
 
   const res = await fetch(apiUrl(path), {
     ...rest,

@@ -1,6 +1,6 @@
 /**
  * Typed public env for the Mera Coach website.
- * Values come only from process.env — never hardcode secrets or host URLs here.
+ * Values come only from process.env: never hardcode secrets or host URLs here.
  * See `.env.example` for documented keys.
  */
 
@@ -29,6 +29,14 @@ const imageHosts = (readPublic(process.env.NEXT_PUBLIC_IMAGE_HOSTS) ?? "")
   .map((host) => host.trim())
   .filter(Boolean);
 
+const social = {
+  facebook: readPublic(process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK),
+  instagram: readPublic(process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM),
+  x: readPublic(process.env.NEXT_PUBLIC_SOCIAL_X),
+  youtube: readPublic(process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE),
+  linkedin: readPublic(process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN),
+};
+
 export const env = {
   /** Canonical public site origin (no trailing slash). */
   siteUrl,
@@ -39,6 +47,8 @@ export const env = {
   apiBaseUrl,
   /** Extra hostnames allowed by next/image remotePatterns. */
   imageHosts,
+  /** Optional social profile URLs. Only configured ones are rendered. */
+  social,
 } as const;
 
 export function assertApiBaseUrl(): string {

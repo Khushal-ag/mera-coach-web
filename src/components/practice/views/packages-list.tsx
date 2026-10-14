@@ -2,16 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-import { Package } from "lucide-react";
-
 import type { CoachPackage, CoachProfile } from "@/types/coach";
 
 import { useAuth } from "@/components/auth-provider";
+import { ListEmpty } from "@/components/list-empty";
 import { CoverImageField } from "@/components/media/cover-image-field";
-import {
-  PracticeEmpty,
-  PracticePageHeader,
-} from "@/components/practice/page-header";
+import { PracticePageHeader } from "@/components/practice/page-header";
 import { PackageCardsSkeleton } from "@/components/skeletons/packages-events-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextField } from "@/components/ui/field";
@@ -128,7 +124,7 @@ export function PackagesListView() {
       <PracticePageHeader
         title="Packages"
         description={`Up to ${MAX_COACH_PACKAGES} offers on your public coach page.`}
-        icon={<Package className="size-5" aria-hidden />}
+        icon={<i className="fas fa-box" style={{ fontSize: 20 }} aria-hidden />}
         action={
           (canAdd && packages.length > 0) || dirty ?
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
@@ -171,14 +167,13 @@ export function PackagesListView() {
       {loading ?
         <PackageCardsSkeleton />
       : !packages.length ?
-        <PracticeEmpty
-          icon={<Package className="size-5" aria-hidden />}
+        <ListEmpty
+          icon="fas fa-box"
           title="No packages yet"
-          body="Add a package clients can see on your public profile."
           action={
             <button
               type="button"
-              className="mc-btn-primary w-full sm:w-auto"
+              className="clt-btn clt-btn-primary"
               onClick={addPackage}
             >
               Add package
@@ -189,14 +184,14 @@ export function PackagesListView() {
 
       <div className="grid gap-4">
         {packages.map((pkg) => (
-          <div key={pkg.id} className="mc-panel min-w-0 p-4 sm:p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="font-display text-lg font-bold tracking-tight text-ink">
-                {pkg.name.trim() || "New package"}
-              </p>
+          <div key={pkg.id} className="clt-card min-w-0">
+            <div className="clt-card-header">
+              <h2>
+                <i className="fas fa-box" /> {pkg.name.trim() || "New package"}
+              </h2>
               <button
                 type="button"
-                className="inline-flex min-h-11 items-center px-1 text-sm font-semibold text-[color:var(--mc-destructive)]"
+                className="clt-total-badge"
                 onClick={() =>
                   edit((prev) => prev.filter((p) => p.id !== pkg.id))
                 }
@@ -204,7 +199,7 @@ export function PackagesListView() {
                 Remove
               </button>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="clt-card-body grid gap-3 sm:grid-cols-2">
               {session?.coachCode ?
                 <CoverImageField
                   imageUrl={pkg.imageUrl}

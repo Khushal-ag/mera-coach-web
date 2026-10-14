@@ -6,6 +6,7 @@ import Link from "next/link";
 import { MenuSelect } from "@/components/ui/menu-select";
 import { submitBmiLead } from "@/lib/api/coach";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
+import { isValidMobile } from "@/lib/validation";
 
 type BmiResult = {
   bmi: string;
@@ -115,8 +116,10 @@ export function HomeBmi() {
       setLeadError("Please enter your name.");
       return;
     }
-    if (!/^\d{10}$/.test(mobile)) {
-      setLeadError("Please enter a valid 10-digit mobile number.");
+    if (!isValidMobile(mobile)) {
+      setLeadError(
+        "Please enter a valid 10-digit mobile number (starting with 6-9).",
+      );
       return;
     }
     if (!result) return;
@@ -182,7 +185,7 @@ export function HomeBmi() {
               </div>
               <div className="bmi-feature">
                 <i className="fas fa-lock" />
-                <span>100% private and secure — no data stored</span>
+                <span>100% private and secure, no data stored</span>
               </div>
             </div>
           </div>
@@ -486,7 +489,7 @@ export function HomeBmi() {
                   className="bmi-res-headline"
                   style={{ color: result.color }}
                 >
-                  BMI {result.bmi} — {result.label}
+                  BMI {result.bmi}: {result.label}
                 </div>
                 <p className="bmi-res-explain">{result.explain}</p>
                 {sent ?
@@ -513,7 +516,7 @@ export function HomeBmi() {
                   </div>
                 : <div className="bmi-lead-form">
                     <p className="bmi-lead-prompt">
-                      Get personalised guidance — share your details and a
+                      Get personalised guidance, share your details and a
                       top-rated wellness coach will reach out.{" "}
                       <strong>Free. No commitments.</strong>
                     </p>

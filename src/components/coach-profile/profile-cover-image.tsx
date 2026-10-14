@@ -8,7 +8,7 @@ function decodedOk(img: HTMLImageElement): boolean {
 
 /**
  * Wide cover photo. A failed, empty, or tiny decode leaves the parent
- * teal gradient visible — no placeholder image.
+ * teal gradient visible: no placeholder image.
  */
 export function ProfileCoverImage({ src }: { src: string }) {
   const [failed, setFailed] = useState(false);

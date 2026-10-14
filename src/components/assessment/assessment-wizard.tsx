@@ -1,21 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-import { Check } from "lucide-react";
 
 import type {
   PracticeBackLink,
   PracticeCrumb,
 } from "@/components/practice/page-header";
+import type { FoodMaster, MasterOption } from "@/lib/api/master";
 import type {
   AssessmentFormState,
   AssessmentIds,
   GeneratedDietPlan,
 } from "@/types/practice";
 
+import { MealItemsEditor } from "@/components/assessment/meal-items-editor";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { SelectField, TextAreaField, TextField } from "@/components/ui/field";
 import {
@@ -32,6 +32,12 @@ import {
   WORK_TYPES,
 } from "@/data/lifestyle-options";
 import {
+  fetchFoodMaster,
+  fetchParamList,
+  resolveParamCode,
+  resolveParamLabel,
+} from "@/lib/api/master";
+import {
   finishAssessment,
   generateDietPlan,
   saveBmi,
@@ -41,11 +47,56 @@ import {
   saveMeals,
 } from "@/lib/api/practice";
 import { computeBmiMetrics } from "@/lib/assessment/bmi-metrics";
+import { passesFoodType } from "@/lib/assessment/meal-items";
 import { formatBmi } from "@/lib/bmi";
 import { toApiDate } from "@/lib/dates";
+import { cn } from "@/lib/utils";
+import {
+  validateAge,
+  validateEmail,
+  validateHeight,
+  validateMobile,
+  validateRequired,
+  validateWeight,
+} from "@/lib/validation";
 import { blankAssessmentForm } from "@/types/practice";
 
 type WizardFlow = "add" | "checkup" | "dietPlan";
+
+const PHASE_ICONS: Record<string, string> = {
+  identity: "fas fa-user",
+  lifestyle: "fas fa-heartbeat",
+  meals: "fas fa-utensils",
+  bmi: "fas fa-weight",
+  diet: "fas fa-robot",
+};
+
+const PARAM_CODES = [
+  "PC001",
+  "PC002",
+  "PC003",
+  "PC004",
+  "PC005",
+  "PC006",
+  "PC007",
+  "PC008",
+  "PC009",
+  "PC010",
+] as const;
+
+/** Used only when the master list cannot be loaded. */
+const PARAM_FALLBACKS: Record<string, readonly string[]> = {
+  PC001: FOOD_PREFERENCES,
+  PC002: REGIONAL_CUISINES,
+  PC003: PHYSICAL_ACTIVITY_LEVELS,
+  PC004: WORK_TYPES,
+  PC005: SLEEP_DURATIONS,
+  PC006: PREGNANCY_BF_OPTIONS,
+  PC007: PRIMARY_GOALS,
+  PC008: TARGET_TIMELINES,
+  PC009: MEDICAL_CONDITIONS,
+  PC010: FOOD_ALLERGIES,
+};
 
 type PhaseId = "identity" | "lifestyle" | "meals" | "bmi" | "diet" | "complete";
 
@@ -95,7 +146,7 @@ function ChipMulti({
   onChange,
 }: {
   label: string;
-  options: readonly string[];
+  options: { code: string; label: string }[];
   values: string[];
   onChange: (next: string[]) => void;
 }) {
@@ -103,7 +154,12 @@ function ChipMulti({
     <fieldset>
       <legend className="mc-field-label mb-2">{label}</legend>
       <div className="flex flex-wrap gap-2">
-        {options.map((opt) => {
+        {options.map((option) => {
+          const opt = option.code;
+          const isNone = (code: string) =>
+            (options.find((o) => o.code === code)?.label ?? code)
+              .toLowerCase()
+              .includes("none of the");
           const on = values.includes(opt);
           return (
             <button
@@ -114,14 +170,13 @@ function ChipMulti({
                   "rounded-full border-2 border-mc-secondary bg-mc-secondary px-3 py-1.5 text-xs font-semibold text-white"
                 : "rounded-full border-2 border-mc-secondary bg-white px-3 py-1.5 text-xs font-semibold text-mc-secondary hover:bg-mc-secondary hover:text-white"
               }
+              aria-pressed={on}
               onClick={() => {
-                if (opt.toLowerCase().includes("none of the")) {
+                if (isNone(opt)) {
                   onChange(on ? [] : [opt]);
                   return;
                 }
-                const withoutNone = values.filter(
-                  (v) => !v.toLowerCase().includes("none of the"),
-                );
+                const withoutNone = values.filter((v) => !isNone(v));
                 onChange(
                   on ?
                     withoutNone.filter((v) => v !== opt)
@@ -129,7 +184,7 @@ function ChipMulti({
                 );
               }}
             >
-              {opt}
+              {option.label}
             </button>
           );
         })}
@@ -258,6 +313,74 @@ export function AssessmentWizard({
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [aiUnavailable, setAiUnavailable] = useState(false);
+  const [paramLists, setParamLists] = useState<Record<string, MasterOption[]>>(
+    {},
+  );
+
+  // The app saves PARAMLIST item codes. Load the same lists so web and app write identical values.
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all(PARAM_CODES.map((code) => fetchParamList(code))).then(
+      (lists) => {
+        if (cancelled) return;
+        const next = Object.fromEntries(
+          PARAM_CODES.map((c, i) => [c, lists[i]!]),
+        );
+        setParamLists(next);
+        const toCode = (value: string, pc: string) =>
+          resolveParamCode(value, next[pc] ?? []);
+        setForm((f) => ({
+          ...f,
+          foodPreference: toCode(f.foodPreference, "PC001"),
+          regionalCuisine: toCode(f.regionalCuisine, "PC002"),
+          physicalActivity: toCode(f.physicalActivity, "PC003"),
+          workType: toCode(f.workType, "PC004"),
+          sleepDuration: toCode(f.sleepDuration, "PC005"),
+          pregnancy: toCode(f.pregnancy, "PC006"),
+          primaryGoal: toCode(f.primaryGoal, "PC007"),
+          targetTimeline: toCode(f.targetTimeline, "PC008"),
+          medicalConditions: f.medicalConditions.map((v) => toCode(v, "PC009")),
+          foodAllergies: f.foodAllergies.map((v) => toCode(v, "PC010")),
+        }));
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const [foodMaster, setFoodMaster] = useState<FoodMaster>({});
+  const [foodMasterReady, setFoodMasterReady] = useState(false);
+  const cuisineLabel = resolveParamLabel(
+    form.regionalCuisine,
+    paramLists["PC002"] ?? [],
+  );
+
+  // Foods for the Current Diet step, same list the app uses.
+  useEffect(() => {
+    if (phases[step]?.id !== "meals") return;
+    let cancelled = false;
+    void fetchFoodMaster(
+      countryCd || "IN",
+      cuisineLabel || form.regionalCuisine,
+    ).then((data) => {
+      if (cancelled) return;
+      setFoodMaster(data);
+      setFoodMasterReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, cuisineLabel, countryCd]);
+
+  function optionsFor(pc: string): MasterOption[] {
+    const live = paramLists[pc];
+    if (live && live.length > 0) return live;
+    return (PARAM_FALLBACKS[pc] ?? []).map((label) => ({ code: label, label }));
+  }
+  const labelOf = (value: string, pc: string) =>
+    resolveParamLabel(value, optionsFor(pc)) || value;
 
   const phase = phases[step]!;
   const metrics = computeBmiMetrics({
@@ -275,19 +398,36 @@ export function AssessmentWizard({
   }
 
   function validateIdentity(): string | null {
-    if (!form.clientName.trim()) return "Name is required.";
-    if (!form.mobileNo.trim()) return "Mobile is required.";
-    if (!form.gender) return "Gender is required.";
-    if (!form.age && !form.dob) return "Age or date of birth is required.";
-    if (!form.weight || !form.height)
-      return "Height and weight are required for BMI.";
-    return null;
+    const dobOrAge =
+      !form.dob && !form.age ? "Please enter Date of Birth or Age."
+      : form.age ? validateAge(form.age)
+      : null;
+    return (
+      validateRequired(form.clientName, "Full name") ??
+      validateMobile(form.mobileNo) ??
+      validateEmail(form.emailId) ??
+      validateRequired(form.location, "Location") ??
+      dobOrAge ??
+      (form.gender ? null : "Gender is required.") ??
+      validateHeight(form.height) ??
+      validateWeight(form.weight)
+    );
   }
-
   function validateLifestyle(): string | null {
-    if (!form.foodPreference) return "Food preference is required.";
-    if (!form.primaryGoal) return "Primary goal is required.";
-    return null;
+    return (
+      validateRequired(form.physicalActivity, "Physical activity") ??
+      validateRequired(form.workType, "Work type") ??
+      validateRequired(form.sleepDuration, "Sleep duration") ??
+      validateRequired(form.foodPreference, "Food preference") ??
+      validateRequired(form.regionalCuisine, "Regional cuisine") ??
+      (form.medicalConditions.length ?
+        null
+      : "Please select at least one medical condition.") ??
+      (form.foodAllergies.length ?
+        null
+      : "Please select at least one food allergy.") ??
+      validateRequired(form.primaryGoal, "Primary goal")
+    );
   }
 
   async function commitPhase(): Promise<boolean> {
@@ -474,16 +614,20 @@ export function AssessmentWizard({
         weight: parseFloat(form.weight) || 0,
         height: parseInt(form.height, 10) || 0,
         country: countryCd,
-        foodType: form.foodPreference,
-        cuisine: form.regionalCuisine,
-        activity: form.physicalActivity,
-        workType: form.workType,
-        sleep: form.sleepDuration,
-        pregnancy: form.pregnancy,
-        medical: form.medicalConditions.join(", "),
-        allergies: form.foodAllergies.join(", "),
-        goal: form.primaryGoal,
-        timeline: form.targetTimeline,
+        foodType: labelOf(form.foodPreference, "PC001"),
+        cuisine: labelOf(form.regionalCuisine, "PC002"),
+        activity: labelOf(form.physicalActivity, "PC003"),
+        workType: labelOf(form.workType, "PC004"),
+        sleep: labelOf(form.sleepDuration, "PC005"),
+        pregnancy: labelOf(form.pregnancy, "PC006"),
+        medical: form.medicalConditions
+          .map((v) => labelOf(v, "PC009"))
+          .join(", "),
+        allergies: form.foodAllergies
+          .map((v) => labelOf(v, "PC010"))
+          .join(", "),
+        goal: labelOf(form.primaryGoal, "PC007"),
+        timeline: labelOf(form.targetTimeline, "PC008"),
         notes: form.additionalNotes,
         meals: form.meals,
       });
@@ -538,7 +682,11 @@ export function AssessmentWizard({
               const item = (
                 <div
                   key={p.id}
-                  className={`step-item${active ? "active" : ""}${done ? "done" : ""}`}
+                  className={cn(
+                    "step-item",
+                    active ? "active" : "",
+                    done ? "done" : "",
+                  )}
                   aria-current={active ? "step" : undefined}
                 >
                   <div className="step-circle">{i + 1}</div>
@@ -550,7 +698,7 @@ export function AssessmentWizard({
                 item,
                 <div
                   key={`${p.id}-line`}
-                  className={`step-line${done ? "done" : ""}`}
+                  className={cn("step-line", done ? "done" : "")}
                 />,
               ];
             })}
@@ -563,22 +711,28 @@ export function AssessmentWizard({
         </div>
       : null}
 
-      <div className="mc-panel">
+      <div className="ac-card">
         {phase.id !== "complete" ?
-          <h2 className="border-b border-line px-5 py-4 font-display text-lg font-bold tracking-tight text-ink sm:px-6">
+          <h5
+            className={cn(
+              "ac-card-title",
+              phase.id === "diet" ? "ac-card-title-diet" : "",
+            )}
+          >
+            <i className={PHASE_ICONS[phase.id] ?? "fas fa-user"} />{" "}
             {phase.label}
-          </h2>
+          </h5>
         : null}
-        <div className="p-5 sm:p-6">
+        <div className="ac-form p-5 sm:p-6">
           {phase.id === "identity" ?
             <div className="space-y-4">
-              <TextField
-                label="Full name"
-                required
-                value={form.clientName}
-                onChange={(e) => patch("clientName", e.target.value)}
-              />
               <div className="grid gap-4 sm:grid-cols-2">
+                <TextField
+                  label="Full name"
+                  required
+                  value={form.clientName}
+                  onChange={(e) => patch("clientName", e.target.value)}
+                />
                 <TextField
                   label="Mobile"
                   required
@@ -649,9 +803,9 @@ export function AssessmentWizard({
                   onChange={(e) => patch("foodPreference", e.target.value)}
                 >
                   <option value="">Select</option>
-                  {FOOD_PREFERENCES.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
+                  {optionsFor("PC001").map((o) => (
+                    <option key={o.code} value={o.code}>
+                      {o.label}
                     </option>
                   ))}
                 </SelectField>
@@ -661,9 +815,9 @@ export function AssessmentWizard({
                   onChange={(e) => patch("regionalCuisine", e.target.value)}
                 >
                   <option value="">Select</option>
-                  {REGIONAL_CUISINES.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
+                  {optionsFor("PC002").map((o) => (
+                    <option key={o.code} value={o.code}>
+                      {o.label}
                     </option>
                   ))}
                 </SelectField>
@@ -673,9 +827,9 @@ export function AssessmentWizard({
                   onChange={(e) => patch("physicalActivity", e.target.value)}
                 >
                   <option value="">Select</option>
-                  {PHYSICAL_ACTIVITY_LEVELS.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
+                  {optionsFor("PC003").map((o) => (
+                    <option key={o.code} value={o.code}>
+                      {o.label}
                     </option>
                   ))}
                 </SelectField>
@@ -685,9 +839,9 @@ export function AssessmentWizard({
                   onChange={(e) => patch("workType", e.target.value)}
                 >
                   <option value="">Select</option>
-                  {WORK_TYPES.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
+                  {optionsFor("PC004").map((o) => (
+                    <option key={o.code} value={o.code}>
+                      {o.label}
                     </option>
                   ))}
                 </SelectField>
@@ -697,9 +851,9 @@ export function AssessmentWizard({
                   onChange={(e) => patch("sleepDuration", e.target.value)}
                 >
                   <option value="">Select</option>
-                  {SLEEP_DURATIONS.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
+                  {optionsFor("PC005").map((o) => (
+                    <option key={o.code} value={o.code}>
+                      {o.label}
                     </option>
                   ))}
                 </SelectField>
@@ -708,9 +862,9 @@ export function AssessmentWizard({
                   value={form.pregnancy}
                   onChange={(e) => patch("pregnancy", e.target.value)}
                 >
-                  {PREGNANCY_BF_OPTIONS.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
+                  {optionsFor("PC006").map((o) => (
+                    <option key={o.code} value={o.code}>
+                      {o.label}
                     </option>
                   ))}
                 </SelectField>
@@ -721,9 +875,9 @@ export function AssessmentWizard({
                   onChange={(e) => patch("primaryGoal", e.target.value)}
                 >
                   <option value="">Select</option>
-                  {PRIMARY_GOALS.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
+                  {optionsFor("PC007").map((o) => (
+                    <option key={o.code} value={o.code}>
+                      {o.label}
                     </option>
                   ))}
                 </SelectField>
@@ -733,22 +887,22 @@ export function AssessmentWizard({
                   onChange={(e) => patch("targetTimeline", e.target.value)}
                 >
                   <option value="">Select</option>
-                  {TARGET_TIMELINES.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
+                  {optionsFor("PC008").map((o) => (
+                    <option key={o.code} value={o.code}>
+                      {o.label}
                     </option>
                   ))}
                 </SelectField>
               </div>
               <ChipMulti
                 label="Medical conditions"
-                options={MEDICAL_CONDITIONS}
+                options={optionsFor("PC009")}
                 values={form.medicalConditions}
                 onChange={(v) => patch("medicalConditions", v)}
               />
               <ChipMulti
                 label="Food allergies"
-                options={FOOD_ALLERGIES}
+                options={optionsFor("PC010")}
                 values={form.foodAllergies}
                 onChange={(v) => patch("foodAllergies", v)}
               />
@@ -761,48 +915,29 @@ export function AssessmentWizard({
           : null}
 
           {phase.id === "meals" ?
-            <div className="space-y-4">
+            <div className="ac-stack space-y-4">
               <p className="text-sm text-ink-muted">
-                Capture current daily intake as free text per meal slot.
+                Add what the client eats in each meal. Calories are approximate.
               </p>
               {MEAL_SLOTS.map((slot) => (
-                <div
-                  key={slot.id}
-                  className="grid gap-3 border-b border-line pb-4 last:border-0 sm:grid-cols-[1fr_7rem]"
-                >
-                  <TextAreaField
-                    label={slot.label}
-                    rows={2}
-                    value={form.meals[slot.id].text}
-                    onChange={(e) =>
-                      patch("meals", {
-                        ...form.meals,
-                        [slot.id]: {
-                          ...form.meals[slot.id],
-                          text: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                  <TextField
-                    label="kcal"
-                    type="number"
-                    value={
-                      form.meals[slot.id].calories ?
-                        String(form.meals[slot.id].calories)
-                      : ""
-                    }
-                    onChange={(e) =>
-                      patch("meals", {
-                        ...form.meals,
-                        [slot.id]: {
-                          ...form.meals[slot.id],
-                          calories: Number(e.target.value) || 0,
-                        },
-                      })
-                    }
-                  />
-                </div>
+                <MealItemsEditor
+                  key={`${slot.id}-${foodMasterReady}`}
+                  label={slot.label}
+                  text={form.meals[slot.id].text}
+                  calories={form.meals[slot.id].calories}
+                  foods={(foodMaster[slot.apiLabel] ?? []).filter((food) =>
+                    passesFoodType(
+                      food.cat,
+                      labelOf(form.foodPreference, "PC001"),
+                    ),
+                  )}
+                  onChange={(next) =>
+                    patch("meals", {
+                      ...form.meals,
+                      [slot.id]: { text: next.text, calories: next.calories },
+                    })
+                  }
+                />
               ))}
             </div>
           : null}
@@ -919,7 +1054,11 @@ export function AssessmentWizard({
           {phase.id === "complete" ?
             <div className="flex flex-col items-start gap-3 py-4">
               <span className="inline-flex size-12 items-center justify-center rounded-full bg-[color:var(--mc-secondary-light)] text-mc-secondary">
-                <Check className="size-6" aria-hidden />
+                <i
+                  className="fas fa-check"
+                  style={{ fontSize: 24 }}
+                  aria-hidden
+                />
               </span>
               <p className="font-display text-xl font-bold text-ink">
                 Assessment saved
@@ -946,7 +1085,7 @@ export function AssessmentWizard({
             : null}
             <button
               type="button"
-              className="mc-btn-primary w-full sm:w-auto sm:min-w-[8rem]"
+              className="ac-btn-next mc-btn-primary w-full sm:w-auto sm:min-w-[8rem]"
               disabled={saving || generating}
               onClick={() => void onNext()}
             >
@@ -960,7 +1099,7 @@ export function AssessmentWizard({
                 : flow === "dietPlan" ?
                   "Save plan"
                 : "Save & finish"
-              : "Next"}
+              : "Save & Continue →"}
             </button>
           </div>
         </div>

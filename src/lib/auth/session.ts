@@ -51,7 +51,7 @@ export function saveSession(session: CoachSession): void {
   notify();
 }
 
-export function restoreSession(): CoachSession | null {
+function restoreSession(): CoachSession | null {
   if (!canUseStorage()) {
     current = null;
     return null;

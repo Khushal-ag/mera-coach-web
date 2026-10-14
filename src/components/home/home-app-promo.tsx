@@ -6,6 +6,7 @@ import Image from "next/image";
 import type { MouseEvent } from "react";
 
 import { siteConfig } from "@/config/site";
+import { isValidMobile } from "@/lib/validation";
 
 export function HomeAppPromo() {
   const [open, setOpen] = useState(false);
@@ -27,8 +28,10 @@ export function HomeAppPromo() {
       setTone("error");
       return;
     }
-    if (!/^\d{10}$/.test(trimmedMobile)) {
-      setMessage("Enter a valid 10-digit mobile number.");
+    if (!isValidMobile(trimmedMobile)) {
+      setMessage(
+        "Please enter a valid 10-digit mobile number (starting with 6-9).",
+      );
       setTone("error");
       return;
     }
@@ -54,7 +57,7 @@ export function HomeAppPromo() {
               </h2>
               <p className="app-promo-desc">
                 The Mera Coach app lets you find verified coaches, track your
-                fitness goals, log BMI, and chat with your coach — all from your
+                fitness goals, log BMI, and chat with your coach, all from your
                 phone. Available soon on Android &amp; iOS.
               </p>
               <ul className="app-promo-features">
@@ -104,7 +107,7 @@ export function HomeAppPromo() {
                 </a>
               </div>
               <p className="app-promo-coming">
-                <i className="fas fa-clock" /> Launching soon —{" "}
+                <i className="fas fa-clock" /> Launching soon:{" "}
                 <a
                   href="#app-notify"
                   onClick={openNotify}

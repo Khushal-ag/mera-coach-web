@@ -5,8 +5,10 @@ import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
   title: "Forgot Password | Mera Coach",
-  description: "Reset your Mera Coach coach account password.",
+  description:
+    "Reset your Mera Coach account password with a code sent to your registered mobile number.",
   path: "/forgot-password",
+  noindex: true,
   absolute: true,
 });
 

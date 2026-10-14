@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 
+import { MenuSelect } from "@/components/ui/menu-select";
+
 export function CltPageHead({
   title,
   crumb,
@@ -59,17 +61,19 @@ export function CltSearchCard({
         <div className="clt-search-form">
           <div className="clt-form-group">
             <label htmlFor={optionId}>Search Option</label>
-            <select
+            <MenuSelect
               id={optionId}
-              className="clt-form-control"
+              skin="public"
+              className="ui-select"
               value={option}
+              options={[
+                { value: "", label: "Select option" },
+                { value: "name", label: "Client Name" },
+                { value: "mobile", label: "Mobile No." },
+                { value: "age", label: "Age" },
+              ]}
               onChange={(event) => onOption(event.target.value)}
-            >
-              <option value="">— Select Option —</option>
-              <option value="name">Client Name</option>
-              <option value="mobile">Mobile No.</option>
-              <option value="age">Age</option>
-            </select>
+            />
           </div>
           <div className="clt-form-group">
             <label htmlFor={textId}>Search Text</label>
@@ -120,18 +124,18 @@ export function CltTableTools({
   return (
     <div className="clt-table-controls">
       <div className="clt-entries-wrap">
-        <select
+        <MenuSelect
           id={selectId}
-          className="clt-entries-select"
-          value={perPage}
+          skin="public"
+          className="ui-select clt-entries-menu"
+          aria-label="Entries per page"
+          value={String(perPage)}
+          options={[10, 25, 50, 100].map((n) => ({
+            value: String(n),
+            label: String(n),
+          }))}
           onChange={(event) => onPerPage(Number(event.target.value))}
-        >
-          {[10, 25, 50, 100].map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </select>
+        />
         <span>entries per page</span>
       </div>
       <div className="clt-search-box">
@@ -144,6 +148,96 @@ export function CltTableTools({
         />
       </div>
     </div>
+  );
+}
+
+type SortValue = string | number | null | undefined;
+type SortState<K extends string> = { key: K; dir: "asc" | "desc" } | null;
+
+/** Orders numbers numerically, dd/mm/yyyy and yyyy-mm-dd dates by day, and text case-insensitively. */
+function sortKey(value: SortValue): number | string {
+  if (value == null || value === "") return "";
+  if (typeof value === "number") return value;
+  const text = value.trim();
+  if (text !== "" && Number.isFinite(Number(text))) return Number(text);
+  const dmy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(text);
+  if (dmy) return Date.UTC(Number(dmy[3]), Number(dmy[2]) - 1, Number(dmy[1]));
+  const parsed = Date.parse(text);
+  if (/\d{4}|\d{1,2}[ -][A-Za-z]{3}/.test(text) && Number.isFinite(parsed)) {
+    return parsed;
+  }
+  return text.toLowerCase();
+}
+
+export function useSortedRows<T, K extends string>(
+  rows: T[],
+  accessors: Record<K, (row: T) => SortValue>,
+) {
+  const [sort, setSort] = useState<SortState<K>>(null);
+  const sorted = useMemo(() => {
+    if (!sort) return rows;
+    const read = accessors[sort.key];
+    const factor = sort.dir === "asc" ? 1 : -1;
+    return [...rows].sort((a, b) => {
+      const x = sortKey(read(a));
+      const y = sortKey(read(b));
+      if (x === y) return 0;
+      if (x === "") return 1;
+      if (y === "") return -1;
+      if (typeof x === "number" && typeof y === "number") {
+        return (x - y) * factor;
+      }
+      return String(x).localeCompare(String(y)) * factor;
+    });
+    // accessors are static per view
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, sort]);
+  const toggle = (key: K) =>
+    setSort((current) =>
+      current?.key === key ?
+        { key, dir: current.dir === "asc" ? "desc" : "asc" }
+      : { key, dir: "asc" },
+    );
+  return { sorted, sort, toggle };
+}
+
+export function CltSortTh<K extends string>({
+  label,
+  sortKey: key,
+  sort,
+  onSort,
+}: {
+  label: string;
+  sortKey: K;
+  sort: SortState<K>;
+  onSort: (key: K) => void;
+}) {
+  const active = sort?.key === key ? sort.dir : null;
+  return (
+    <th
+      className={
+        active ? `clt-th-sortable clt-sort-${active}` : "clt-th-sortable"
+      }
+      aria-sort={
+        active === "asc" ? "ascending"
+        : active === "desc" ?
+          "descending"
+        : "none"
+      }
+      onClick={() => onSort(key)}
+    >
+      <span className="clt-th-sort">
+        {label}{" "}
+        <i
+          className={
+            active === "asc" ? "fas fa-sort-up"
+            : active === "desc" ?
+              "fas fa-sort-down"
+            : "fas fa-sort"
+          }
+        />
+      </span>
+    </th>
   );
 }
 

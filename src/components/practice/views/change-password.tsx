@@ -1,13 +1,65 @@
 "use client";
 
-import { useState } from "react";
-
-import { KeyRound } from "lucide-react";
+import { useId, useState } from "react";
+import Link from "next/link";
 
 import { PracticePageHeader } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
-import { TextField } from "@/components/ui/field";
 import { changeCoachPassword } from "@/lib/api/practice";
+
+function PasswordField({
+  label,
+  value,
+  onChange,
+  autoComplete,
+  hint,
+  error,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  autoComplete: string;
+  hint?: string;
+  error?: string;
+}) {
+  const id = useId();
+  const [shown, setShown] = useState(false);
+  return (
+    <div className="cp-field">
+      <label htmlFor={id}>
+        {label} <span aria-hidden>*</span>
+      </label>
+      <div className="cp-input">
+        <input
+          id={id}
+          type={shown ? "text" : "password"}
+          autoComplete={autoComplete}
+          required
+          value={value}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error || hint ? `${id}-note` : undefined}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <button
+          type="button"
+          onClick={() => setShown((v) => !v)}
+          aria-label={shown ? `Hide ${label}` : `Show ${label}`}
+          aria-pressed={shown}
+        >
+          <i
+            className={shown ? "fas fa-eye-slash" : "fas fa-eye"}
+            aria-hidden
+          />
+        </button>
+      </div>
+      {error || hint ?
+        <p id={`${id}-note`} className={error ? "cp-note cp-error" : "cp-note"}>
+          {error ?? hint}
+        </p>
+      : null}
+    </div>
+  );
+}
 
 export function ChangePasswordView() {
   const [currentPassword, setCurrent] = useState("");
@@ -51,7 +103,7 @@ export function ChangePasswordView() {
         title="Change password"
         back={{ href: "/dashboard/profile", label: "Back to profile" }}
         description="Update the password for your coach login."
-        icon={<KeyRound className="size-5" aria-hidden />}
+        icon={<i className="fas fa-key" style={{ fontSize: 20 }} aria-hidden />}
       />
       {error ?
         <AlertBanner tone="error">{error}</AlertBanner>
@@ -60,41 +112,52 @@ export function ChangePasswordView() {
         <AlertBanner tone="success">{message}</AlertBanner>
       : null}
       <form
-        className="mc-panel max-w-lg space-y-4 p-5 sm:p-6"
+        className="ac-card cp-card"
         onSubmit={(e) => void onSubmit(e)}
+        noValidate
       >
-        <TextField
-          label="Current password"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={currentPassword}
-          onChange={(e) => setCurrent(e.target.value)}
-        />
-        <TextField
-          label="New password"
-          type="password"
-          autoComplete="new-password"
-          required
-          value={newPassword}
-          onChange={(e) => setNew(e.target.value)}
-        />
-        <TextField
-          label="Confirm new password"
-          type="password"
-          autoComplete="new-password"
-          required
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-        />
-        <button
-          type="submit"
-          className="mc-btn-primary w-full"
-          disabled={busy || !currentPassword || !newPassword || !confirm}
-          aria-busy={busy}
-        >
-          {busy ? "Updating password" : "Update password"}
-        </button>
+        <h5 className="ac-card-title">
+          <i className="fas fa-key" /> Update Password
+        </h5>
+        <div className="cp-body">
+          <PasswordField
+            label="Current password"
+            autoComplete="current-password"
+            value={currentPassword}
+            onChange={setCurrent}
+          />
+          <PasswordField
+            label="New password"
+            autoComplete="new-password"
+            value={newPassword}
+            onChange={setNew}
+            hint="At least 6 characters."
+          />
+          <PasswordField
+            label="Confirm new password"
+            autoComplete="new-password"
+            value={confirm}
+            onChange={setConfirm}
+            error={
+              confirm && newPassword !== confirm ?
+                "Passwords do not match."
+              : undefined
+            }
+          />
+          <div className="cp-actions">
+            <button
+              type="submit"
+              className="mc-btn-primary"
+              disabled={busy || !currentPassword || !newPassword || !confirm}
+              aria-busy={busy}
+            >
+              {busy ? "Updating password" : "Update password"}
+            </button>
+            <Link href="/dashboard/profile" className="mc-btn-secondary">
+              Cancel
+            </Link>
+          </div>
+        </div>
       </form>
     </div>
   );

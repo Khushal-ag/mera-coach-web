@@ -15,6 +15,8 @@ export function sessionFromLoginResult(
     pick(r, "fullName", "FullName", "coachName", "CoachName") ?? "",
   ).trim();
   const email = String(pick(r, "email", "Email") ?? "").trim();
+  const validUpto = String(pick(r, "validUpto", "ValidUpto") ?? "").trim();
+  const profileUrl = String(pick(r, "profileUrl", "ProfileUrl") ?? "").trim();
   if (!token || coachId <= 0) return null;
   return {
     token,
@@ -22,5 +24,7 @@ export function sessionFromLoginResult(
     coachCode,
     fullName: fullName || (coachCode ? `Coach ${coachCode}` : "Coach"),
     email: email || undefined,
+    validUpto: validUpto || undefined,
+    profileUrl: profileUrl || undefined,
   };
 }

@@ -3,9 +3,9 @@ import Link from "next/link";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
-  title: "Our Services – Complete Health & Coaching Platform | Mera Coach",
+  title: "Coaching Programs and Practice Tools | Mera Coach",
   description:
-    "From personalised exercise programs to in-depth nutrition plans, smart client profiling, detailed health assessments and data-driven reports — everything you need to transform your coaching practice or reach your wellness goals.",
+    "Exercise and nutrition programs for clients, plus client profiles, assessments and reports for coaches. See everything Mera Coach offers.",
   path: "/services",
   absolute: true,
 });
@@ -38,7 +38,7 @@ export default function ServicesPage() {
               <p className="sv-hero-sub">
                 From personalised exercise programs to in-depth nutrition plans,
                 smart client profiling, detailed health assessments and
-                data-driven reports — everything you need to transform your
+                data-driven reports, everything you need to transform your
                 coaching practice or reach your wellness goals.
               </p>
               <div className="sv-hero-btns">
@@ -169,7 +169,7 @@ export default function ServicesPage() {
               <div className="sv-pc-body">
                 <p className="sv-pc-desc">
                   Structured, progressive workout plans designed to your fitness
-                  level — whether you&apos;re a complete beginner or a seasoned
+                  level, whether you&apos;re a complete beginner or a seasoned
                   athlete.
                 </p>
                 <ul className="sv-pc-features">
@@ -283,7 +283,7 @@ export default function ServicesPage() {
               <div className="sv-pc-body">
                 <p className="sv-pc-desc">
                   Condition-specific and goal-oriented dietary programmes backed
-                  by clinical nutrition science — for weight management, gut
+                  by clinical nutrition science, for weight management, gut
                   health, heart wellness, skin &amp; beyond.
                 </p>
                 <ul className="sv-pc-features">
@@ -336,7 +336,7 @@ export default function ServicesPage() {
             </h2>
             <p className="section-subtitle">
               Powerful tools for coaches to track, manage and grow their
-              clients. Every detail, every data point, every insight — in one
+              clients. Every detail, every data point, every insight, in one
               place.
             </p>
           </div>
@@ -349,7 +349,7 @@ export default function ServicesPage() {
               </div>
               <h3>Detailed Client Profiles</h3>
               <p>
-                Comprehensive digital records for every client — personal
+                Comprehensive digital records for every client, personal
                 details, health history, coaching notes, session logs, and
                 progress photos, all in one secure place.
               </p>
@@ -370,9 +370,9 @@ export default function ServicesPage() {
                   <i className="fas fa-check" /> Progress photo timeline storage
                 </li>
               </ul>
-              <a href="#" className="sv-tc-link sv-tcl-green">
+              <Link href="/register" className="sv-tc-link sv-tcl-green">
                 <i className="fas fa-arrow-right" /> Learn More
-              </a>
+              </Link>
             </div>
             <div className="sv-tool-card sv-tool-featured" id="assessments">
               <div className="sv-tc-accent sv-tca-gold" />
@@ -383,8 +383,8 @@ export default function ServicesPage() {
               <h3>Health Data &amp; Assessments</h3>
               <p>
                 Record and monitor every vital metric that matters. From body
-                composition and fitness evaluations to lifestyle analysis —
-                build a complete health baseline for each client.
+                composition and fitness evaluations to lifestyle analysis, build
+                a complete health baseline for each client.
               </p>
               <ul className="sv-tc-list">
                 <li>
@@ -404,9 +404,9 @@ export default function ServicesPage() {
                   analysis
                 </li>
               </ul>
-              <a href="#" className="sv-tc-link sv-tcl-gold">
+              <Link href="/register" className="sv-tc-link sv-tcl-gold">
                 <i className="fas fa-arrow-right" /> Learn More
-              </a>
+              </Link>
             </div>
             <div className="sv-tool-card" id="reports">
               <div className="sv-tc-accent sv-tca-red" />
@@ -438,9 +438,9 @@ export default function ServicesPage() {
                   reports
                 </li>
               </ul>
-              <a href="#" className="sv-tc-link sv-tcl-red">
+              <Link href="/register" className="sv-tc-link sv-tcl-red">
                 <i className="fas fa-arrow-right" /> Learn More
-              </a>
+              </Link>
             </div>
           </div>
         </div>

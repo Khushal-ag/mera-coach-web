@@ -9,16 +9,13 @@ const routes = [
   "/bmi",
   "/services",
   "/register",
-  "/coach-login",
-  "/member-login",
-  "/premium",
-  "/feedback",
+  "/contact",
   "/terms",
   "/privacy",
 ] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const lastModified = new Date("2026-10-13");
+  const lastModified = new Date();
   const staticRoutes: MetadataRoute.Sitemap = routes.map((route, index) => ({
     url: `${siteConfig.url}${route}`,
     lastModified,

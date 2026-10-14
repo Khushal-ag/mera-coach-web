@@ -1,4 +1,4 @@
-/** Client-side BMI helpers — same thresholds as mera-coach-app `utils/bmi`. */
+/** Client-side BMI helpers: same thresholds as mera-coach-app `utils/bmi`. */
 
 type BmiCategoryLabel = "Underweight" | "Normal" | "Overweight" | "Obese";
 
@@ -27,4 +27,21 @@ export function getBmiCategory(bmi: number | null): BmiCategory | null {
 
 export function formatBmi(bmi: number): string {
   return bmi.toFixed(1);
+}
+
+/**
+ * Prefer a positive BMI from the API, otherwise compute it from height and weight.
+ * The report often returns height and weight with bmi 0 when save-bmi was skipped.
+ */
+export function resolveDisplayBmi(
+  input?: {
+    bmi?: number | null;
+    height?: number | string | null;
+    weight?: number | string | null;
+  } | null,
+): number | null {
+  if (!input) return null;
+  const api = input.bmi;
+  if (typeof api === "number" && Number.isFinite(api) && api > 0) return api;
+  return getBmi(input.height ?? "", input.weight ?? "");
 }

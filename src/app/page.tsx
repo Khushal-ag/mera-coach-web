@@ -9,12 +9,13 @@ import {
   HomeSearchSection,
   HomeStories,
 } from "@/components/home/home-live";
-import { siteConfig } from "@/config/site";
+import { ListEmpty } from "@/components/list-empty";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
-  title: "Home | Mera Coach – Your Complete Coaching & Wellness Platform",
-  description: siteConfig.description,
+  title: "Mera Coach | Find Verified Health, Fitness & Wellness Coaches",
+  description:
+    "Mera Coach connects you with verified health, fitness, yoga and nutrition coaches, and gives coaches the tools to manage clients and grow their practice.",
   path: "/",
   absolute: true,
 });
@@ -49,7 +50,7 @@ export default function HomePage() {
               <em>Business</em>
             </h1>
             <p className="hero-subtitle">
-              Manage clients, track progress and build your coaching brand — all
+              Manage clients, track progress and build your coaching brand, all
               in one powerful platform designed for health coaches.
             </p>
             <div className="hero-ctas">
@@ -211,7 +212,7 @@ export default function HomePage() {
             </h2>
             <p className="section-subtitle">
               One powerful platform with all the tools to manage, grow and
-              showcase your coaching business — so you can focus on what matters
+              showcase your coaching business, so you can focus on what matters
               most: your clients.
             </p>
           </div>
@@ -315,16 +316,16 @@ export default function HomePage() {
               <p>
                 Build your personal landing page, define your coaching services
                 and upload your success stories. Your profile is your digital
-                storefront — make it shine.
+                storefront, so make it shine.
               </p>
             </div>
             <div className="step-card">
               <div className="step-num">3</div>
               <h3>Start Managing Clients</h3>
               <p>
-                Begin adding clients, tracking their progress and managing leads
-                — all from one clean dashboard. Watch your coaching practice
-                grow, day by day.
+                Begin adding clients, tracking their progress and managing
+                leads, all from one clean dashboard. Watch your coaching
+                practice grow, day by day.
               </p>
             </div>
           </div>
@@ -343,8 +344,8 @@ export default function HomePage() {
             </div>
             <h2 className="section-title">Choose Your Path</h2>
             <p className="section-subtitle">
-              Mera Coach serves both coaches and members — pick your path and
-              let us do the rest.
+              Mera Coach serves both coaches and members, pick your path and let
+              us do the rest.
             </p>
           </div>
           <div className="path-grid">
@@ -366,7 +367,7 @@ export default function HomePage() {
                 </div>
                 <h3>Built for Coaches</h3>
                 <p>
-                  Run, grow and scale your coaching practice — from client
+                  Run, grow and scale your coaching practice, from client
                   management to building your personal brand online.
                 </p>
                 <ul className="path-features">
@@ -478,122 +479,7 @@ export default function HomePage() {
               journey.
             </p>
           </div>
-          <div className="blog-grid">
-            <div className="blog-card">
-              <div className="blog-img">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&auto=format&fit=crop&q=80"
-                  alt="Nutrition Blog"
-                />
-              </div>
-              <div className="blog-body">
-                <div className="blog-meta">
-                  <span className="blog-cat">Nutrition</span>
-                  <span className="blog-date">
-                    <i className="fas fa-calendar" /> May 20, 2026
-                  </span>
-                </div>
-                <h3>10 Superfoods That Can Transform Your Health in 30 Days</h3>
-                <p>
-                  Discover science-backed superfoods that your nutrition coach
-                  recommends for improved energy, immunity and overall
-                  wellness...
-                </p>
-                <div className="blog-author">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="https://randomuser.me/api/portraits/women/68.jpg"
-                    alt="Dr. Ananya Singh"
-                  />
-                  <span>Dr. Ananya Singh</span>
-                  <span className="blog-read">5 min read</span>
-                </div>
-              </div>
-            </div>
-            <div className="blog-card">
-              <div className="blog-img">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&auto=format&fit=crop&q=80"
-                  alt="Yoga Blog"
-                />
-              </div>
-              <div className="blog-body">
-                <div className="blog-meta">
-                  <span
-                    className="blog-cat"
-                    style={{ background: "#f3e8ff", color: "#9333ea" }}
-                  >
-                    Yoga
-                  </span>
-                  <span className="blog-date">
-                    <i className="fas fa-calendar" /> May 18, 2026
-                  </span>
-                </div>
-                <h3>Morning Yoga Routine: 15 Minutes to a Productive Day</h3>
-                <p>
-                  Start your day right with this expert-designed morning yoga
-                  sequence that boosts energy, reduces anxiety and sharpens
-                  focus...
-                </p>
-                <div className="blog-author">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="https://randomuser.me/api/portraits/women/44.jpg"
-                    alt="Priya Mehta"
-                  />
-                  <span>Priya Mehta</span>
-                  <span className="blog-read">4 min read</span>
-                </div>
-              </div>
-            </div>
-            <div className="blog-card">
-              <div className="blog-img">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=80"
-                  alt="Fitness Blog"
-                />
-              </div>
-              <div className="blog-body">
-                <div className="blog-meta">
-                  <span
-                    className="blog-cat"
-                    style={{ background: "#fdf3e0", color: "#c9882a" }}
-                  >
-                    Fitness
-                  </span>
-                  <span className="blog-date">
-                    <i className="fas fa-calendar" /> May 15, 2026
-                  </span>
-                </div>
-                <h3>
-                  Beginner&apos;s Guide to Starting Your Fitness Journey at Any
-                  Age
-                </h3>
-                <p>
-                  Whether you&apos;re 25 or 65, it&apos;s never too late or too
-                  early. Here&apos;s your complete beginner-friendly guide to
-                  getting fit...
-                </p>
-                <div className="blog-author">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="https://randomuser.me/api/portraits/men/32.jpg"
-                    alt="Rahul Sharma"
-                  />
-                  <span>Rahul Sharma</span>
-                  <span className="blog-read">6 min read</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div style={{ textAlign: "center" }}>
-            <a href="#" className="btn btn-outline">
-              <i className="fas fa-book-open" /> Read All Articles
-            </a>
-          </div>
+          <ListEmpty title="No articles yet." icon="fas fa-pen-fancy" />
         </div>
       </section>
 
@@ -645,7 +531,7 @@ export default function HomePage() {
                   <i className="fas fa-user-tie" /> Become a Coach
                 </Link>
                 <Link href="/services" className="btn btn-outline-white">
-                  Learn More <i className="fas fa-arrow-right" />
+                  Explore Features <i className="fas fa-arrow-right" />
                 </Link>
               </div>
             </div>

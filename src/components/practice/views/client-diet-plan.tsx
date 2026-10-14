@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
-import { Download, Sparkles } from "lucide-react";
-
 import type {
   AssessmentFormState,
   AssessmentIds,
@@ -13,10 +11,8 @@ import type {
 
 import { AssessmentWizardLazy as AssessmentWizard } from "@/components/assessment/assessment-wizard-lazy";
 import { useAuth } from "@/components/auth-provider";
-import {
-  PracticeEmpty,
-  PracticePageHeader,
-} from "@/components/practice/page-header";
+import { ListEmpty } from "@/components/list-empty";
+import { PracticePageHeader } from "@/components/practice/page-header";
 import { ClientDietSkeleton } from "@/components/skeletons/client-profile-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { downloadAuthedPdf } from "@/lib/api/pdf";
@@ -180,7 +176,7 @@ export function ClientDietPlanView({
           disabled={pdfBusy}
           onClick={() => void onPdf()}
         >
-          <Download className="size-4" aria-hidden />
+          <i className="fas fa-download" style={{ fontSize: 16 }} aria-hidden />
           {pdfBusy ? "Preparing…" : "Download PDF"}
         </button>
       : null}
@@ -189,7 +185,7 @@ export function ClientDietPlanView({
         className="mc-btn-primary w-full sm:w-auto"
         onClick={() => setEditing(true)}
       >
-        <Sparkles className="size-4" aria-hidden />
+        <i className="fas fa-magic" style={{ fontSize: 16 }} aria-hidden />
         {plan ? "Regenerate" : "Generate plan"}
       </button>
     </div>
@@ -228,9 +224,9 @@ export function ClientDietPlanView({
       {loading ?
         <ClientDietSkeleton />
       : !plan ?
-        <PracticeEmpty
-          title="No diet plan yet"
-          body="Generate one from the client assessment."
+        <ListEmpty
+          title="No diet plan yet. Generate one from the client assessment."
+          icon="fas fa-utensils"
         />
       : <div className="space-y-6">
           <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(14rem,0.7fr)]">

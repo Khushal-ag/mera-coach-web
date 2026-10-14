@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useId, useState } from "react";
 
-import { Camera } from "lucide-react";
-
 import { CoachPhoto } from "@/components/coach-photo";
 import { listDocuments, uploadDocument } from "@/lib/api/document";
 import {
@@ -117,7 +115,7 @@ export function ClientAvatar({
         }`}
         title="Upload client photo"
       >
-        <Camera className="size-3.5" aria-hidden />
+        <i className="fas fa-camera" style={{ fontSize: 14 }} aria-hidden />
         <span className="sr-only">Upload client photo</span>
       </label>
       <input

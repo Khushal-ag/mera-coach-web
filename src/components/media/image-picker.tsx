@@ -70,7 +70,7 @@ export function ImagePicker({
           <div className="mt-2 flex flex-wrap gap-2">
             <label
               htmlFor={inputId}
-              className={`inline-flex min-h-11 cursor-pointer items-center rounded-lg bg-mc-primary px-3 text-xs font-semibold text-white ${
+              className={`inline-flex min-h-11 cursor-pointer items-center rounded-full bg-mc-secondary px-4 text-xs font-semibold text-white ${
                 disabled ? "pointer-events-none opacity-60" : "hover:opacity-90"
               }`}
             >

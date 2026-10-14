@@ -7,8 +7,10 @@ import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
   title: "Feedback | Mera Coach",
-  description: "Share quick feedback for your coach on Mera Coach.",
+  description:
+    "Rate your coaching experience and share a short comment with your coach on Mera Coach.",
   path: "/feedback",
+  noindex: true,
   absolute: true,
 });
 

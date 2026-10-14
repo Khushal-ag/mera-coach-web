@@ -42,7 +42,7 @@ export function firstApiError(
   return response?.errorObj?.[0]?.errorMessage ?? null;
 }
 
-/** errorCode 1 = no records — empty success (same as mera-coach-app). */
+/** errorCode 1 = no records: empty success (same as mera-coach-app). */
 const API_ERROR_NO_RECORDS = 1;
 
 export function isNoRecordsResponse(

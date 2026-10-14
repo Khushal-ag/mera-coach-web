@@ -3,13 +3,22 @@
 import { useEffect, useState } from "react";
 
 import type { MasterOption } from "@/lib/api/master";
+import type { CoachRegisterResult } from "@/types/coach";
 
 import { MenuSelect } from "@/components/ui/menu-select";
+import { registerCoach, saveRegisteredCoachDetails } from "@/lib/api/coach";
+import { uploadDocument } from "@/lib/api/document";
 import {
   fetchLocationByPin,
   fetchMasterOptions,
   fetchServicesForCategory,
 } from "@/lib/api/master";
+import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
+import {
+  fileToBase64DataUrl,
+  validateRegisterImage,
+} from "@/lib/media/image-file";
+import { cn } from "@/lib/utils";
 
 const EXPERIENCE = [
   { value: "0", label: "Less than 1 year" },
@@ -51,9 +60,15 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
   const [agreed, setAgreed] = useState(false);
   const [logoPreview, setLogoPreview] = useState("");
   const [photoPreview, setPhotoPreview] = useState("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [account, setAccount] = useState<CoachRegisterResult | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [followUp, setFollowUp] = useState("");
   const [crop, setCrop] = useState<{
     target: "logo" | "photo";
     url: string;
+    file: File;
     title: string;
     hint: string;
   } | null>(null);
@@ -84,8 +99,9 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
         id: "rgMobile",
         value: mobile.trim(),
         msg: "Mobile Number is required.",
-        pattern: /^\d{10}$/,
-        patternMsg: "Enter a valid 10-digit mobile number.",
+        pattern: /^[6-9]\d{9}$/,
+        patternMsg:
+          "Please enter a valid 10-digit mobile number (starting with 6-9).",
       },
       {
         id: "rgEmail",
@@ -140,12 +156,58 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
     setStep(next);
   }
 
-  function continueFromStep1() {
-    if (!validateStep()) return;
-    showStep(2);
+  async function continueFromStep1() {
+    if (!validateStep() || busy) return;
+    if (account) {
+      showStep(2);
+      return;
+    }
+    setBusy(true);
+    try {
+      const response = await registerCoach({
+        coachName: name.trim(),
+        coachTypeCode: category.trim(),
+        mobile: mobile.trim(),
+        email: email.trim(),
+      });
+      if (!isApiSuccess(response) || !response.responseObj) {
+        setAlert(
+          firstApiError(response) ?? "Registration failed. Please try again.",
+        );
+        return;
+      }
+      setAccount(response.responseObj);
+      showStep(2);
+    } catch (err) {
+      setAlert(
+        err instanceof Error ? err.message : "Registration failed. Try again.",
+      );
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function completeRegistration() {
+  async function uploadPicked(
+    file: File | null,
+    docType: "LOGO" | "PROFILE_PIC",
+  ): Promise<string | undefined> {
+    if (!file || !account?.uploadToken) return undefined;
+    const uploaded = await uploadDocument(
+      {
+        base64DataUrl: await fileToBase64DataUrl(file),
+        coachCode: account.coachCode,
+        refCode: account.coachCode,
+        refType: "COACH",
+        docType,
+        savedBy: account.coachId,
+      },
+      account.uploadToken,
+    );
+    return uploaded.url;
+  }
+
+  async function completeRegistration() {
+    if (busy) return;
     if (!agreed) {
       setAlert(
         "Please agree to the Terms of Service and Privacy Policy to continue.",
@@ -154,18 +216,69 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
       window.setTimeout(() => setTermsShake(false), 600);
       return;
     }
+    if (!account?.uploadToken) {
+      setAlert("Please complete step 1 first.");
+      setStep(1);
+      return;
+    }
     setAlert("");
+    setBusy(true);
+    const problems: string[] = [];
+    try {
+      let logoUrl: string | undefined;
+      let photoUrl: string | undefined;
+      try {
+        logoUrl = await uploadPicked(logoFile, "LOGO");
+        photoUrl = await uploadPicked(photoFile, "PROFILE_PIC");
+      } catch {
+        problems.push("your photos");
+      }
+      const toNumber = (value: string) =>
+        value.trim() === "" ? undefined : Math.max(0, Number(value) || 0);
+      const serviceCodes = services
+        .filter((service) => selectedServices.includes(service.label))
+        .map((service) => service.code);
+      const saved = await saveRegisteredCoachDetails(
+        {
+          coachId: account.coachId,
+          businessName: businessName.trim() || undefined,
+          serviceCodes,
+          experienceYears: toNumber(experience),
+          happyClientCount: toNumber(clients),
+          locality: locality.trim() || undefined,
+          add_Line: address.trim() || undefined,
+          city_Cd: city.trim() || undefined,
+          state_Cd: stateName.trim() || undefined,
+          pinCode: pin.trim() || undefined,
+          country_Cd: country || undefined,
+          coachDesc: description.trim() || undefined,
+          logo_Url: logoUrl,
+          profile_Pic_Url: photoUrl,
+        },
+        account.uploadToken,
+      ).catch(() => null);
+      if (!saved || !isApiSuccess(saved)) problems.push("your profile details");
+    } finally {
+      setBusy(false);
+    }
+    setFollowUp(
+      problems.length ?
+        `We could not save ${problems.join(" and ")}. Sign in and finish them from your profile.`
+      : "",
+    );
     setStep(5);
   }
 
   function openCropper(file: File | undefined, target: "logo" | "photo") {
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) {
-      setAlert("File size must be under 10 MB.");
+    const invalid = validateRegisterImage(file);
+    if (invalid) {
+      setAlert(invalid.message);
       return;
     }
     setCrop({
       target,
+      file,
       url: URL.createObjectURL(file),
       title: target === "logo" ? "Crop Business Logo" : "Crop Profile Photo",
       hint:
@@ -188,8 +301,13 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
 
   function applyCrop() {
     if (!crop) return;
-    if (crop.target === "logo") setLogoPreview(crop.url);
-    else setPhotoPreview(crop.url);
+    if (crop.target === "logo") {
+      setLogoPreview(crop.url);
+      setLogoFile(crop.file);
+    } else {
+      setPhotoPreview(crop.url);
+      setPhotoFile(crop.file);
+    }
     setCrop(null);
   }
 
@@ -282,7 +400,10 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
           </div>
 
           <div className="rg-card-body">
-            <div className={`rg-alert${alert ? "" : "rg-hidden"}`} id="rgAlert">
+            <div
+              className={cn("rg-alert", alert ? "" : "rg-hidden")}
+              id="rgAlert"
+            >
               <i className="fas fa-exclamation-circle" />
               <span id="rgAlertMsg">
                 {alert || "Please fill all required fields."}
@@ -290,7 +411,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
             </div>
 
             <div
-              className={`rg-panel rg-intro${step === 0 ? "" : "rg-hidden"}`}
+              className={cn("rg-panel rg-intro", step === 0 ? "" : "rg-hidden")}
               id="rgPanelIntro"
             >
               <div className="rg-intro-head">
@@ -365,7 +486,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                       <strong>
                         Mobile Number{" "}
                         <span className="rg-ii-tag rg-ii-req">
-                          Step 1 — Required
+                          Step 1: Required
                         </span>
                       </strong>
                       <p>A valid 10-digit mobile number.</p>
@@ -379,7 +500,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                       <strong>
                         Email Address{" "}
                         <span className="rg-ii-tag rg-ii-req">
-                          Step 1 — Required
+                          Step 1: Required
                         </span>
                       </strong>
                       <p>Your login password will be sent here.</p>
@@ -393,7 +514,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                       <strong>
                         Business Name{" "}
                         <span className="rg-ii-tag rg-ii-opt">
-                          Step 2 — Optional
+                          Step 2: Optional
                         </span>
                       </strong>
                       <p>Your gym, studio or practice name.</p>
@@ -407,7 +528,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                       <strong>
                         Business Logo{" "}
                         <span className="rg-ii-tag rg-ii-opt">
-                          Step 4 — Optional
+                          Step 4: Optional
                         </span>
                       </strong>
                       <p>Your studio or brand logo.</p>
@@ -421,7 +542,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                   className="btn rg-btn-start"
                   onClick={() => showStep(1)}
                 >
-                  <i className="fas fa-rocket" /> Start Registration — Takes 3
+                  <i className="fas fa-rocket" /> Start Registration: Takes 3
                   Minutes
                   <i className="fas fa-arrow-right rg-btn-arr" />
                 </button>
@@ -433,7 +554,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
             </div>
 
             <div
-              className={`rg-panel${step === 1 ? "" : "rg-hidden"}`}
+              className={cn("rg-panel", step === 1 ? "" : "rg-hidden")}
               id="rgPanel1"
             >
               <div className="rg-section-head">
@@ -442,7 +563,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                 </div>
                 <div>
                   <h2>Create Your Account</h2>
-                  <p>Just 4 fields — your account is ready instantly</p>
+                  <p>Just 4 fields, your account is ready instantly</p>
                 </div>
                 <span className="rg-required-note">* Required</span>
               </div>
@@ -539,7 +660,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                   type="button"
                   className="btn rg-btn-register"
                   id="rgRegisterBtn"
-                  onClick={continueFromStep1}
+                  onClick={() => void continueFromStep1()}
                 >
                   <i className="fas fa-user-plus" /> Register Now & Continue{" "}
                   <i className="fas fa-arrow-right" />
@@ -548,7 +669,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
             </div>
 
             <div
-              className={`rg-panel${step === 2 ? "" : "rg-hidden"}`}
+              className={cn("rg-panel", step === 2 ? "" : "rg-hidden")}
               id="rgPanel2"
             >
               <div className="rg-section-head">
@@ -574,7 +695,10 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                     <i className="fas fa-tag" /> Service / Specialisation
                   </label>
                   <div
-                    className={`rg-multiselect${servicesOpen ? "rg-ms-open" : ""}`}
+                    className={cn(
+                      "rg-multiselect",
+                      servicesOpen ? "rg-ms-open" : "",
+                    )}
                     id="rgServiceWrap"
                   >
                     <div
@@ -587,7 +711,10 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                       <i className="fas fa-chevron-down" />
                     </div>
                     <div
-                      className={`rg-multiselect-panel${servicesOpen ? "" : "rg-hidden"}`}
+                      className={cn(
+                        "rg-multiselect-panel",
+                        servicesOpen ? "" : "rg-hidden",
+                      )}
                     >
                       {services.length === 0 ?
                         <p className="rg-field-note">
@@ -674,13 +801,13 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                   className="btn rg-btn-next"
                   onClick={() => showStep(3)}
                 >
-                  Next — Contact Details <i className="fas fa-arrow-right" />
+                  Next: Contact Details <i className="fas fa-arrow-right" />
                 </button>
               </div>
             </div>
 
             <div
-              className={`rg-panel${step === 3 ? "" : "rg-hidden"}`}
+              className={cn("rg-panel", step === 3 ? "" : "rg-hidden")}
               id="rgPanel3"
             >
               <div className="rg-section-head">
@@ -745,7 +872,10 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                       onChange={(event) => void lookupPin(event.target.value)}
                     />
                     <span
-                      className={`rg-pin-loader${pinLoading ? "" : "rg-hidden"}`}
+                      className={cn(
+                        "rg-pin-loader",
+                        pinLoading ? "" : "rg-hidden",
+                      )}
                     >
                       <i className="fas fa-spinner fa-spin" />
                     </span>
@@ -809,13 +939,13 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                   className="btn rg-btn-next"
                   onClick={() => showStep(4)}
                 >
-                  Next — Profile & Media <i className="fas fa-arrow-right" />
+                  Next: Profile & Media <i className="fas fa-arrow-right" />
                 </button>
               </div>
             </div>
 
             <div
-              className={`rg-panel${step === 4 ? "" : "rg-hidden"}`}
+              className={cn("rg-panel", step === 4 ? "" : "rg-hidden")}
               id="rgPanel4"
             >
               <div className="rg-section-head">
@@ -827,7 +957,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                   <p>Photos and a description make your profile stand out</p>
                 </div>
                 <span className="rg-optional-note">
-                  All optional — but recommended
+                  All optional, but recommended
                 </span>
               </div>
               <div className="rg-grid">
@@ -933,7 +1063,10 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                 </div>
                 <div className="rg-field rg-col-full">
                   <label
-                    className={`rg-check-label${termsShake ? "rg-shake" : ""}`}
+                    className={cn(
+                      "rg-check-label",
+                      termsShake ? "rg-shake" : "",
+                    )}
                     id="rgTermsLabel"
                   >
                     <input
@@ -959,7 +1092,9 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                 <button
                   type="button"
                   className="btn rg-btn-submit"
-                  onClick={completeRegistration}
+                  disabled={busy}
+                  aria-busy={busy}
+                  onClick={() => void completeRegistration()}
                 >
                   <i className="fas fa-paper-plane" /> Complete Registration
                 </button>
@@ -967,7 +1102,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
             </div>
 
             <div
-              className={`rg-panel${step === 5 ? "" : "rg-hidden"}`}
+              className={cn("rg-panel", step === 5 ? "" : "rg-hidden")}
               id="rgSuccess"
             >
               <div className="rg-success">
@@ -976,12 +1111,16 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
                 </div>
                 <h2>Registration Successful!</h2>
                 <p>
-                  Welcome to Mera Coach. Your profile is under review and will
-                  go live within <strong>24 hours</strong>.
+                  Welcome to Mera Coach. We have emailed your login password to{" "}
+                  <strong>{email}</strong>. Your public profile goes live once
+                  our team has reviewed it.
                 </p>
+                {followUp ?
+                  <p className="rg-field-note">{followUp}</p>
+                : null}
                 <div className="rg-success-btns">
-                  <a href="/coach" className="btn rg-btn-next">
-                    <i className="fas fa-eye" /> Preview Your Profile
+                  <a href="/coach-login" className="btn rg-btn-next">
+                    <i className="fas fa-sign-in-alt" /> Sign In
                   </a>
                   <a href="/" className="btn rg-btn-back">
                     <i className="fas fa-home" /> Go to Home

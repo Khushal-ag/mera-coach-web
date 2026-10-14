@@ -187,13 +187,3 @@ export function ClientDietSkeleton() {
     </div>
   );
 }
-
-/** BMI report: forest score plus the metrics grid. */
-export function ClientBmiSkeleton() {
-  return (
-    <div aria-busy="true" aria-label="Loading BMI report">
-      <span className="sr-only">Loading BMI report</span>
-      <BmiPanel fields={6} />
-    </div>
-  );
-}

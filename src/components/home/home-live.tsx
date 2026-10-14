@@ -11,8 +11,8 @@ import {
   coachHref,
   coachTypeStyle,
   serviceTags,
-  STORY_TEMPLATES,
 } from "@/components/home/present";
+import { ListEmpty } from "@/components/list-empty";
 import { fetchPublicCoaches, isApiSuccess } from "@/lib/api";
 import { fetchCoachCategories } from "@/lib/api/master";
 import { resolveMediaUrl } from "@/lib/media/media-url";
@@ -159,7 +159,7 @@ export async function HomeCategories() {
           <h2 className="section-title">Coaching for Every Goal</h2>
           <p className="section-subtitle">
             Whether you want to lose weight, build strength, find inner peace or
-            improve your overall lifestyle — we have the right expert for you.
+            improve your overall lifestyle, we have the right expert for you.
           </p>
         </div>
         <div className="category-grid">
@@ -175,7 +175,7 @@ export async function HomeCategories() {
                   <div className={`cat-icon ${style.iconBg}`.trim()}>
                     <i className={category.iconClass || "fas fa-user-tie"} />
                   </div>
-                  <h4>{category.label}</h4>
+                  <h4 aria-level={3}>{category.label}</h4>
                   <p>
                     {category.description ||
                       "Expert coaching tailored to your goals"}
@@ -222,9 +222,9 @@ export async function HomeFeaturedCoaches() {
           </p>
         </div>
         {coaches.length === 0 ?
-          <p style={{ padding: 32, color: "#8b6553" }}>No coaches found.</p>
+          <ListEmpty title="No coaches found." icon="fas fa-user-tie" />
         : <HomeCarousel
-            total={6}
+            total={coaches.length}
             interval={3500}
             label="coaches"
             trackClass="coaches-grid"
@@ -240,7 +240,7 @@ export async function HomeFeaturedCoaches() {
         }
         <div style={{ textAlign: "center", marginTop: 32 }}>
           <Link href="/coach" className="btn btn-outline">
-            <i className="fas fa-th-large" /> Browse All 500+ Coaches
+            <i className="fas fa-th-large" /> Browse All Coaches
           </Link>
         </div>
       </div>
@@ -249,8 +249,6 @@ export async function HomeFeaturedCoaches() {
 }
 
 export async function HomeStories() {
-  const stories = (await loadCoaches(2)).slice(0, 6);
-
   return (
     <section className="testimonials" id="stories">
       <div className="container">
@@ -260,80 +258,11 @@ export async function HomeStories() {
           </div>
           <h2 className="section-title">What Our Coaches Say</h2>
           <p className="section-subtitle">
-            Real coaches, real growth — hear how Mera Coach transformed their
+            Real coaches, real growth. Hear how Mera Coach transformed their
             practice and helped them reach more clients.
           </p>
         </div>
-        <HomeCarousel
-          total={6}
-          interval={4000}
-          label="stories"
-          trackClass="testimonials-grid"
-        >
-          {stories.length === 0 ?
-            <p style={{ padding: 32, color: "#8b6553" }}>
-              No stories available yet.
-            </p>
-          : stories.map((coach, index) => {
-              const story = STORY_TEMPLATES[index];
-              if (!story) return null;
-              const avatar = resolveMediaUrl(coach.profile_Pic_Url);
-              const label =
-                coach.city_Cd ?
-                  `${coach.coachTypeName}, ${coach.city_Cd}`
-                : coach.coachTypeName;
-              return (
-                <div
-                  className="testimonial-card"
-                  key={coach.coachId || coach.coachCode}
-                >
-                  <div className="testimonial-stars">
-                    <Stars rating={coach.rating} />
-                  </div>
-                  <div className="transform-badge">
-                    <i className={story.icon} /> {story.badge}
-                  </div>
-                  <div className="testimonial-quote">&ldquo;</div>
-                  <p className="testimonial-text">{story.quote}</p>
-                  <div className="testimonial-author">
-                    {avatar ?
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        className="testimonial-avatar"
-                        src={avatar}
-                        alt={coach.coachName}
-                      />
-                    : <div
-                        className="testimonial-avatar"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          background: "#e2e8f0",
-                          fontSize: 22,
-                          color: "#94a3b8",
-                        }}
-                      >
-                        <i className="fas fa-user-circle" />
-                      </div>
-                    }
-                    <div className="testimonial-info">
-                      <strong>{coach.coachName}</strong>
-                      <span>{label}</span>
-                    </div>
-                    <Link
-                      href={coachHref(coach)}
-                      className="testi-profile-link"
-                      title="View Profile"
-                    >
-                      <i className="fas fa-external-link-alt" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })
-          }
-        </HomeCarousel>
+        <ListEmpty title="No stories available yet." icon="fas fa-quote-left" />
       </div>
     </section>
   );

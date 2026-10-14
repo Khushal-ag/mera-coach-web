@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/components/auth-provider";
-import { siteConfig } from "@/config/site";
+import { resolveMediaUrl } from "@/lib/media/media-url";
 
 const navItems = [
   {
@@ -14,11 +13,6 @@ const navItems = [
     label: "Dashboard",
     icon: "fas fa-th-large",
     exact: true,
-  },
-  {
-    href: "/dashboard/clients/new",
-    label: "New Client",
-    icon: "fas fa-user-plus",
   },
   { href: "/dashboard/clients", label: "Clients", icon: "fas fa-users" },
   { href: "/dashboard/checkups", label: "Re-checkup", icon: "fas fa-redo-alt" },
@@ -29,7 +23,15 @@ const navItems = [
 
 function navActive(pathname: string, href: string, exact?: boolean) {
   if (exact) return pathname === href;
-  return pathname === href || pathname.startsWith(`${href}/`);
+  if (pathname === href) return true;
+  if (!pathname.startsWith(`${href}/`)) return false;
+  const coveredByLongerItem = navItems.some(
+    (item) =>
+      item.href !== href &&
+      item.href.startsWith(`${href}/`) &&
+      (pathname === item.href || pathname.startsWith(`${item.href}/`)),
+  );
+  return !coveredByLongerItem;
 }
 
 function initials(name: string) {
@@ -90,6 +92,8 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
 
   const mark = initials(session.fullName);
   const name = session.fullName || "Coach";
+  const photo = resolveMediaUrl(session.profileUrl);
+  const validity = session.validUpto || (session.premiumPaid ? "Active" : "");
 
   const nav = (
     <nav className="cl-nav" aria-label="Coaching">
@@ -119,6 +123,9 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="mc-dash">
       <div className="cl-body">
+        <a href="#main-content" className="mc-skip">
+          Skip to main content
+        </a>
         <div
           className={open ? "cl-overlay cl-ov-show" : "cl-overlay"}
           onClick={() => setOpen(false)}
@@ -129,14 +136,14 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
         >
           <div className="cl-brand">
             <div className="cl-brand-logo">
-              <Image
-                className="mc-brand-mark"
-                src={siteConfig.brand.logoMark}
-                alt=""
-                width={48}
-                height={48}
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-              />
+              {photo ?
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={photo}
+                  alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              : <span className="cl-brand-initials">{mark}</span>}
             </div>
             <div className="cl-brand-info">
               <span className="cl-brand-name">{name}</span>
@@ -146,13 +153,19 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
           <div className="cl-sidebar-divider" />
           {nav}
           <div className="cl-sidebar-footer">
-            <div className="cl-validity-strip">
-              <i className="fas fa-shield-alt" />
-              <div>
-                <span>Subscription valid till</span>
-                <strong>{session.premiumPaid ? "Active" : "—"}</strong>
+            {validity ?
+              <div className="cl-validity-strip">
+                <i className="fas fa-shield-alt" />
+                <div>
+                  <span>
+                    {session.validUpto ?
+                      "Subscription valid till"
+                    : "Subscription"}
+                  </span>
+                  <strong>{validity}</strong>
+                </div>
               </div>
-            </div>
+            : null}
             <button
               type="button"
               className="cl-nav-link cl-logout"
@@ -182,13 +195,15 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
               <strong>{name}</strong>
             </div>
             <div className="cl-header-right">
-              <div className="cl-validity-badge">
-                <i className="fas fa-calendar-check" />
-                <span>
-                  Validity:{" "}
-                  <strong>{session.premiumPaid ? "Active" : "—"}</strong>
-                </span>
-              </div>
+              {validity ?
+                <div className="cl-validity-badge">
+                  <i className="fas fa-calendar-check" />
+                  <span>
+                    {session.validUpto ? "Validity" : "Plan"}:{" "}
+                    <strong>{validity}</strong>
+                  </span>
+                </div>
+              : null}
               <div className="cl-profile-wrap" ref={accountMenuRef}>
                 <button
                   type="button"
@@ -197,7 +212,10 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                   onClick={() => setMenuOpen((value) => !value)}
                 >
                   <div className="cl-profile-avatar">
-                    <span>{mark}</span>
+                    {photo ?
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={photo} alt="" />
+                    : <span>{mark}</span>}
                   </div>
                   <i className="fas fa-chevron-down cl-profile-chevron" />
                 </button>
@@ -208,7 +226,10 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                 >
                   <div className="cl-pm-top">
                     <div className="cl-pm-avatar">
-                      <span>{mark}</span>
+                      {photo ?
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={photo} alt="" />
+                      : <span>{mark}</span>}
                     </div>
                     <div className="cl-pm-info">
                       <strong>{name}</strong>
@@ -242,7 +263,9 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           </header>
-          <main className="cl-content">{children}</main>
+          <main id="main-content" className="cl-content">
+            {children}
+          </main>
         </div>
       </div>
     </div>

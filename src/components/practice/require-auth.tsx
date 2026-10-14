@@ -8,7 +8,7 @@ import { DashboardShellSkeleton } from "@/components/skeletons/dashboard-skeleto
 import { useMounted } from "@/hooks/use-mounted";
 
 /**
- * Client session lives in sessionStorage — the server never sees it.
+ * Client session lives in sessionStorage: the server never sees it.
  * SSR and the first client paint share this shell skeleton. After mount, a
  * stored session reveals the dashboard; otherwise we leave for login.
  * Dashboard routes export `instant = false` because this layout omits

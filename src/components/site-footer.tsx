@@ -1,15 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import type { ReactNode } from "react";
-
+import { env } from "@/config/env";
 import { siteConfig } from "@/config/site";
 
-function HashLink({ children }: { children: ReactNode }) {
-  return <a href="#">{children}</a>;
-}
+const SOCIALS = [
+  { key: "facebook", label: "Facebook", icon: "fab fa-facebook-f" },
+  { key: "instagram", label: "Instagram", icon: "fab fa-instagram" },
+  { key: "x", label: "X", icon: "fab fa-x-twitter" },
+  { key: "youtube", label: "YouTube", icon: "fab fa-youtube" },
+  { key: "linkedin", label: "LinkedIn", icon: "fab fa-linkedin-in" },
+] as const;
 
 export function SiteFooter() {
+  const socialLinks = SOCIALS.filter((item) => env.social[item.key]);
   return (
     <div className="mc-public">
       <footer className="footer">
@@ -40,49 +44,41 @@ export function SiteFooter() {
                 you with verified Health, Fitness, Yoga, Nutrition and Lifestyle
                 coaches for every goal.
               </p>
-              <div className="footer-social">
-                <HashLink>
-                  <i className="fab fa-facebook-f" />
-                </HashLink>
-                <HashLink>
-                  <i className="fab fa-instagram" />
-                </HashLink>
-                <HashLink>
-                  <i className="fab fa-twitter" />
-                </HashLink>
-                <HashLink>
-                  <i className="fab fa-youtube" />
-                </HashLink>
-                <HashLink>
-                  <i className="fab fa-linkedin-in" />
-                </HashLink>
-              </div>
+              {socialLinks.length > 0 ?
+                <div className="footer-social">
+                  {socialLinks.map((item) => (
+                    <a
+                      key={item.key}
+                      href={env.social[item.key]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Mera Coach on ${item.label}`}
+                    >
+                      <i className={item.icon} />
+                    </a>
+                  ))}
+                </div>
+              : null}
             </div>
             <div className="footer-col">
-              <h4>Platform</h4>
+              <h4 aria-level={3}>Platform</h4>
               <ul>
                 <li>
                   <Link href="/coach">Find a Coach</Link>
                 </li>
                 <li>
-                  <HashLink>Browse Categories</HashLink>
-                </li>
-                <li>
-                  <HashLink>Wellness Programs</HashLink>
-                </li>
-                <li>
-                  <HashLink>Success Stories</HashLink>
+                  <Link href="/services">Features</Link>
                 </li>
                 <li>
                   <Link href="/bmi">BMI Calculator</Link>
                 </li>
                 <li>
-                  <HashLink>Blog &amp; Tips</HashLink>
+                  <Link href="/#stories">Coach Stories</Link>
                 </li>
               </ul>
             </div>
             <div className="footer-col">
-              <h4>For Coaches</h4>
+              <h4 aria-level={3}>For Coaches</h4>
               <ul>
                 <li>
                   <Link href="/register">Become a Coach</Link>
@@ -96,39 +92,27 @@ export function SiteFooter() {
                 <li>
                   <Link href="/premium">Subscription Plans</Link>
                 </li>
-                <li>
-                  <HashLink>Coach Resources</HashLink>
-                </li>
-                <li>
-                  <HashLink>Success Tips</HashLink>
-                </li>
               </ul>
             </div>
             <div className="footer-col">
-              <h4>Company</h4>
+              <h4 aria-level={3}>Company</h4>
               <ul>
                 <li>
-                  <HashLink>About Us</HashLink>
-                </li>
-                <li>
-                  <HashLink>Our Mission</HashLink>
-                </li>
-                <li>
-                  <HashLink>Careers</HashLink>
-                </li>
-                <li>
-                  <HashLink>Press</HashLink>
-                </li>
-                <li>
-                  <HashLink>Partner With Us</HashLink>
+                  <Link href="/#about">About Us</Link>
                 </li>
                 <li>
                   <Link href="/contact">Contact Us</Link>
                 </li>
+                <li>
+                  <Link href="/terms">Terms of Service</Link>
+                </li>
+                <li>
+                  <Link href="/privacy">Privacy Policy</Link>
+                </li>
               </ul>
             </div>
             <div className="footer-col">
-              <h4>Contact Us</h4>
+              <h4 aria-level={3}>Contact Us</h4>
               <div className="footer-contact">
                 <div className="footer-contact-item">
                   <i className="fas fa-envelope" />
@@ -166,8 +150,7 @@ export function SiteFooter() {
             <div className="footer-bottom-links">
               <Link href="/privacy">Privacy Policy</Link>
               <Link href="/terms">Terms of Service</Link>
-              <HashLink>Cookie Policy</HashLink>
-              <HashLink>Sitemap</HashLink>
+              <a href="/sitemap.xml">Sitemap</a>
             </div>
           </div>
         </div>

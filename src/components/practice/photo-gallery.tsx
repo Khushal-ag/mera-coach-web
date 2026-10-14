@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { ImagePlus, Trash2 } from "lucide-react";
-
 import type { DocumentListItem } from "@/types/document";
 
+import { ListEmpty } from "@/components/list-empty";
 import { MediaPreview } from "@/components/media/media-preview";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import {
@@ -131,7 +130,7 @@ export function PhotoGallery({
           {title}
         </h2>
         <label className="mc-btn-secondary min-h-11 w-full cursor-pointer px-3 text-sm sm:w-auto">
-          <ImagePlus className="size-4" aria-hidden />
+          <i className="fas fa-image" style={{ fontSize: 16 }} aria-hidden />
           {busy ? "Working…" : "Upload"}
           <input
             type="file"
@@ -161,9 +160,7 @@ export function PhotoGallery({
             ))}
           </div>
         : items.length === 0 ?
-          <p className="max-w-[36ch] text-sm leading-relaxed text-ink-muted">
-            {emptyHint}
-          </p>
+          <ListEmpty title={emptyHint} icon="fas fa-images" />
         : <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {items.map((item) => {
               const src = resolveMediaUrl(item.filePath);
@@ -185,7 +182,11 @@ export function PhotoGallery({
                     disabled={busy}
                     onClick={() => void onDelete(item.docId)}
                   >
-                    <Trash2 className="size-3.5" aria-hidden />
+                    <i
+                      className="fas fa-trash-alt"
+                      style={{ fontSize: 14 }}
+                      aria-hidden
+                    />
                   </button>
                   {item.fcdt ?
                     <p className="truncate px-2 py-1.5 text-[11px] text-ink-muted">

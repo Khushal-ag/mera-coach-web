@@ -10,8 +10,10 @@ import {
   CltPageHead,
   CltPager,
   CltSearchCard,
+  CltSortTh,
   CltTableTools,
   usePagedRows,
+  useSortedRows,
 } from "@/components/practice/clt-list";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import { fetchClientList } from "@/lib/api/practice";
@@ -50,7 +52,7 @@ function avatarColor(name: string) {
 }
 
 function weightLabel(weight?: string) {
-  if (!weight) return "—";
+  if (!weight) return "-";
   const n = Number(weight);
   return Number.isFinite(n) ? n.toFixed(1) : weight;
 }
@@ -113,7 +115,16 @@ export function ClientsListView() {
     );
   }, [rows, query]);
 
-  const paged = usePagedRows(filtered, perPage);
+  const { sorted, sort, toggle } = useSortedRows(filtered, {
+    sno: (c: ClientSummary) => filtered.indexOf(c),
+    name: (c: ClientSummary) => c.name,
+    mobile: (c: ClientSummary) => c.mobileNo,
+    age: (c: ClientSummary) => c.age,
+    height: (c: ClientSummary) => c.height,
+    weight: (c: ClientSummary) => c.weight,
+    last: (c: ClientSummary) => c.lastCheckupDate,
+  });
+  const paged = usePagedRows(sorted, perPage);
   const badge =
     rows == null ? "Loading…" : (
       `${paged.total} Client${paged.total === 1 ? "" : "s"}`
@@ -184,13 +195,48 @@ export function ClientsListView() {
             <table className="clt-table">
               <thead>
                 <tr>
-                  <th>S. No.</th>
-                  <th>Client Name</th>
-                  <th>Mobile No.</th>
-                  <th>Age</th>
-                  <th>Height</th>
-                  <th>Weight</th>
-                  <th>Last Check-up</th>
+                  <CltSortTh
+                    label="S. No."
+                    sortKey="sno"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Client Name"
+                    sortKey="name"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Mobile No."
+                    sortKey="mobile"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Age"
+                    sortKey="age"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Height"
+                    sortKey="height"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Weight"
+                    sortKey="weight"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Last Check-up"
+                    sortKey="last"
+                    sort={sort}
+                    onSort={toggle}
+                  />
                   <th>Check-up</th>
                   <th>Report</th>
                   <th>Diet Chart</th>
@@ -222,7 +268,11 @@ export function ClientsListView() {
                           {paged.start + index + 1}
                         </td>
                         <td>
-                          <div className="clt-client-name">
+                          <Link
+                            href={`/dashboard/clients/${encodeURIComponent(code)}`}
+                            className="clt-client-name"
+                            style={{ textDecoration: "none", color: "inherit" }}
+                          >
                             <div
                               className="clt-name-avatar"
                               style={{
@@ -231,8 +281,8 @@ export function ClientsListView() {
                             >
                               {initials(client.name || code)}
                             </div>
-                            {client.name || "—"}
-                          </div>
+                            {client.name || "-"}
+                          </Link>
                         </td>
                         <td>
                           {client.mobileNo ?
@@ -242,10 +292,10 @@ export function ClientsListView() {
                             >
                               {client.mobileNo}
                             </a>
-                          : "—"}
+                          : "-"}
                         </td>
-                        <td className="clt-td-num">{client.age ?? "—"}</td>
-                        <td className="clt-td-num">{client.height || "—"}</td>
+                        <td className="clt-td-num">{client.age ?? "-"}</td>
+                        <td className="clt-td-num">{client.height || "-"}</td>
                         <td className="clt-td-num">
                           {weightLabel(client.weight)}
                         </td>

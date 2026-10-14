@@ -8,8 +8,10 @@ import { useAuth } from "@/components/auth-provider";
 import {
   CltPageHead,
   CltPager,
+  CltSortTh,
   CltTableTools,
   usePagedRows,
+  useSortedRows,
 } from "@/components/practice/clt-list";
 import { fetchEnquiryLeads, updateEnquiryLead } from "@/lib/api/practice";
 
@@ -64,7 +66,11 @@ export function LeadsListView() {
     );
   }, [leads, query]);
 
-  const paged = usePagedRows(filtered, perPage);
+  const { sorted, sort, toggle } = useSortedRows(filtered, {
+    date: (l: EnquiryLead) => l.dateLabel,
+    name: (l: EnquiryLead) => l.clientName,
+  });
+  const paged = usePagedRows(sorted, perPage);
   const badge =
     leads == null ? "Loading…" : (
       `${paged.total} Lead${paged.total === 1 ? "" : "s"}`
@@ -136,8 +142,18 @@ export function LeadsListView() {
             <table className="clt-table">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Name</th>
+                  <CltSortTh
+                    label="Date"
+                    sortKey="date"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Name"
+                    sortKey="name"
+                    sort={sort}
+                    onSort={toggle}
+                  />
                   <th>Mobile</th>
                   <th>Email</th>
                   <th>Looking For</th>
@@ -159,8 +175,8 @@ export function LeadsListView() {
                   </tr>
                 : paged.slice.map((lead) => (
                     <tr key={lead.id}>
-                      <td>{lead.dateLabel || "—"}</td>
-                      <td>{lead.clientName || "—"}</td>
+                      <td>{lead.dateLabel || "-"}</td>
+                      <td>{lead.clientName || "-"}</td>
                       <td>
                         {lead.clientMobile ?
                           <a
@@ -169,16 +185,16 @@ export function LeadsListView() {
                           >
                             {lead.clientMobile}
                           </a>
-                        : "—"}
+                        : "-"}
                       </td>
                       <td>
                         {lead.clientEmail ?
                           <a href={`mailto:${lead.clientEmail}`}>
                             {lead.clientEmail}
                           </a>
-                        : "—"}
+                        : "-"}
                       </td>
-                      <td>{lead.lookingFor || "—"}</td>
+                      <td>{lead.lookingFor || "-"}</td>
                       <td>
                         <label
                           style={{

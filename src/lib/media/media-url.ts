@@ -1,6 +1,6 @@
 /**
  * Document APIs return relative paths like `/document/CH001/….jpg`.
- * Clients must join them to the API origin (`NEXT_PUBLIC_API_BASE_URL`) —
+ * Clients must join them to the API origin (`NEXT_PUBLIC_API_BASE_URL`),
  * same contract as mera-coach-app `src/utils/mediaUrl.ts`.
  *
  * Absolute http(s) / data URLs pass through. Empty / whitespace → "".
@@ -8,7 +8,7 @@
  * after resolve (`resolveMediaUrl(x) || fallback`), never fed back into resolve.
  *
  * Missing coach/client photos are an empty string. `CoachPhoto` draws initials
- * or a person outline — do not point this at a portrait file.
+ * or a person outline: do not point this at a portrait file.
  */
 
 import { env } from "@/config/env";

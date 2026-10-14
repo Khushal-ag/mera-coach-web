@@ -47,6 +47,7 @@ export function HomeSearch({ categories }: { categories: MasterOption[] }) {
           <input
             type="text"
             id="heroSearch"
+            aria-label="Search coaches by name, specialty, city or goal"
             placeholder="Search by name, specialty, city or goal..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}

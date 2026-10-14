@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { siteConfig } from "@/config/site";
 
 type AppHandoffCtaProps = {
-  /** `meracoach://…` URL — must match the native app scheme. */
+  /** `meracoach://…` URL: must match the native app scheme. */
   href: string;
   /** Soft auto-open delay; `0` disables auto-redirect. */
   autoRedirectMs?: number;

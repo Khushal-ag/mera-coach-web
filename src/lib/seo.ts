@@ -11,12 +11,15 @@ export function publicPageMetadata({
   description,
   path,
   absolute = false,
+  noindex = false,
 }: {
   title: string;
   description: string;
   path: string;
   /** Skip the `%s | Mera Coach` title template (home). */
   absolute?: boolean;
+  /** Utility pages (login, checkout, feedback) stay out of search results. */
+  noindex?: boolean;
 }): Metadata {
   const shareTitle = absolute ? title : `${title} | ${siteConfig.name}`;
 
@@ -24,6 +27,7 @@ export function publicPageMetadata({
     title: absolute ? { absolute: title } : title,
     description,
     alternates: { canonical: path },
+    ...(noindex ? { robots: { index: false, follow: false } } : {}),
     openGraph: {
       title: shareTitle,
       description,

@@ -2,16 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-import { CalendarDays } from "lucide-react";
-
 import type { CoachEvent, CoachProfile } from "@/types/coach";
 
 import { useAuth } from "@/components/auth-provider";
+import { ListEmpty } from "@/components/list-empty";
 import { CoverImageField } from "@/components/media/cover-image-field";
-import {
-  PracticeEmpty,
-  PracticePageHeader,
-} from "@/components/practice/page-header";
+import { PracticePageHeader } from "@/components/practice/page-header";
 import { EventCardsSkeleton } from "@/components/skeletons/packages-events-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextField } from "@/components/ui/field";
@@ -131,7 +127,13 @@ export function EventsListView() {
       <PracticePageHeader
         title="Events"
         description={`Up to ${MAX_COACH_EVENTS} events for your public showcase.`}
-        icon={<CalendarDays className="size-5" aria-hidden />}
+        icon={
+          <i
+            className="fas fa-calendar-alt"
+            style={{ fontSize: 20 }}
+            aria-hidden
+          />
+        }
         action={
           (canAdd && events.length > 0) || dirty ?
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end">
@@ -174,14 +176,13 @@ export function EventsListView() {
       {loading ?
         <EventCardsSkeleton />
       : !events.length ?
-        <PracticeEmpty
-          icon={<CalendarDays className="size-5" aria-hidden />}
+        <ListEmpty
+          icon="fas fa-calendar-alt"
           title="No events yet"
-          body="Add workshops or community sessions for your public page."
           action={
             <button
               type="button"
-              className="mc-btn-primary w-full sm:w-auto"
+              className="clt-btn clt-btn-primary"
               onClick={addEvent}
             >
               Add event
@@ -192,14 +193,15 @@ export function EventsListView() {
 
       <div className="grid gap-4">
         {events.map((evt) => (
-          <div key={evt.id} className="mc-panel min-w-0 p-4 sm:p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="font-display text-lg font-bold tracking-tight text-ink">
+          <div key={evt.id} className="clt-card min-w-0">
+            <div className="clt-card-header">
+              <h2>
+                <i className="fas fa-calendar-alt" />{" "}
                 {evt.title.trim() || "New event"}
-              </p>
+              </h2>
               <button
                 type="button"
-                className="inline-flex min-h-11 items-center px-1 text-sm font-semibold text-[color:var(--mc-destructive)]"
+                className="clt-total-badge"
                 onClick={() =>
                   edit((prev) => prev.filter((e) => e.id !== evt.id))
                 }
@@ -207,7 +209,7 @@ export function EventsListView() {
                 Remove
               </button>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="clt-card-body grid gap-3 sm:grid-cols-2">
               {session?.coachCode ?
                 <CoverImageField
                   imageUrl={evt.imageUrl}

@@ -39,10 +39,16 @@ function MarketingChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col bg-paper text-ink">
+      <a href="#main-content" className="mc-skip">
+        Skip to main content
+      </a>
       <Suspense fallback={<HeaderFallback />}>
         <SiteHeader />
       </Suspense>
-      <main className={flushNav ? "flex-1" : "flex-1 pt-[90px]"}>
+      <main
+        id="main-content"
+        className={flushNav ? "min-h-svh flex-1" : "min-h-svh flex-1 pt-[90px]"}
+      >
         {children}
       </main>
       <SiteFooter />

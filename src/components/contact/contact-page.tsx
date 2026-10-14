@@ -1,17 +1,24 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import {
+  isValidElement,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 import type { ReactNode } from "react";
 
 import { MenuSelect } from "@/components/ui/menu-select";
 import { submitCoachEnquiry } from "@/lib/api/coach";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
+import { cn } from "@/lib/utils";
+import { isValidMobile } from "@/lib/validation";
 
 type Tab = "refer" | "corporate" | "hello";
 
 const SHARE_TEXT =
-  "Join me on Mera Coach — India's wellness coaching platform. Register free: ";
+  "Join me on Mera Coach, India's wellness coaching platform. Register free: ";
 
 function subscribeOrigin(onChange: () => void) {
   window.addEventListener("popstate", onChange);
@@ -99,10 +106,10 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
       showMessage(type, "Please enter the name.", "error");
       return;
     }
-    if (!/^\d{10}$/.test(mobile)) {
+    if (!isValidMobile(mobile)) {
       showMessage(
         type,
-        "Please enter a valid 10-digit mobile number.",
+        "Please enter a valid 10-digit mobile number (starting with 6-9).",
         "error",
       );
       return;
@@ -193,8 +200,8 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
           </h1>
           <p className="contact-hero-sub">
             Whether you&apos;re a coach ready to grow, a client seeking
-            guidance, or a brand looking to partner — we&apos;d love to hear
-            from you.
+            guidance, or a brand looking to partner, we&apos;d love to hear from
+            you.
           </p>
         </div>
       </section>
@@ -210,7 +217,7 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
                 <h2 className="qr-title">Scan to Join as a Coach</h2>
                 <p className="qr-sub">
                   Point your phone camera at the code below to go straight to
-                  coach registration — no typing needed.
+                  coach registration, no typing needed.
                 </p>
                 <div className="qr-code-wrap">
                   <div className="qr-glow" />
@@ -279,21 +286,30 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
                 <div className="contact-tabs">
                   <button
                     type="button"
-                    className={`contact-tab${tab === "refer" ? "active" : ""}`}
+                    className={cn(
+                      "contact-tab",
+                      tab === "refer" ? "active" : "",
+                    )}
                     onClick={() => setTab("refer")}
                   >
                     <i className="fas fa-user-plus" /> Refer a Coach
                   </button>
                   <button
                     type="button"
-                    className={`contact-tab${tab === "corporate" ? "active" : ""}`}
+                    className={cn(
+                      "contact-tab",
+                      tab === "corporate" ? "active" : "",
+                    )}
                     onClick={() => setTab("corporate")}
                   >
                     <i className="fas fa-building" /> Corporate Wellness
                   </button>
                   <button
                     type="button"
-                    className={`contact-tab${tab === "hello" ? "active" : ""}`}
+                    className={cn(
+                      "contact-tab",
+                      tab === "hello" ? "active" : "",
+                    )}
                     onClick={() => setTab("hello")}
                   >
                     <i className="fas fa-comment-dots" /> Say Hello
@@ -302,7 +318,10 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
 
                 <div
                   id="tab-refer"
-                  className={`contact-tab-content${tab === "refer" ? "active" : ""}`}
+                  className={cn(
+                    "contact-tab-content",
+                    tab === "refer" ? "active" : "",
+                  )}
                 >
                   <div className="tab-intro">
                     <div
@@ -320,15 +339,15 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
                       </div>
                       <div className="tab-intro-sub">
                         Share their details and we&apos;ll reach out to get them
-                        onboard — free of charge.
+                        onboard, free of charge.
                       </div>
                     </div>
                   </div>
                   <div className="cf-highlight-box">
                     <i className="fas fa-gift" />
                     Gym trainers, yoga instructors, nutritionists, wellness
-                    coaches — anyone who helps people live better belongs on
-                    Mera Coach.
+                    coaches, anyone who helps people live better belongs on Mera
+                    Coach.
                   </div>
                   <div className="cf-grid-2">
                     <Field label="Coach's Name" required>
@@ -411,14 +430,16 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
                   />
                   <p className="cf-note">
                     <i className="fas fa-lock" /> The referred coach&apos;s
-                    details are used only to onboard them — never sold or
-                    shared.
+                    details are used only to onboard them, never sold or shared.
                   </p>
                 </div>
 
                 <div
                   id="tab-corporate"
-                  className={`contact-tab-content${tab === "corporate" ? "active" : ""}`}
+                  className={cn(
+                    "contact-tab-content",
+                    tab === "corporate" ? "active" : "",
+                  )}
                 >
                   <div className="tab-intro">
                     <div
@@ -435,9 +456,8 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
                         Wellness for your team
                       </div>
                       <div className="tab-intro-sub">
-                        Invest in your employees&apos; health — we&apos;ll
-                        design a custom wellness programme for your
-                        organisation.
+                        Invest in your employees&apos; health, we&apos;ll design
+                        a custom wellness programme for your organisation.
                       </div>
                     </div>
                   </div>
@@ -615,7 +635,10 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
 
                 <div
                   id="tab-hello"
-                  className={`contact-tab-content${tab === "hello" ? "active" : ""}`}
+                  className={cn(
+                    "contact-tab-content",
+                    tab === "hello" ? "active" : "",
+                  )}
                 >
                   <div className="tab-intro">
                     <div
@@ -632,7 +655,7 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
                         Just want to say hi?
                       </div>
                       <div className="tab-intro-sub">
-                        Questions, feedback, media enquiries or anything else —
+                        Questions, feedback, media enquiries or anything else,
                         we&apos;re all ears.
                       </div>
                     </div>
@@ -777,7 +800,7 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
               </div>
               <div>
                 <div className="cii-label">Based In</div>
-                <div className="cii-value">India — serving globally</div>
+                <div className="cii-value">India, serving globally</div>
               </div>
             </div>
           </div>
@@ -800,9 +823,11 @@ function Field({
   required?: boolean;
   children: ReactNode;
 }) {
+  const childId =
+    isValidElement<{ id?: string }>(children) ? children.props.id : undefined;
   return (
     <div className="cf-group">
-      <label>
+      <label htmlFor={childId}>
         {label}{" "}
         {required ?
           <span className="cf-req">*</span>

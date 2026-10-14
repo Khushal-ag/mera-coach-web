@@ -5,6 +5,7 @@ import type {
   CoachProfile,
   CoachPublicListItem,
   CoachPublicPagedResult,
+  CoachRegisterDetailsInput,
   CoachRegisterInput,
   CoachRegisterResult,
 } from "@/types/coach";
@@ -123,7 +124,7 @@ export async function fetchPublicCoaches(params?: {
   state?: string;
   coachTypeCode?: string;
   minRating?: number;
-  /** Server sort: rating (default) | reviews | experience — same as app. */
+  /** Server sort: rating (default) | reviews | experience: same as app. */
   sortBy?: "rating" | "reviews" | "experience";
   page?: number;
   pageSize?: number;
@@ -162,7 +163,7 @@ type BmiLeadInput = {
   bmiCategory?: string;
 };
 
-/** Public BMI lead capture — `POST /v1/Coach/bmi-lead` (same as app). */
+/** Public BMI lead capture: `POST /v1/Coach/bmi-lead` (same as app). */
 export async function submitBmiLead(
   params: BmiLeadInput,
 ): Promise<GenericResponse<object>> {
@@ -184,46 +185,6 @@ export async function submitBmiLead(
   });
 }
 
-/** Distinct cities for Find-a-Coach filters. */
-export async function fetchPublicCities(params?: {
-  coachTypeCode?: string;
-  country?: string;
-  state?: string;
-}) {
-  const query = new URLSearchParams();
-  if (params?.coachTypeCode) query.set("coachTypeCode", params.coachTypeCode);
-  if (params?.country) query.set("country", params.country);
-  if (params?.state) query.set("state", params.state);
-  const qs = query.toString();
-  const response = await apiFetch<unknown>(
-    `/v1/Coach/public-cities${qs ? `?${qs}` : ""}`,
-    { next: { revalidate: 300 }, skipAuth: true },
-  );
-  const raw = response.responseObj;
-  let cities: string[] = [];
-  if (Array.isArray(raw)) {
-    cities = raw.map((item) => String(item)).filter(Boolean);
-  } else if (raw && typeof raw === "object") {
-    const root = raw as Record<string, unknown>;
-    const list =
-      pick<unknown[]>(root, "cities", "Cities", "items", "Items") ?? [];
-    cities = list
-      .map((item) => {
-        if (typeof item === "string") return item;
-        if (item && typeof item === "object") {
-          const row = item as Record<string, unknown>;
-          return String(
-            pick(row, "city", "City", "city_Cd", "City_Cd", "name", "Name") ??
-              "",
-          );
-        }
-        return "";
-      })
-      .filter(Boolean);
-  }
-  return { ...response, responseObj: cities };
-}
-
 export async function fetchCoachProfile(params: {
   coachId?: number;
   coachCode?: string;
@@ -234,7 +195,7 @@ export async function fetchCoachProfile(params: {
   }
   if (params.coachCode) query.set("coachCode", params.coachCode);
   const response = await apiFetch<unknown>(`/v1/Coach/profile-by-id?${query}`, {
-    // Public profile. Do not attach a coach session — that would skip the cache.
+    // Public profile. Do not attach a coach session: that would skip the cache.
     next: { revalidate: 60 },
     skipAuth: true,
   });
@@ -252,20 +213,51 @@ function normalizeRegisterResult(raw: unknown): CoachRegisterResult | null {
   if (coachId <= 0 || !coachCode) return null;
   const plainPassword =
     pick<string | null>(r, "plainPassword", "PlainPassword") ?? undefined;
+  const uploadToken = pick<string | null>(r, "uploadToken", "UploadToken");
   return {
     coachId,
     coachCode,
     plainPassword: plainPassword || undefined,
+    uploadToken: uploadToken || undefined,
   };
 }
 
+/** Creates the account. The API e-mails the first password and returns a short-lived upload token. */
 export async function registerCoach(body: CoachRegisterInput) {
   const response = await apiFetch<unknown>("/v1/Coach/save", {
     method: "POST",
+    body: JSON.stringify({ coachId: 0, ...body }),
+    skipAuth: true,
+  });
+  return {
+    ...response,
+    responseObj: normalizeRegisterResult(response.responseObj),
+  } satisfies GenericResponse<CoachRegisterResult>;
+}
+
+/** Saves the optional details from the registration steps using the registration token. */
+export async function saveRegisteredCoachDetails(
+  body: CoachRegisterDetailsInput,
+  token: string,
+) {
+  const response = await apiFetch<unknown>("/v1/Coach/save", {
+    method: "POST",
+    bearer: token,
     body: JSON.stringify({
-      coachId: 0,
-      coachTypeCode: body.coachTypeCode || "HEALTH",
-      ...body,
+      coachId: body.coachId,
+      businessName: body.businessName,
+      serviceCodes: body.serviceCodes,
+      experienceYears: body.experienceYears,
+      happyClientCount: body.happyClientCount,
+      locality: body.locality,
+      add_Line: body.add_Line,
+      city_Cd: body.city_Cd,
+      state_Cd: body.state_Cd,
+      pinCode: body.pinCode,
+      country_Cd: body.country_Cd,
+      coachDesc: body.coachDesc,
+      logo_Url: body.logo_Url,
+      profile_Pic_Url: body.profile_Pic_Url,
     }),
   });
   return {

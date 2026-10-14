@@ -36,13 +36,15 @@ function normalizeMasterItems(payload: unknown): MasterOption[] {
     .filter((x): x is MasterOption => x != null);
 }
 
-/** Anonymous master list — same endpoint the app uses for CoachType. */
+/** Anonymous master list: same endpoint the app uses for CoachType. */
 async function fetchMasterItems(params: {
   ItemType?: string;
   itemType?: string;
   filterText?: string;
+  ParamCode?: string;
 }): Promise<GenericResponse<MasterOption[]>> {
   const query = new URLSearchParams();
+  if (params.ParamCode) query.set("ParamCode", params.ParamCode);
   if (params.ItemType) query.set("ItemType", params.ItemType);
   if (params.itemType) query.set("itemType", params.itemType);
   if (params.filterText) query.set("filterText", params.filterText);
@@ -73,6 +75,44 @@ export async function fetchMasterOptions(
   }
 }
 
+/** PARAMLIST dropdowns (PC001–PC010). The app saves `itemCode`; the UI shows the label. */
+export async function fetchParamList(
+  paramCode: string,
+): Promise<MasterOption[]> {
+  try {
+    const res = await fetchMasterItems({
+      ItemType: "PARAMLIST",
+      ParamCode: paramCode,
+    });
+    return res.responseObj ?? [];
+  } catch {
+    return [];
+  }
+}
+
+/** Label or code in, code out. Unknown values pass through unchanged. */
+export function resolveParamCode(
+  value: string | undefined | null,
+  options: MasterOption[],
+): string {
+  const v = (value ?? "").trim();
+  if (!v) return "";
+  const hit = options.find((o) => o.code === v || o.label === v);
+  return hit ? hit.code : v;
+}
+
+/** Code or label in, label out. Unknown master-looking codes resolve to empty. */
+export function resolveParamLabel(
+  value: string | undefined | null,
+  options: MasterOption[],
+): string {
+  const v = (value ?? "").trim();
+  if (!v) return "";
+  const hit = options.find((o) => o.code === v || o.label === v);
+  if (hit) return hit.label;
+  return /^[A-Za-z]{2,4}\d{2,}$/.test(v) ? "" : v;
+}
+
 export async function fetchCoachCategories(): Promise<MasterOption[]> {
   try {
     const res = await fetchMasterItems({ ItemType: "CoachType" });
@@ -82,7 +122,7 @@ export async function fetchCoachCategories(): Promise<MasterOption[]> {
   }
 }
 
-/** Services for a coach category — same filter as app `getServicesForCategory`. */
+/** Services for a coach category: same filter as app `getServicesForCategory`. */
 export async function fetchServicesForCategory(
   categoryCode: string,
 ): Promise<MasterOption[]> {
@@ -132,4 +172,43 @@ export async function fetchLocationByPin(params: {
     { skipAuth: true },
   );
   return normalizeLocation(response.responseObj);
+}
+
+export type FoodMasterItem = {
+  id: number;
+  name: string;
+  cal: number;
+  cat: string;
+};
+
+/** Foods per meal slot, keyed by the API slot label (for example "Early Morning"). */
+export type FoodMaster = Record<string, FoodMasterItem[]>;
+
+export async function fetchFoodMaster(
+  country: string,
+  region: string,
+): Promise<FoodMaster> {
+  try {
+    const query = new URLSearchParams({ country, region });
+    const res = await apiFetch<FoodMaster>(`/v1/Master/food-master?${query}`, {
+      next: { revalidate: 3600 },
+      skipAuth: true,
+    });
+    return res.responseObj ?? {};
+  } catch {
+    return {};
+  }
+}
+
+/** Looks up calories for a food that is not in the master list. */
+export async function fetchFoodCalories(
+  foodName: string,
+  qty = 1,
+): Promise<number> {
+  const res = await apiFetch<{ cal?: number }>("/v1/Master/food-calories", {
+    method: "POST",
+    body: JSON.stringify({ foodName, qty }),
+    skipAuth: true,
+  });
+  return res.responseObj?.cal ?? 0;
 }

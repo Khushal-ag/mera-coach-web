@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import "@/styles/globals.css";
 
 import { SiteShell } from "@/components/site-shell";
+import { env } from "@/config/env";
 import { siteConfig } from "@/config/site";
 import * as fonts from "@/lib/fonts";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,7 @@ const jsonLd = {
       email: siteConfig.email.team,
       logo: `${siteConfig.url}${siteConfig.brand.logoMark}`,
       image: `${siteConfig.url}${siteConfig.ogImage.url}`,
+      sameAs: Object.values(env.social).filter(Boolean),
     },
   ],
 };

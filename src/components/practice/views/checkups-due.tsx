@@ -10,8 +10,10 @@ import {
   CltPageHead,
   CltPager,
   CltSearchCard,
+  CltSortTh,
   CltTableTools,
   usePagedRows,
+  useSortedRows,
 } from "@/components/practice/clt-list";
 import { fetchRecheckupList } from "@/lib/api/practice";
 
@@ -67,7 +69,16 @@ export function CheckupsDueView() {
     );
   }, [due, query]);
 
-  const paged = usePagedRows(filtered, perPage);
+  const { sorted, sort, toggle } = useSortedRows(filtered, {
+    sno: (c: RecheckupDueClient) => filtered.indexOf(c),
+    name: (c: RecheckupDueClient) => c.name,
+    mobile: (c: RecheckupDueClient) => c.mobileNo,
+    age: (c: RecheckupDueClient) => c.age,
+    last: (c: RecheckupDueClient) => c.lastCheckupDate,
+    due: (c: RecheckupDueClient) => c.dueDate,
+    overdue: (c: RecheckupDueClient) => c.daysOverdue,
+  });
+  const paged = usePagedRows(sorted, perPage);
   const badge = due == null ? "Loading…" : `${paged.total} Due`;
 
   return (
@@ -120,13 +131,48 @@ export function CheckupsDueView() {
             <table className="clt-table">
               <thead>
                 <tr>
-                  <th>S. No.</th>
-                  <th>Client Name</th>
-                  <th>Mobile No.</th>
-                  <th>Age</th>
-                  <th>Last Check-up</th>
-                  <th>Due Date</th>
-                  <th>Overdue By</th>
+                  <CltSortTh
+                    label="S. No."
+                    sortKey="sno"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Client Name"
+                    sortKey="name"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Mobile No."
+                    sortKey="mobile"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Age"
+                    sortKey="age"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Last Check-up"
+                    sortKey="last"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Due Date"
+                    sortKey="due"
+                    sort={sort}
+                    onSort={toggle}
+                  />
+                  <CltSortTh
+                    label="Overdue By"
+                    sortKey="overdue"
+                    sort={sort}
+                    onSort={toggle}
+                  />
                   <th>Check-up</th>
                 </tr>
               </thead>
@@ -149,7 +195,16 @@ export function CheckupsDueView() {
                         <td className="clt-td-sno">
                           {paged.start + index + 1}
                         </td>
-                        <td>{item.name || "—"}</td>
+                        <td>
+                          {code ?
+                            <Link
+                              href={`/dashboard/clients/${encodeURIComponent(code)}`}
+                              className="clt-mobile-link"
+                            >
+                              {item.name || "-"}
+                            </Link>
+                          : item.name || "-"}
+                        </td>
                         <td>
                           {item.mobileNo ?
                             <a
@@ -158,16 +213,16 @@ export function CheckupsDueView() {
                             >
                               {item.mobileNo}
                             </a>
-                          : "—"}
+                          : "-"}
                         </td>
-                        <td className="clt-td-num">{item.age ?? "—"}</td>
+                        <td className="clt-td-num">{item.age ?? "-"}</td>
                         <td>
                           {item.lastCheckupDate ?
                             <span className="clt-date-badge">
                               <i className="fas fa-calendar-alt" />
                               &nbsp;{item.lastCheckupDate}
                             </span>
-                          : "—"}
+                          : "-"}
                         </td>
                         <td>
                           {item.dueDate ?
@@ -175,7 +230,7 @@ export function CheckupsDueView() {
                               <i className="fas fa-bell" />
                               &nbsp;{item.dueDate}
                             </span>
-                          : "—"}
+                          : "-"}
                         </td>
                         <td
                           className="clt-td-num"
@@ -194,7 +249,7 @@ export function CheckupsDueView() {
                             >
                               <i className="fas fa-clipboard-list" />
                             </Link>
-                          : "—"}
+                          : "-"}
                         </td>
                       </tr>
                     );

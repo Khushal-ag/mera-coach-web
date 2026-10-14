@@ -12,6 +12,7 @@ export type CoachLoginResult = {
   email?: string;
   mobile?: string;
   profileUrl?: string;
+  validUpto?: string;
   countryCd?: string;
   userName?: string;
   userType?: string;

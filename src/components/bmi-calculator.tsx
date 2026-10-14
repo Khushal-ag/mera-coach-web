@@ -2,13 +2,12 @@
 
 import { useMemo, useState } from "react";
 
-import { CheckCircle2 } from "lucide-react";
-
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextField } from "@/components/ui/field";
 import { submitBmiLead } from "@/lib/api/coach";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { formatBmi, getBmi, getBmiCategory } from "@/lib/bmi";
+import { isValidMobile } from "@/lib/validation";
 
 /**
  * Public BMI calculator + lead form.
@@ -43,8 +42,10 @@ export function BmiCalculator({
       setSuccess(false);
       return;
     }
-    if (trimmedMobile.length !== 10) {
-      setBanner("Enter a valid 10-digit mobile number.");
+    if (!isValidMobile(trimmedMobile)) {
+      setBanner(
+        "Please enter a valid 10-digit mobile number (starting with 6-9).",
+      );
       setSuccess(false);
       return;
     }
@@ -184,7 +185,11 @@ export function BmiCalculator({
         : null}
         {success ?
           <div className="mt-4 flex items-center gap-2 rounded-[var(--radius-sm)] bg-[color:var(--mc-secondary-light)] p-3 text-sm font-medium text-mc-secondary">
-            <CheckCircle2 className="size-5 shrink-0" aria-hidden />
+            <i
+              className="fas fa-check-circle"
+              style={{ fontSize: 20 }}
+              aria-hidden
+            />
             Thanks! A coach will reach out shortly.
           </div>
         : null}

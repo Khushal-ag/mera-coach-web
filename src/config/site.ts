@@ -52,8 +52,7 @@ export const siteConfig = {
     { label: "Home", href: "/" },
     { label: "Find a Coach", href: "/coach" },
     { label: "Features", href: "/services" },
-    { label: "About Us", href: "#" },
-    { label: "Blog", href: "#" },
+    { label: "About Us", href: "/#about" },
     { label: "Contact", href: "/contact" },
   ] as const,
 
@@ -71,7 +70,7 @@ export const siteConfig = {
     site: "",
   },
 
-  /** Brand assets — same as mera-coach-app `assets/brand`. */
+  /** Brand assets: same as mera-coach-app `assets/brand`. */
   brand: {
     logoMark: "/mc-images/logo-mark.png",
   },

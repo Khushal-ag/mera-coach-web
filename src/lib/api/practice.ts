@@ -850,7 +850,7 @@ export async function generateDietPlan(params: {
   return normalizeGeneratedDietPlan(raw);
 }
 
-/** Send plaintext — do not client-hash (same as app). */
+/** Send plaintext: do not client-hash (same as app). */
 export async function changeCoachPassword(params: {
   currentPassword: string;
   newPassword: string;
@@ -879,7 +879,7 @@ export async function requestForgotPassword(userName: string): Promise<void> {
   }
 }
 
-/** Plaintext new password — same contract as app `resetPassword` (do not client-hash). */
+/** Plaintext new password: same contract as app `resetPassword` (do not client-hash). */
 export async function resetCoachPassword(params: {
   token: string;
   newPassword: string;

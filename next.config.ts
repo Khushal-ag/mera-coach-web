@@ -108,6 +108,19 @@ function remotePatternsFromImageHosts(
 }
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+
+// Fail a real production build early when the API origin is missing or insecure.
+if (isProd && process.env.VERCEL_ENV !== "preview") {
+  const origin = remotePatternFromOrigin(apiBaseUrl);
+  if (!origin) {
+    throw new Error(
+      "NEXT_PUBLIC_API_BASE_URL must be set for production builds.",
+    );
+  }
+  if (origin.protocol !== "https" && !isLocalHostname(origin.hostname)) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL must use https in production.");
+  }
+}
 const apiBasePattern = remotePatternFromOrigin(apiBaseUrl);
 const imageHostPatterns = remotePatternsFromImageHosts(
   process.env.NEXT_PUBLIC_IMAGE_HOSTS ?? "",
@@ -181,6 +194,10 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
+  // Keep title and description in <head> for every crawler, not streamed into the body.
+  htmlLimitedBots: /.*/,
+  compress: true,
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,
@@ -191,6 +208,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns,
+    formats: ["image/avif", "image/webp"],
   },
   async headers() {
     return [

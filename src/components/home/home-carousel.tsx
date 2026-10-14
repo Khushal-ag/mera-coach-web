@@ -24,6 +24,7 @@ export function HomeCarousel({
   const [paused, setPaused] = useState(false);
   const maxPos = Math.max(0, total - perView);
   const safeIndex = Math.min(index, maxPos);
+  const pages = total > 0 ? maxPos + 1 : 0;
 
   useEffect(() => {
     const measure = () => {
@@ -51,6 +52,10 @@ export function HomeCarousel({
     }, interval);
     return () => window.clearInterval(timer);
   }, [interval, maxPos, paused]);
+
+  if (pages <= 1) {
+    return <div className={trackClass}>{children}</div>;
+  }
 
   return (
     <>
@@ -87,7 +92,7 @@ export function HomeCarousel({
         </button>
       </div>
       <div className="car-dots">
-        {Array.from({ length: maxPos + 1 }, (_, dot) => (
+        {Array.from({ length: pages }, (_, dot) => (
           <button
             key={dot}
             type="button"

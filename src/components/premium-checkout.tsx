@@ -4,8 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
 
-import { Check } from "lucide-react";
-
 import type { CoachCatalogPlan, CoachSuggestedPromo } from "@/types/premium";
 
 import { CoachPhoto } from "@/components/coach-photo";
@@ -58,7 +56,7 @@ type ResolvedCoach = {
 /**
  * Resolve coach for checkout display.
  * Prefer coachId (app Pay Now) so a mismatched/stale code cannot swap coaches.
- * profile-by-id hides non-public profiles — callers must still allow checkout
+ * profile-by-id hides non-public profiles: callers must still allow checkout
  * via deep-link coachId / coachCode when enrichment fails.
  */
 async function lookupCoach(params: {
@@ -472,7 +470,11 @@ export function PremiumCheckout({
                   </p>
                   {active ?
                     <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-mc-secondary px-2 py-0.5 text-[11px] font-bold tracking-wide text-white">
-                      <Check className="size-3.5" strokeWidth={3} aria-hidden />
+                      <i
+                        className="fas fa-check"
+                        style={{ fontSize: 14 }}
+                        aria-hidden
+                      />
                       Selected
                     </span>
                   : null}

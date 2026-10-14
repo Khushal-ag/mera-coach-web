@@ -9,10 +9,9 @@ import { fetchCoachCategories, fetchMasterOptions } from "@/lib/api/master";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
-  title:
-    "Find a Coach | Mera Coach – Your Complete Coaching & Wellness Platform",
+  title: "Find a Coach in India | Mera Coach",
   description:
-    "Browse 500+ verified coaches across Health, Fitness, Yoga, Nutrition and Lifestyle. Your transformation starts here.",
+    "Browse verified health, fitness, yoga, nutrition and lifestyle coaches across India. Filter by category, city and rating, then contact a coach directly.",
   path: "/coach",
   absolute: true,
 });

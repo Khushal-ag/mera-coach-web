@@ -23,7 +23,7 @@ function appDeepLink(
   return qs ? `${base}?${qs}` : base;
 }
 
-/** Post-checkout handoff — opens Premium and signals a subscription refresh. */
+/** Post-checkout handoff: opens Premium and signals a subscription refresh. */
 export function premiumPaidDeepLink(): string {
   return appDeepLink("premium", { paid: "1" });
 }

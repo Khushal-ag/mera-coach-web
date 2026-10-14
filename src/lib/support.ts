@@ -2,6 +2,8 @@
 
 const SUPPORT_EMAIL = "hello@mera-coach.com";
 
+export const supportEmail = SUPPORT_EMAIL;
+
 export function supportMailto(subject = "Mera Coach Support"): string {
   return `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}`;
 }

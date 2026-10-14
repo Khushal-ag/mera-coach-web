@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { MasterOption } from "@/lib/api/master";
 import type { CoachPublicListItem } from "@/types/coach";
 
+import { ListEmpty } from "@/components/list-empty";
 import { MenuSelect } from "@/components/ui/menu-select";
 import { env } from "@/config/env";
 import { resolveMediaUrl } from "@/lib/media/media-url";
@@ -18,117 +19,6 @@ type Query = {
   city: string;
   page: number;
 };
-
-const DEMO_CARDS = [
-  {
-    cat: "fitness",
-    image:
-      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=600&fit=crop&crop=faces&q=80",
-    name: "Rahul Sharma",
-    badge: "Fitness Trainer",
-    badgeClass: "",
-    specialty: "Fitness & Strength Training",
-    specClass: "",
-    rating: "4.9",
-    reviews: "238",
-    years: "8 Yrs",
-    city: "Delhi",
-    bio: "Certified strength and conditioning specialist helping clients build lean muscle and sustainable fitness habits.",
-    tags: ["Weight Loss", "Muscle Building", "HIIT"],
-    tagClass: "",
-    clients: "180+",
-  },
-  {
-    cat: "yoga",
-    image:
-      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&h=600&fit=crop&crop=faces&q=80",
-    name: "Priya Mehta",
-    badge: "Yoga Trainer",
-    badgeClass: "badge-yoga",
-    specialty: "Yoga & Mindfulness",
-    specClass: "spec-yoga",
-    rating: "5.0",
-    reviews: "314",
-    years: "10 Yrs",
-    city: "Mumbai",
-    bio: "RYT-500 certified yoga teacher specializing in therapeutic yoga, pranayama and guided meditation for all ages.",
-    tags: ["Meditation", "Pranayama", "Flexibility"],
-    tagClass: "tag-yoga",
-    clients: "260+",
-  },
-  {
-    cat: "nutrition",
-    image:
-      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=600&fit=crop&crop=faces&q=80",
-    name: "Dr. Ananya Singh",
-    badge: "Nutrition Expert",
-    badgeClass: "badge-nutrition",
-    specialty: "Clinical Nutritionist",
-    specClass: "spec-nutrition",
-    rating: "4.8",
-    reviews: "192",
-    years: "12 Yrs",
-    city: "Bangalore",
-    bio: "PhD in Nutritional Sciences crafting personalized diet plans that are science-backed, realistic and delicious.",
-    tags: ["Diet Plans", "Diabetes", "Weight Loss"],
-    tagClass: "tag-nutrition",
-    clients: "320+",
-  },
-  {
-    cat: "health",
-    image:
-      "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=600&fit=crop&crop=faces&q=80",
-    name: "Vikram Nair",
-    badge: "Health Coach",
-    badgeClass: "",
-    specialty: "Holistic Health & Wellness",
-    specClass: "",
-    rating: "4.9",
-    reviews: "156",
-    years: "7 Yrs",
-    city: "Pune",
-    bio: "Integrative health coach combining Ayurveda, modern nutrition and lifestyle medicine for whole-body wellness.",
-    tags: ["Ayurveda", "Stress Mgmt", "Detox"],
-    tagClass: "",
-    clients: "140+",
-  },
-  {
-    cat: "women",
-    image:
-      "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=600&h=600&fit=crop&crop=faces&q=80",
-    name: "Sunita Rao",
-    badge: "Women Wellness",
-    badgeClass: "badge-women",
-    specialty: "Women's Health Expert",
-    specClass: "spec-women",
-    rating: "4.9",
-    reviews: "278",
-    years: "9 Yrs",
-    city: "Chennai",
-    bio: "Specialized in hormonal health, PCOD management, postpartum recovery and women's fitness at every life stage.",
-    tags: ["PCOD", "Postpartum", "Hormones"],
-    tagClass: "tag-women",
-    clients: "210+",
-  },
-  {
-    cat: "lifestyle",
-    image:
-      "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&h=600&fit=crop&crop=faces&q=80",
-    name: "Arjun Kapoor",
-    badge: "Lifestyle Mentor",
-    badgeClass: "badge-lifestyle",
-    specialty: "Lifestyle & Habit Coach",
-    specClass: "spec-lifestyle",
-    rating: "4.7",
-    reviews: "134",
-    years: "6 Yrs",
-    city: "Hyderabad",
-    bio: "Helping working professionals build powerful daily habits, beat burnout and create a life they love through sustainable routines.",
-    tags: ["Habits", "Productivity", "Burnout"],
-    tagClass: "tag-lifestyle",
-    clients: "95+",
-  },
-] as const;
 
 function typeClass(type: string, kind: "badge" | "tag" | "spec") {
   const key = type.toLowerCase();
@@ -415,10 +305,7 @@ export function CoachListView({
                       </strong>{" "}
                       of <strong>{totalCount}</strong> coaches
                     </span>
-                  : <span>
-                      Showing <strong>6</strong> featured coaches
-                    </span>
-                  }
+                  : <span>No coaches found.</span>}
                   {loadError ?
                     <span className="text-danger ms-2">
                       <i className="fas fa-exclamation-circle" /> {loadError}
@@ -474,6 +361,9 @@ export function CoachListView({
                 }
                 id="coachGrid"
               >
+                {ordered.length === 0 ?
+                  <ListEmpty title="No coaches found." icon="fas fa-user-tie" />
+                : null}
                 {ordered.map((coach) => {
                   const hidden =
                     coach.rating < minRating ||
@@ -572,66 +462,6 @@ export function CoachListView({
                     </div>
                   );
                 })}
-
-                {DEMO_CARDS.map((card) => (
-                  <div
-                    key={card.name}
-                    className="cl-coach-card"
-                    data-cat={card.cat}
-                  >
-                    <div className="cl-card-img">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={card.image} alt={card.name} />
-                      <span
-                        className={`cl-card-badge ${card.badgeClass}`.trim()}
-                      >
-                        {card.badge}
-                      </span>
-                      <span className="cl-card-status online">
-                        <span className="cl-status-dot" /> Online
-                      </span>
-                    </div>
-                    <div className="cl-card-body">
-                      <div className="cl-coach-name">{card.name}</div>
-                      <div
-                        className={`cl-coach-specialty ${card.specClass}`.trim()}
-                      >
-                        {card.specialty}
-                      </div>
-                      <div className="cl-coach-meta">
-                        <span>
-                          <i className="fas fa-star cl-star" /> {card.rating}{" "}
-                          <em>({card.reviews})</em>
-                        </span>
-                        <span>
-                          <i className="fas fa-briefcase" /> {card.years}
-                        </span>
-                        <span>
-                          <i className="fas fa-map-marker-alt" /> {card.city}
-                        </span>
-                      </div>
-                      <p className="cl-coach-bio">{card.bio}</p>
-                      <div className="cl-coach-tags">
-                        {card.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className={`cl-tag ${card.tagClass}`.trim()}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="cl-card-footer">
-                        <div className="cl-coach-clients">
-                          Clients: <strong>{card.clients}</strong>
-                        </div>
-                        <a href="#" className="btn cl-btn-view">
-                          View Profile
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                ))}
               </div>
 
               {totalPages > 1 ?
@@ -881,7 +711,7 @@ export function CoachListView({
                   <div className="cl-cta-icon-wrap">
                     <i className="fas fa-chalkboard-teacher" />
                   </div>
-                  <h3>Become a Coach</h3>
+                  <h3 aria-level={2}>Become a Coach</h3>
                   <p>
                     Join our growing community and reach thousands of clients
                     looking for your expertise.
