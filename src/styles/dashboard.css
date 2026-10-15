@@ -3032,3 +3032,78 @@
 .mc-dash .cl-upgrade i {
   font-size: 15px;
 }
+
+/* ─── COLLAPSIBLE SIDEBAR (desktop) ───────────────────────────
+   Icon-only rail that the coach can toggle; remembered per browser.
+   On tablets and phones the sidebar is already a drawer. */
+.mc-dash .cl-collapse-btn {
+  display: none;
+}
+@media (min-width: 1025px) {
+  .mc-dash .cl-sidebar,
+  .mc-dash .cl-main {
+    transition:
+      width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+      margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .mc-dash .cl-collapse-btn {
+    position: absolute;
+    top: 78px;
+    right: -13px;
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--cl-border);
+    background: var(--cl-white);
+    color: var(--cl-primary);
+    font-size: 11px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition:
+      background-color 0.15s,
+      color 0.15s;
+  }
+  .mc-dash .cl-collapse-btn:hover {
+    background: var(--cl-gold);
+    border-color: var(--cl-gold);
+    color: #fff;
+  }
+  .mc-dash.cl-collapsed {
+    --cl-sidebar-w: 76px;
+  }
+  .mc-dash.cl-collapsed .cl-brand {
+    justify-content: center;
+    padding: 22px 0 18px;
+  }
+  .mc-dash.cl-collapsed .cl-brand-info,
+  .mc-dash.cl-collapsed .cl-nav-label,
+  .mc-dash.cl-collapsed .cl-validity-strip > div,
+  .mc-dash.cl-collapsed .cl-upgrade > span,
+  .mc-dash.cl-collapsed .cl-upgrade > i:last-child {
+    display: none;
+  }
+  .mc-dash.cl-collapsed .cl-nav {
+    padding-inline: 10px;
+  }
+  .mc-dash.cl-collapsed .cl-nav-link {
+    justify-content: center;
+    gap: 0;
+    padding: 12px 0;
+  }
+  .mc-dash.cl-collapsed .cl-nav-icon {
+    width: auto;
+    font-size: 17px;
+  }
+  .mc-dash.cl-collapsed .cl-sidebar-footer {
+    padding-inline: 10px;
+  }
+  .mc-dash.cl-collapsed .cl-validity-strip,
+  .mc-dash.cl-collapsed .cl-upgrade {
+    justify-content: center;
+    padding-inline: 0;
+  }
+}

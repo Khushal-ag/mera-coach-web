@@ -6,11 +6,13 @@ import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/components/auth-provider";
 import { isSubscriptionRequired } from "@/config/practice";
+import { useSidebarCollapsed } from "@/hooks/use-sidebar-collapsed";
 import { fetchAuthedCoachProfile } from "@/lib/api/practice";
 import { ensurePremiumStatus } from "@/lib/auth/premium-status";
 import { initials } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 import { premiumHref } from "@/lib/premium-link";
+import { cn } from "@/lib/utils";
 import { describeValidity } from "@/lib/validity";
 
 const navItems = [
@@ -87,6 +89,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [freshValidUpto, setFreshValidUpto] = useState<string | null>(null);
   const [paid, setPaid] = useState<boolean | undefined>(undefined);
+  const [collapsed, toggleCollapsed] = useSidebarCollapsed();
   const navId = useId();
 
   useEffect(() => {
@@ -167,6 +170,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
             key={item.href}
             href={item.href}
             className={active ? "cl-nav-link cl-nav-active" : "cl-nav-link"}
+            title={collapsed ? item.label : undefined}
             onClick={() => setOpen(false)}
           >
             <span className="cl-nav-icon">
@@ -180,7 +184,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="mc-dash">
+    <div className={cn("mc-dash", collapsed && "cl-collapsed")}>
       <div className="cl-body">
         <a href="#main-content" className="mc-skip">
           Skip to main content
@@ -193,10 +197,26 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
           className={open ? "cl-sidebar cl-sb-open" : "cl-sidebar"}
           id={navId}
         >
+          <button
+            type="button"
+            className="cl-collapse-btn"
+            onClick={toggleCollapsed}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-expanded={!collapsed}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            <i
+              className={
+                collapsed ? "fas fa-chevron-right" : "fas fa-chevron-left"
+              }
+              aria-hidden
+            />
+          </button>
           <Link
             href="/dashboard/profile"
             className="cl-brand"
             aria-label="Open my profile"
+            title={collapsed ? "My Profile" : undefined}
             onClick={() => setOpen(false)}
           >
             <div className="cl-brand-logo">
@@ -241,6 +261,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
               <Link
                 href={premiumLink}
                 className="cl-upgrade"
+                title={collapsed ? "Go Premium" : undefined}
                 onClick={() => setOpen(false)}
               >
                 <i className="fas fa-crown" aria-hidden />
@@ -254,6 +275,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               className="cl-nav-link cl-logout"
+              title={collapsed ? "Logout" : undefined}
               onClick={() => void logout()}
             >
               <span className="cl-nav-icon">
