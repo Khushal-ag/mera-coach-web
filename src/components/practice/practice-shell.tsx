@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -9,6 +9,7 @@ import { isSubscriptionRequired } from "@/config/practice";
 import { useSidebarCollapsed } from "@/hooks/use-sidebar-collapsed";
 import { fetchAuthedCoachProfile } from "@/lib/api/practice";
 import { ensurePremiumStatus } from "@/lib/auth/premium-status";
+import { saveSession } from "@/lib/auth/session";
 import { initials } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 import { premiumHref } from "@/lib/premium-link";
@@ -57,28 +58,20 @@ function ShellPhoto({
   initialsClass?: string;
   style?: React.CSSProperties;
 }) {
-  const [bad, setBad] = useState(false);
-  const [tracked, setTracked] = useState(src);
-  if (src !== tracked) {
-    setTracked(src);
-    setBad(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const trimmed = (src || "").trim();
+
+  if (!trimmed || failedSrc === trimmed) {
+    return <span className={initialsClass}>{mark}</span>;
   }
-  const usable = (img: HTMLImageElement) =>
-    img.naturalWidth > 0 && img.naturalHeight > 0;
-  if (!src || bad) return <span className={initialsClass}>{mark}</span>;
+
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src}
+      src={trimmed}
       alt=""
       style={style}
-      ref={(node) => {
-        if (node?.complete && !usable(node)) setBad(true);
-      }}
-      onLoad={(event) => {
-        if (!usable(event.currentTarget)) setBad(true);
-      }}
-      onError={() => setBad(true)}
+      onError={() => setFailedSrc(trimmed)}
     />
   );
 }
@@ -88,9 +81,12 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [freshValidUpto, setFreshValidUpto] = useState<string | null>(null);
+  const [freshPhoto, setFreshPhoto] = useState<string | null>(null);
+  const [freshName, setFreshName] = useState<string | null>(null);
   const [paid, setPaid] = useState<boolean | undefined>(undefined);
   const [collapsed, toggleCollapsed] = useSidebarCollapsed();
   const navId = useId();
+  const fetchedCoachRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -126,13 +122,35 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
     };
   }, [session]);
 
-  // Login only carries the date from sign-in time. Read the saved one so a renewal shows at once.
+  // Read saved profile so fresh photo, name, and renewal date show immediately in sidebar.
   useEffect(() => {
     if (!session) return;
+    if (fetchedCoachRef.current === session.coachId) return;
+    fetchedCoachRef.current = session.coachId;
     let cancelled = false;
     void fetchAuthedCoachProfile()
       .then((profile) => {
-        if (!cancelled) setFreshValidUpto(profile?.validUpto ?? null);
+        if (cancelled || !profile) return;
+        setFreshValidUpto(profile.validUpto ?? null);
+        if (profile.profile_Pic_Url) {
+          setFreshPhoto(profile.profile_Pic_Url);
+        }
+        if (profile.coachName) {
+          setFreshName(profile.coachName);
+        }
+        const updatedPhoto = profile.profile_Pic_Url || session.profileUrl;
+        const updatedName = profile.coachName || session.fullName;
+        if (
+          (profile.profile_Pic_Url &&
+            profile.profile_Pic_Url !== session.profileUrl) ||
+          (profile.coachName && profile.coachName !== session.fullName)
+        ) {
+          saveSession({
+            ...session,
+            profileUrl: updatedPhoto,
+            fullName: updatedName,
+          });
+        }
       })
       .catch(() => undefined);
     return () => {
@@ -142,9 +160,9 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
 
   if (!session) return null;
 
-  const mark = initials(session.fullName, { fallback: "C" });
-  const name = session.fullName || "Coach";
-  const photo = resolveMediaUrl(session.profileUrl);
+  const name = freshName || session.fullName || "Coach";
+  const mark = initials(name, { fallback: "C" });
+  const photo = resolveMediaUrl(freshPhoto || session.profileUrl);
   const validityInfo = describeValidity(freshValidUpto ?? session.validUpto);
   const validity =
     validityInfo?.dateLabel ||

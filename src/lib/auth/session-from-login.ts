@@ -16,7 +16,19 @@ export function sessionFromLoginResult(
   ).trim();
   const email = String(pick(r, "email", "Email") ?? "").trim();
   const validUpto = String(pick(r, "validUpto", "ValidUpto") ?? "").trim();
-  const profileUrl = String(pick(r, "profileUrl", "ProfileUrl") ?? "").trim();
+  const profileUrl = String(
+    pick(
+      r,
+      "profileUrl",
+      "ProfileUrl",
+      "profile_Pic_Url",
+      "Profile_Pic_Url",
+      "profilePicUrl",
+      "ProfilePicUrl",
+      "profilePic",
+      "ProfilePic",
+    ) ?? "",
+  ).trim();
   if (!token || coachId <= 0) return null;
   return {
     token,

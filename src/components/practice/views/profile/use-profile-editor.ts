@@ -22,6 +22,7 @@ import {
   saveCoachProfileEssentials,
 } from "@/lib/api/practice";
 import { refreshPremiumStatus } from "@/lib/auth/premium-status";
+import { saveSession } from "@/lib/auth/session";
 import {
   fileToBase64DataUrl,
   validateRegisterImage,
@@ -604,6 +605,16 @@ export function useProfileEditor() {
             }
           : profile),
       );
+      const finalPhoto =
+        refreshed?.profile_Pic_Url ?? media.profile_Pic_Url ?? profilePicUrl;
+      const finalName = refreshed?.coachName ?? coachName.trim();
+      if (session) {
+        saveSession({
+          ...session,
+          profileUrl: finalPhoto || session.profileUrl,
+          fullName: finalName || session.fullName,
+        });
+      }
       setMessage("Profile saved.");
       const saved = currentProfileText();
       setBaseline(saved);
