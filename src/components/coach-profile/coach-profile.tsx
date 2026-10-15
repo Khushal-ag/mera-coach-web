@@ -22,7 +22,10 @@ export type CoachProfileDetails = {
   clients: number;
   certs: number;
   rating: number;
+  reviews: number;
   photoSrc: string;
+  /** Cover image from Edit Profile. Shown softly behind the profile header. */
+  coverSrc: string;
   whatsappUrl: string;
   packages: {
     id: string;
@@ -242,13 +245,22 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
   if (coach.services.length > 0) {
     stats.push({ num: coach.services.length, label: "Services Offered" });
   }
-  stats.push({ num: ratingLabel, label: "Rating" });
+  if (coach.rating > 0) stats.push({ num: ratingLabel, label: "Rating" });
 
   const place = [coach.coachType, coach.city].filter(Boolean).join(", ");
 
   return (
     <div className="mc-public">
-      <section className="cp-hero">
+      <section
+        className={coach.coverSrc ? "cp-hero cp-hero-cover" : "cp-hero"}
+        style={
+          coach.coverSrc ?
+            ({
+              "--cp-cover": `url("${coach.coverSrc}")`,
+            } as React.CSSProperties)
+          : undefined
+        }
+      >
         <div className="cp-hero-shapes">
           <div className="cp-hs cp-hs-1" />
           <div className="cp-hs cp-hs-2" />
@@ -304,9 +316,10 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                 <div className="cp-hero-rating">
                   <Stars rating={coach.rating} />
                   <span className="cp-rating-val">{ratingLabel}</span>
-                  {coach.clients > 0 ?
+                  {coach.reviews > 0 ?
                     <span className="cp-rating-count">
-                      from {coach.clients}+ clients
+                      from {coach.reviews}{" "}
+                      {coach.reviews === 1 ? "review" : "reviews"}
                     </span>
                   : null}
                 </div>
@@ -468,7 +481,11 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                     <i className="fas fa-star cp-badge-icon gold" />
                     <div>
                       <strong>Premium Coach</strong>
-                      <span>{ratingLabel} / 5 Rating</span>
+                      <span>
+                        {coach.rating > 0 ?
+                          `${ratingLabel} / 5 Rating`
+                        : "New on Mera Coach"}
+                      </span>
                     </div>
                   </div>
                   <div className="cp-badge-item">

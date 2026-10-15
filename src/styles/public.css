@@ -13545,3 +13545,31 @@ html {
     padding: 116px 0 64px;
   }
 }
+
+/* Coach cover photo: shown behind the profile header when the coach has uploaded one */
+.mc-public .cp-hero.cp-hero-cover::before {
+  background: var(--cp-cover) center / cover no-repeat;
+  opacity: 0.32;
+}
+
+/* Coach profile: one or two packages, events or photos sit centred instead of hugging the left edge.
+   auto-fit keeps the same responsive behaviour as the fixed column counts it replaces. */
+.mc-public .cp-offer-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 360px));
+  justify-content: center;
+}
+.mc-public .cp-gallery-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(46%, 170px), 270px));
+  justify-content: center;
+}
+
+/* Phones: gallery photos three across, like a photo feed, so they are not a very long scroll */
+@media (max-width: 640px) {
+  .mc-public .cp-gallery-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .mc-public .cp-gallery-grid > * {
+    border-radius: 6px;
+  }
+}

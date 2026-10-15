@@ -443,6 +443,7 @@ export function ClientDetailView() {
               savedBy={session.coachId}
               maxPhotos={24}
               title="Progress photos"
+              showDates
               emptyHint="Upload progress photos for this client."
             />
           : null}

@@ -694,29 +694,15 @@ export function ProfileSettingsView() {
 
   return (
     <div ref={pageTopRef} className="min-w-0">
-      <PracticePageHeader
-        title={editing ? "Edit profile" : "Profile"}
-        icon={
-          <i className="fas fa-user" style={{ fontSize: 20 }} aria-hidden />
-        }
-        description={
-          editing ?
-            "Update the photo, name, services, and details on your public page."
-          : "How clients see you, plus your gallery and Premium."
-        }
-        action={
-          editing ? null : (
-            <button
-              type="button"
-              className="mc-btn-primary w-full sm:w-auto"
-              onClick={startEdit}
-              disabled={!profile}
-            >
-              Edit profile
-            </button>
-          )
-        }
-      />
+      {editing ?
+        <PracticePageHeader
+          title="Edit profile"
+          icon={
+            <i className="fas fa-user" style={{ fontSize: 20 }} aria-hidden />
+          }
+          description="Update the photo, name, services, and details on your public page."
+        />
+      : null}
 
       {error ?
         <AlertBanner tone="error" className="mb-[22px]">
@@ -739,6 +725,15 @@ export function ProfileSettingsView() {
             {coverSrc ?
               <ProfileCoverImage src={coverSrc} />
             : null}
+            <button
+              type="button"
+              onClick={startEdit}
+              aria-label="Edit profile"
+              title="Edit profile"
+              className="absolute top-3 right-3 grid size-10 place-items-center rounded-full bg-white/90 text-[#2a4a3a] shadow-md backdrop-blur transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              <i className="fas fa-pen" style={{ fontSize: 15 }} aria-hidden />
+            </button>
           </div>
           <div className="px-5 pb-6 sm:px-6">
             <div className="sm:grid sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:items-start sm:gap-x-6">

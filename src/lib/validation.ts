@@ -41,6 +41,7 @@ export function validateEmail(value: string, required = false): string | null {
 }
 
 export function validateAge(value: string): string | null {
+  if (!value.trim()) return "Age is required.";
   const message = `Please enter a valid age (${AGE_MIN}-${AGE_MAX}).`;
   if (!isStrictInt(value)) return message;
   const age = parseInt(value, 10);

@@ -222,12 +222,17 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
                 <div className="qr-code-wrap">
                   <div className="qr-glow" />
                   <div id="qrCode">
-                    <img
-                      src={qrSrc(registerUrl)}
-                      width={180}
-                      height={180}
-                      alt=""
-                    />
+                    {registerUrl ?
+                      <img
+                        src={qrSrc(registerUrl)}
+                        width={180}
+                        height={180}
+                        alt="QR code that opens the registration page"
+                      />
+                    : <span
+                        style={{ display: "block", width: 180, height: 180 }}
+                      />
+                    }
                   </div>
                 </div>
                 <div className="qr-url-chip">

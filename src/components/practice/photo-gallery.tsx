@@ -28,7 +28,25 @@ type PhotoGalleryProps = {
   maxPhotos?: number;
   title?: string;
   emptyHint?: string;
+  /** Show the upload date under each photo. For progress photos; the public gallery does not need it. */
+  showDates?: boolean;
 };
+
+/** "2026-10-15 15:55:15" becomes "15 Oct 2026". Anything unreadable is shown as received. */
+function formatPhotoDate(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (!match) return value;
+  const date = new Date(
+    Number(match[1]),
+    Number(match[2]) - 1,
+    Number(match[3]),
+  );
+  return date.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export function PhotoGallery({
   coachCode,
@@ -38,6 +56,7 @@ export function PhotoGallery({
   savedBy,
   maxPhotos = 12,
   title = "Photos",
+  showDates = false,
   emptyHint = "No photos yet.",
 }: PhotoGalleryProps) {
   const [items, setItems] = useState<DocumentListItem[]>([]);
@@ -151,7 +170,7 @@ export function PhotoGallery({
         : null}
         {loading ?
           <div
-            className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4"
+            className="grid grid-cols-3 gap-1.5 sm:gap-3 md:grid-cols-4"
             aria-busy="true"
           >
             <span className="sr-only">Loading photos</span>
@@ -161,7 +180,7 @@ export function PhotoGallery({
           </div>
         : items.length === 0 ?
           <ListEmpty title={emptyHint} icon="fas fa-images" />
-        : <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+        : <ul className="grid grid-cols-3 gap-1.5 sm:gap-3 md:grid-cols-4">
             {items.map((item) => {
               const src = resolveMediaUrl(item.filePath);
               return (
@@ -188,9 +207,9 @@ export function PhotoGallery({
                       aria-hidden
                     />
                   </button>
-                  {item.fcdt ?
+                  {showDates && item.fcdt ?
                     <p className="truncate px-2 py-1.5 text-[11px] text-ink-muted">
-                      {item.fcdt}
+                      {formatPhotoDate(item.fcdt)}
                     </p>
                   : null}
                 </li>

@@ -4411,3 +4411,8 @@
   outline: 3px solid rgba(45, 106, 79, 0.4);
   outline-offset: 2px;
 }
+
+/* Status banners in the dashboard (saved, error) always leave a gap before the content below them */
+.mc-dash .mc-banner {
+  margin-bottom: 18px;
+}

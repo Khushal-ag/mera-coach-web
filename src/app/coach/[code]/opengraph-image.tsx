@@ -51,7 +51,7 @@ export default async function Image({
   let category = "Health & Wellness Coach";
   let tagline = "Find verified health, fitness and wellness coaches";
   let rating = 0;
-  let clients = 0;
+  let reviews = 0;
   let services: string[] = [];
   let photoUrl = "";
   try {
@@ -67,7 +67,7 @@ export default async function Image({
       category = coach.coachTypeName || category;
       tagline = coach.tagline?.trim() || tagline;
       rating = coach.rating ?? 0;
-      clients = coach.happyClientCount ?? 0;
+      reviews = coach.reviewCount ?? 0;
       services = splitServiceNames(coach.serviceNames).slice(0, 4);
       photoUrl = resolveMediaUrl(coach.profile_Pic_Url || coach.logo_Url) || "";
     }
@@ -179,7 +179,7 @@ export default async function Image({
           >
             {tagline.length > 64 ? `${tagline.slice(0, 61)}...` : tagline}
           </div>
-          {rating > 0 ?
+          {rating > 0 && reviews > 0 ?
             <div
               style={{ display: "flex", alignItems: "center", marginTop: 22 }}
             >
@@ -196,7 +196,7 @@ export default async function Image({
               >
                 {rating.toFixed(1)}
               </div>
-              {clients > 0 ?
+              {reviews > 0 ?
                 <div
                   style={{
                     marginLeft: 14,
@@ -204,7 +204,7 @@ export default async function Image({
                     color: "rgba(255,255,255,0.7)",
                   }}
                 >
-                  {`from ${clients}+ clients`}
+                  {`from ${reviews} ${reviews === 1 ? "review" : "reviews"}`}
                 </div>
               : null}
             </div>

@@ -44,6 +44,46 @@ function initials(name: string) {
   return `${parts[0]![0]}${parts[parts.length - 1]![0]}`.toUpperCase();
 }
 
+/**
+ * Profile picture, or the coach's initials when there is no photo or it fails to load.
+ */
+function ShellPhoto({
+  src,
+  mark,
+  initialsClass,
+  style,
+}: {
+  src: string;
+  mark: string;
+  initialsClass?: string;
+  style?: React.CSSProperties;
+}) {
+  const [bad, setBad] = useState(false);
+  const [tracked, setTracked] = useState(src);
+  if (src !== tracked) {
+    setTracked(src);
+    setBad(false);
+  }
+  const usable = (img: HTMLImageElement) =>
+    img.naturalWidth > 0 && img.naturalHeight > 0;
+  if (!src || bad) return <span className={initialsClass}>{mark}</span>;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt=""
+      style={style}
+      ref={(node) => {
+        if (node?.complete && !usable(node)) setBad(true);
+      }}
+      onLoad={(event) => {
+        if (!usable(event.currentTarget)) setBad(true);
+      }}
+      onError={() => setBad(true)}
+    />
+  );
+}
+
 export function PracticeShell({ children }: { children: React.ReactNode }) {
   const { session, logout } = useAuth();
   const pathname = usePathname();
@@ -104,7 +144,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [session, pathname]);
+  }, [session]);
 
   if (!session) return null;
 
@@ -161,14 +201,12 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
         >
           <div className="cl-brand">
             <div className="cl-brand-logo">
-              {photo ?
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={photo}
-                  alt=""
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              : <span className="cl-brand-initials">{mark}</span>}
+              <ShellPhoto
+                src={photo}
+                mark={mark}
+                initialsClass="cl-brand-initials"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
             </div>
             <div className="cl-brand-info">
               <span className="cl-brand-name">{name}</span>
@@ -273,10 +311,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                   onClick={() => setMenuOpen((value) => !value)}
                 >
                   <div className="cl-profile-avatar">
-                    {photo ?
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={photo} alt="" />
-                    : <span>{mark}</span>}
+                    <ShellPhoto src={photo} mark={mark} />
                   </div>
                   <i className="fas fa-chevron-down cl-profile-chevron" />
                 </button>
@@ -287,10 +322,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                 >
                   <div className="cl-pm-top">
                     <div className="cl-pm-avatar">
-                      {photo ?
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={photo} alt="" />
-                      : <span>{mark}</span>}
+                      <ShellPhoto src={photo} mark={mark} />
                     </div>
                     <div className="cl-pm-info">
                       <strong>{name}</strong>

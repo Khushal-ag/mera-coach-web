@@ -55,7 +55,6 @@ import {
   validateAge,
   validateEmail,
   validateHeight,
-  validateMobile,
   validateRequired,
   validateWeight,
 } from "@/lib/validation";
@@ -425,16 +424,14 @@ export function AssessmentWizard({
   }
 
   function validateIdentity(): string | null {
-    const dobOrAge =
-      !form.dob && !form.age ? "Please enter Date of Birth or Age."
-      : form.age ? validateAge(form.age)
-      : null;
+    // Age is required. Date of birth is optional and fills the age in when given.
+    const ageError = validateAge(form.age);
     return (
       validateRequired(form.clientName, "Full name") ??
-      validateMobile(form.mobileNo) ??
+      validateRequired(form.mobileNo, "Mobile number") ??
       validateEmail(form.emailId) ??
       validateRequired(form.location, "Location") ??
-      dobOrAge ??
+      ageError ??
       (form.gender ? null : "Gender is required.") ??
       validateHeight(form.height) ??
       validateWeight(form.weight)
@@ -452,8 +449,7 @@ export function AssessmentWizard({
       : "Please select at least one medical condition.") ??
       (form.foodAllergies.length ?
         null
-      : "Please select at least one food allergy.") ??
-      validateRequired(form.primaryGoal, "Primary goal")
+      : "Please select at least one food allergy.")
     );
   }
 
@@ -763,9 +759,15 @@ export function AssessmentWizard({
                 <TextField
                   label="Mobile"
                   required
-                  inputMode="tel"
+                  inputMode="numeric"
+                  maxLength={10}
                   value={form.mobileNo}
-                  onChange={(e) => patch("mobileNo", e.target.value)}
+                  onChange={(e) =>
+                    patch(
+                      "mobileNo",
+                      e.target.value.replace(/\D/g, "").slice(0, 10),
+                    )
+                  }
                 />
                 <TextField
                   label="Email (optional)"
@@ -794,11 +796,12 @@ export function AssessmentWizard({
                   type="date"
                   value={toApiDate(form.dob) ?? ""}
                   max={new Date().toISOString().slice(0, 10)}
-                  hint="Enter Date of Birth or Age. Age fills in from Date of Birth."
+                  hint="Optional. Age fills in from Date of Birth."
                   onChange={(e) => onDobChange(e.target.value)}
                 />
                 <TextField
                   label="Age"
+                  required
                   type="number"
                   value={form.age}
                   onChange={(e) => patch("age", e.target.value)}
@@ -903,8 +906,7 @@ export function AssessmentWizard({
                   ))}
                 </SelectField>
                 <SelectField
-                  label="Primary goal"
-                  required
+                  label="Primary goal (optional)"
                   value={form.primaryGoal}
                   onChange={(e) => patch("primaryGoal", e.target.value)}
                 >
