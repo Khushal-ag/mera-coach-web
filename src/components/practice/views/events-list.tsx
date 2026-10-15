@@ -244,8 +244,8 @@ export function EventsListView() {
               />
               <TextField
                 label="Date"
+                type="date"
                 value={evt.date}
-                placeholder="YYYY-MM-DD"
                 onChange={(e) =>
                   edit((prev) =>
                     prev.map((row) =>
@@ -258,6 +258,7 @@ export function EventsListView() {
               />
               <TextField
                 label="Time"
+                type="time"
                 value={evt.time}
                 onChange={(e) =>
                   edit((prev) =>

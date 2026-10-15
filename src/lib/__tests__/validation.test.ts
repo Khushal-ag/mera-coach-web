@@ -40,6 +40,7 @@ describe("email", () => {
 
 describe("body measurements", () => {
   test("age is a whole number from 5 to 100", () => {
+    expect(validateAge("")).toBe("Age is required.");
     expect(validateAge("28")).toBeNull();
     expect(validateAge("4")).not.toBeNull();
     expect(validateAge("101")).not.toBeNull();

@@ -108,7 +108,7 @@ function AvatarMark({ name, alt }: { name?: string; alt: string }) {
 }
 
 function decodedOk(img: HTMLImageElement): boolean {
-  return img.naturalWidth > 2 && img.naturalHeight > 2;
+  return img.naturalWidth > 0 && img.naturalHeight > 0;
 }
 
 /**

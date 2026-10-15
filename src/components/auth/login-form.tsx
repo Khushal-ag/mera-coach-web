@@ -38,7 +38,7 @@ export function LoginForm() {
     const userName = String(formData.get("userName") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     if (!userName || !password) {
-      setError("Please enter your email and password.");
+      setError("Please enter your email or mobile number and password.");
       return;
     }
 
@@ -191,14 +191,14 @@ export function LoginForm() {
               <form className="lg-form" id="loginForm" onSubmit={onSubmit}>
                 <div className="lg-field">
                   <label htmlFor="lgUsername">
-                    <i className="fas fa-user" /> Email Address
+                    <i className="fas fa-user" /> Email or Mobile Number
                   </label>
                   <div className="lg-input-wrap">
                     <input
                       type="text"
                       id="lgUsername"
                       name="userName"
-                      placeholder="Enter your email address"
+                      placeholder="Enter your email or mobile number"
                       autoComplete="username"
                       required
                     />
