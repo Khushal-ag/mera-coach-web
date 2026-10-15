@@ -213,50 +213,47 @@ export function SiteHeader() {
           </NavAnchor>
         ))}
         {signedIn && session ?
-          <>
+          <div className="mobile-actions">
             <Link
               href={premiumHref(session)}
-              className="btn btn-outline"
-              style={{ marginTop: 20 }}
+              className="nav-premium"
               onClick={close}
             >
-              Premium
+              <i className="fas fa-crown" aria-hidden /> Premium
             </Link>
-            <Link href="/dashboard" className="btn btn-outline" onClick={close}>
-              Dashboard
+            <Link href="/dashboard" className="btn btn-primary" onClick={close}>
+              <i className="fas fa-th-large" aria-hidden /> Dashboard
             </Link>
             <button
               type="button"
-              className="btn btn-primary"
+              className="btn btn-outline"
               onClick={() => {
                 close();
                 void logout();
               }}
             >
-              Logout
+              <i className="fas fa-sign-out-alt" aria-hidden /> Logout
             </button>
-          </>
-        : <>
+          </div>
+        : <div className="mobile-actions">
             <Link
               href="/coach-login"
               className="btn btn-outline"
-              style={{ marginTop: 20 }}
               onClick={close}
             >
               Login
             </Link>
             <Link href="/register" className="btn btn-primary" onClick={close}>
-              Join Free
+              <i className="fas fa-user-plus" aria-hidden /> Join Free
             </Link>
             <Link
               href="/register"
               className="btn btn-secondary"
-              style={{ marginTop: 6 }}
               onClick={close}
             >
               Become a Coach
             </Link>
-          </>
+          </div>
         }
       </div>
     </header>

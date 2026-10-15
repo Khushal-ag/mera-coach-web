@@ -13,6 +13,8 @@ export type CoachPublicListItem = {
   experienceYears: number;
   happyClientCount: number;
   profile_Pic_Url: string;
+  /** Cover image for directory cards; empty when the coach has none. */
+  cover_Url?: string;
   tagline: string;
   coachDesc: string;
   serviceCodes_Csv: string;

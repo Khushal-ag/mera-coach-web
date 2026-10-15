@@ -44,6 +44,7 @@ function normalizePublicList(payload: unknown): CoachPublicPagedResult | null {
       profile_Pic_Url: String(
         pick(r, "profile_Pic_Url", "Profile_Pic_Url") ?? "",
       ),
+      cover_Url: String(pick(r, "cover_Url", "Cover_Url") ?? ""),
       tagline: String(pick(r, "tagline", "Tagline") ?? ""),
       coachDesc: String(pick(r, "coachDesc", "CoachDesc") ?? ""),
       serviceCodes_Csv: String(

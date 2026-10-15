@@ -11149,3 +11149,83 @@ html {
   color: var(--primary);
   border-color: var(--primary);
 }
+
+/* Mobile menu actions: full-width, centred pills. The generic `.mobile-nav a` link rule
+   (block, bottom border) must not apply to these buttons. */
+.mc-public .mobile-nav .mobile-actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+.mc-public .mobile-nav .mobile-actions a,
+.mc-public .mobile-nav .mobile-actions button,
+.mc-public .mobile-nav a.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding: 12px 20px;
+  text-align: center;
+  border-radius: 999px;
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+.mc-public .mobile-nav a.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+}
+.mc-public .mobile-nav a.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+.mc-public .mobile-nav a.nav-premium {
+  background: rgba(201, 136, 42, 0.14);
+  color: #8a5a12;
+  border: none;
+}
+.mc-public .mobile-nav .mobile-actions button.btn-outline {
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
+}
+
+/* Coach profile hero photo: keep the whole picture and the face in frame on every screen.
+   A fixed-height frame cropped square photos on wide, short phones. */
+.mc-public .cp-hero-photo-col .cp-photo-frame {
+  height: auto;
+  aspect-ratio: 4 / 5;
+  max-width: 460px;
+  margin-inline: auto;
+}
+.mc-public .cp-photo-wrap img {
+  object-position: center 22%;
+}
+@media (max-width: 900px) {
+  .mc-public .cp-hero-photo-col .cp-photo-frame {
+    aspect-ratio: 1 / 1;
+    max-width: 380px;
+  }
+}
+@media (max-width: 600px) {
+  .mc-public .cp-hero-photo-col .cp-photo-frame {
+    height: auto;
+    max-width: 320px;
+  }
+}
+.mc-public .mobile-nav a.btn-secondary {
+  background: var(--secondary, #1b4332);
+  color: #fff;
+  border: none;
+}
+
+/* Initials / photo inside the featured coach card avatar. */
+.mc-public .coach-avatar-frame {
+  position: relative;
+  overflow: hidden;
+}

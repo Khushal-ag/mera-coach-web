@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import type { CoachPublicListItem } from "@/types/coach";
 
+import { CoachPhoto } from "@/components/coach-photo";
 import { HomeCarousel } from "@/components/home/home-carousel";
 import { HomeSearch } from "@/components/home/home-search";
 import {
@@ -28,6 +29,8 @@ function CoachCard({
 }) {
   const style = coachTypeStyle(coach.coachTypeName, index);
   const avatar = resolveMediaUrl(coach.profile_Pic_Url);
+  // The coach's own cover first; the category picture is only a fallback.
+  const banner = resolveMediaUrl(coach.cover_Url) || style.banner;
   const tags = serviceTags(coach.serviceNames);
   const bio = coachBio(coach.coachDesc, coach.coachTypeName);
 
@@ -35,7 +38,7 @@ function CoachCard({
     <div className="coach-card">
       <div className="coach-card-banner">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={style.banner} alt={coach.coachTypeName} />
+        <img src={banner} alt={coach.coachTypeName} />
         <span
           className="coach-category-badge"
           style={{ background: style.color }}
@@ -44,23 +47,13 @@ function CoachCard({
         </span>
       </div>
       <div className="coach-avatar-wrap">
-        {avatar ?
-          // eslint-disable-next-line @next/next/no-img-element
-          <img className="coach-avatar" src={avatar} alt={coach.coachName} />
-        : <div
-            className="coach-avatar"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "#e2e8f0",
-              fontSize: 36,
-              color: "#94a3b8",
-            }}
-          >
-            <i className="fas fa-user-circle" />
-          </div>
-        }
+        <div className="coach-avatar coach-avatar-frame">
+          <CoachPhoto
+            src={avatar}
+            alt={coach.coachName}
+            name={coach.coachName}
+          />
+        </div>
         <div className="coach-online" />
       </div>
       <div className="coach-card-body">

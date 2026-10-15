@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { MasterOption } from "@/lib/api/master";
 import type { CoachPublicListItem } from "@/types/coach";
 
+import { CoachPhoto } from "@/components/coach-photo";
 import { ListEmpty } from "@/components/list-empty";
 import { MenuSelect } from "@/components/ui/menu-select";
 import { env } from "@/config/env";
@@ -388,13 +389,11 @@ export function CoachListView({
                       style={hidden ? { display: "none" } : undefined}
                     >
                       <div className="cl-card-img">
-                        {photo ?
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={photo} alt={coach.coachName} />
-                        : <div className="cl-card-img-placeholder">
-                            <i className="fas fa-user-circle" />
-                          </div>
-                        }
+                        <CoachPhoto
+                          src={photo}
+                          alt={coach.coachName}
+                          name={coach.coachName}
+                        />
                         <span
                           className={`cl-card-badge ${typeClass(coach.coachTypeCode, "badge")}`.trim()}
                         >
