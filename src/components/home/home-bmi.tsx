@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 import { MenuSelect } from "@/components/ui/menu-select";
@@ -19,6 +19,171 @@ type BmiResult = {
   heightCm: number;
   weightKg: number;
 };
+
+const GAUGE = {
+  cx: 160,
+  cy: 150,
+  r: 108,
+  stroke: 22,
+  min: 16,
+  max: 40,
+} as const;
+
+/** Standard angle in degrees: 180 on the left end of the dial, 0 on the right. */
+function angleFor(bmi: number) {
+  const clamped = Math.max(GAUGE.min, Math.min(GAUGE.max, bmi));
+  return 180 - ((clamped - GAUGE.min) / (GAUGE.max - GAUGE.min)) * 180;
+}
+function pointAt(angle: number, radius: number) {
+  const rad = (angle * Math.PI) / 180;
+  return {
+    x: GAUGE.cx + radius * Math.cos(rad),
+    y: GAUGE.cy - radius * Math.sin(rad),
+  };
+}
+function arcPath(from: number, to: number, gap = 0.9) {
+  const a = pointAt(angleFor(from) - gap, GAUGE.r);
+  const b = pointAt(angleFor(to) + gap, GAUGE.r);
+  return `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} A ${GAUGE.r} ${GAUGE.r} 0 0 1 ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+}
+
+const BANDS = [
+  { from: 16, to: 18.5, color: "#3b82f6" },
+  { from: 18.5, to: 25, color: "#22c55e" },
+  { from: 25, to: 30, color: "#f59e0b" },
+  { from: 30, to: 40, color: "#ef4444" },
+] as const;
+const TICKS = [16, 18.5, 25, 30, 40] as const;
+
+function BmiGauge({
+  bmi,
+  label,
+  locked = false,
+}: {
+  bmi: string;
+  label: string;
+  locked?: boolean;
+}) {
+  const value = Number.parseFloat(bmi);
+  const [needle, setNeedle] = useState(-90);
+  useEffect(() => {
+    if (locked) return;
+    const frame = window.requestAnimationFrame(() =>
+      setNeedle(90 - angleFor(value)),
+    );
+    return () => window.cancelAnimationFrame(frame);
+  }, [value, locked]);
+  const tip = pointAt(90, GAUGE.r - 18);
+  return (
+    <svg
+      viewBox="0 0 320 214"
+      className="bmi-gauge-svg"
+      role="img"
+      aria-label={`BMI ${bmi}, ${label}`}
+    >
+      {BANDS.map((band) => (
+        <path
+          key={band.from}
+          d={arcPath(band.from, band.to)}
+          fill="none"
+          stroke={band.color}
+          strokeWidth={GAUGE.stroke}
+        />
+      ))}
+      {TICKS.map((tick) => {
+        const angle = angleFor(tick);
+        const at = pointAt(angle, GAUGE.r + GAUGE.stroke / 2 + 13);
+        const anchor =
+          angle > 100 ? "end"
+          : angle < 80 ? "start"
+          : "middle";
+        return (
+          <text
+            key={tick}
+            x={at.x}
+            y={at.y + 4}
+            textAnchor={anchor}
+            className="bmi-gauge-lbl"
+          >
+            {tick}
+          </text>
+        );
+      })}
+      {locked ?
+        <>
+          <path
+            d={`M ${GAUGE.cx - 9} ${GAUGE.cy + 12} v-8 a9 9 0 0 1 18 0 v8`}
+            fill="none"
+            stroke="#fff"
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
+          <rect
+            x={GAUGE.cx - 17}
+            y={GAUGE.cy + 12}
+            width="34"
+            height="27"
+            rx="6"
+            className="bmi-gauge-lock"
+          />
+          <circle cx={GAUGE.cx} cy={GAUGE.cy + 23} r="3.4" fill="#254a39" />
+          <rect
+            x={GAUGE.cx - 1.6}
+            y={GAUGE.cy + 24}
+            width="3.2"
+            height="8"
+            rx="1.6"
+            fill="#254a39"
+          />
+          <text
+            x={GAUGE.cx}
+            y={GAUGE.cy + 62}
+            textAnchor="middle"
+            className="bmi-gauge-locktxt"
+          >
+            Locked
+          </text>
+        </>
+      : <>
+          <g
+            style={{
+              transformOrigin: `${GAUGE.cx}px ${GAUGE.cy}px`,
+              transform: `rotate(${needle}deg)`,
+              transition: "transform 1.1s cubic-bezier(.4,0,.2,1)",
+            }}
+          >
+            <line
+              x1={GAUGE.cx}
+              y1={GAUGE.cy}
+              x2={tip.x}
+              y2={tip.y}
+              stroke="#fff"
+              strokeWidth="4"
+              strokeLinecap="round"
+            />
+          </g>
+          <circle cx={GAUGE.cx} cy={GAUGE.cy} r="9" fill="#fff" />
+          <text
+            x={GAUGE.cx}
+            y={GAUGE.cy + 42}
+            textAnchor="middle"
+            className="bmi-gauge-num"
+          >
+            {bmi}
+          </text>
+          <text
+            x={GAUGE.cx}
+            y={GAUGE.cy + 60}
+            textAnchor="middle"
+            className="bmi-gauge-unit"
+          >
+            BMI
+          </text>
+        </>
+      }
+    </svg>
+  );
+}
 
 const EXPLAINS: Record<string, (bmi: string) => string> = {
   Underweight: (bmi) =>
@@ -335,162 +500,40 @@ export function HomeBmi() {
             <div className="bmi-result-inner">
               <div className="bmi-res-left">
                 <div className="bmi-gauge-wrap">
-                  <svg
-                    viewBox="-50 -5 420 220"
-                    className="bmi-gauge-svg"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M 40 160 A 120 120 0 0 1 42.8 119.6"
-                      fill="none"
-                      stroke="#3b82f6"
-                      strokeWidth="22"
-                    />
-                    <path
-                      d="M 42.8 119.6 A 120 120 0 0 1 114.5 49.8"
-                      fill="none"
-                      stroke="#22c55e"
-                      strokeWidth="22"
-                    />
-                    <path
-                      d="M 114.5 49.8 A 120 120 0 0 1 191.1 44.1"
-                      fill="none"
-                      stroke="#f59e0b"
-                      strokeWidth="22"
-                    />
-                    <path
-                      d="M 191.1 44.1 A 120 120 0 0 1 280 160"
-                      fill="none"
-                      stroke="#ef4444"
-                      strokeWidth="22"
-                    />
-                    <text
-                      x="26"
-                      y="178"
-                      textAnchor="middle"
-                      className="bmi-gauge-lbl"
-                    >
-                      16
-                    </text>
-                    <text
-                      x="22"
-                      y="112"
-                      textAnchor="end"
-                      className="bmi-gauge-lbl"
-                    >
-                      18.5
-                    </text>
-                    <text
-                      x="107"
-                      y="27"
-                      textAnchor="middle"
-                      className="bmi-gauge-lbl"
-                    >
-                      25
-                    </text>
-                    <text
-                      x="196"
-                      y="21"
-                      textAnchor="middle"
-                      className="bmi-gauge-lbl"
-                    >
-                      30
-                    </text>
-                    <text
-                      x="293"
-                      y="178"
-                      textAnchor="middle"
-                      className="bmi-gauge-lbl"
-                    >
-                      40
-                    </text>
-                    <text
-                      x="-10"
-                      y="148"
-                      textAnchor="middle"
-                      className="bmi-zone-lbl"
-                      fill="#3b82f6"
-                    >
-                      Under-
-                    </text>
-                    <text
-                      x="-10"
-                      y="162"
-                      textAnchor="middle"
-                      className="bmi-zone-lbl"
-                      fill="#3b82f6"
-                    >
-                      weight
-                    </text>
-                    <text
-                      x="55"
-                      y="48"
-                      textAnchor="middle"
-                      className="bmi-zone-lbl"
-                      fill="#22c55e"
-                    >
-                      Normal
-                    </text>
-                    <text
-                      x="160"
-                      y="10"
-                      textAnchor="middle"
-                      className="bmi-zone-lbl"
-                      fill="#f59e0b"
-                    >
-                      Overweight
-                    </text>
-                    <text
-                      x="271"
-                      y="55"
-                      textAnchor="middle"
-                      className="bmi-zone-lbl"
-                      fill="#ef4444"
-                    >
-                      Obese
-                    </text>
-                    <line
-                      x1="160"
-                      y1="160"
-                      x2="160"
-                      y2="55"
-                      stroke="white"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      style={{
-                        transformOrigin: "160px 160px",
-                        transform: `rotate(${result.degrees}deg)`,
-                        transition: "transform 1s cubic-bezier(.4,0,.2,1)",
-                      }}
-                    />
-                    <circle cx="160" cy="160" r="7" fill="white" />
-                    <text
-                      x="160"
-                      y="132"
-                      textAnchor="middle"
-                      className="bmi-gauge-num"
-                    >
-                      {result.bmi}
-                    </text>
-                    <text
-                      x="160"
-                      y="148"
-                      textAnchor="middle"
-                      className="bmi-gauge-unit"
-                    >
-                      BMI
-                    </text>
-                  </svg>
+                  <BmiGauge
+                    bmi={sent ? result.bmi : "0"}
+                    label={sent ? result.label : "Locked"}
+                    locked={!sent}
+                  />
+                  <ul className="bmi-legend">
+                    <li style={{ ["--c" as string]: "#3b82f6" }}>
+                      Underweight
+                    </li>
+                    <li style={{ ["--c" as string]: "#22c55e" }}>Healthy</li>
+                    <li style={{ ["--c" as string]: "#f59e0b" }}>Overweight</li>
+                    <li style={{ ["--c" as string]: "#ef4444" }}>Obese</li>
+                  </ul>
                 </div>
               </div>
               <div className="bmi-res-right">
-                <div
-                  className="bmi-res-headline"
-                  style={{ color: result.color }}
-                >
-                  BMI {result.bmi}: {result.label}
-                </div>
-                <p className="bmi-res-explain">{result.explain}</p>
+                {sent ?
+                  <>
+                    <div
+                      className="bmi-res-headline"
+                      style={{ color: result.color }}
+                    >
+                      BMI {result.bmi}: {result.label}
+                    </div>
+                    <p className="bmi-res-explain">{result.explain}</p>
+                  </>
+                : <>
+                    <div className="bmi-lock-badge">
+                      <i className="fas fa-lock" aria-hidden /> Your result is
+                      ready
+                    </div>
+                    <h3 className="bmi-lock-title">Unlock your BMI result</h3>
+                  </>
+                }
                 {sent ?
                   <div className="bmi-lead-success">
                     <i
@@ -502,8 +545,8 @@ export function HomeBmi() {
                       }}
                     />
                     <p>
-                      Thank you! A top-rated wellness coach will contact you
-                      shortly.
+                      Thank you! Your result is unlocked above. A top-rated
+                      wellness coach will contact you shortly.
                     </p>
                     <Link
                       href="/coach"
@@ -515,8 +558,9 @@ export function HomeBmi() {
                   </div>
                 : <div className="bmi-lead-form">
                     <p className="bmi-lead-prompt">
-                      Get personalised guidance, share your details and a
-                      top-rated wellness coach will reach out.{" "}
+                      Enter your name and mobile number to unlock your BMI
+                      result. A top-rated wellness coach will also reach out
+                      with personalised guidance.{" "}
                       <strong>Free. No commitments.</strong>
                     </p>
                     <div className="bmi-lead-fields">
@@ -555,8 +599,7 @@ export function HomeBmi() {
                           <i className="fas fa-spinner fa-spin" /> Sending...
                         </>
                       : <>
-                          <i className="fas fa-comments" /> Discuss Your BMI
-                          with Top Rated Coaches
+                          <i className="fas fa-unlock" /> Unlock My BMI Result
                         </>
                       }
                     </button>

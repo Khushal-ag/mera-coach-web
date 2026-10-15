@@ -137,15 +137,30 @@ export function BmiCalculator({
               Your BMI
             </p>
             {bmi != null ?
-              <p className="mt-1 font-display text-5xl font-extrabold tracking-tight text-[color:var(--mc-accent)] tabular-nums">
-                {formatBmi(bmi)}
-              </p>
+              <>
+                <p
+                  className={
+                    success ?
+                      "mt-1 font-display text-5xl font-extrabold tracking-tight text-[color:var(--mc-accent)] tabular-nums"
+                    : "mt-1 font-display text-5xl font-extrabold tracking-tight text-white/35 tabular-nums"
+                  }
+                  aria-label={success ? undefined : "Locked"}
+                >
+                  {success ? formatBmi(bmi) : "–.–"}
+                </p>
+                {success ? null : (
+                  <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-white/85">
+                    <i className="fas fa-lock" aria-hidden /> Enter your details
+                    in the form to unlock your result.
+                  </p>
+                )}
+              </>
             : <p className="mt-1 text-sm text-white/80">
                 Waiting for measurements
               </p>
             }
           </div>
-          {category ?
+          {category && success ?
             <p
               className={`inline-flex rounded-full px-3 py-1 text-sm font-bold ${categoryTone}`}
             >

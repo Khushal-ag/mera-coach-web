@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 
 import { AuthProvider } from "@/components/auth-provider";
+import { ScrollReveal } from "@/components/scroll-reveal";
 import { ScrollTop } from "@/components/scroll-top";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -51,6 +52,7 @@ function MarketingChrome({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <SiteFooter />
+      <ScrollReveal />
       <ScrollTop />
     </div>
   );

@@ -48,6 +48,7 @@ export default function RootLayout({
         className={cn(
           fonts.nunito.variable,
           fonts.poppins.variable,
+          fonts.montserrat.variable,
           "min-h-dvh scroll-smooth font-sans antialiased",
         )}
       >
