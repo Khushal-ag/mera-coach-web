@@ -135,6 +135,7 @@ export function FeedbackForm({
             name="comments"
             label="Comments"
             rows={6}
+            maxLength={1000}
             disabled={busy}
             placeholder="What stood out, and what could be better?"
             hint="Optional."

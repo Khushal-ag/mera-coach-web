@@ -45,6 +45,11 @@ import { resolveMediaUrl } from "@/lib/media/media-url";
 import { getProfileCompletion } from "@/lib/profile-completion";
 import { cn } from "@/lib/utils";
 import {
+  validateEmail,
+  validateMobile,
+  validateRequired,
+} from "@/lib/validation";
+import {
   COACH_GALLERY_DOC_TYPE,
   COACH_GALLERY_MAX_PHOTOS,
   COACH_GALLERY_REF_TYPE,
@@ -562,14 +567,27 @@ export function ProfileSettingsView() {
 
   async function save() {
     if (!profile || !profileDirty) return;
-    if (!coachName.trim() || !coachTypeCode) {
-      setEditStep(1);
+    const problems: Array<[number, string | null]> = [
+      [1, validateRequired(coachName, "Display name")],
+      [1, coachTypeCode ? null : "Please select a coach category."],
+      [1, validateMobile(mobile)],
+      [1, validateEmail(email, true)],
+      [2, validateRequired(experienceYears, "Experience")],
+      [2, validateRequired(happyClients, "Happy clients")],
+      [
+        3,
+        pinCode.trim().length === 6 && /^\d+$/.test(pinCode.trim()) ?
+          null
+        : "Please enter a valid 6-digit PIN code.",
+      ],
+      [3, validateRequired(addLine, "Address line")],
+      [4, validateRequired(coachDesc, "About")],
+    ];
+    const firstProblem = problems.find(([, message]) => message);
+    if (firstProblem) {
+      setEditStep(firstProblem[0]);
       setMessage(null);
-      setError(
-        !coachName.trim() ?
-          "Display name is required."
-        : "Please select a coach category.",
-      );
+      setError(firstProblem[1]);
       return;
     }
     setBusy(true);
@@ -1010,6 +1028,9 @@ export function ProfileSettingsView() {
                       <div className="rg-field rg-col-2">
                         <label>
                           <i className="fas fa-user" /> Display name
+                          <span className="rg-req" aria-hidden>
+                            *
+                          </span>
                         </label>
                         <input
                           value={coachName}
@@ -1020,6 +1041,9 @@ export function ProfileSettingsView() {
                       <div className="rg-field rg-col-2">
                         <label>
                           <i className="fas fa-layer-group" /> Coach category
+                          <span className="rg-req" aria-hidden>
+                            *
+                          </span>
                         </label>
                         <MenuSelect
                           skin="public"
@@ -1041,6 +1065,9 @@ export function ProfileSettingsView() {
                       <div className="rg-field rg-col-2">
                         <label>
                           <i className="fas fa-mobile-alt" /> Mobile number
+                          <span className="rg-req" aria-hidden>
+                            *
+                          </span>
                         </label>
                         <input
                           value={mobile}
@@ -1051,6 +1078,9 @@ export function ProfileSettingsView() {
                       <div className="rg-field rg-col-2">
                         <label>
                           <i className="fas fa-envelope" /> Email address
+                          <span className="rg-req" aria-hidden>
+                            *
+                          </span>
                         </label>
                         <input
                           value={email}
@@ -1106,6 +1136,9 @@ export function ProfileSettingsView() {
                       <div className="rg-field rg-col-2">
                         <label>
                           <i className="fas fa-award" /> Experience (years)
+                          <span className="rg-req" aria-hidden>
+                            *
+                          </span>
                         </label>
                         <input
                           value={experienceYears}
@@ -1117,6 +1150,9 @@ export function ProfileSettingsView() {
                       <div className="rg-field rg-col-2">
                         <label>
                           <i className="fas fa-smile" /> Happy clients
+                          <span className="rg-req" aria-hidden>
+                            *
+                          </span>
                         </label>
                         <input
                           value={happyClients}
@@ -1193,6 +1229,9 @@ export function ProfileSettingsView() {
                       <div className="rg-field rg-col-2">
                         <label>
                           <i className="fas fa-map-pin" /> PIN code
+                          <span className="rg-req" aria-hidden>
+                            *
+                          </span>
                         </label>
                         <input
                           value={pinCode}
@@ -1249,6 +1288,9 @@ export function ProfileSettingsView() {
                       <div className="rg-field rg-col-2">
                         <label>
                           <i className="fas fa-home" /> Address line
+                          <span className="rg-req" aria-hidden>
+                            *
+                          </span>
                         </label>
                         <input
                           value={addLine}
@@ -1319,6 +1361,7 @@ export function ProfileSettingsView() {
 
                       <TextAreaField
                         label="About"
+                        required
                         value={coachDesc}
                         onChange={(e) => setCoachDesc(e.target.value)}
                       />

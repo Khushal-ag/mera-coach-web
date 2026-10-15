@@ -5,7 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/components/auth-provider";
+import { isSubscriptionRequired } from "@/config/practice";
+import { fetchAuthedCoachProfile } from "@/lib/api/practice";
 import { resolveMediaUrl } from "@/lib/media/media-url";
+import { describeValidity } from "@/lib/validity";
 
 const navItems = [
   {
@@ -46,6 +49,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [freshValidUpto, setFreshValidUpto] = useState<string | null>(null);
   const navId = useId();
   const accountMenuRef = useRef<HTMLDivElement>(null);
 
@@ -88,12 +92,33 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
     };
   }, [menuOpen]);
 
+  // Login only carries the date from sign-in time. Read the saved one so a renewal shows at once.
+  useEffect(() => {
+    if (!session) return;
+    let cancelled = false;
+    void fetchAuthedCoachProfile()
+      .then((profile) => {
+        if (!cancelled) setFreshValidUpto(profile?.validUpto ?? null);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [session, pathname]);
+
   if (!session) return null;
 
   const mark = initials(session.fullName);
   const name = session.fullName || "Coach";
   const photo = resolveMediaUrl(session.profileUrl);
-  const validity = session.validUpto || (session.premiumPaid ? "Active" : "");
+  const validityInfo = describeValidity(freshValidUpto ?? session.validUpto);
+  const validity =
+    validityInfo?.dateLabel ||
+    session.validUpto ||
+    (session.premiumPaid ? "Active" : "");
+  const validityTone = validityInfo?.tone ?? "ok";
+  const needsRenewal =
+    validityTone !== "ok" && isSubscriptionRequired() && !!validityInfo;
 
   const nav = (
     <nav className="cl-nav" aria-label="Coaching">
@@ -154,15 +179,22 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
           {nav}
           <div className="cl-sidebar-footer">
             {validity ?
-              <div className="cl-validity-strip">
+              <div className={`cl-validity-strip cl-validity-${validityTone}`}>
                 <i className="fas fa-shield-alt" />
                 <div>
                   <span>
-                    {session.validUpto ?
+                    {validityTone === "expired" ?
+                      "Validity expired on"
+                    : validityInfo || session.validUpto ?
                       "Subscription valid till"
                     : "Subscription"}
                   </span>
                   <strong>{validity}</strong>
+                  {needsRenewal ?
+                    <Link href="/premium" className="cl-validity-renew">
+                      Renew now
+                    </Link>
+                  : null}
                 </div>
               </div>
             : null}
@@ -196,12 +228,23 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
             </div>
             <div className="cl-header-right">
               {validity ?
-                <div className="cl-validity-badge">
+                <div
+                  className={`cl-validity-badge cl-validity-${validityTone}`}
+                >
                   <i className="fas fa-calendar-check" />
                   <span>
-                    {session.validUpto ? "Validity" : "Plan"}:{" "}
-                    <strong>{validity}</strong>
+                    {validityTone === "expired" ?
+                      "Expired"
+                    : validityInfo || session.validUpto ?
+                      "Validity"
+                    : "Plan"}
+                    : <strong>{validity}</strong>
                   </span>
+                  {needsRenewal ?
+                    <Link href="/premium" className="cl-validity-renew">
+                      Renew
+                    </Link>
+                  : null}
                 </div>
               : null}
               <button

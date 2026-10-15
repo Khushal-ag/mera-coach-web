@@ -365,6 +365,7 @@ export async function fetchAuthedCoachProfile(): Promise<CoachProfile | null> {
       String(pick(raw, "coachTypeCode", "CoachTypeCode") ?? "") || null,
     coachTypeName:
       String(pick(raw, "coachTypeName", "CoachTypeName") ?? "") || null,
+    validUpto: String(pick(raw, "validUpto", "ValidUpto") ?? "").trim() || null,
     city_Cd: String(pick(raw, "city_Cd", "City_Cd") ?? "") || null,
     state_Cd: String(pick(raw, "state_Cd", "State_Cd") ?? "") || null,
     country_Cd: String(pick(raw, "country_Cd", "Country_Cd") ?? "") || null,

@@ -687,7 +687,7 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
                     </Field>
                   </div>
                   <div className="cf-grid-2">
-                    <Field label="Email">
+                    <Field label="Email (optional)">
                       <input
                         type="email"
                         id="h-email"

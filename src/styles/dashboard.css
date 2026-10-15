@@ -4370,3 +4370,44 @@
   min-width: 24px;
   color: #6b5a4c;
 }
+
+/* Validity states: ok, soon (last 15 days), expired */
+.mc-dash .cl-validity-soon i,
+.mc-dash .cl-validity-soon strong {
+  color: #b45309;
+}
+.mc-dash .cl-validity-expired i,
+.mc-dash .cl-validity-expired strong {
+  color: #b42318;
+}
+.mc-dash .cl-validity-badge.cl-validity-expired {
+  border-color: #f3b4ad;
+  background: #fef3f2;
+}
+.mc-dash .cl-validity-badge.cl-validity-soon {
+  border-color: #f2d49b;
+  background: #fffaeb;
+}
+.mc-dash .cl-validity-renew {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #1b4332;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.mc-dash .cl-validity-strip .cl-validity-renew {
+  display: block;
+  margin: 6px 0 0;
+  width: max-content;
+}
+.mc-dash .cl-validity-renew:hover {
+  background: #2d6a4f;
+}
+.mc-dash .cl-validity-renew:focus-visible {
+  outline: 3px solid rgba(45, 106, 79, 0.4);
+  outline-offset: 2px;
+}

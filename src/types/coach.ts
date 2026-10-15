@@ -58,6 +58,8 @@ export type CoachProfile = {
   businessName?: string | null;
   coachTypeCode?: string | null;
   coachTypeName?: string | null;
+  /** Subscription end date (the coach ValidUpto). */
+  validUpto?: string | null;
   city_Cd?: string | null;
   state_Cd?: string | null;
   country_Cd?: string | null;

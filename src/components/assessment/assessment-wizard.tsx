@@ -144,7 +144,9 @@ function ChipMulti({
   options,
   values,
   onChange,
+  required,
 }: {
+  required?: boolean;
   label: string;
   options: { code: string; label: string }[];
   values: string[];
@@ -152,7 +154,15 @@ function ChipMulti({
 }) {
   return (
     <fieldset>
-      <legend className="mc-field-label mb-2">{label}</legend>
+      <legend className="mc-field-label mb-2">
+        {label}
+        {required ?
+          <span className="text-mc-primary" aria-hidden>
+            {" "}
+            *
+          </span>
+        : null}
+      </legend>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => {
           const opt = option.code;
@@ -397,6 +407,23 @@ export function AssessmentWizard({
     setForm((f) => ({ ...f, [key]: value }));
   }
 
+  /** Picking a date of birth fills in the age, like the app. Age can still be typed alone. */
+  function onDobChange(value: string) {
+    const born = value ? new Date(`${value}T00:00:00`) : null;
+    let age = "";
+    if (born && !Number.isNaN(born.getTime())) {
+      const today = new Date();
+      let years = today.getFullYear() - born.getFullYear();
+      const birthdayPassed =
+        today.getMonth() > born.getMonth() ||
+        (today.getMonth() === born.getMonth() &&
+          today.getDate() >= born.getDate());
+      if (!birthdayPassed) years -= 1;
+      if (years >= 0) age = String(years);
+    }
+    setForm((f) => ({ ...f, dob: value, ...(age ? { age } : {}) }));
+  }
+
   function validateIdentity(): string | null {
     const dobOrAge =
       !form.dob && !form.age ? "Please enter Date of Birth or Age."
@@ -452,7 +479,7 @@ export function AssessmentWizard({
         gender: form.gender,
         age: parseInt(form.age, 10) || 0,
         weight: parseFloat(form.weight) || 0,
-        height: parseFloat(form.height) || 0,
+        height: Math.round(parseFloat(form.height)) || 0,
         savedBy,
       });
       if (!next.clientCode || !next.assessmentCode) {
@@ -741,13 +768,14 @@ export function AssessmentWizard({
                   onChange={(e) => patch("mobileNo", e.target.value)}
                 />
                 <TextField
-                  label="Email"
+                  label="Email (optional)"
                   type="email"
                   value={form.emailId}
                   onChange={(e) => patch("emailId", e.target.value)}
                 />
                 <TextField
                   label="Location"
+                  required
                   value={form.location}
                   onChange={(e) => patch("location", e.target.value)}
                 />
@@ -762,10 +790,12 @@ export function AssessmentWizard({
                   <option value="F">Female</option>
                 </SelectField>
                 <TextField
-                  label="Date of birth"
+                  label="Date of birth (optional)"
                   type="date"
                   value={toApiDate(form.dob) ?? ""}
-                  onChange={(e) => patch("dob", e.target.value)}
+                  max={new Date().toISOString().slice(0, 10)}
+                  hint="Enter Date of Birth or Age. Age fills in from Date of Birth."
+                  onChange={(e) => onDobChange(e.target.value)}
                 />
                 <TextField
                   label="Age"
@@ -811,6 +841,7 @@ export function AssessmentWizard({
                 </SelectField>
                 <SelectField
                   label="Regional cuisine"
+                  required
                   value={form.regionalCuisine}
                   onChange={(e) => patch("regionalCuisine", e.target.value)}
                 >
@@ -823,6 +854,7 @@ export function AssessmentWizard({
                 </SelectField>
                 <SelectField
                   label="Physical activity"
+                  required
                   value={form.physicalActivity}
                   onChange={(e) => patch("physicalActivity", e.target.value)}
                 >
@@ -835,6 +867,7 @@ export function AssessmentWizard({
                 </SelectField>
                 <SelectField
                   label="Work type"
+                  required
                   value={form.workType}
                   onChange={(e) => patch("workType", e.target.value)}
                 >
@@ -847,6 +880,7 @@ export function AssessmentWizard({
                 </SelectField>
                 <SelectField
                   label="Sleep duration"
+                  required
                   value={form.sleepDuration}
                   onChange={(e) => patch("sleepDuration", e.target.value)}
                 >
@@ -858,7 +892,7 @@ export function AssessmentWizard({
                   ))}
                 </SelectField>
                 <SelectField
-                  label="Pregnancy / breastfeeding"
+                  label="Pregnancy / breastfeeding (optional)"
                   value={form.pregnancy}
                   onChange={(e) => patch("pregnancy", e.target.value)}
                 >
@@ -882,7 +916,7 @@ export function AssessmentWizard({
                   ))}
                 </SelectField>
                 <SelectField
-                  label="Target timeline"
+                  label="Target timeline (optional)"
                   value={form.targetTimeline}
                   onChange={(e) => patch("targetTimeline", e.target.value)}
                 >
@@ -896,18 +930,20 @@ export function AssessmentWizard({
               </div>
               <ChipMulti
                 label="Medical conditions"
+                required
                 options={optionsFor("PC009")}
                 values={form.medicalConditions}
                 onChange={(v) => patch("medicalConditions", v)}
               />
               <ChipMulti
                 label="Food allergies"
+                required
                 options={optionsFor("PC010")}
                 values={form.foodAllergies}
                 onChange={(v) => patch("foodAllergies", v)}
               />
               <TextAreaField
-                label="Additional notes"
+                label="Additional notes (optional)"
                 value={form.additionalNotes}
                 onChange={(e) => patch("additionalNotes", e.target.value)}
               />
