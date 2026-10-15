@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/components/auth-provider";
 import { isSubscriptionRequired } from "@/config/practice";
 import { fetchAuthedCoachProfile } from "@/lib/api/practice";
+import { ensurePremiumStatus } from "@/lib/auth/premium-status";
+import { initials } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/media-url";
+import { premiumHref } from "@/lib/premium-link";
 import { describeValidity } from "@/lib/validity";
 
 const navItems = [
@@ -22,6 +25,7 @@ const navItems = [
   { href: "/dashboard/leads", label: "Leads", icon: "fas fa-filter" },
   { href: "/dashboard/packages", label: "Packages", icon: "fas fa-box" },
   { href: "/dashboard/events", label: "Events", icon: "fas fa-calendar-alt" },
+  { href: "/dashboard/profile", label: "My Profile", icon: "fas fa-id-card" },
 ] as const;
 
 function navActive(pathname: string, href: string, exact?: boolean) {
@@ -35,13 +39,6 @@ function navActive(pathname: string, href: string, exact?: boolean) {
       (pathname === item.href || pathname.startsWith(`${item.href}/`)),
   );
   return !coveredByLongerItem;
-}
-
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "C";
-  if (parts.length === 1) return parts[0]!.slice(0, 1).toUpperCase();
-  return `${parts[0]![0]}${parts[parts.length - 1]![0]}`.toUpperCase();
 }
 
 /**
@@ -88,10 +85,9 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
   const { session, logout } = useAuth();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [freshValidUpto, setFreshValidUpto] = useState<string | null>(null);
+  const [paid, setPaid] = useState<boolean | undefined>(undefined);
   const navId = useId();
-  const accountMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -113,24 +109,19 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
     };
   }, [open]);
 
+  // Free plan or paid: decides whether the sidebar offers an upgrade.
   useEffect(() => {
-    if (!menuOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
-    };
-    const onPointerDown = (event: PointerEvent) => {
-      const target = event.target;
-      if (!(target instanceof Node)) return;
-      if (accountMenuRef.current?.contains(target)) return;
-      setMenuOpen(false);
-    };
-    document.addEventListener("keydown", onKeyDown);
-    document.addEventListener("pointerdown", onPointerDown);
+    if (!session) return;
+    let cancelled = false;
+    void ensurePremiumStatus()
+      .then((value) => {
+        if (!cancelled) setPaid(value);
+      })
+      .catch(() => undefined);
     return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.removeEventListener("pointerdown", onPointerDown);
+      cancelled = true;
     };
-  }, [menuOpen]);
+  }, [session]);
 
   // Login only carries the date from sign-in time. Read the saved one so a renewal shows at once.
   useEffect(() => {
@@ -148,7 +139,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
 
   if (!session) return null;
 
-  const mark = initials(session.fullName);
+  const mark = initials(session.fullName, { fallback: "C" });
   const name = session.fullName || "Coach";
   const photo = resolveMediaUrl(session.profileUrl);
   const validityInfo = describeValidity(freshValidUpto ?? session.validUpto);
@@ -159,6 +150,9 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
   const validityTone = validityInfo?.tone ?? "ok";
   const needsRenewal =
     validityTone !== "ok" && isSubscriptionRequired() && !!validityInfo;
+
+  const onFreePlan = (paid ?? session.premiumPaid) === false;
+  const premiumLink = premiumHref(session);
 
   const nav = (
     <nav className="cl-nav" aria-label="Coaching">
@@ -199,7 +193,12 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
           className={open ? "cl-sidebar cl-sb-open" : "cl-sidebar"}
           id={navId}
         >
-          <div className="cl-brand">
+          <Link
+            href="/dashboard/profile"
+            className="cl-brand"
+            aria-label="Open my profile"
+            onClick={() => setOpen(false)}
+          >
             <div className="cl-brand-logo">
               <ShellPhoto
                 src={photo}
@@ -212,7 +211,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
               <span className="cl-brand-name">{name}</span>
               <span className="cl-brand-cat">{session.email || ""}</span>
             </div>
-          </div>
+          </Link>
           <div className="cl-sidebar-divider" />
           {nav}
           <div className="cl-sidebar-footer">
@@ -224,7 +223,9 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                     {validityTone === "expired" ?
                       "Validity expired on"
                     : validityInfo || session.validUpto ?
-                      "Subscription valid till"
+                      onFreePlan ?
+                        "Free plan valid till"
+                      : "Subscription valid till"
                     : "Subscription"}
                   </span>
                   <strong>{validity}</strong>
@@ -235,6 +236,20 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                   : null}
                 </div>
               </div>
+            : null}
+            {onFreePlan ?
+              <Link
+                href={premiumLink}
+                className="cl-upgrade"
+                onClick={() => setOpen(false)}
+              >
+                <i className="fas fa-crown" aria-hidden />
+                <span>
+                  <strong>Go Premium</strong>
+                  <small>Unlimited clients and more</small>
+                </span>
+                <i className="fas fa-chevron-right" aria-hidden />
+              </Link>
             : null}
             <button
               type="button"
@@ -295,65 +310,13 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                 <span className="cl-notif-dot" />
               </button>
               <Link
-                href="/dashboard"
+                href="/"
                 className="cl-home-btn"
-                aria-label="Go to dashboard home"
-                aria-current={pathname === "/dashboard" ? "page" : undefined}
-                title="Home"
+                aria-label="Go to homepage"
+                title="Homepage"
               >
                 <i className="fas fa-home" aria-hidden />
               </Link>
-              <div className="cl-profile-wrap" ref={accountMenuRef}>
-                <button
-                  type="button"
-                  className="cl-profile-btn"
-                  aria-label={`Account menu for ${name}`}
-                  onClick={() => setMenuOpen((value) => !value)}
-                >
-                  <div className="cl-profile-avatar">
-                    <ShellPhoto src={photo} mark={mark} />
-                  </div>
-                  <i className="fas fa-chevron-down cl-profile-chevron" />
-                </button>
-                <div
-                  className={
-                    menuOpen ? "cl-profile-menu cl-pm-open" : "cl-profile-menu"
-                  }
-                >
-                  <div className="cl-pm-top">
-                    <div className="cl-pm-avatar">
-                      <ShellPhoto src={photo} mark={mark} />
-                    </div>
-                    <div className="cl-pm-info">
-                      <strong>{name}</strong>
-                      <span>{session.email || ""}</span>
-                    </div>
-                  </div>
-                  <div className="cl-pm-sep" />
-                  <Link
-                    href="/dashboard/profile"
-                    className="cl-pm-link"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <i className="fas fa-id-card" /> My Profile
-                  </Link>
-                  <Link
-                    href="/dashboard/profile/password"
-                    className="cl-pm-link"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <i className="fas fa-key" /> Change Password
-                  </Link>
-                  <div className="cl-pm-sep" />
-                  <button
-                    type="button"
-                    className="cl-pm-link cl-pm-logout"
-                    onClick={() => void logout()}
-                  >
-                    <i className="fas fa-sign-out-alt" /> Logout
-                  </button>
-                </div>
-              </div>
             </div>
           </header>
           <main id="main-content" className="cl-content">

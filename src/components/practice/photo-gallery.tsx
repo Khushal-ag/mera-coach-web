@@ -7,6 +7,7 @@ import type { DocumentListItem } from "@/types/document";
 import { ListEmpty } from "@/components/list-empty";
 import { MediaPreview } from "@/components/media/media-preview";
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { REGISTER_IMAGE_ACCEPT } from "@/constants/media";
 import {
   deleteDocument,
   listDocuments,
@@ -14,7 +15,6 @@ import {
 } from "@/lib/api/document";
 import {
   fileToBase64DataUrl,
-  REGISTER_IMAGE_ACCEPT,
   validateRegisterImage,
 } from "@/lib/media/image-file";
 import { resolveMediaUrl } from "@/lib/media/media-url";

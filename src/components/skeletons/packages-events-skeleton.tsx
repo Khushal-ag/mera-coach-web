@@ -1,71 +1,33 @@
-function FieldBlock() {
+/** Card grid shared by the packages and events lists: image, title, two detail lines. */
+function CardGridSkeleton({ cards, label }: { cards: number; label: string }) {
   return (
-    <div>
-      <div className="mc-skeleton mb-1.5 h-3 w-24" />
-      <div className="mc-skeleton h-11 w-full rounded-[10px]" />
+    <div
+      className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+      aria-busy="true"
+      aria-label={label}
+    >
+      <span className="sr-only">{label}</span>
+      {Array.from({ length: cards }, (_, index) => (
+        <div
+          key={index}
+          className="clt-card flex min-w-0 flex-col overflow-hidden"
+        >
+          <div className="mc-skeleton aspect-[16/9] rounded-none" />
+          <div className="grid gap-2 p-4">
+            <div className="mc-skeleton h-5 w-3/4" />
+            <div className="mc-skeleton h-4 w-1/2" />
+            <div className="mc-skeleton h-4 w-2/3" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
 
-function CoverBlock() {
-  return (
-    <div className="sm:col-span-2">
-      <div className="mc-skeleton mb-1.5 h-3 w-24" />
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="mc-skeleton h-20 w-32 rounded-xl" />
-        <div className="mc-skeleton h-11 w-24 rounded-[10px]" />
-      </div>
-    </div>
-  );
-}
-
-/** Package editor cards: title, cover, and the four fields. */
 export function PackageCardsSkeleton({ cards = 3 }: { cards?: number }) {
-  return (
-    <div className="grid gap-4" aria-busy="true" aria-label="Loading packages">
-      <span className="sr-only">Loading packages</span>
-      {Array.from({ length: cards }, (_, index) => (
-        <div key={index} className="mc-panel min-w-0 p-4 sm:p-5">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div className="mc-skeleton h-6 w-40 max-w-full" />
-            <div className="mc-skeleton h-4 w-16" />
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <CoverBlock />
-            <FieldBlock />
-            <FieldBlock />
-            <FieldBlock />
-            <FieldBlock />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  return <CardGridSkeleton cards={cards} label="Loading packages" />;
 }
 
-/** Event editor cards: title, cover, schedule, and link. */
 export function EventCardsSkeleton({ cards = 3 }: { cards?: number }) {
-  return (
-    <div className="grid gap-4" aria-busy="true" aria-label="Loading events">
-      <span className="sr-only">Loading events</span>
-      {Array.from({ length: cards }, (_, index) => (
-        <div key={index} className="mc-panel min-w-0 p-4 sm:p-5">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div className="mc-skeleton h-6 w-40 max-w-full" />
-            <div className="mc-skeleton h-4 w-16" />
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <CoverBlock />
-            <FieldBlock />
-            <FieldBlock />
-            <FieldBlock />
-            <FieldBlock />
-            <div className="sm:col-span-2">
-              <FieldBlock />
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  return <CardGridSkeleton cards={cards} label="Loading events" />;
 }

@@ -1,5 +1,3 @@
-export const ADD_CLIENT_PREMIUM_HREF = "/premium?reason=add-client";
-
 export type AddClientAccess = "wizard" | "paywall";
 
 /**

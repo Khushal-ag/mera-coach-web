@@ -1,8 +1,7 @@
 import type { CoachPackage } from "@/types/coach";
 
+import { MAX_COACH_PACKAGES } from "@/constants/coach";
 import { coerceJsonList } from "@/lib/coach/coerce-json-list";
-
-export const MAX_COACH_PACKAGES = 5;
 
 /** Accept arrays or JSON strings from profile GET responses. */
 export function parseCoachPackages(raw: unknown): CoachPackage[] {

@@ -1,24 +1,6 @@
 import type { CoachPublicListItem } from "@/types/coach";
 
-const CAT_ICON_BG = [
-  "",
-  "purple-bg",
-  "orange-bg",
-  "yellow-bg",
-  "blue-bg",
-  "pink-bg",
-  "teal-bg",
-] as const;
-
-const CAT_COUNT_COLOR = [
-  "var(--primary)",
-  "#9333ea",
-  "#2d6a4f",
-  "#f59e0b",
-  "#3b82f6",
-  "#ec4899",
-  "#0d9488",
-] as const;
+import { CAT_COUNT_COLOR, CAT_ICON_BG } from "@/constants/home";
 
 export function categoryStyle(index: number) {
   return {
@@ -64,7 +46,7 @@ export function coachTypeStyle(typeName: string, idx = 0) {
       "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=600&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=600&auto=format&fit=crop&q=80",
     ];
-    return { banner: imgs[idx % imgs.length] ?? imgs[0], color: "#9333ea" };
+    return { banner: imgs[idx % imgs.length] ?? imgs[0], color: "#b07520" };
   }
   if (
     t.includes("nutrition") ||
@@ -76,7 +58,7 @@ export function coachTypeStyle(typeName: string, idx = 0) {
       "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&auto=format&fit=crop&q=80",
     ];
-    return { banner: imgs[idx % imgs.length] ?? imgs[0], color: "#f59e0b" };
+    return { banner: imgs[idx % imgs.length] ?? imgs[0], color: "#c9882a" };
   }
   if (t.includes("weight") || t.includes("transform")) {
     const imgs = [
@@ -84,7 +66,7 @@ export function coachTypeStyle(typeName: string, idx = 0) {
       "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&auto=format&fit=crop&q=80",
     ];
-    return { banner: imgs[idx % imgs.length] ?? imgs[0], color: "#ec4899" };
+    return { banner: imgs[idx % imgs.length] ?? imgs[0], color: "#c04b2b" };
   }
   if (
     t.includes("holistic") ||

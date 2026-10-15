@@ -11,7 +11,7 @@ import type {
 
 import { AssessmentWizardLazy as AssessmentWizard } from "@/components/assessment/assessment-wizard-lazy";
 import { useAuth } from "@/components/auth-provider";
-import { ListEmpty } from "@/components/list-empty";
+import { EmptyState } from "@/components/practice/empty-state";
 import { PracticePageHeader } from "@/components/practice/page-header";
 import { ClientDietSkeleton } from "@/components/skeletons/client-profile-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
@@ -162,13 +162,15 @@ export function ClientDietPlanView({
     : `Meals and targets saved for ${clientName}.`;
   const planActions = (
     <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end print:hidden">
-      <button
-        type="button"
-        className="mc-btn-secondary w-full sm:w-auto"
-        onClick={() => window.print()}
-      >
-        Print
-      </button>
+      {plan ?
+        <button
+          type="button"
+          className="mc-btn-secondary w-full sm:w-auto"
+          onClick={() => window.print()}
+        >
+          Print
+        </button>
+      : null}
       {plan ?
         <button
           type="button"
@@ -180,14 +182,16 @@ export function ClientDietPlanView({
           {pdfBusy ? "Preparing…" : "Download PDF"}
         </button>
       : null}
-      <button
-        type="button"
-        className="mc-btn-primary w-full sm:w-auto"
-        onClick={() => setEditing(true)}
-      >
-        <i className="fas fa-magic" style={{ fontSize: 16 }} aria-hidden />
-        {plan ? "Regenerate" : "Generate plan"}
-      </button>
+      {plan ?
+        <button
+          type="button"
+          className="mc-btn-primary w-full sm:w-auto"
+          onClick={() => setEditing(true)}
+        >
+          <i className="fas fa-magic" style={{ fontSize: 16 }} aria-hidden />
+          Regenerate
+        </button>
+      : null}
     </div>
   );
 
@@ -224,9 +228,24 @@ export function ClientDietPlanView({
       {loading ?
         <ClientDietSkeleton />
       : !plan ?
-        <ListEmpty
-          title="No diet plan yet. Generate one from the client assessment."
+        <EmptyState
           icon="fas fa-utensils"
+          title="No diet plan yet"
+          description={`Generate a personalised daily calorie target and meal plan for ${clientName === "Client" ? "this client" : clientName} from their saved assessment.`}
+          action={
+            <button
+              type="button"
+              className="mc-btn-primary"
+              onClick={() => setEditing(true)}
+            >
+              <i
+                className="fas fa-magic"
+                style={{ fontSize: 16 }}
+                aria-hidden
+              />
+              Generate plan
+            </button>
+          }
         />
       : <div className="space-y-6">
           <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(14rem,0.7fr)]">

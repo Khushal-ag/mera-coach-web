@@ -11,6 +11,8 @@ import type {
 
 import { useAuth } from "@/components/auth-provider";
 import { ListEmpty } from "@/components/list-empty";
+import { buildDashboardSlides } from "@/components/practice/dashboard-slides";
+import { DASHBOARD_CAROUSEL } from "@/constants/ui";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import {
   fetchAuthedCoachProfile,
@@ -19,6 +21,7 @@ import {
   fetchRecheckupList,
 } from "@/lib/api/practice";
 import { getProfileCompletion } from "@/lib/profile-completion";
+import { describeValidity } from "@/lib/validity";
 
 function todayLabel() {
   const d = new Date();
@@ -77,6 +80,10 @@ export function DashboardHomeView() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [completion, setCompletion] = useState<number | null>(null);
+  const [missing, setMissing] = useState<string[]>([]);
+  const [packageCount, setPackageCount] = useState<number | null>(null);
+  const [eventCount, setEventCount] = useState<number | null>(null);
+  const [validUpto, setValidUpto] = useState<string | null>(null);
   const [slide, setSlide] = useState(0);
   const [slidePaused, setSlidePaused] = useState(false);
 
@@ -85,22 +92,18 @@ export function DashboardHomeView() {
     void fetchAuthedCoachProfile()
       .then((profile) => {
         if (cancelled || !profile) return;
-        setCompletion(getProfileCompletion(profile).percent);
+        const result = getProfileCompletion(profile);
+        setCompletion(result.percent);
+        setMissing(result.missingLabels);
+        setPackageCount(profile.packages?.length ?? 0);
+        setEventCount(profile.events?.length ?? 0);
+        setValidUpto(profile.validUpto ?? null);
       })
       .catch(() => undefined);
     return () => {
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    if (slidePaused) return;
-    const timer = window.setInterval(
-      () => setSlide((current) => (current + 1) % 3),
-      5000,
-    );
-    return () => window.clearInterval(timer);
-  }, [slidePaused]);
 
   useEffect(() => {
     if (!session?.coachCode) return;
@@ -170,6 +173,46 @@ export function DashboardHomeView() {
       `/coach/${encodeURIComponent(session.coachCode)}`
     : "/dashboard/profile";
 
+  const validity = describeValidity(validUpto ?? session?.validUpto);
+  const slides = useMemo(
+    () =>
+      buildDashboardSlides({
+        ready: !loading,
+        completion,
+        missing,
+        clientCount: clients.length,
+        openLeadCount: openLeads.length,
+        dueCount: due.length,
+        packageCount,
+        eventCount,
+        validity,
+        profileHref,
+      }),
+    [
+      loading,
+      completion,
+      missing,
+      clients.length,
+      openLeads.length,
+      due.length,
+      packageCount,
+      eventCount,
+      validity,
+      profileHref,
+    ],
+  );
+
+  const active = slides.length ? slide % slides.length : 0;
+  const slideCount = slides.length;
+  useEffect(() => {
+    if (slidePaused || slideCount < 2) return;
+    const timer = window.setInterval(
+      () => setSlide((current) => current + 1),
+      DASHBOARD_CAROUSEL.intervalMs,
+    );
+    return () => window.clearInterval(timer);
+  }, [slidePaused, slideCount]);
+
   return (
     <div>
       <div className="db-page-head">
@@ -228,175 +271,123 @@ export function DashboardHomeView() {
             </div>
           </div>
 
-          <div
-            className="db-carousel-wrap"
-            onMouseEnter={() => setSlidePaused(true)}
-            onMouseLeave={() => setSlidePaused(false)}
-          >
-            <div className="db-carousel">
-              <div
-                className="db-carousel-track"
-                style={{ transform: `translateX(-${slide * 100}%)` }}
-              >
-                <div className="db-slide db-slide-1">
-                  <div className="db-slide-shapes">
-                    <div className="db-sl-s db-sl-s1" />
-                    <div className="db-sl-s db-sl-s2" />
-                  </div>
-                  <div className="db-slide-content">
-                    <div className="db-slide-tag">
-                      <i className="fas fa-user-circle" /> Profile
+          {loading || completion == null ?
+            <div
+              className="db-carousel-wrap"
+              aria-busy="true"
+              aria-label="Loading highlights"
+            >
+              <div className="db-carousel mc-skeleton" />
+            </div>
+          : slides.length > 0 ?
+            <div
+              className="db-carousel-wrap"
+              onMouseEnter={() => setSlidePaused(true)}
+              onMouseLeave={() => setSlidePaused(false)}
+            >
+              <div className="db-carousel">
+                <div
+                  className="db-carousel-track"
+                  style={{ transform: `translateX(-${active * 100}%)` }}
+                >
+                  {slides.map((item) => (
+                    <div
+                      key={item.id}
+                      className={`db-slide db-slide-${item.tone}`}
+                    >
+                      <div className="db-slide-shapes">
+                        <div className="db-sl-s db-sl-s1" />
+                        <div className="db-sl-s db-sl-s2" />
+                      </div>
+                      <div className="db-slide-content">
+                        <div className="db-slide-tag">
+                          <i className={item.tag.icon} /> {item.tag.label}
+                        </div>
+                        <h2>
+                          {item.title}
+                          <br />
+                          <em>{item.em}</em>
+                        </h2>
+                        <p>{item.text}</p>
+                        {item.cta.href ?
+                          <Link href={item.cta.href} className="db-slide-btn">
+                            <i className={item.cta.icon} /> {item.cta.label}
+                          </Link>
+                        : <button
+                            type="button"
+                            className="db-slide-btn"
+                            onClick={() => void openAddClient()}
+                          >
+                            <i className={item.cta.icon} /> {item.cta.label}
+                          </button>
+                        }
+                      </div>
+                      <div className="db-slide-visual">
+                        {item.ring != null ?
+                          <div className="db-profile-ring">
+                            <svg viewBox="0 0 100 100" className="db-ring-svg">
+                              <circle
+                                cx="50"
+                                cy="50"
+                                r="42"
+                                className="db-ring-bg"
+                              />
+                              <circle
+                                cx="50"
+                                cy="50"
+                                r="42"
+                                className="db-ring-fill"
+                                strokeDasharray={`${Math.round((item.ring / 100) * 264)} 264`}
+                              />
+                            </svg>
+                            <span className="db-ring-pct">{item.ring}%</span>
+                          </div>
+                        : <div className="db-money-icon">
+                            <i className={item.icon} />
+                          </div>
+                        }
+                      </div>
                     </div>
-                    <h2>
-                      {completion != null ?
-                        <>
-                          Your Profile is
-                          <br />
-                          <em>{completion}% Complete</em>
-                        </>
-                      : <>
-                          Complete Your
-                          <br />
-                          <em>Public Profile</em>
-                        </>
-                      }
-                    </h2>
-                    <p>
-                      Add your profile photo, description and location to
-                      attract more clients on the platform.
-                    </p>
-                    <Link href="/dashboard/profile" className="db-slide-btn">
-                      <i className="fas fa-edit" /> Complete Profile
-                    </Link>
-                  </div>
-                  <div className="db-slide-visual">
-                    <div className="db-profile-ring">
-                      <svg viewBox="0 0 100 100" className="db-ring-svg">
-                        <circle cx="50" cy="50" r="42" className="db-ring-bg" />
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="42"
-                          className="db-ring-fill"
-                          strokeDasharray={`${Math.round(((completion ?? 0) / 100) * 264)} 264`}
+                  ))}
+                </div>
+                {slides.length > 1 ?
+                  <>
+                    <button
+                      type="button"
+                      className="db-car-btn db-car-prev"
+                      aria-label="Previous"
+                      onClick={() => setSlide(active + slides.length - 1)}
+                    >
+                      <i className="fas fa-chevron-left" />
+                    </button>
+                    <button
+                      type="button"
+                      className="db-car-btn db-car-next"
+                      aria-label="Next"
+                      onClick={() => setSlide(active + 1)}
+                    >
+                      <i className="fas fa-chevron-right" />
+                    </button>
+                    <div className="db-car-dots">
+                      {slides.map((item, dot) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          aria-label={`Go to slide ${dot + 1}`}
+                          className={
+                            dot === active ?
+                              "db-car-dot db-dot-active"
+                            : "db-car-dot"
+                          }
+                          onClick={() => setSlide(dot)}
                         />
-                      </svg>
-                      <span className="db-ring-pct">
-                        {completion != null ? `${completion}%` : "-"}
-                      </span>
+                      ))}
                     </div>
-                  </div>
-                </div>
-                <div className="db-slide db-slide-2">
-                  <div className="db-slide-shapes">
-                    <div className="db-sl-s db-sl-s1" />
-                    <div className="db-sl-s db-sl-s2" />
-                  </div>
-                  <div className="db-slide-content">
-                    <div className="db-slide-tag db-tag-gold">
-                      <i className="fas fa-lightbulb" /> Growth Tip
-                    </div>
-                    <h2>
-                      Share Your Profile
-                      <br />
-                      <em>Get Found by Clients</em>
-                    </h2>
-                    <p>
-                      Send your public profile link to existing clients and on
-                      social media so new clients can reach you directly.
-                    </p>
-                    <Link
-                      href={profileHref}
-                      className="db-slide-btn db-slide-btn-gold"
-                    >
-                      <i className="fas fa-share-alt" /> Share Profile Link
-                    </Link>
-                  </div>
-                  <div className="db-slide-visual db-slide-icons">
-                    <div className="db-si-row">
-                      <div className="db-si-item">
-                        <i className="fas fa-star" />
-                      </div>
-                      <div className="db-si-item">
-                        <i className="fas fa-star" />
-                      </div>
-                      <div className="db-si-item">
-                        <i className="fas fa-star" />
-                      </div>
-                    </div>
-                    <div className="db-si-row db-si-row2">
-                      <div className="db-si-item">
-                        <i className="fas fa-star" />
-                      </div>
-                      <div className="db-si-item">
-                        <i className="fas fa-star" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="db-slide db-slide-3">
-                  <div className="db-slide-shapes">
-                    <div className="db-sl-s db-sl-s1" />
-                    <div className="db-sl-s db-sl-s2" />
-                  </div>
-                  <div className="db-slide-content">
-                    <div className="db-slide-tag db-tag-red">
-                      <i className="fas fa-gift" /> Refer a Coach
-                    </div>
-                    <h2>
-                      Know a Coach Who
-                      <br />
-                      <em>Should Be Here?</em>
-                    </h2>
-                    <p>
-                      Refer a fellow coach to Mera Coach. We will reach out and
-                      help them get onboarded.
-                    </p>
-                    <Link
-                      href="/contact"
-                      className="db-slide-btn db-slide-btn-red"
-                    >
-                      <i className="fas fa-paper-plane" /> Send Referral
-                    </Link>
-                  </div>
-                  <div className="db-slide-visual db-slide-money">
-                    <div className="db-money-icon">
-                      <i className="fas fa-user-plus" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="db-car-btn db-car-prev"
-                aria-label="Previous"
-                onClick={() => setSlide((slide + 2) % 3)}
-              >
-                <i className="fas fa-chevron-left" />
-              </button>
-              <button
-                type="button"
-                className="db-car-btn db-car-next"
-                aria-label="Next"
-                onClick={() => setSlide((slide + 1) % 3)}
-              >
-                <i className="fas fa-chevron-right" />
-              </button>
-              <div className="db-car-dots">
-                {[0, 1, 2].map((dot) => (
-                  <button
-                    key={dot}
-                    type="button"
-                    aria-label={`Go to slide ${dot + 1}`}
-                    className={
-                      dot === slide ? "db-car-dot db-dot-active" : "db-car-dot"
-                    }
-                    onClick={() => setSlide(dot)}
-                  />
-                ))}
+                  </>
+                : null}
               </div>
             </div>
-          </div>
+          : null}
         </div>
 
         <div className="db-activity-wrap">

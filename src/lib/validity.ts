@@ -1,3 +1,5 @@
+import { MONTHS, VALIDITY_WARN_DAYS } from "@/constants/validity";
+
 /** Coach subscription validity (the coach's ValidUpto date) for display. */
 
 type ValidityTone = "ok" | "soon" | "expired";
@@ -9,24 +11,6 @@ export type ValidityInfo = {
   /** Whole days left, 0 on the last day, negative once expired. */
   daysLeft: number;
 };
-
-/** Warn this many days before the end date. */
-const VALIDITY_WARN_DAYS = 15;
-
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
 
 function parseDate(raw: string): Date | null {
   const text = raw.trim();

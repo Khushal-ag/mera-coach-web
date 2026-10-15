@@ -16,7 +16,8 @@ import type {
   SaveLifestyleInput,
 } from "@/types/practice";
 
-import { MEAL_SLOTS } from "@/data/lifestyle-options";
+import { PLAN_MEAL_TYPE_TO_DB_LABEL } from "@/constants/api";
+import { MEAL_SLOTS } from "@/constants/lifestyle-options";
 import { authedFetch } from "@/lib/api/authed";
 import { apiFetch } from "@/lib/api/client";
 import { firstApiError, isApiSuccess, pick } from "@/lib/api/normalize";
@@ -601,11 +602,6 @@ export async function saveBmi(params: {
     },
   });
 }
-
-const PLAN_MEAL_TYPE_TO_DB_LABEL: Record<string, string> = {
-  "Mid-Morning Snack": "Mid Morning",
-  "Evening Snack": "Evening",
-};
 
 export async function saveDietPlan(params: {
   ids: AssessmentIds;

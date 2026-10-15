@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { initials } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 import { cn } from "@/lib/utils";
 
@@ -55,19 +56,6 @@ function ensurePhotoSrc(src: string): string {
   return trimmed;
 }
 
-function initialsFromName(name: string): string {
-  const parts = name
-    .trim()
-    .split(/\s+/)
-    .map((part) => part.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ""))
-    .filter(Boolean);
-  if (!parts.length) return "";
-  const first = parts[0]!.charAt(0);
-  const second =
-    parts.length > 1 ? parts[parts.length - 1]!.charAt(0) : parts[0]!.charAt(1);
-  return `${first}${second}`.toLocaleUpperCase();
-}
-
 function PersonOutline() {
   return (
     <svg
@@ -88,7 +76,7 @@ function PersonOutline() {
 }
 
 function AvatarMark({ name, alt }: { name?: string; alt: string }) {
-  const initials = initialsFromName(name ?? "");
+  const mark = initials(name, { fallback: "", singleWordLength: 2 });
   const label = alt.trim();
 
   return (
@@ -98,9 +86,9 @@ function AvatarMark({ name, alt }: { name?: string; alt: string }) {
       aria-label={label || undefined}
       aria-hidden={label ? undefined : true}
     >
-      {initials ?
+      {mark ?
         <span className="font-display text-[38cqmin] leading-none font-bold tracking-tight">
-          {initials}
+          {mark}
         </span>
       : <PersonOutline />}
     </span>

@@ -218,19 +218,6 @@
   }
 
   /* Auth submit uses the same rust primary as the old login button. */
-  .mc-btn-auth {
-    background-color: var(--mc-primary);
-    font-family: var(--font-display);
-    font-weight: 600;
-    color: #fff;
-    box-shadow: 0 8px 25px rgba(192, 75, 43, 0.28);
-  }
-
-  .mc-btn-auth:hover {
-    background-color: var(--mc-primary-dark);
-    filter: none;
-    box-shadow: 0 8px 25px rgba(192, 75, 43, 0.35);
-  }
 
   .mc-btn-primary:active {
     transform: scale(0.98);
@@ -238,8 +225,7 @@
 
   .mc-btn-primary:disabled,
   .mc-btn-secondary:disabled,
-  .mc-btn-outline-on-dark:disabled,
-  .mc-btn-whatsapp:disabled {
+  .mc-btn-outline-on-dark:disabled {
     cursor: default;
     opacity: 0.6;
     transform: none;
@@ -300,32 +286,6 @@
     border-color: var(--mc-primary);
     background-color: var(--mc-primary);
     color: #fff;
-    transform: translateY(-2px);
-  }
-
-  .mc-btn-whatsapp {
-    display: inline-flex;
-    min-height: 3rem;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    border-radius: var(--radius-pill);
-    border: none;
-    background-color: var(--mc-whatsapp);
-    padding-inline: 1.75rem;
-    font-family: var(--font-display);
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: #fff;
-    box-shadow: 0 8px 28px rgba(37, 211, 102, 0.38);
-    transition:
-      background-color 0.2s ease,
-      transform 0.2s ease;
-  }
-
-  .mc-btn-whatsapp:hover {
-    background-color: #1ebe5d;
     transform: translateY(-2px);
   }
 
@@ -495,19 +455,6 @@
     color: var(--mc-destructive);
   }
 
-  .mc-chip {
-    display: inline-flex;
-    min-height: 2rem;
-    align-items: center;
-    gap: 0.25rem;
-    border-radius: var(--radius-pill);
-    background-color: var(--mc-primary-light);
-    padding: 0.25rem 0.65rem;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: var(--mc-primary);
-  }
-
   .mc-banner {
     border-radius: var(--radius-md);
     border: 1.5px solid var(--line);
@@ -549,17 +496,6 @@
     background-color: var(--surface);
   }
 
-  .mc-roster-head {
-    background-image: linear-gradient(180deg, #fffdf9 0%, #f5ede0 100%);
-    color: var(--ink);
-    font-family: var(--font-display);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    border-bottom: 2px solid var(--line);
-  }
-
   .mc-roster tbody tr,
   .mc-roster > li,
   .mc-roster > ul > li {
@@ -591,123 +527,6 @@
     buttons. Inside the platform, controls follow CoachLayout.css:
     forest buttons, 14px cards, cream fields, Poppins labels.
   */
-  .coach-app {
-    --ink-muted: #7a5646;
-    background-color: #f5ede0;
-    color: #2c1810;
-    font-size: 15px;
-  }
-
-  .coach-app .mc-btn-primary {
-    min-height: 2.75rem;
-    border-radius: 10px;
-    background-color: #1b4332;
-    background-image: linear-gradient(135deg, #1b4332, #2d6a4f);
-    padding-inline: 1.375rem;
-    font-family: var(--font-display);
-    font-size: 13px;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(27, 67, 50, 0.22);
-  }
-
-  .coach-app .mc-btn-primary:hover {
-    background-color: #0f2018;
-    background-image: linear-gradient(135deg, #0f2018, #1b4332);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(27, 67, 50, 0.3);
-  }
-
-  .coach-app .mc-btn-secondary {
-    min-height: 2.75rem;
-    border-radius: 10px;
-    border: 2px solid #1b4332;
-    background-color: #fff;
-    padding-inline: 1.375rem;
-    font-family: var(--font-display);
-    font-size: 13px;
-    font-weight: 600;
-    color: #1b4332;
-  }
-
-  .coach-app .mc-btn-secondary:hover:not(:disabled) {
-    border-color: #1b4332;
-    background-color: #1b4332;
-    color: #fff;
-    transform: translateY(-1px);
-  }
-
-  .coach-app .mc-field {
-    min-height: 2.75rem;
-    border-radius: 10px;
-    border-color: #e5d5c5;
-    background-color: #fdfaf7;
-    padding: 0 14px;
-    font-size: 13.5px;
-  }
-
-  .coach-app textarea.mc-field {
-    min-height: 6.5rem;
-    padding: 10px 14px;
-  }
-
-  .coach-app .mc-field:hover:not(:disabled):not(:read-only) {
-    border-color: #1b4332;
-  }
-
-  .coach-app .mc-field:focus,
-  .coach-app .mc-field:focus-visible {
-    border-color: #1b4332;
-    background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.08);
-  }
-
-  .coach-app .mc-field-label {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-  }
-
-  .coach-app .mc-panel {
-    border-radius: 16px;
-    border-color: #e5d5c5;
-    box-shadow:
-      0 1px 2px rgba(44, 24, 16, 0.04),
-      0 8px 24px rgba(27, 67, 50, 0.06);
-  }
-
-  .coach-app .mc-roster {
-    border-radius: 16px;
-    border-color: #e5d5c5;
-    background-color: #fff;
-    box-shadow: 0 1px 2px rgba(44, 24, 16, 0.04);
-  }
-
-  .coach-app .mc-roster-head {
-    background-image: none;
-    background-color: #fdf8f2;
-    border-bottom: 1px solid #e5d5c5;
-    color: #1b4332;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0;
-    text-transform: none;
-  }
-
-  .coach-app .mc-roster tbody tr,
-  .coach-app .mc-roster > li,
-  .coach-app .mc-roster > ul > li {
-    border-color: #f3ede5;
-  }
-
-  .coach-app .mc-roster tbody tr:hover,
-  .coach-app .mc-roster > li:hover,
-  .coach-app .mc-roster > ul > li:hover {
-    background-color: #fdf8f2;
-  }
-
-  .coach-app input[type="checkbox"] {
-    accent-color: #1b4332;
-  }
 }
 
 @layer utilities {
@@ -737,10 +556,6 @@
     }
   }
 
-  .mc-enter {
-    animation: mc-enter 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
   @keyframes mc-enter {
     from {
       opacity: 0;
@@ -753,12 +568,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .mc-enter {
-      animation: none !important;
-      opacity: 1;
-      transform: none;
-    }
-
     .mc-press:active {
       transform: none;
     }

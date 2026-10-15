@@ -1,6 +1,6 @@
-/** Match mera-coach-app `SUPPORT_EMAIL` / support mailto helpers. */
+import { SUPPORT_EMAIL } from "@/constants/support";
 
-const SUPPORT_EMAIL = "hello@mera-coach.com";
+/** Match mera-coach-app `SUPPORT_EMAIL` / support mailto helpers. */
 
 export const supportEmail = SUPPORT_EMAIL;
 

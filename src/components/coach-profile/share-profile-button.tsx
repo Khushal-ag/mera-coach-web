@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { copyText } from "@/lib/clipboard";
 import { cn } from "@/lib/utils";
 
 type ShareProfileButtonProps = {
@@ -14,31 +15,6 @@ type ShareProfileButtonProps = {
   variant?:
     "primary" | "outline-on-dark" | "secondary" | "quiet" | "quiet-on-dark";
 };
-
-async function copyProfileUrl(url: string): Promise<boolean> {
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(url);
-      return true;
-    }
-  } catch {
-    // fall through to execCommand
-  }
-  try {
-    const input = document.createElement("textarea");
-    input.value = url;
-    input.setAttribute("readonly", "");
-    input.style.position = "fixed";
-    input.style.left = "-9999px";
-    document.body.appendChild(input);
-    input.select();
-    const ok = document.execCommand("copy");
-    document.body.removeChild(input);
-    return ok;
-  } catch {
-    return false;
-  }
-}
 
 export function ShareProfileButton({
   coachName,
@@ -76,7 +52,7 @@ export function ShareProfileButton({
       }
     }
 
-    const copied = await copyProfileUrl(url);
+    const copied = await copyText(url);
     setFeedback(copied ? "Link copied" : "Could not copy link");
     window.setTimeout(() => setFeedback(null), 2500);
   }

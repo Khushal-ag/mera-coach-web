@@ -9,6 +9,7 @@ import {
   HomeSearchSection,
   HomeStories,
 } from "@/components/home/home-live";
+import { BLOG_POSTS, PROOF_AVATARS } from "@/constants/home";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
@@ -18,58 +19,6 @@ export const metadata = publicPageMetadata({
   path: "/",
   absolute: true,
 });
-
-const PROOF = [
-  "https://randomuser.me/api/portraits/women/44.jpg",
-  "https://randomuser.me/api/portraits/men/32.jpg",
-  "https://randomuser.me/api/portraits/women/68.jpg",
-  "https://randomuser.me/api/portraits/men/75.jpg",
-];
-
-const BLOG_POSTS = [
-  {
-    image:
-      "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&auto=format&fit=crop&q=80",
-    imageAlt: "Nutrition Blog",
-    category: "Nutrition",
-    categoryStyle: undefined,
-    date: "May 20, 2026",
-    title: "10 Superfoods That Can Transform Your Health in 30 Days",
-    summary:
-      "Discover science-backed superfoods that your nutrition coach recommends for improved energy, immunity and overall wellness...",
-    authorAvatar: "https://randomuser.me/api/portraits/women/68.jpg",
-    authorName: "Dr. Ananya Singh",
-    readTime: "5 min read",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&auto=format&fit=crop&q=80",
-    imageAlt: "Yoga Blog",
-    category: "Yoga",
-    categoryStyle: { background: "#f3e8ff", color: "#9333ea" },
-    date: "May 18, 2026",
-    title: "Morning Yoga Routine: 15 Minutes to a Productive Day",
-    summary:
-      "Start your day right with this expert-designed morning yoga sequence that boosts energy, reduces anxiety and sharpens focus...",
-    authorAvatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    authorName: "Priya Mehta",
-    readTime: "4 min read",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=80",
-    imageAlt: "Fitness Blog",
-    category: "Fitness",
-    categoryStyle: { background: "#fdf3e0", color: "#c9882a" },
-    date: "May 15, 2026",
-    title: "Beginner's Guide to Starting Your Fitness Journey at Any Age",
-    summary:
-      "Whether you're 25 or 65, it's never too late or too early. Here's your complete beginner-friendly guide to getting fit...",
-    authorAvatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    authorName: "Rahul Sharma",
-    readTime: "6 min read",
-  },
-];
 
 export default function HomePage() {
   return (
@@ -107,7 +56,7 @@ export default function HomePage() {
             </div>
             <div className="hero-proof">
               <div className="proof-avatars">
-                {PROOF.map((src) => (
+                {PROOF_AVATARS.map((src) => (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img key={src} className="proof-avatar" src={src} alt="" />
                 ))}
@@ -168,7 +117,7 @@ export default function HomePage() {
                 Top Coaches
               </strong>
               <div className="float-avatars">
-                {PROOF.map((src) => (
+                {PROOF_AVATARS.map((src) => (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img key={src} className="float-avatar" src={src} alt="" />
                 ))}
@@ -550,11 +499,6 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
-          </div>
-          <div style={{ textAlign: "center" }}>
-            <a href="#" className="btn btn-outline">
-              <i className="fas fa-book-open" /> Read All Articles
-            </a>
           </div>
         </div>
       </section>

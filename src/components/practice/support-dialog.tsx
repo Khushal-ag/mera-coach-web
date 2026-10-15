@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
+import { copyText } from "@/lib/clipboard";
 import {
   accountDeletionMailto,
   supportEmail,
@@ -12,6 +13,8 @@ import { cn } from "@/lib/utils";
 
 type Kind = "help" | "delete";
 
+const ROW =
+  "flex min-h-11 w-full items-center gap-3 rounded-[10px] px-2 text-left text-[14px] font-semibold sm:px-3";
 const TRIGGER =
   "inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[10px] border-2 px-4 font-display text-[13px] font-semibold sm:w-auto";
 
@@ -20,7 +23,7 @@ const TRIGGER =
  * device without a mail app, so each opens a dialog that always shows the
  * address, can copy it, and still offers the mail app as a shortcut.
  */
-export function SupportActions() {
+export function SupportActions({ list = false }: { list?: boolean }) {
   const [open, setOpen] = useState<Kind | null>(null);
   const ref = useRef<HTMLDialogElement>(null);
   const [copied, setCopied] = useState(false);
@@ -33,13 +36,9 @@ export function SupportActions() {
   }, [open]);
 
   async function copy() {
-    try {
-      await navigator.clipboard.writeText(supportEmail);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
+    const ok = await copyText(supportEmail);
+    setCopied(ok);
+    if (ok) window.setTimeout(() => setCopied(false), 2000);
   }
 
   const isDelete = open === "delete";
@@ -48,24 +47,43 @@ export function SupportActions() {
     <>
       <button
         type="button"
-        className={cn(
-          TRIGGER,
-          "border-mc-secondary bg-white text-mc-secondary hover:bg-mc-secondary-light",
-        )}
+        className={
+          list ?
+            cn(ROW, "text-ink hover:bg-mc-secondary-light")
+          : cn(
+              TRIGGER,
+              "border-mc-secondary bg-white text-mc-secondary hover:bg-mc-secondary-light",
+            )
+        }
         onClick={() => setOpen("help")}
       >
-        <i className="fas fa-life-ring" style={{ fontSize: 16 }} aria-hidden />
+        <i
+          className={cn(
+            "fas fa-life-ring",
+            list && "w-4 text-center text-mc-secondary",
+          )}
+          style={{ fontSize: 16 }}
+          aria-hidden
+        />
         Help &amp; Support
       </button>
       <button
         type="button"
-        className={cn(
-          TRIGGER,
-          "border-mc-destructive bg-[var(--mc-destructive-soft)] text-mc-destructive hover:bg-white",
-        )}
+        className={
+          list ?
+            cn(ROW, "text-mc-destructive hover:bg-[var(--mc-destructive-soft)]")
+          : cn(
+              TRIGGER,
+              "border-mc-destructive bg-[var(--mc-destructive-soft)] text-mc-destructive hover:bg-white",
+            )
+        }
         onClick={() => setOpen("delete")}
       >
-        <i className="fas fa-trash-alt" style={{ fontSize: 16 }} aria-hidden />
+        <i
+          className={cn("fas fa-trash-alt", list && "w-4 text-center")}
+          style={{ fontSize: 16 }}
+          aria-hidden
+        />
         Delete account
       </button>
 

@@ -2,10 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { PIN_LENGTH, PIN_LOOKUP_DEBOUNCE_MS } from "@/constants/location";
 import { fetchLocationByPin } from "@/lib/api/master";
-
-const PIN_LENGTH = 6;
-const DEBOUNCE_MS = 400;
 
 type PinLocation = {
   city: string;
@@ -71,7 +69,7 @@ export function usePinLocationLookup(
         .finally(() => {
           if (!cancelled) setLookingUp(false);
         });
-    }, DEBOUNCE_MS);
+    }, PIN_LOOKUP_DEBOUNCE_MS);
 
     return () => {
       cancelled = true;

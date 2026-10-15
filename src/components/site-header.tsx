@@ -8,8 +8,8 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { useAuth } from "@/components/auth-provider";
-import { CoachAvatar } from "@/components/coach-avatar";
 import { siteConfig } from "@/config/site";
+import { premiumHref } from "@/lib/premium-link";
 
 const headerListeners = new Set<() => void>();
 let headerHydrated = false;
@@ -34,13 +34,6 @@ function useHeaderHydrated() {
     () => headerHydrated,
     () => false,
   );
-}
-
-function premiumHref(session: { coachId: number; coachCode: string }) {
-  const qs = new URLSearchParams();
-  if (session.coachId > 0) qs.set("coachId", String(session.coachId));
-  if (session.coachCode) qs.set("coachCode", session.coachCode);
-  return qs.toString() ? `/premium?${qs.toString()}` : "/premium";
 }
 
 function isNavActive(pathname: string, href: string) {
@@ -149,21 +142,23 @@ export function SiteHeader() {
           <div className="nav-actions">
             {signedIn && session ?
               <>
-                <Link href={premiumHref(session)} className="btn btn-outline">
-                  Premium
+                <Link href={premiumHref(session)} className="nav-premium">
+                  <i className="fas fa-crown" aria-hidden /> Premium
                 </Link>
-                <Link href="/dashboard" className="btn btn-outline">
-                  Dashboard
+                <Link href="/dashboard" className="btn btn-primary">
+                  <i className="fas fa-th-large" aria-hidden /> Dashboard
                 </Link>
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="nav-logout"
+                  aria-label="Log out"
+                  title="Log out"
                   onClick={() => {
                     close();
                     void logout();
                   }}
                 >
-                  Logout
+                  <i className="fas fa-sign-out-alt" aria-hidden />
                 </button>
               </>
             : <>
@@ -176,20 +171,6 @@ export function SiteHeader() {
               </>
             }
           </div>
-          {signedIn && session ?
-            <Link
-              href="/dashboard"
-              className="nav-avatar"
-              aria-label={`Open dashboard for ${session.fullName}`}
-              onClick={close}
-            >
-              <CoachAvatar
-                name={session.fullName}
-                photo={session.profileUrl}
-                className="nav-avatar-img"
-              />
-            </Link>
-          : null}
           <button
             type="button"
             className="hamburger"

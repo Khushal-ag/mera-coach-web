@@ -1,9 +1,7 @@
 import type { CoachEvent } from "@/types/coach";
 
+import { MAX_COACH_EVENTS, PUBLIC_UPCOMING_EVENTS } from "@/constants/coach";
 import { coerceJsonList } from "@/lib/coach/coerce-json-list";
-
-export const MAX_COACH_EVENTS = 10;
-const PUBLIC_UPCOMING_EVENTS = 3;
 
 /** Accept arrays or JSON strings from profile GET responses. */
 export function parseCoachEvents(raw: unknown): CoachEvent[] {

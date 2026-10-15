@@ -20,14 +20,17 @@ import { ClientCheckupView } from "@/components/practice/views/client-checkup";
 import { ClientDietPlanView } from "@/components/practice/views/client-diet-plan";
 import { ClientProfileSkeleton } from "@/components/skeletons/client-profile-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
-import { fetchParamList, resolveParamLabel } from "@/lib/api/master";
-import { fetchClientDetail } from "@/lib/api/practice";
-import { formatBmi, getBmi, getBmiCategory } from "@/lib/bmi";
-import { buildFeedbackWebUrl } from "@/lib/feedback-url";
+import { CLIENT_SECTION_ICONS } from "@/constants/client";
 import {
   CLIENT_PROGRESS_DOC_TYPE,
   CLIENT_PROGRESS_REF_TYPE,
-} from "@/types/document";
+} from "@/constants/documents";
+import { fetchParamList, resolveParamLabel } from "@/lib/api/master";
+import { fetchClientDetail } from "@/lib/api/practice";
+import { formatBmi, getBmi, getBmiCategory } from "@/lib/bmi";
+import { copyText } from "@/lib/clipboard";
+import { buildFeedbackWebUrl } from "@/lib/feedback-url";
+import { genderLabel } from "@/lib/format";
 
 function Field({ label, value }: { label: string; value?: string | number }) {
   if (value === undefined || value === null || value === "") return null;
@@ -38,12 +41,6 @@ function Field({ label, value }: { label: string; value?: string | number }) {
     </div>
   );
 }
-
-const SECTION_ICONS: Record<string, string> = {
-  Contact: "fas fa-address-card",
-  Lifestyle: "fas fa-heartbeat",
-  "Health notes": "fas fa-notes-medical",
-};
 
 function Section({
   title,
@@ -63,9 +60,9 @@ function Section({
   return (
     <section className="ac-card">
       <h5 className="ac-card-title">
-        <i className={SECTION_ICONS[title] ?? "fas fa-user"} /> {title}
+        <i className={CLIENT_SECTION_ICONS[title] ?? "fas fa-user"} /> {title}
       </h5>
-      <dl className="grid gap-x-6 gap-y-5 px-5 pb-5 sm:grid-cols-2 lg:grid-cols-3">
+      <dl className="grid gap-x-6 gap-y-5 px-5 pb-5 sm:grid-cols-2 xl:grid-cols-3">
         {children}
       </dl>
     </section>
@@ -81,12 +78,62 @@ function tabFromParam(value: string | null): ClientTab {
   return "overview";
 }
 
-const clientTabs: { id: ClientTab; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "checkup", label: "Checkup" },
-  { id: "bmi", label: "BMI" },
-  { id: "diet", label: "Diet" },
+const clientTabs: { id: ClientTab; label: string; icon: string }[] = [
+  { id: "overview", label: "Overview", icon: "fas fa-user" },
+  { id: "checkup", label: "Checkup", icon: "fas fa-clipboard-check" },
+  { id: "bmi", label: "BMI report", icon: "fas fa-weight" },
+  { id: "diet", label: "Diet plan", icon: "fas fa-utensils" },
 ];
+
+function Stat({
+  label,
+  value,
+  unit,
+}: {
+  label: string;
+  value?: string | number;
+  unit?: string;
+}) {
+  const has = value !== undefined && value !== null && value !== "";
+  return (
+    <div className="mc-panel px-5 py-4">
+      <p className="text-xs font-semibold text-ink-muted">{label}</p>
+      <p className="mt-1 font-display text-3xl leading-none font-bold text-ink tabular-nums">
+        {has ? value : "-"}
+      </p>
+      {has && unit ?
+        <p className="mt-2 text-sm text-ink-muted">{unit}</p>
+      : null}
+    </div>
+  );
+}
+
+function SideCard({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: string;
+  children: React.ReactNode;
+}) {
+  const hasValue = Children.toArray(children).some(
+    (child) =>
+      isValidElement<{ value?: string | number }>(child) &&
+      child.props.value !== undefined &&
+      child.props.value !== null &&
+      child.props.value !== "",
+  );
+  if (!hasValue) return null;
+  return (
+    <section className="mc-panel px-5 py-5">
+      <h3 className="flex items-center gap-2 font-display text-base font-bold tracking-tight text-ink">
+        <i className={`${icon} text-mc-secondary`} aria-hidden /> {title}
+      </h3>
+      <dl className="mt-4 grid gap-4">{children}</dl>
+    </section>
+  );
+}
 
 function ProfileContact({
   phone,
@@ -126,15 +173,6 @@ function ProfileContact({
       })}
     </dl>
   );
-}
-
-async function copyText(text: string) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 export function ClientDetailView() {
@@ -297,7 +335,7 @@ export function ClientDetailView() {
       <div
         role="tablist"
         aria-label="Client profile"
-        className="mb-6 flex flex-wrap items-center justify-start gap-3"
+        className="mb-6 flex gap-1 overflow-x-auto border-b border-line"
       >
         {clientTabs.map((item) => {
           const selected = tab === item.id;
@@ -309,9 +347,14 @@ export function ClientDetailView() {
               id={`client-tab-${item.id}`}
               aria-selected={selected}
               aria-controls={`client-panel-${item.id}`}
-              className={selected ? "mc-btn-primary" : "mc-btn-secondary"}
+              className={
+                selected ?
+                  "-mb-px inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 border-mc-secondary px-4 font-display text-sm font-bold text-mc-secondary"
+                : "-mb-px inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 border-transparent px-4 font-display text-sm font-semibold text-ink-muted hover:text-ink"
+              }
               onClick={() => selectTab(item.id)}
             >
+              <i className={item.icon} style={{ fontSize: 14 }} aria-hidden />
               {item.label}
             </button>
           );
@@ -355,103 +398,102 @@ export function ClientDetailView() {
           aria-labelledby="client-tab-overview"
           className="space-y-5"
         >
-          <Section title="Contact">
-            <Field label="Mobile" value={detail.mobileNo} />
-            <Field label="Email" value={detail.emailId} />
-            <Field label="Location" value={detail.location} />
-            <Field label="Gender" value={detail.gender} />
-            <Field label="Age" value={detail.age} />
-            <Field label="Date of birth" value={detail.dob} />
-          </Section>
-
-          <section aria-labelledby="body-metrics" className="ac-card">
-            <div className="grid lg:grid-cols-[minmax(0,16rem)_1fr]">
-              <div className="bg-mc-secondary px-5 py-6 text-white sm:px-6">
-                <p className="font-display text-sm font-semibold text-white/80">
-                  BMI
-                </p>
-                <p className="mt-2 font-display text-5xl leading-none font-bold tabular-nums">
-                  {bmi != null ? formatBmi(bmi) : "-"}
-                </p>
-                {bmiCat ?
-                  <p className="mt-3 text-sm text-white/80">{bmiCat.label}</p>
-                : null}
-              </div>
-              <div className="px-5 py-5 sm:px-6">
-                <h2
-                  id="body-metrics"
-                  className="font-display text-lg font-bold tracking-tight text-ink"
-                >
-                  Body metrics
-                </h2>
-                <dl className="mt-4 grid gap-x-6 gap-y-5 border-t border-line pt-4 sm:grid-cols-2">
-                  <Field label="Weight (kg)" value={detail.weight} />
-                  <Field label="Height (cm)" value={detail.height} />
-                  <Field
-                    label="Primary goal"
-                    value={label(detail.primaryGoal, "PC007")}
-                  />
-                  <Field
-                    label="Target timeline"
-                    value={label(detail.targetTimeline, "PC008")}
-                  />
-                  <Field
-                    label="Assessment date"
-                    value={detail.assessmentDate}
-                  />
-                </dl>
-              </div>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="rounded-2xl bg-mc-secondary px-5 py-4 text-white">
+              <p className="text-xs font-semibold text-white/75">BMI</p>
+              <p className="mt-1 font-display text-3xl leading-none font-bold tabular-nums">
+                {bmi != null ? formatBmi(bmi) : "-"}
+              </p>
+              {bmiCat ?
+                <p className="mt-2 text-sm text-white/80">{bmiCat.label}</p>
+              : null}
             </div>
-          </section>
+            <Stat label="Weight" value={detail.weight} unit="kg" />
+            <Stat label="Height" value={detail.height} unit="cm" />
+            <Stat
+              label="Age"
+              value={detail.age}
+              unit={genderLabel(detail.gender)}
+            />
+          </div>
 
-          <Section title="Lifestyle">
-            <Field
-              label="Food preference"
-              value={label(detail.foodPreference, "PC001")}
-            />
-            <Field
-              label="Regional cuisine"
-              value={label(detail.regionalCuisine, "PC002")}
-            />
-            <Field
-              label="Activity"
-              value={label(detail.physicalActivity, "PC003")}
-            />
-            <Field label="Work type" value={label(detail.workType, "PC004")} />
-            <Field label="Sleep" value={label(detail.sleepDuration, "PC005")} />
-            <Field label="Pregnancy" value={label(detail.pregnancy, "PC006")} />
-          </Section>
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+            <div className="min-w-0 space-y-5">
+              <Section title="Lifestyle">
+                <Field
+                  label="Food preference"
+                  value={label(detail.foodPreference, "PC001")}
+                />
+                <Field
+                  label="Regional cuisine"
+                  value={label(detail.regionalCuisine, "PC002")}
+                />
+                <Field
+                  label="Activity"
+                  value={label(detail.physicalActivity, "PC003")}
+                />
+                <Field
+                  label="Work type"
+                  value={label(detail.workType, "PC004")}
+                />
+                <Field
+                  label="Sleep"
+                  value={label(detail.sleepDuration, "PC005")}
+                />
+                <Field
+                  label="Pregnancy"
+                  value={label(detail.pregnancy, "PC006")}
+                />
+              </Section>
 
-          <Section title="Health notes">
-            <Field
-              label="Medical conditions"
-              value={labels(detail.medicalConditions, "PC009")}
-            />
-            <Field
-              label="Food allergies"
-              value={labels(detail.foodAllergies, "PC010")}
-            />
-            <Field label="Additional notes" value={detail.additionalNotes} />
-          </Section>
+              <Section title="Health notes">
+                <Field
+                  label="Medical conditions"
+                  value={labels(detail.medicalConditions, "PC009")}
+                />
+                <Field
+                  label="Food allergies"
+                  value={labels(detail.foodAllergies, "PC010")}
+                />
+                <Field
+                  label="Additional notes"
+                  value={detail.additionalNotes}
+                />
+              </Section>
 
-          {session?.coachCode && detail.clientCode ?
-            <PhotoGallery
-              coachCode={session.coachCode}
-              refCode={detail.clientCode}
-              refType={CLIENT_PROGRESS_REF_TYPE}
-              docType={CLIENT_PROGRESS_DOC_TYPE}
-              savedBy={session.coachId}
-              maxPhotos={24}
-              title="Progress photos"
-              showDates
-              emptyHint="Upload progress photos for this client."
-            />
-          : null}
+              {session?.coachCode && detail.clientCode ?
+                <PhotoGallery
+                  coachCode={session.coachCode}
+                  refCode={detail.clientCode}
+                  refType={CLIENT_PROGRESS_REF_TYPE}
+                  docType={CLIENT_PROGRESS_DOC_TYPE}
+                  savedBy={session.coachId}
+                  maxPhotos={24}
+                  title="Progress photos"
+                  showDates
+                  emptyHint="Upload progress photos for this client."
+                />
+              : null}
+            </div>
 
-          <p className="max-w-[62ch] text-sm leading-relaxed text-ink-muted">
-            Checkup, BMI, and Diet open on this page. Ask for feedback copies
-            the web link so you can send it.
-          </p>
+            <aside className="grid gap-5 lg:sticky lg:top-24">
+              <SideCard title="Goals" icon="fas fa-bullseye">
+                <Field
+                  label="Primary goal"
+                  value={label(detail.primaryGoal, "PC007")}
+                />
+                <Field
+                  label="Target timeline"
+                  value={label(detail.targetTimeline, "PC008")}
+                />
+                <Field label="Assessment date" value={detail.assessmentDate} />
+              </SideCard>
+              <SideCard title="Personal" icon="fas fa-id-card">
+                <Field label="Gender" value={genderLabel(detail.gender)} />
+                <Field label="Date of birth" value={detail.dob} />
+              </SideCard>
+            </aside>
+          </div>
         </div>
       : null}
     </div>

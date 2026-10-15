@@ -8,9 +8,13 @@ import type { BmiMeasurement, BmiReport } from "@/types/practice";
 
 import { useAuth } from "@/components/auth-provider";
 import { ListEmpty } from "@/components/list-empty";
+import { EmptyState } from "@/components/practice/empty-state";
+import { BmiReportSkeleton } from "@/components/skeletons/client-profile-skeleton";
+import { BRAND } from "@/constants/brand";
 import { downloadAuthedPdf } from "@/lib/api/pdf";
 import { fetchBmiReport } from "@/lib/api/practice";
 import { resolveDisplayBmi } from "@/lib/bmi";
+import { genderLabel, initials } from "@/lib/format";
 
 function fmt(value: number | null | undefined, digits: number) {
   if (value == null || Number.isNaN(value)) return "-";
@@ -38,19 +42,6 @@ function fatTone(fat: number | null | undefined, gender?: string) {
   if (fat == null) return { color: "neutral", norm };
   const high = male ? fat > 25 : fat > 32;
   return { color: high ? "danger" : "ok", norm };
-}
-
-function initials(name?: string) {
-  const words = (name ?? "").trim().split(/\s+/).filter(Boolean);
-  if (!words.length) return "?";
-  if (words.length === 1) return words[0]!.slice(0, 2).toUpperCase();
-  return `${words[0]![0]}${words[words.length - 1]![0]}`.toUpperCase();
-}
-
-function genderLabel(gender?: string) {
-  if (gender === "M") return "Male";
-  if (gender === "F") return "Female";
-  return gender || "-";
 }
 
 function chipClass(bmi?: number) {
@@ -114,13 +105,11 @@ function ReportBody({ report }: { report: BmiReport }) {
   const delta = report.weightDelta;
   const needsToLose = (delta ?? 0) > 0;
   const coachLabel = report.coach.businessName || report.coach.coachName || "-";
-  const address = [
-    report.coach.address,
-    report.coach.email,
-    report.coach.mobile,
-  ]
-    .filter(Boolean)
-    .join(" | ");
+  const contact = [
+    { icon: "fas fa-map-marker-alt", text: report.coach.address },
+    { icon: "fas fa-envelope", text: report.coach.email },
+    { icon: "fas fa-phone", text: report.coach.mobile },
+  ].filter((row) => row.text);
 
   return (
     <div className="page">
@@ -128,11 +117,20 @@ function ReportBody({ report }: { report: BmiReport }) {
         <div className="brand">
           {report.coach.logoUrl ?
             <img className="brand-logo" src={report.coach.logoUrl} alt="" />
-          : <div className="brand-initials">{initials(coachLabel)}</div>}
+          : <div className="brand-initials">
+              {initials(coachLabel, { singleWordLength: 2 })}
+            </div>
+          }
           <div className="brand-text">
             <h1>{coachLabel}</h1>
-            {address ?
-              <p>{address}</p>
+            {contact.length ?
+              <ul className="brand-contact">
+                {contact.map((row) => (
+                  <li key={row.icon}>
+                    <i className={row.icon} aria-hidden /> {row.text}
+                  </li>
+                ))}
+              </ul>
             : null}
           </div>
         </div>
@@ -147,7 +145,9 @@ function ReportBody({ report }: { report: BmiReport }) {
               <span>
                 {[
                   report.client.age ? `${report.client.age} Yrs` : "",
-                  report.client.gender ? genderLabel(report.client.gender) : "",
+                  report.client.gender ?
+                    genderLabel(report.client.gender) || "-"
+                  : "",
                 ]
                   .filter(Boolean)
                   .join(" / ")}
@@ -368,26 +368,26 @@ function BmiProgressGraph({
           <path
             d={path(weight)}
             fill="none"
-            stroke="#1d4ed8"
+            stroke={BRAND.forest}
             strokeWidth={2.5}
           />
           <path
             d={path(bmi)}
             fill="none"
-            stroke="#c9882a"
+            stroke={BRAND.gold}
             strokeWidth={2.5}
             strokeDasharray="6 5"
           />
           {weight.map((p, i) =>
             p ?
               <g key={`w${i}`}>
-                <circle cx={p.x} cy={p.y} r={4} fill="#1d4ed8" />
+                <circle cx={p.x} cy={p.y} r={4} fill={BRAND.forest} />
                 <text
                   x={p.x}
                   y={p.y - 9}
                   textAnchor="middle"
                   fontSize={11}
-                  fill="#1d4ed8"
+                  fill={BRAND.forest}
                 >
                   {p.v.toFixed(1)}
                 </text>
@@ -397,13 +397,13 @@ function BmiProgressGraph({
           {bmi.map((p, i) =>
             p ?
               <g key={`b${i}`}>
-                <circle cx={p.x} cy={p.y} r={4} fill="#c9882a" />
+                <circle cx={p.x} cy={p.y} r={4} fill={BRAND.gold} />
                 <text
                   x={p.x}
                   y={p.y - 22}
                   textAnchor="middle"
                   fontSize={11}
-                  fill="#c9882a"
+                  fill={BRAND.gold}
                 >
                   {p.v.toFixed(1)}
                 </text>
@@ -417,7 +417,7 @@ function BmiProgressGraph({
               y={H - 8}
               textAnchor="middle"
               fontSize={11}
-              fill="#8b6553"
+              fill={BRAND.inkMuted}
             >
               {r.assessmentDate ?? ""}
             </text>
@@ -429,15 +429,16 @@ function BmiProgressGraph({
             gap: 18,
             justifyContent: "center",
             fontSize: 12,
-            color: "#8b6553",
+            color: BRAND.inkMuted,
           }}
         >
           <span>
-            <i className="fas fa-minus" style={{ color: "#1d4ed8" }} /> Weight
-            (kg)
+            <i className="fas fa-minus" style={{ color: BRAND.forest }} />{" "}
+            Weight (kg)
           </span>
           <span>
-            <i className="fas fa-ellipsis-h" style={{ color: "#c9882a" }} /> BMI
+            <i className="fas fa-ellipsis-h" style={{ color: BRAND.gold }} />{" "}
+            BMI
           </span>
         </div>
       </div>
@@ -458,6 +459,7 @@ export function ClientBmiReportView({
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!session?.coachCode || !code) return;
@@ -484,7 +486,7 @@ export function ClientBmiReportView({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [session?.coachCode, code]);
+  }, [session?.coachCode, code, reloadKey]);
 
   async function onPdf() {
     if (!session?.coachCode) return;
@@ -515,30 +517,54 @@ export function ClientBmiReportView({
             ← Back
           </Link>
         )}
-        <button
-          type="button"
-          className="btn-pdf"
-          disabled={pdfBusy}
-          onClick={() => void onPdf()}
-        >
-          {pdfBusy ? "Preparing…" : "Download PDF"}
-        </button>
+        {report?.current ?
+          <button
+            type="button"
+            className="btn-pdf"
+            disabled={pdfBusy}
+            onClick={() => void onPdf()}
+          >
+            {pdfBusy ? "Preparing…" : "Download PDF"}
+          </button>
+        : null}
       </div>
       {pdfError ?
         <div className="error-card">{pdfError}</div>
       : null}
       {loading ?
-        <div className="loading-wrap">
-          <p>Loading report…</p>
-        </div>
+        <BmiReportSkeleton />
       : error ?
-        <div className="error-card">
-          <strong>Error:</strong> {error}
-        </div>
-      : !report ?
-        <div className="error-card">
-          BMI Health Report is not available for this client.
-        </div>
+        <EmptyState
+          tone="error"
+          icon="fas fa-exclamation-triangle"
+          title="Could not load the BMI report"
+          description={error}
+          action={
+            <button
+              type="button"
+              className="mc-btn-primary"
+              onClick={() => setReloadKey((n) => n + 1)}
+            >
+              Try again
+            </button>
+          }
+        />
+      : !report || !report.current ?
+        <EmptyState
+          icon="fas fa-weight"
+          title="No BMI report yet"
+          description="A report appears after the first checkup records height and weight. Each new checkup adds a row and a point on the progress graph."
+          action={
+            <Link href={`${clientHref}?tab=checkup`} className="mc-btn-primary">
+              <i
+                className="fas fa-clipboard-check"
+                style={{ fontSize: 16 }}
+                aria-hidden
+              />
+              Record a checkup
+            </Link>
+          }
+        />
       : <ReportBody report={report} />}
     </div>
   );

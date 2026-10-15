@@ -1,13 +1,14 @@
+import {
+  AGE_MAX,
+  AGE_MIN,
+  EMAIL_REGEX,
+  HEIGHT_CM_MAX,
+  HEIGHT_CM_MIN,
+  WEIGHT_KG_MAX,
+  WEIGHT_KG_MIN,
+} from "@/constants/validation";
+
 /** Form rules shared with mera-coach-app `utils/validation`, so web and app accept the same input. */
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const HEIGHT_CM_MIN = 100;
-const HEIGHT_CM_MAX = 250;
-const WEIGHT_KG_MIN = 20;
-const WEIGHT_KG_MAX = 200;
-const AGE_MIN = 5;
-const AGE_MAX = 100;
 
 const isStrictInt = (value: string) => /^\d+$/.test(value.trim());
 const isStrictNumber = (value: string) => /^\d+(\.\d+)?$/.test(value.trim());

@@ -7,19 +7,11 @@ import { Star } from "lucide-react";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextAreaField } from "@/components/ui/field";
 import { siteConfig } from "@/config/site";
+import { RATING_LABELS } from "@/constants/feedback";
 import { submitFeedback } from "@/lib/api/feedback";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { appHomeDeepLink } from "@/lib/app-deep-link";
 import { cn } from "@/lib/utils";
-
-const RATING_LABELS = [
-  "",
-  "Poor",
-  "Fair",
-  "Okay",
-  "Good",
-  "Excellent",
-] as const;
 
 export function FeedbackForm({
   coachCode,

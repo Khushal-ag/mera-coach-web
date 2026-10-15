@@ -1,7 +1,7 @@
-import type { LegalSection } from "@/data/legal-content";
+import type { LegalSection } from "@/constants/legal-content";
 
 import { siteConfig } from "@/config/site";
-import { LEGAL_UPDATED, TERMS_SECTIONS } from "@/data/legal-content";
+import { LEGAL_UPDATED, TERMS_SECTIONS } from "@/constants/legal-content";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({

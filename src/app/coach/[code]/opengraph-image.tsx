@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 
+import { OG_GOLD } from "@/constants/brand";
 import { fetchCoachProfile, isApiSuccess } from "@/lib/api";
 import { splitServiceNames } from "@/lib/coach/services";
 import { resolveMediaUrl } from "@/lib/media/media-url";
@@ -7,8 +8,6 @@ import { resolveMediaUrl } from "@/lib/media/media-url";
 export const alt = "Coach profile on Mera Coach";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-
-const GOLD = "#d4912b";
 
 /** Fetch the photo ourselves so a slow, huge or unsupported image can never break the card. */
 async function loadPhoto(url: string): Promise<string> {
@@ -30,7 +29,7 @@ function Star({ on }: { on: boolean }) {
     <svg width="34" height="34" viewBox="0 0 24 24">
       <path
         d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.4 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8L12 2.5z"
-        fill={on ? GOLD : "rgba(255,255,255,0.28)"}
+        fill={on ? OG_GOLD : "rgba(255,255,255,0.28)"}
       />
     </svg>
   );
@@ -191,7 +190,7 @@ export default async function Image({
                   marginLeft: 14,
                   fontSize: 32,
                   fontWeight: 800,
-                  color: GOLD,
+                  color: OG_GOLD,
                 }}
               >
                 {rating.toFixed(1)}
@@ -259,7 +258,7 @@ export default async function Image({
             display: "flex",
             padding: "10px 26px",
             borderRadius: 999,
-            background: GOLD,
+            background: OG_GOLD,
             fontSize: 24,
             fontWeight: 800,
           }}

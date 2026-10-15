@@ -2,14 +2,8 @@
 
 import { useState } from "react";
 
+import { initials } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/media-url";
-
-function coachInitials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "C";
-  if (parts.length === 1) return parts[0]!.slice(0, 1).toUpperCase();
-  return `${parts[0]![0]}${parts[parts.length - 1]![0]}`.toUpperCase();
-}
 
 /** Profile photo when the coach has one, otherwise their initials. */
 export function CoachAvatar({
@@ -49,7 +43,7 @@ export function CoachAvatar({
           }}
           onError={() => setBad(true)}
         />
-      : <span>{coachInitials(name)}</span>}
+      : <span>{initials(name, { fallback: "C" })}</span>}
     </span>
   );
 }

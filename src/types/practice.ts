@@ -1,6 +1,6 @@
 /** Authenticated coach area shapes (client and coach endpoints). */
 
-import type { MealSlotId } from "@/data/lifestyle-options";
+import type { MealSlotId } from "@/constants/lifestyle-options";
 
 export type ClientSummary = {
   clientCode?: string;

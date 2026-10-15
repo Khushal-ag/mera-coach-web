@@ -3,14 +3,7 @@ import Link from "next/link";
 
 import { env } from "@/config/env";
 import { siteConfig } from "@/config/site";
-
-const SOCIALS = [
-  { key: "facebook", label: "Facebook", icon: "fab fa-facebook-f" },
-  { key: "instagram", label: "Instagram", icon: "fab fa-instagram" },
-  { key: "x", label: "X", icon: "fab fa-x-twitter" },
-  { key: "youtube", label: "YouTube", icon: "fab fa-youtube" },
-  { key: "linkedin", label: "LinkedIn", icon: "fab fa-linkedin-in" },
-] as const;
+import { FOOTER_SOCIALS } from "@/constants/footer";
 
 export function SiteFooter() {
   return (
@@ -43,21 +36,23 @@ export function SiteFooter() {
                 you with verified Health, Fitness, Yoga, Nutrition and Lifestyle
                 coaches for every goal.
               </p>
-              <div className="footer-social">
-                {SOCIALS.map((item) => (
-                  <a
-                    key={item.key}
-                    href={env.social[item.key] || "#"}
-                    target={env.social[item.key] ? "_blank" : undefined}
-                    rel={
-                      env.social[item.key] ? "noopener noreferrer" : undefined
-                    }
-                    aria-label={`Mera Coach on ${item.label}`}
-                  >
-                    <i className={item.icon} />
-                  </a>
-                ))}
-              </div>
+              {FOOTER_SOCIALS.some((item) => env.social[item.key]) ?
+                <div className="footer-social">
+                  {FOOTER_SOCIALS.filter((item) => env.social[item.key]).map(
+                    (item) => (
+                      <a
+                        key={item.key}
+                        href={env.social[item.key]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Mera Coach on ${item.label}`}
+                      >
+                        <i className={item.icon} />
+                      </a>
+                    ),
+                  )}
+                </div>
+              : null}
             </div>
             <div className="footer-col">
               <h4 aria-level={3}>Platform</h4>

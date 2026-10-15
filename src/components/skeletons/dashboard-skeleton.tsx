@@ -15,7 +15,7 @@ export function DashboardShellSkeleton() {
           </div>
           <div className="cl-sidebar-divider" />
           <nav className="cl-nav">
-            {Array.from({ length: 6 }, (_, index) => (
+            {Array.from({ length: 7 }, (_, index) => (
               <div
                 key={index}
                 className="mc-skeleton-on-dark mc-skeleton mx-2 mb-2 h-10 rounded-xl"
@@ -29,6 +29,8 @@ export function DashboardShellSkeleton() {
               <div className="mc-skeleton h-4 w-40" />
             </div>
             <div className="cl-header-right">
+              <div className="mc-skeleton hidden h-8 w-40 rounded-full sm:block" />
+              <div className="mc-skeleton size-10 rounded-full" />
               <div className="mc-skeleton size-10 rounded-full" />
             </div>
           </header>

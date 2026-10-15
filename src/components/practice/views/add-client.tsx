@@ -9,7 +9,7 @@ import { useAuth } from "@/components/auth-provider";
 import { PracticePageHeader } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { isSubscriptionRequired } from "@/config/practice";
-import { ADD_CLIENT_PREMIUM_HREF } from "@/lib/add-client-access";
+import { ADD_CLIENT_PREMIUM_HREF } from "@/constants/routes";
 import { fetchAuthedCoachProfile } from "@/lib/api/practice";
 import { ensurePremiumStatus } from "@/lib/auth/premium-status";
 

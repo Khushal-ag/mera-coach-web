@@ -4,14 +4,14 @@ import type {
   UploadDocumentResult,
 } from "@/types/document";
 
+import {
+  COACH_GALLERY_DOC_TYPE,
+  COACH_GALLERY_REF_TYPE,
+} from "@/constants/documents";
 import { authedFetch } from "@/lib/api/authed";
 import { apiFetch } from "@/lib/api/client";
 import { firstApiError, isApiSuccess, pick } from "@/lib/api/normalize";
 import { ApiRequestError } from "@/lib/api/types";
-import {
-  COACH_GALLERY_DOC_TYPE,
-  COACH_GALLERY_REF_TYPE,
-} from "@/types/document";
 
 function normalizeUploadResult(raw: unknown): UploadDocumentResult | null {
   if (typeof raw === "string") {

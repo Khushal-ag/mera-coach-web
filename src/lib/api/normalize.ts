@@ -1,5 +1,7 @@
 import type { ApiError, GenericResponse } from "@/lib/api/types";
 
+import { API_ERROR_NO_RECORDS } from "@/constants/api";
+
 /** Read the first defined key from a camelCase / PascalCase ASP.NET payload. */
 export function pick<T>(
   obj: Record<string, unknown>,
@@ -41,9 +43,6 @@ export function firstApiError(
 ) {
   return response?.errorObj?.[0]?.errorMessage ?? null;
 }
-
-/** errorCode 1 = no records: empty success (same as mera-coach-app). */
-const API_ERROR_NO_RECORDS = 1;
 
 export function isNoRecordsResponse(
   response: GenericResponse<unknown> | null | undefined,

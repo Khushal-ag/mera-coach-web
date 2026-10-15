@@ -1,8 +1,8 @@
+import { APP_SCHEME } from "@/constants/app";
+
 /**
  * Native app deep links. Scheme must match mera-coach-app `app.json` → expo.scheme.
  */
-
-const APP_SCHEME = "meracoach";
 
 /** Build a `meracoach://…` URL (path without leading slash). */
 function appDeepLink(

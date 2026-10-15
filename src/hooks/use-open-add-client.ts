@@ -4,10 +4,8 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { isSubscriptionRequired } from "@/config/practice";
-import {
-  ADD_CLIENT_PREMIUM_HREF,
-  resolveAddClientAccess,
-} from "@/lib/add-client-access";
+import { ADD_CLIENT_PREMIUM_HREF } from "@/constants/routes";
+import { resolveAddClientAccess } from "@/lib/add-client-access";
 import { ensurePremiumStatus } from "@/lib/auth/premium-status";
 import { getSession } from "@/lib/auth/session";
 

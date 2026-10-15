@@ -23,6 +23,9 @@ import { resolveMediaUrl } from "@/lib/media/media-url";
 
 type Params = Promise<{ code: string }>;
 
+/** Coach data is fetched on request, so this page cannot be validated as an instant navigation. */
+export const instant = false;
+
 const loadCoach = cache(async function loadCoach(
   code: string,
 ): Promise<CoachProfile | null> {

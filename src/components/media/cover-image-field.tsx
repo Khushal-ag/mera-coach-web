@@ -5,10 +5,10 @@ import { useId, useState } from "react";
 import type { CoachDocType } from "@/types/document";
 
 import { MediaPreview } from "@/components/media/media-preview";
+import { REGISTER_IMAGE_ACCEPT } from "@/constants/media";
 import { uploadDocument } from "@/lib/api/document";
 import {
   fileToBase64DataUrl,
-  REGISTER_IMAGE_ACCEPT,
   validateRegisterImage,
 } from "@/lib/media/image-file";
 import { resolveMediaUrl } from "@/lib/media/media-url";

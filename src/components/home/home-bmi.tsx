@@ -4,6 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 import { MenuSelect } from "@/components/ui/menu-select";
+import {
+  BMI_BANDS,
+  BMI_EXPLANATIONS,
+  BMI_GAUGE,
+  BMI_TICKS,
+} from "@/constants/bmi";
 import { submitBmiLead } from "@/lib/api/coach";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { isValidMobile } from "@/lib/validation";
@@ -20,40 +26,25 @@ type BmiResult = {
   weightKg: number;
 };
 
-const GAUGE = {
-  cx: 160,
-  cy: 150,
-  r: 108,
-  stroke: 22,
-  min: 16,
-  max: 40,
-} as const;
-
 /** Standard angle in degrees: 180 on the left end of the dial, 0 on the right. */
 function angleFor(bmi: number) {
-  const clamped = Math.max(GAUGE.min, Math.min(GAUGE.max, bmi));
-  return 180 - ((clamped - GAUGE.min) / (GAUGE.max - GAUGE.min)) * 180;
+  const clamped = Math.max(BMI_GAUGE.min, Math.min(BMI_GAUGE.max, bmi));
+  return (
+    180 - ((clamped - BMI_GAUGE.min) / (BMI_GAUGE.max - BMI_GAUGE.min)) * 180
+  );
 }
 function pointAt(angle: number, radius: number) {
   const rad = (angle * Math.PI) / 180;
   return {
-    x: GAUGE.cx + radius * Math.cos(rad),
-    y: GAUGE.cy - radius * Math.sin(rad),
+    x: BMI_GAUGE.cx + radius * Math.cos(rad),
+    y: BMI_GAUGE.cy - radius * Math.sin(rad),
   };
 }
 function arcPath(from: number, to: number, gap = 0.9) {
-  const a = pointAt(angleFor(from) - gap, GAUGE.r);
-  const b = pointAt(angleFor(to) + gap, GAUGE.r);
-  return `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} A ${GAUGE.r} ${GAUGE.r} 0 0 1 ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+  const a = pointAt(angleFor(from) - gap, BMI_GAUGE.r);
+  const b = pointAt(angleFor(to) + gap, BMI_GAUGE.r);
+  return `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} A ${BMI_GAUGE.r} ${BMI_GAUGE.r} 0 0 1 ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
 }
-
-const BANDS = [
-  { from: 16, to: 18.5, color: "#3b82f6" },
-  { from: 18.5, to: 25, color: "#22c55e" },
-  { from: 25, to: 30, color: "#f59e0b" },
-  { from: 30, to: 40, color: "#ef4444" },
-] as const;
-const TICKS = [16, 18.5, 25, 30, 40] as const;
 
 function BmiGauge({
   bmi,
@@ -73,7 +64,7 @@ function BmiGauge({
     );
     return () => window.cancelAnimationFrame(frame);
   }, [value, locked]);
-  const tip = pointAt(90, GAUGE.r - 18);
+  const tip = pointAt(90, BMI_GAUGE.r - 18);
   return (
     <svg
       viewBox="0 0 320 214"
@@ -81,18 +72,18 @@ function BmiGauge({
       role="img"
       aria-label={`BMI ${bmi}, ${label}`}
     >
-      {BANDS.map((band) => (
+      {BMI_BANDS.map((band) => (
         <path
           key={band.from}
           d={arcPath(band.from, band.to)}
           fill="none"
           stroke={band.color}
-          strokeWidth={GAUGE.stroke}
+          strokeWidth={BMI_GAUGE.stroke}
         />
       ))}
-      {TICKS.map((tick) => {
+      {BMI_TICKS.map((tick) => {
         const angle = angleFor(tick);
-        const at = pointAt(angle, GAUGE.r + GAUGE.stroke / 2 + 13);
+        const at = pointAt(angle, BMI_GAUGE.r + BMI_GAUGE.stroke / 2 + 13);
         const anchor =
           angle > 100 ? "end"
           : angle < 80 ? "start"
@@ -112,32 +103,37 @@ function BmiGauge({
       {locked ?
         <>
           <path
-            d={`M ${GAUGE.cx - 9} ${GAUGE.cy + 12} v-8 a9 9 0 0 1 18 0 v8`}
+            d={`M ${BMI_GAUGE.cx - 9} ${BMI_GAUGE.cy + 12} v-8 a9 9 0 0 1 18 0 v8`}
             fill="none"
             stroke="#fff"
             strokeWidth="4"
             strokeLinecap="round"
           />
           <rect
-            x={GAUGE.cx - 17}
-            y={GAUGE.cy + 12}
+            x={BMI_GAUGE.cx - 17}
+            y={BMI_GAUGE.cy + 12}
             width="34"
             height="27"
             rx="6"
             className="bmi-gauge-lock"
           />
-          <circle cx={GAUGE.cx} cy={GAUGE.cy + 23} r="3.4" fill="#254a39" />
+          <circle
+            cx={BMI_GAUGE.cx}
+            cy={BMI_GAUGE.cy + 23}
+            r="3.4"
+            fill="#254a39"
+          />
           <rect
-            x={GAUGE.cx - 1.6}
-            y={GAUGE.cy + 24}
+            x={BMI_GAUGE.cx - 1.6}
+            y={BMI_GAUGE.cy + 24}
             width="3.2"
             height="8"
             rx="1.6"
             fill="#254a39"
           />
           <text
-            x={GAUGE.cx}
-            y={GAUGE.cy + 62}
+            x={BMI_GAUGE.cx}
+            y={BMI_GAUGE.cy + 62}
             textAnchor="middle"
             className="bmi-gauge-locktxt"
           >
@@ -147,14 +143,14 @@ function BmiGauge({
       : <>
           <g
             style={{
-              transformOrigin: `${GAUGE.cx}px ${GAUGE.cy}px`,
+              transformOrigin: `${BMI_GAUGE.cx}px ${BMI_GAUGE.cy}px`,
               transform: `rotate(${needle}deg)`,
               transition: "transform 1.1s cubic-bezier(.4,0,.2,1)",
             }}
           >
             <line
-              x1={GAUGE.cx}
-              y1={GAUGE.cy}
+              x1={BMI_GAUGE.cx}
+              y1={BMI_GAUGE.cy}
               x2={tip.x}
               y2={tip.y}
               stroke="#fff"
@@ -162,18 +158,18 @@ function BmiGauge({
               strokeLinecap="round"
             />
           </g>
-          <circle cx={GAUGE.cx} cy={GAUGE.cy} r="9" fill="#fff" />
+          <circle cx={BMI_GAUGE.cx} cy={BMI_GAUGE.cy} r="9" fill="#fff" />
           <text
-            x={GAUGE.cx}
-            y={GAUGE.cy + 42}
+            x={BMI_GAUGE.cx}
+            y={BMI_GAUGE.cy + 42}
             textAnchor="middle"
             className="bmi-gauge-num"
           >
             {bmi}
           </text>
           <text
-            x={GAUGE.cx}
-            y={GAUGE.cy + 60}
+            x={BMI_GAUGE.cx}
+            y={BMI_GAUGE.cy + 60}
             textAnchor="middle"
             className="bmi-gauge-unit"
           >
@@ -184,17 +180,6 @@ function BmiGauge({
     </svg>
   );
 }
-
-const EXPLAINS: Record<string, (bmi: string) => string> = {
-  Underweight: (bmi) =>
-    `Your BMI of ${bmi} is below the healthy range. This may indicate insufficient nutrition or low muscle mass. A certified nutrition or fitness coach can help you build a healthier body weight safely.`,
-  "Healthy Weight": (bmi) =>
-    `Great news! Your BMI of ${bmi} is within the healthy range. A wellness or yoga coach can help you maintain this long-term and optimise your energy and fitness.`,
-  Overweight: (bmi) =>
-    `Your BMI of ${bmi} is above the healthy range. Even modest weight loss of 5–10% can significantly reduce health risks. A weight management or lifestyle coach can create a practical, sustainable plan for you.`,
-  Obese: (bmi) =>
-    `Your BMI of ${bmi} indicates obesity, which carries significant health risks. A certified weight management or nutrition coach with a structured plan can make a real, life-changing difference.`,
-};
 
 export function HomeBmi() {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -261,7 +246,7 @@ export function HomeBmi() {
       bmi,
       label,
       color,
-      explain: EXPLAINS[label]?.(bmi) ?? "",
+      explain: BMI_EXPLANATIONS[label]?.(bmi) ?? "",
       degrees,
       gender,
       age: Number.isFinite(parsedAge) ? parsedAge : null,

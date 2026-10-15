@@ -1,11 +1,12 @@
 import type { CoachSession } from "@/lib/auth/types";
 
+import { SESSION_STORAGE_KEY } from "@/constants/app";
+
 /**
  * Client session store — mirrors mera-coach-app SecureStore + in-memory token.
  * Choice: memory (sync reads for apiFetch) + sessionStorage (survives refresh
  * in the same tab; cleared when the tab closes). No httpOnly cookie / Next BFF.
  */
-const STORAGE_KEY = "meracoach_coach_session";
 
 let current: CoachSession | null = null;
 
@@ -43,7 +44,7 @@ export function saveSession(session: CoachSession): void {
     typeof premiumPaid === "boolean" ? { ...session, premiumPaid } : session;
   if (canUseStorage()) {
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
     } catch {
       // Quota / private mode — memory session still works for this tab life.
     }
@@ -57,19 +58,19 @@ function restoreSession(): CoachSession | null {
     return null;
   }
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
+    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
     if (!raw) {
       current = null;
       return null;
     }
     const parsed = JSON.parse(raw) as CoachSession;
     if (!parsed?.token || !parsed.coachId) {
-      sessionStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
       current = null;
       return null;
     }
     if (isJwtExpired(parsed.token)) {
-      sessionStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
       current = null;
       return null;
     }
@@ -77,7 +78,7 @@ function restoreSession(): CoachSession | null {
     return parsed;
   } catch {
     try {
-      sessionStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
     } catch {
       // ignore
     }
@@ -97,7 +98,7 @@ export function clearSession(): void {
   current = null;
   if (canUseStorage()) {
     try {
-      sessionStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
     } catch {
       // ignore
     }

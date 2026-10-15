@@ -3,7 +3,7 @@
 import { useId } from "react";
 
 import { CoachPhoto } from "@/components/coach-photo";
-import { REGISTER_IMAGE_ACCEPT } from "@/lib/media/image-file";
+import { REGISTER_IMAGE_ACCEPT } from "@/constants/media";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 
 export type PickedImage = {

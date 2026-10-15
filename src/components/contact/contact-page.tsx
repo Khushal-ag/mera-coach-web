@@ -10,15 +10,14 @@ import {
 import type { ReactNode } from "react";
 
 import { MenuSelect } from "@/components/ui/menu-select";
+import { REGISTER_SHARE_TEXT } from "@/constants/contact";
 import { submitCoachEnquiry } from "@/lib/api/coach";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
+import { copyText } from "@/lib/clipboard";
 import { cn } from "@/lib/utils";
 import { isValidMobile } from "@/lib/validation";
 
 type Tab = "refer" | "corporate" | "hello";
-
-const SHARE_TEXT =
-  "Join me on Mera Coach, India's wellness coaching platform. Register free: ";
 
 function subscribeOrigin(onChange: () => void) {
   window.addEventListener("popstate", onChange);
@@ -172,7 +171,8 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
 
   function copyRegisterLink() {
     const url = `${window.location.origin}/register`;
-    navigator.clipboard.writeText(url).then(() => {
+    void copyText(url).then((ok) => {
+      if (!ok) return;
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2500);
     });
@@ -185,7 +185,7 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
 
   const shareHref =
     registerUrl ?
-      `https://wa.me/?text=${encodeURIComponent(SHARE_TEXT + registerUrl)}`
+      `https://wa.me/?text=${encodeURIComponent(REGISTER_SHARE_TEXT + registerUrl)}`
     : "https://wa.me/?text=";
 
   return (

@@ -2,16 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { PHONE_DEMO_SCREEN_MS, PHONE_DEMO_SCREENS } from "@/constants/home";
 import { cn } from "@/lib/utils";
-
-const SCREENS = [
-  { id: "dashboard", label: "Dashboard" },
-  { id: "add", label: "Add client" },
-  { id: "bmi", label: "Body composition" },
-  { id: "diet", label: "Diet plan" },
-] as const;
-
-const SCREEN_MS = 8200;
 
 /** Outline icons in the style of the app's Ionicons tab bar. */
 function TabIcon({ name }: { name: "grid" | "cube" | "calendar" | "person" }) {
@@ -109,13 +101,13 @@ export function AppPhoneDemo() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (!playing || !visible || reduced.matches) return;
     const timer = window.setTimeout(
-      () => setActive((i) => (i + 1) % SCREENS.length),
-      SCREEN_MS,
+      () => setActive((i) => (i + 1) % PHONE_DEMO_SCREENS.length),
+      PHONE_DEMO_SCREEN_MS,
     );
     return () => window.clearTimeout(timer);
   }, [active, playing, visible]);
 
-  const current = SCREENS[active]!;
+  const current = PHONE_DEMO_SCREENS[active]!;
   // Every demo screen lives under the Dashboard tab.
   const tab = 0;
 
@@ -523,7 +515,7 @@ export function AppPhoneDemo() {
 
       <div className="apd-controls">
         <div className="apd-dots" role="tablist" aria-label="App screens">
-          {SCREENS.map((screen, index) => (
+          {PHONE_DEMO_SCREENS.map((screen, index) => (
             <button
               key={screen.id}
               type="button"

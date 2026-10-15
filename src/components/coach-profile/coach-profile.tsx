@@ -4,11 +4,20 @@ import { useEffect, useRef, useState } from "react";
 
 import type { ReactNode } from "react";
 
+import { CoachPhoto } from "@/components/coach-photo";
 import { ListEmpty } from "@/components/list-empty";
+import { Stars } from "@/components/stars";
 import { MenuSelect } from "@/components/ui/menu-select";
 import { siteConfig } from "@/config/site";
+import {
+  COACHING_PROCESS,
+  ENQUIRY_ADVICE_OPTION,
+  EXPERTISE_BLURB,
+} from "@/constants/coach-profile";
+import { PROFILE_VISIBLE } from "@/constants/ui";
 import { submitCoachEnquiry } from "@/lib/api/coach";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
+import { copyText } from "@/lib/clipboard";
 
 export type CoachProfileDetails = {
   coachCode: string;
@@ -46,62 +55,21 @@ export type CoachProfileDetails = {
   gallery: { id: string; src: string }[];
 };
 
-const ADVICE = "Not sure yet, need advice";
-
 type ModalState =
   | { kind: "success"; title: string; enquiry?: boolean }
   | { kind: "error"; title: string; errors?: string[]; text?: string }
   | { kind: "info"; title: string; text: string };
-
-function Stars({ rating }: { rating: number }) {
-  const icons: string[] = [];
-  for (let i = 1; i <= 5; i += 1) {
-    if (rating >= i) icons.push("fas fa-star");
-    else if (rating >= i - 0.5) icons.push("fas fa-star-half-alt");
-    else icons.push("far fa-star");
-  }
-  return (
-    <div className="cp-stars">
-      {icons.map((icon, index) => (
-        <i key={index} className={icon} />
-      ))}
-    </div>
-  );
-}
-
-function Photo({
-  src,
-  alt,
-  iconSize,
-}: {
-  src: string;
-  alt: string;
-  iconSize: number;
-}) {
-  if (src) return <img src={src} alt={alt} />;
-  return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#e2e8f0",
-        fontSize: iconSize,
-        color: "#94a3b8",
-      }}
-    >
-      <i className="fas fa-user-circle" />
-    </div>
-  );
-}
 
 export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
   const nameRef = useRef<HTMLInputElement>(null);
   const mobileRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const [service, setService] = useState("");
+  const [expanded, setExpanded] = useState({
+    packages: false,
+    gallery: false,
+    events: false,
+  });
   const qrRef = useRef<HTMLImageElement>(null);
   const [sending, setSending] = useState(false);
   const [modal, setModal] = useState<ModalState | null>(null);
@@ -139,7 +107,8 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
 
   function copyProfileLink() {
     const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
+    void copyText(url).then((ok) => {
+      if (!ok) return;
       setModal({
         kind: "info",
         title: "Link Copied",
@@ -272,10 +241,11 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
               <div className="cp-photo-frame">
                 <div className="cp-photo-ring" />
                 <div className="cp-photo-wrap">
-                  <Photo
+                  <CoachPhoto
                     src={coach.photoSrc}
                     alt={coach.coachName}
-                    iconSize={80}
+                    name={coach.coachName}
+                    priority
                   />
                 </div>
                 <div className="cp-photo-blob" />
@@ -314,7 +284,9 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
               : null}
               {coach.rating > 0 ?
                 <div className="cp-hero-rating">
-                  <Stars rating={coach.rating} />
+                  <div className="cp-stars">
+                    <Stars rating={coach.rating} className="" />
+                  </div>
                   <span className="cp-rating-val">{ratingLabel}</span>
                   {coach.reviews > 0 ?
                     <span className="cp-rating-count">
@@ -326,15 +298,6 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
               : null}
               {coach.bio ?
                 <p className="cp-hero-bio">{coach.bio}</p>
-              : null}
-              {coach.services.length > 0 ?
-                <div className="cp-specialty-tags">
-                  {coach.services.map((svc) => (
-                    <span key={svc}>
-                      <i className="fas fa-check" /> {svc}
-                    </span>
-                  ))}
-                </div>
               : null}
               <div className="cp-share-row">
                 <span className="cp-share-label">Share:</span>
@@ -434,10 +397,7 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                           <i className="fas fa-medal" />
                         </div>
                         <h4 aria-level={3}>{svc}</h4>
-                        <p>
-                          Expert guidance and personalised approach to help you
-                          achieve lasting results.
-                        </p>
+                        <p>{EXPERTISE_BLURB}</p>
                       </div>
                     ))
                   : <ListEmpty
@@ -515,7 +475,10 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
               </p>
             </div>
             <div className="cp-offer-grid">
-              {coach.packages.map((pkg) => (
+              {(expanded.packages ?
+                coach.packages
+              : coach.packages.slice(0, PROFILE_VISIBLE.packages)
+              ).map((pkg) => (
                 <article className="cp-offer-card" key={pkg.id}>
                   {pkg.imageSrc ?
                     <img src={pkg.imageSrc} alt="" />
@@ -546,6 +509,24 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                 </article>
               ))}
             </div>
+            {coach.packages.length > PROFILE_VISIBLE.packages ?
+              <div className="cp-showmore">
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() =>
+                    setExpanded((prev) => ({
+                      ...prev,
+                      packages: !prev.packages,
+                    }))
+                  }
+                >
+                  {expanded.packages ?
+                    "Show less"
+                  : `Show all ${coach.packages.length} packages`}
+                </button>
+              </div>
+            : null}
           </div>
         </section>
       : null}
@@ -560,10 +541,28 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
               <h2 className="section-title">Photo Gallery</h2>
             </div>
             <div className="cp-gallery-grid">
-              {coach.gallery.map((photo) => (
+              {(expanded.gallery ?
+                coach.gallery
+              : coach.gallery.slice(0, PROFILE_VISIBLE.gallery)
+              ).map((photo) => (
                 <img key={photo.id} src={photo.src} alt="" />
               ))}
             </div>
+            {coach.gallery.length > PROFILE_VISIBLE.gallery ?
+              <div className="cp-showmore">
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() =>
+                    setExpanded((prev) => ({ ...prev, gallery: !prev.gallery }))
+                  }
+                >
+                  {expanded.gallery ?
+                    "Show less"
+                  : `Show all ${coach.gallery.length} photos`}
+                </button>
+              </div>
+            : null}
           </div>
         </section>
       : null}
@@ -578,7 +577,10 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
               <h2 className="section-title">Upcoming Events</h2>
             </div>
             <div className="cp-offer-grid">
-              {coach.events.map((evt) => (
+              {(expanded.events ?
+                coach.events
+              : coach.events.slice(0, PROFILE_VISIBLE.events)
+              ).map((evt) => (
                 <article className="cp-offer-card" key={evt.id}>
                   {evt.imageSrc ?
                     <img src={evt.imageSrc} alt="" />
@@ -586,10 +588,29 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                   <div className="cp-offer-body">
                     <h3>{evt.title}</h3>
                     {evt.when ?
-                      <p className="cp-offer-meta">{evt.when}</p>
+                      <p className="cp-offer-line">
+                        <i className="fas fa-calendar-alt" aria-hidden />
+                        {evt.when}
+                      </p>
                     : null}
                     {evt.location ?
-                      <p>{evt.location}</p>
+                      <p className="cp-offer-line">
+                        <i className="fas fa-map-marker-alt" aria-hidden />
+                        {(
+                          /^(online|zoom|google meet|virtual)/i.test(
+                            evt.location,
+                          )
+                        ) ?
+                          evt.location
+                        : <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(evt.location)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {evt.location}
+                          </a>
+                        }
+                      </p>
                     : null}
                     {evt.href ?
                       <a
@@ -600,11 +621,38 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                       >
                         Event details
                       </a>
-                    : null}
+                    : <button
+                        type="button"
+                        className="btn btn-outline"
+                        onClick={() => {
+                          setService(evt.title);
+                          document
+                            .getElementById("contact")
+                            ?.scrollIntoView({ behavior: "smooth" });
+                        }}
+                      >
+                        Enquire about this event
+                      </button>
+                    }
                   </div>
                 </article>
               ))}
             </div>
+            {coach.events.length > PROFILE_VISIBLE.events ?
+              <div className="cp-showmore">
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() =>
+                    setExpanded((prev) => ({ ...prev, events: !prev.events }))
+                  }
+                >
+                  {expanded.events ?
+                    "Show less"
+                  : `Show all ${coach.events.length} events`}
+                </button>
+              </div>
+            : null}
           </div>
         </section>
       : null}
@@ -683,7 +731,10 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                           value: svc,
                           label: svc,
                         })),
-                        { value: ADVICE, label: ADVICE },
+                        {
+                          value: ENQUIRY_ADVICE_OPTION,
+                          label: ENQUIRY_ADVICE_OPTION,
+                        },
                       ]}
                       onChange={(event) => setService(event.target.value)}
                     />
@@ -740,13 +791,11 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                 </p>
               </div>
               <div className="cp-cc-avatar-circle">
-                {coach.photoSrc ?
-                  <img src={coach.photoSrc} alt={coach.coachName} />
-                : <i
-                    className="fas fa-user-circle"
-                    style={{ fontSize: 80, color: "#94a3b8" }}
-                  />
-                }
+                <CoachPhoto
+                  src={coach.photoSrc}
+                  alt={coach.coachName}
+                  name={coach.coachName}
+                />
               </div>
               <div className="cp-cc-name-card">
                 <div className="cp-coa-avail">
@@ -781,46 +830,17 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
             </p>
           </div>
           <div className="cp-process-steps">
-            <div className="cp-step">
-              <div className="cp-step-num">01</div>
-              <div className="cp-step-content">
-                <h4 aria-level={3}>Free Discovery Call</h4>
-                <p>
-                  We start with a 30-minute call, no cost, no commitment. I
-                  understand your goals, lifestyle and any limitations.
-                </p>
+            {COACHING_PROCESS.map((step, index) => (
+              <div className="cp-step" key={step.title}>
+                <div className="cp-step-num">
+                  {String(index + 1).padStart(2, "0")}
+                </div>
+                <div className="cp-step-content">
+                  <h4 aria-level={3}>{step.title}</h4>
+                  <p>{step.text}</p>
+                </div>
               </div>
-            </div>
-            <div className="cp-step">
-              <div className="cp-step-num">02</div>
-              <div className="cp-step-content">
-                <h4 aria-level={3}>Personalised Plan</h4>
-                <p>
-                  I build your custom programme from scratch, tailored to your
-                  body, schedule and targets.
-                </p>
-              </div>
-            </div>
-            <div className="cp-step">
-              <div className="cp-step-num">03</div>
-              <div className="cp-step-content">
-                <h4 aria-level={3}>Execute &amp; Adjust</h4>
-                <p>
-                  You follow the plan with full support from me. I track
-                  progress weekly and keep you motivated.
-                </p>
-              </div>
-            </div>
-            <div className="cp-step">
-              <div className="cp-step-num">04</div>
-              <div className="cp-step-content">
-                <h4 aria-level={3}>Celebrate &amp; Level Up</h4>
-                <p>
-                  Milestones are celebrated, results documented and we set the
-                  next target together.
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>

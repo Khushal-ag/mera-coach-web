@@ -14,7 +14,7 @@ export function PremiumCheckoutSkeleton() {
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
-        {Array.from({ length: 2 }, (_, index) => (
+        {Array.from({ length: 4 }, (_, index) => (
           <div
             key={index}
             className="rounded-[16px] border border-line p-4 sm:p-5"
@@ -26,6 +26,7 @@ export function PremiumCheckoutSkeleton() {
           </div>
         ))}
       </div>
+      <div className="mc-skeleton h-10 w-full rounded-[12px]" />
       <div>
         <div className="mc-skeleton mb-1.5 h-3 w-20" />
         <div className="mc-skeleton h-11 w-full rounded-[10px]" />

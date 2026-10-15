@@ -3,17 +3,17 @@
 import { useCallback, useEffect, useId, useState } from "react";
 
 import { CoachPhoto } from "@/components/coach-photo";
-import { listDocuments, uploadDocument } from "@/lib/api/document";
-import {
-  fileToBase64DataUrl,
-  REGISTER_IMAGE_ACCEPT,
-  validateRegisterImage,
-} from "@/lib/media/image-file";
-import { resolveMediaUrl } from "@/lib/media/media-url";
 import {
   CLIENT_PROFILE_DOC_TYPE,
   CLIENT_PROFILE_REF_TYPE,
-} from "@/types/document";
+} from "@/constants/documents";
+import { REGISTER_IMAGE_ACCEPT } from "@/constants/media";
+import { listDocuments, uploadDocument } from "@/lib/api/document";
+import {
+  fileToBase64DataUrl,
+  validateRegisterImage,
+} from "@/lib/media/image-file";
+import { resolveMediaUrl } from "@/lib/media/media-url";
 
 type ClientAvatarProps = {
   coachCode: string;

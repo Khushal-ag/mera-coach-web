@@ -8,15 +8,16 @@ import { useAuth } from "@/components/auth-provider";
 import { ListEmpty } from "@/components/list-empty";
 import { CoverImageField } from "@/components/media/cover-image-field";
 import { PracticePageHeader } from "@/components/practice/page-header";
+import { SummaryCard } from "@/components/practice/views/summary-card";
 import { PackageCardsSkeleton } from "@/components/skeletons/packages-events-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextField } from "@/components/ui/field";
+import { MAX_COACH_PACKAGES } from "@/constants/coach";
+import { COACH_PACKAGE_IMAGE_DOC_TYPE } from "@/constants/documents";
 import {
   fetchAuthedCoachProfile,
   saveCoachPackagesEvents,
 } from "@/lib/api/practice";
-import { MAX_COACH_PACKAGES } from "@/lib/coach/packages";
-import { COACH_PACKAGE_IMAGE_DOC_TYPE } from "@/types/document";
 
 function emptyPackage(): CoachPackage {
   return {
@@ -53,6 +54,17 @@ function packagesKey(list: CoachPackage[]) {
   );
 }
 
+function packageLines(pkg: CoachPackage) {
+  return [
+    ...(pkg.price.trim() ?
+      [{ icon: "fas fa-tag", text: pkg.price.trim() }]
+    : []),
+    ...(pkg.duration.trim() ?
+      [{ icon: "fas fa-clock", text: pkg.duration.trim() }]
+    : []),
+  ];
+}
+
 export function PackagesListView() {
   const { session } = useAuth();
   const [profile, setProfile] = useState<CoachProfile | null>(null);
@@ -62,6 +74,7 @@ export function PackagesListView() {
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const dirty = !loading && !!profile && packagesKey(packages) !== baseline;
 
   useEffect(() => {
@@ -93,6 +106,21 @@ export function PackagesListView() {
     setPackages(updater);
   }
 
+  function patch(id: string, change: Partial<CoachPackage>) {
+    edit((prev) => prev.map((p) => (p.id === id ? { ...p, ...change } : p)));
+  }
+
+  function remove(id: string) {
+    edit((prev) => prev.filter((p) => p.id !== id));
+    setEditingId((current) => (current === id ? null : current));
+  }
+
+  /** Close the editor; a card that never got a name is dropped. */
+  function finishEditing(pkg: CoachPackage) {
+    if (!pkg.name.trim()) remove(pkg.id);
+    else setEditingId(null);
+  }
+
   async function save() {
     if (!profile || !dirty) return;
     const cleaned = savablePackages(packages);
@@ -103,6 +131,7 @@ export function PackagesListView() {
     try {
       await saveCoachPackagesEvents({ profile, packages: cleaned });
       setPackages(cleaned);
+      setEditingId(null);
       setBaseline(packagesKey(cleaned));
       setMessage("Packages saved. They appear on your public profile.");
     } catch (err) {
@@ -114,7 +143,9 @@ export function PackagesListView() {
 
   function addPackage() {
     if (packages.length >= MAX_COACH_PACKAGES) return;
-    edit((prev) => [...prev, emptyPackage()]);
+    const row = emptyPackage();
+    edit((prev) => [...prev, row]);
+    setEditingId(row.id);
   }
 
   const canAdd = !loading && packages.length < MAX_COACH_PACKAGES;
@@ -182,92 +213,82 @@ export function PackagesListView() {
         />
       : null}
 
-      <div className="grid gap-4">
-        {packages.map((pkg) => (
-          <div key={pkg.id} className="clt-card min-w-0">
-            <div className="clt-card-header">
-              <h2>
-                <i className="fas fa-box" /> {pkg.name.trim() || "New package"}
-              </h2>
-              <button
-                type="button"
-                className="clt-total-badge"
-                onClick={() =>
-                  edit((prev) => prev.filter((p) => p.id !== pkg.id))
-                }
-              >
-                Remove
-              </button>
-            </div>
-            <div className="clt-card-body grid gap-3 sm:grid-cols-2">
-              {session?.coachCode ?
-                <CoverImageField
-                  imageUrl={pkg.imageUrl}
-                  coachCode={session.coachCode}
-                  savedBy={session.coachId}
-                  docType={COACH_PACKAGE_IMAGE_DOC_TYPE}
-                  disabled={busy}
-                  onError={setError}
-                  onChange={(imageUrl) =>
-                    edit((prev) =>
-                      prev.map((p) =>
-                        p.id === pkg.id ?
-                          { ...p, imageUrl: imageUrl || undefined }
-                        : p,
-                      ),
-                    )
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {packages.map((pkg) =>
+          editingId !== pkg.id ?
+            <SummaryCard
+              key={pkg.id}
+              title={pkg.name}
+              icon="fas fa-box"
+              imageUrl={pkg.imageUrl}
+              lines={packageLines(pkg)}
+              note={pkg.description.trim() || undefined}
+              editLabel="Edit package"
+              onEdit={() => setEditingId(pkg.id)}
+              onRemove={() => remove(pkg.id)}
+            />
+          : <div key={pkg.id} className="clt-card col-span-full min-w-0">
+              <div className="clt-card-header">
+                <h2>
+                  <i className="fas fa-box" />{" "}
+                  {pkg.name.trim() || "New package"}
+                </h2>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="clt-total-badge"
+                    onClick={() => remove(pkg.id)}
+                  >
+                    Remove
+                  </button>
+                  <button
+                    type="button"
+                    className="clt-total-badge"
+                    onClick={() => finishEditing(pkg)}
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+              <div className="clt-card-body grid gap-3 sm:grid-cols-2">
+                {session?.coachCode ?
+                  <CoverImageField
+                    imageUrl={pkg.imageUrl}
+                    coachCode={session.coachCode}
+                    savedBy={session.coachId}
+                    docType={COACH_PACKAGE_IMAGE_DOC_TYPE}
+                    disabled={busy}
+                    onError={setError}
+                    onChange={(imageUrl) =>
+                      patch(pkg.id, { imageUrl: imageUrl || undefined })
+                    }
+                  />
+                : null}
+                <TextField
+                  label="Name"
+                  value={pkg.name}
+                  onChange={(e) => patch(pkg.id, { name: e.target.value })}
+                />
+                <TextField
+                  label="Price"
+                  value={pkg.price}
+                  onChange={(e) => patch(pkg.id, { price: e.target.value })}
+                />
+                <TextField
+                  label="Duration / sessions"
+                  value={pkg.duration}
+                  onChange={(e) => patch(pkg.id, { duration: e.target.value })}
+                />
+                <TextField
+                  label="Description"
+                  value={pkg.description}
+                  onChange={(e) =>
+                    patch(pkg.id, { description: e.target.value })
                   }
                 />
-              : null}
-              <TextField
-                label="Name"
-                value={pkg.name}
-                onChange={(e) =>
-                  edit((prev) =>
-                    prev.map((p) =>
-                      p.id === pkg.id ? { ...p, name: e.target.value } : p,
-                    ),
-                  )
-                }
-              />
-              <TextField
-                label="Price"
-                value={pkg.price}
-                onChange={(e) =>
-                  edit((prev) =>
-                    prev.map((p) =>
-                      p.id === pkg.id ? { ...p, price: e.target.value } : p,
-                    ),
-                  )
-                }
-              />
-              <TextField
-                label="Duration / sessions"
-                value={pkg.duration}
-                onChange={(e) =>
-                  edit((prev) =>
-                    prev.map((p) =>
-                      p.id === pkg.id ? { ...p, duration: e.target.value } : p,
-                    ),
-                  )
-                }
-              />
-              <TextField
-                label="Description"
-                value={pkg.description}
-                onChange={(e) =>
-                  edit((prev) =>
-                    prev.map((p) =>
-                      p.id === pkg.id ?
-                        { ...p, description: e.target.value }
-                      : p,
-                    ),
-                  )
-                }
-              />
-            </div>
-          </div>
-        ))}
+              </div>
+            </div>,
+        )}
       </div>
     </div>
   );

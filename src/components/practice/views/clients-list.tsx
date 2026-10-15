@@ -15,40 +15,18 @@ import {
   usePagedRows,
   useSortedRows,
 } from "@/components/practice/clt-list";
+import { TableSkeletonRows } from "@/components/skeletons/client-profile-skeleton";
+import { AVATAR_COLORS } from "@/constants/brand";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import { fetchClientList } from "@/lib/api/practice";
-
-const AVATAR_PALETTE = [
-  "#1b4332",
-  "#2d6a4f",
-  "#c9882a",
-  "#2563eb",
-  "#7c3aed",
-  "#dc2626",
-  "#0891b2",
-  "#059669",
-  "#d97706",
-  "#4f46e5",
-  "#be185d",
-  "#0f766e",
-  "#92400e",
-  "#1d4ed8",
-  "#065f46",
-];
-
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "?";
-  if (parts.length === 1) return parts[0]!.slice(0, 1).toUpperCase();
-  return `${parts[0]![0]}${parts[parts.length - 1]![0]}`.toUpperCase();
-}
+import { initials } from "@/lib/format";
 
 function avatarColor(name: string) {
   let hash = 0;
   for (let i = 0; i < name.length; i += 1) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length]!;
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]!;
 }
 
 function weightLabel(weight?: string) {
@@ -244,9 +222,7 @@ export function ClientsListView() {
               </thead>
               <tbody>
                 {loading && rows == null ?
-                  <tr className="clt-skeleton-row">
-                    <td colSpan={10}>Loading…</td>
-                  </tr>
+                  <TableSkeletonRows columns={10} />
                 : paged.slice.length === 0 ?
                   <tr className="clt-no-results">
                     <td colSpan={10}>

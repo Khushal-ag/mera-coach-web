@@ -1,11 +1,6 @@
 /** Client-side image validation + data-URL helpers for Document upload. */
 
-export const REGISTER_IMAGE_ACCEPT =
-  "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
-
-const REGISTER_IMAGE_MAX_BYTES = 2 * 1024 * 1024; // 2 MB
-
-const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
+import { ALLOWED_MIME, REGISTER_IMAGE_MAX_BYTES } from "@/constants/media";
 
 type ImageValidationError = {
   message: string;

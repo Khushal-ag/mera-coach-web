@@ -13,6 +13,7 @@ import {
   usePagedRows,
   useSortedRows,
 } from "@/components/practice/clt-list";
+import { TableSkeletonRows } from "@/components/skeletons/client-profile-skeleton";
 import { fetchEnquiryLeads, updateEnquiryLead } from "@/lib/api/practice";
 
 export function LeadsListView() {
@@ -163,9 +164,7 @@ export function LeadsListView() {
               </thead>
               <tbody>
                 {leads == null ?
-                  <tr className="clt-skeleton-row">
-                    <td colSpan={7}>Loading…</td>
-                  </tr>
+                  <TableSkeletonRows columns={7} />
                 : paged.slice.length === 0 ?
                   <tr className="clt-no-results">
                     <td colSpan={7}>

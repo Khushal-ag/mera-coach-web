@@ -15,6 +15,7 @@ import {
   usePagedRows,
   useSortedRows,
 } from "@/components/practice/clt-list";
+import { TableSkeletonRows } from "@/components/skeletons/client-profile-skeleton";
 import { fetchRecheckupList } from "@/lib/api/practice";
 
 export function CheckupsDueView() {
@@ -178,9 +179,7 @@ export function CheckupsDueView() {
               </thead>
               <tbody>
                 {due == null ?
-                  <tr className="clt-skeleton-row">
-                    <td colSpan={8}>Loading…</td>
-                  </tr>
+                  <TableSkeletonRows columns={8} />
                 : paged.slice.length === 0 ?
                   <tr className="clt-no-results">
                     <td colSpan={8}>
