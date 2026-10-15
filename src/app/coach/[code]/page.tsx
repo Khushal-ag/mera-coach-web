@@ -72,9 +72,6 @@ export async function generateMetadata({
     if (!coach) {
       return { title: "Coach not found", robots: { index: false } };
     }
-    const photo =
-      resolveMediaUrl(coach.profile_Pic_Url || coach.logo_Url) ||
-      siteConfig.brand.logoMark;
     const category = coach.coachTypeName?.trim();
     const city = coach.city_Cd?.trim();
     const description = coachDescription(coach);
@@ -93,13 +90,11 @@ export async function generateMetadata({
         title: coach.coachName,
         description,
         type: "profile",
-        images: [{ url: photo, alt: coach.coachName }],
       },
       twitter: {
         card: "summary_large_image",
         title: coach.coachName,
         description,
-        images: [photo],
       },
     };
   } catch {

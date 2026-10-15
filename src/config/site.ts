@@ -77,10 +77,10 @@ export const siteConfig = {
 
   /** Open Graph / Twitter share image (1200×630). */
   ogImage: {
-    url: "/mc-images/og-image.png",
+    url: "/mc-images/og-image.jpg",
     width: 1200,
     height: 630,
-    alt: "Mera Coach - find your personal coach",
+    alt: "Mera Coach homepage: grow your health coaching business",
   },
 
   icons: {

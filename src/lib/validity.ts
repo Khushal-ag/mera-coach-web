@@ -1,6 +1,6 @@
 /** Coach subscription validity (the coach's ValidUpto date) for display. */
 
-export type ValidityTone = "ok" | "soon" | "expired";
+type ValidityTone = "ok" | "soon" | "expired";
 
 export type ValidityInfo = {
   /** Date shown to the coach, for example "15 Oct 2026". */
@@ -11,7 +11,7 @@ export type ValidityInfo = {
 };
 
 /** Warn this many days before the end date. */
-export const VALIDITY_WARN_DAYS = 15;
+const VALIDITY_WARN_DAYS = 15;
 
 const MONTHS = [
   "Jan",

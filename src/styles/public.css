@@ -279,13 +279,15 @@
 
 /* ===== HERO ===== */
 .mc-public .hero {
-  min-height: 100vh;
+  /* The navbar overlays the top of the hero (about 78px), so the top padding is navbar + a gap.
+     Capping the height keeps tall screens from centring the content in a huge empty block. */
+  min-height: min(100svh, 760px);
   background: var(--gradient);
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
-  padding: 120px 0 80px;
+  padding: 136px 0 88px;
 }
 
 .mc-public .hero::before {
@@ -3479,10 +3481,6 @@
   border-radius: 1.25em;
   box-shadow: 0 0.2em 0.9em rgba(0, 0, 0, 0.08);
 }
-.mc-public .apd-strip::before,
-.mc-public .apd-strip::after {
-  content: none;
-}
 .mc-public .apd-metric {
   display: flex;
   flex-direction: column;
@@ -3692,10 +3690,6 @@
   background: #fff;
   color: #11523c;
   font-size: 0.95em;
-}
-.mc-public .apd-form-body,
-.mc-public .apd-body {
-  padding-top: 0;
 }
 .mc-public .apd-scroll {
   padding: 1.2em 0 6em;
@@ -13542,5 +13536,12 @@ html {
   }
   html {
     scroll-behavior: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .mc-public .hero {
+    min-height: 0;
+    padding: 116px 0 64px;
   }
 }
