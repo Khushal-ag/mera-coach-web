@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
+import type { PostCounts } from "@/components/practice/dashboard-slides";
 import type {
   ClientSummary,
   EnquiryLead,
@@ -11,7 +12,10 @@ import type {
 
 import { useAuth } from "@/components/auth-provider";
 import { ListEmpty } from "@/components/list-empty";
-import { buildDashboardSlides } from "@/components/practice/dashboard-slides";
+import {
+  buildDashboardSlides,
+  countPosts,
+} from "@/components/practice/dashboard-slides";
 import { DASHBOARD_CAROUSEL } from "@/constants/ui";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import {
@@ -20,6 +24,7 @@ import {
   fetchEnquiryLeads,
   fetchRecheckupList,
 } from "@/lib/api/practice";
+import { fetchMyPackages, fetchMyPosts } from "@/lib/api/showcase";
 import { getProfileCompletion } from "@/lib/profile-completion";
 import { describeValidity } from "@/lib/validity";
 
@@ -82,7 +87,7 @@ export function DashboardHomeView() {
   const [completion, setCompletion] = useState<number | null>(null);
   const [missing, setMissing] = useState<string[]>([]);
   const [packageCount, setPackageCount] = useState<number | null>(null);
-  const [eventCount, setEventCount] = useState<number | null>(null);
+  const [postCounts, setPostCounts] = useState<PostCounts | null>(null);
   const [validUpto, setValidUpto] = useState<string | null>(null);
   const [slide, setSlide] = useState(0);
   const [slidePaused, setSlidePaused] = useState(false);
@@ -95,8 +100,6 @@ export function DashboardHomeView() {
         const result = getProfileCompletion(profile);
         setCompletion(result.percent);
         setMissing(result.missingLabels);
-        setPackageCount(profile.packages?.length ?? 0);
-        setEventCount(profile.events?.length ?? 0);
         setValidUpto(profile.validUpto ?? null);
       })
       .catch(() => undefined);
@@ -116,9 +119,13 @@ export function DashboardHomeView() {
         fetchClientList({ coachCode }),
         fetchEnquiryLeads(coachCode),
         fetchRecheckupList({ coachCode }),
+        fetchMyPackages(),
+        fetchMyPosts(),
       ]).then((results) => {
         if (cancelled) return;
-        const [c, l, d] = results;
+        const [c, l, d, pk, ps] = results;
+        if (pk.status === "fulfilled") setPackageCount(pk.value.length);
+        if (ps.status === "fulfilled") setPostCounts(countPosts(ps.value));
         if (c.status === "fulfilled") setClients(c.value);
         if (l.status === "fulfilled") setLeads(l.value);
         if (d.status === "fulfilled") setDue(d.value);
@@ -184,7 +191,7 @@ export function DashboardHomeView() {
         openLeadCount: openLeads.length,
         dueCount: due.length,
         packageCount,
-        eventCount,
+        postCounts,
         validity,
         profileHref,
       }),
@@ -196,7 +203,7 @@ export function DashboardHomeView() {
       openLeads.length,
       due.length,
       packageCount,
-      eventCount,
+      postCounts,
       validity,
       profileHref,
     ],

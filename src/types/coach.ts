@@ -32,27 +32,6 @@ export type CoachPublicPagedResult = {
   totalPages: number;
 };
 
-/** Coach-defined offer shown on the public digital profile. */
-export type CoachPackage = {
-  id: string;
-  name: string;
-  price: string;
-  duration: string;
-  description: string;
-  imageUrl?: string;
-};
-
-/** Coach-hosted event for public showcase. */
-export type CoachEvent = {
-  id: string;
-  title: string;
-  date: string;
-  time: string;
-  location: string;
-  link: string;
-  imageUrl?: string;
-};
-
 export type CoachProfile = {
   coachId: number;
   coachCode: string;
@@ -88,8 +67,6 @@ export type CoachProfile = {
   bmiReportTemplate?: string | null;
   dietChartTemplate?: string | null;
   missingPublicFields?: string[];
-  packages?: CoachPackage[];
-  events?: CoachEvent[];
 };
 
 export type CoachRegisterResult = {

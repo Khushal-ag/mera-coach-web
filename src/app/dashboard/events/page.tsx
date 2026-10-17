@@ -1,8 +1,8 @@
-import { EventsListView } from "@/components/practice/views/events-list";
+import { PostsListView } from "@/components/practice/views/posts-list";
 
 /** Browser coach session: not eligible for instant navigations. */
 export const instant = false;
 
 export default function Page() {
-  return <EventsListView />;
+  return <PostsListView />;
 }

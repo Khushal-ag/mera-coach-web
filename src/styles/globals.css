@@ -608,6 +608,23 @@
   outline: 3px solid #c9882a;
   outline-offset: 2px;
 }
+/* Fields that already change their own border on focus must not also get the gold ring: that looked like a double border. */
+.mc-public .form-group input:focus-visible,
+.mc-public .form-group select:focus-visible,
+.mc-public .cf-group input:focus-visible,
+.mc-public .cf-group select:focus-visible,
+.mc-public .cf-group textarea:focus-visible,
+.mc-public .cp-form-group input:focus-visible,
+.mc-public .cp-form-group select:focus-visible,
+.mc-public .cp-form-group textarea:focus-visible,
+.mc-public .lg-input-wrap input:focus-visible,
+.mc-public .rg-field input:focus-visible,
+.mc-public .rg-field textarea:focus-visible,
+.mc-public .bmi-lead-input:focus-visible,
+.mc-public .app-notify-input:focus-visible,
+.mc-public select.cl-sort-select:focus-visible {
+  outline: none;
+}
 /* Small dot and pill controls keep their look but get a 44px touch area. */
 .mc-public .car-dot,
 .mc-dash .db-car-dot {

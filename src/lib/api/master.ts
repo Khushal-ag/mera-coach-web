@@ -37,7 +37,7 @@ function normalizeMasterItems(payload: unknown): MasterOption[] {
 }
 
 /** Anonymous master list: same endpoint the app uses for CoachType. */
-async function fetchMasterItems(params: {
+export async function fetchMasterItems(params: {
   ItemType?: string;
   itemType?: string;
   filterText?: string;

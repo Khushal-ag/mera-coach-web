@@ -43,21 +43,21 @@ src/
 
 ## Main routes
 
-| Route               | Notes                                                                     |
-| ------------------- | ------------------------------------------------------------------------- |
-| `/`                 | Marketing home                                                            |
-| `/coach`            | Public coach directory (+ city filters)                                   |
-| `/coach/[code]`     | Profile + enquiry                                                         |
-| `/services`         | Services marketing                                                        |
-| `/register`         | Coach registration                                                        |
-| `/coach-login`      | Coach login → `/dashboard`                                                |
-| `/dashboard`        | Authenticated coach practice (clients, leads, packages, events, profile)  |
-| `/premium`          | Plans + Razorpay (`?coachId=&coachCode=` from app `buildCoachPaymentUrl`) |
-| `/premium/success`  | Post-confirm return page                                                  |
-| `/feedback`         | `?coachCode=&clientCode=`                                                 |
-| `/bmi`              | Public BMI calculator with a callback form                                |
-| `/forgot-password`  | Utility page (noindex)                                                    |
-| `/terms` `/privacy` | Legal. Have counsel review the wording before launch                      |
+| Route               | Notes                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------ |
+| `/`                 | Marketing home                                                                       |
+| `/coach`            | Public coach directory (+ city filters)                                              |
+| `/coach/[code]`     | Profile + enquiry                                                                    |
+| `/services`         | Services marketing                                                                   |
+| `/register`         | Coach registration                                                                   |
+| `/coach-login`      | Coach login → `/dashboard`                                                           |
+| `/dashboard`        | Authenticated coach practice (clients, leads, packages, gallery and events, profile) |
+| `/premium`          | Plans + Razorpay (`?coachId=&coachCode=` from app `buildCoachPaymentUrl`)            |
+| `/premium/success`  | Post-confirm return page                                                             |
+| `/feedback`         | `?coachCode=&clientCode=`                                                            |
+| `/bmi`              | Public BMI calculator with a callback form                                           |
+| `/forgot-password`  | Utility page (noindex)                                                               |
+| `/terms` `/privacy` | Legal. Have counsel review the wording before launch                                 |
 
 ## Verify flows
 
@@ -82,6 +82,13 @@ src/
 2. Confirm the API is the build that exposes `GET /v1/Coach/premium`; older builds return 404 and the premium status shows as unavailable.
 3. Run `bun run validate`.
 4. Utility pages (`/coach-login`, `/forgot-password`, `/feedback`, `/premium`) are `noindex` and disallowed in `robots.txt`. The sitemap lists public pages and coach profiles only.
+
+## Packages, gallery and events
+
+- **Packages** (`/dashboard/packages`): the coach picks a product master and products, which come from the API (`MstProductBrand`, `MstProductItem`), then sets each price and an editable total. Nothing is hardcoded.
+- **Gallery & Events** (`/dashboard/events`): one form, three categories from the API (`MstPostCategory`): Gallery (photo or video with a tag), Workshop & Event, and Client Success (needs a client and consent). Photos and videos upload as `POST_MEDIA` documents, up to 10 MB.
+- The public coach page shows Packages, Gallery, Events and Success stories from `GET /v1/Showcase/public`. Success stories appear only with consent and show the client's first name.
+- Code: `src/components/practice/views/{package-editor,packages-list,post-form,posts-list}.tsx`, `src/lib/api/showcase.ts`, `src/constants/showcase.ts`.
 
 ## Registration and uploads
 

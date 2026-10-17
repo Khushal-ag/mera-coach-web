@@ -1,5 +1,5 @@
 import type { BodyMetrics } from "@/lib/assessment/bmi-metrics";
-import type { CoachEvent, CoachPackage, CoachProfile } from "@/types/coach";
+import type { CoachProfile } from "@/types/coach";
 import type {
   AssessmentIds,
   BmiMeasurement,
@@ -26,8 +26,6 @@ import {
   hasDietPlanContent,
   normalizeGeneratedDietPlan,
 } from "@/lib/assessment/normalize-diet-plan";
-import { parseCoachEvents, pickEventsRaw } from "@/lib/coach/events";
-import { parseCoachPackages, pickPackagesRaw } from "@/lib/coach/packages";
 import { formatLocalDate, toApiDate } from "@/lib/dates";
 import { emptyMeals } from "@/types/practice";
 
@@ -354,8 +352,6 @@ export async function fetchCoachPremiumOffer(): Promise<CoachPremiumOffer> {
 export async function fetchAuthedCoachProfile(): Promise<CoachProfile | null> {
   const raw = await authedFetch<Record<string, unknown>>("v1/Coach/profile");
   if (!raw) return null;
-  const packages = parseCoachPackages(pickPackagesRaw(raw));
-  const events = parseCoachEvents(pickEventsRaw(raw));
   return {
     coachId: Number(pick(raw, "coachId", "CoachId") ?? 0),
     coachCode: String(pick(raw, "coachCode", "CoachCode") ?? ""),
@@ -423,49 +419,7 @@ export async function fetchAuthedCoachProfile(): Promise<CoachProfile | null> {
           pick(raw, "missingPublicFields", "MissingPublicFields") as unknown[]
         ).map(String)
       : undefined,
-    packages,
-    events,
   };
-}
-
-export async function saveCoachPackagesEvents(params: {
-  profile: CoachProfile;
-  packages?: CoachPackage[];
-  events?: CoachEvent[];
-}): Promise<void> {
-  const { profile, packages, events } = params;
-  const body: Record<string, unknown> = {
-    coachId: profile.coachId,
-    coachName: profile.coachName,
-    coachTypeCode: profile.coachTypeCode ?? "",
-    mobile: profile.mobile ?? "",
-    email: profile.email ?? "",
-    businessName: profile.businessName ?? "",
-    experienceYears: profile.experienceYears ?? 0,
-    happyClientCount: profile.happyClientCount ?? 0,
-    certificationCount: profile.certificationCount ?? 0,
-    tagline: profile.tagline ?? "",
-    localLanguage: profile.localLanguage ?? "",
-    locality: profile.locality ?? "",
-    add_Line: profile.add_Line ?? "",
-    city_Cd: profile.city_Cd ?? "",
-    state_Cd: profile.state_Cd ?? "",
-    country_Cd: profile.country_Cd ?? "",
-    logo_Url: profile.logo_Url ?? "",
-    profile_Pic_Url: profile.profile_Pic_Url ?? "",
-    cover_Url: profile.cover_Url ?? "",
-    coachDesc: profile.coachDesc ?? "",
-    serviceCodes: [],
-  };
-  if (packages !== undefined) {
-    body.packages = packages;
-    body.packagesJson = JSON.stringify(packages);
-  }
-  if (events !== undefined) {
-    body.events = events;
-    body.eventsJson = JSON.stringify(events);
-  }
-  await authedFetch("v1/Coach/save", { method: "POST", body });
 }
 
 export async function saveCoachProfileEssentials(params: {
@@ -526,10 +480,6 @@ export async function saveCoachProfileEssentials(params: {
       dietChartTemplate:
         params.dietChartTemplate ?? profile.dietChartTemplate ?? "",
       serviceCodes: params.serviceCodes ?? profile.serviceCodes ?? [],
-      packages: profile.packages ?? [],
-      packagesJson: JSON.stringify(profile.packages ?? []),
-      events: profile.events ?? [],
-      eventsJson: JSON.stringify(profile.events ?? []),
     },
   });
 }

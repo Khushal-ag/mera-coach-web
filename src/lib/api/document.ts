@@ -4,10 +4,6 @@ import type {
   UploadDocumentResult,
 } from "@/types/document";
 
-import {
-  COACH_GALLERY_DOC_TYPE,
-  COACH_GALLERY_REF_TYPE,
-} from "@/constants/documents";
 import { authedFetch } from "@/lib/api/authed";
 import { apiFetch } from "@/lib/api/client";
 import { firstApiError, isApiSuccess, pick } from "@/lib/api/normalize";
@@ -105,26 +101,6 @@ export async function listDocuments(params: {
     },
   });
   return normalizeDocumentList(data);
-}
-
-/** Anonymous gallery for a public coach page. Empty when the coach has no photos. */
-export async function listPublicCoachGallery(
-  coachCode: string,
-): Promise<DocumentListItem[]> {
-  const code = coachCode.trim();
-  if (!code) return [];
-  const query = new URLSearchParams({
-    coachCode: code,
-    refCode: code,
-    refType: COACH_GALLERY_REF_TYPE,
-    docType: COACH_GALLERY_DOC_TYPE,
-  });
-  const response = await apiFetch<unknown[] | null>(
-    `/v1/Document/list?${query}`,
-    { next: { revalidate: 60 }, skipAuth: true },
-  );
-  if (!isApiSuccess(response) || !response.responseObj) return [];
-  return normalizeDocumentList(response.responseObj);
 }
 
 export async function deleteDocument(params: {

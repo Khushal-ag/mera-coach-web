@@ -6,7 +6,8 @@ export type CoachDocType =
   | "COVER"
   | "GALLERY"
   | "PACKAGE_IMAGE"
-  | "EVENT_IMAGE";
+  | "EVENT_IMAGE"
+  | "POST_MEDIA";
 
 type ClientDocType = "PROGRESS_PHOTO" | "PROFILE_PIC";
 

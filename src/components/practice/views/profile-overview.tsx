@@ -8,13 +8,7 @@ import type { CoachProfile } from "@/types/coach";
 import { CoachPhoto } from "@/components/coach-photo";
 import { ProfileCoverImage } from "@/components/coach-profile/profile-cover-image";
 import { ShareProfileButton } from "@/components/coach-profile/share-profile-button";
-import { PhotoGallery } from "@/components/practice/photo-gallery";
 import { SupportActions } from "@/components/practice/support-dialog";
-import {
-  COACH_GALLERY_DOC_TYPE,
-  COACH_GALLERY_MAX_PHOTOS,
-  COACH_GALLERY_REF_TYPE,
-} from "@/constants/documents";
 
 function LogoMark({ src }: { src: string }) {
   const [failed, setFailed] = useState(false);
@@ -176,18 +170,19 @@ export function ProfileOverview({
             </div>
           </div>
         </section>
-        {session?.coachCode ?
-          <PhotoGallery
-            coachCode={session.coachCode}
-            refCode={session.coachCode}
-            refType={COACH_GALLERY_REF_TYPE}
-            docType={COACH_GALLERY_DOC_TYPE}
-            savedBy={session.coachId}
-            maxPhotos={COACH_GALLERY_MAX_PHOTOS}
-            title="Public gallery"
-            emptyHint="Add photos for your public coach profile gallery."
-          />
-        : null}
+        <section className="mc-panel flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
+          <div className="min-w-0">
+            <h3 className="font-display text-base font-bold tracking-tight text-ink">
+              Gallery, events and success stories
+            </h3>
+            <p className="mt-1 text-sm text-ink-muted">
+              Photos and videos shown on your public page.
+            </p>
+          </div>
+          <Link href="/dashboard/events" className="mc-btn-secondary">
+            <i className="fas fa-images" aria-hidden /> Manage
+          </Link>
+        </section>
       </div>
       <aside className="grid gap-4 lg:sticky lg:top-24">
         <section className="mc-panel p-4 sm:p-5">

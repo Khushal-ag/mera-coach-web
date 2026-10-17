@@ -12,8 +12,6 @@ import type {
 
 import { apiFetch } from "@/lib/api/client";
 import { pick } from "@/lib/api/normalize";
-import { parseCoachEvents, pickEventsRaw } from "@/lib/coach/events";
-import { parseCoachPackages, pickPackagesRaw } from "@/lib/coach/packages";
 import { normalizeCoachMobile } from "@/lib/coach/whatsapp";
 
 /** Map a public coach list payload whether nested keys are camel or Pascal. */
@@ -70,8 +68,6 @@ function normalizePublicList(payload: unknown): CoachPublicPagedResult | null {
 function normalizeProfile(payload: unknown): CoachProfile | null {
   if (!payload || typeof payload !== "object") return null;
   const r = payload as Record<string, unknown>;
-  const packages = parseCoachPackages(pickPackagesRaw(r));
-  const events = parseCoachEvents(pickEventsRaw(r));
   const mobileRaw = pick<string | number | null>(r, "mobile", "Mobile");
   const mobile = normalizeCoachMobile(mobileRaw) || null;
   return {
@@ -113,8 +109,6 @@ function normalizeProfile(payload: unknown): CoachProfile | null {
     ),
     email: pick<string | null>(r, "email", "Email") ?? null,
     mobile,
-    packages: packages.length ? packages : undefined,
-    events: events.length ? events : undefined,
   };
 }
 

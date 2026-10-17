@@ -27,7 +27,11 @@ const navItems = [
   { href: "/dashboard/checkups", label: "Re-checkup", icon: "fas fa-redo-alt" },
   { href: "/dashboard/leads", label: "Leads", icon: "fas fa-filter" },
   { href: "/dashboard/packages", label: "Packages", icon: "fas fa-box" },
-  { href: "/dashboard/events", label: "Events", icon: "fas fa-calendar-alt" },
+  {
+    href: "/dashboard/events",
+    label: "Gallery & Events",
+    icon: "fas fa-images",
+  },
   { href: "/dashboard/profile", label: "My Profile", icon: "fas fa-id-card" },
 ] as const;
 

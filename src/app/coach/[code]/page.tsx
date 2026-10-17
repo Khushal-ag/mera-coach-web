@@ -2,7 +2,12 @@ import { cache, Suspense } from "react";
 
 import type { Metadata } from "next";
 
+import type {
+  ShowcasePackage,
+  ShowcasePost,
+} from "@/components/coach-profile/coach-showcase";
 import type { CoachProfile } from "@/types/coach";
+import type { CoachPost, CoachShowcase } from "@/types/showcase";
 
 import {
   CoachProfileMissing,
@@ -10,15 +15,12 @@ import {
 } from "@/components/coach-profile/coach-profile";
 import { CoachProfileSkeleton } from "@/components/skeletons/coach-profile-skeleton";
 import { siteConfig } from "@/config/site";
+import { POST_CATEGORY } from "@/constants/showcase";
 import { fetchCoachProfile, isApiSuccess } from "@/lib/api";
-import { listPublicCoachGallery } from "@/lib/api/document";
-import {
-  formatEventDateLabel,
-  getUpcomingCoachEvents,
-} from "@/lib/coach/events";
-import { publicEventCutoffMs } from "@/lib/coach/public-event-cutoff";
+import { fetchPublicShowcase } from "@/lib/api/showcase";
 import { splitServiceNames } from "@/lib/coach/services";
 import { whatsAppUrlFromMobile } from "@/lib/coach/whatsapp";
+import { formatDateLabel } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 
 type Params = Promise<{ code: string }>;
@@ -116,10 +118,10 @@ export default function CoachProfilePage({ params }: { params: Params }) {
 async function ProfileBody({ params }: { params: Params }) {
   const coach = await loadCoachOrNull(params);
   if (!coach) return <CoachProfileMissing />;
-  const [cutoff, gallery] = await Promise.all([
-    publicEventCutoffMs(),
-    listPublicCoachGallery(coach.coachCode).catch(() => []),
-  ]);
+  const showcase = await fetchPublicShowcase(coach.coachCode).catch(() => ({
+    packages: [],
+    posts: [],
+  }));
   const url = `${siteConfig.url}/coach/${encodeURIComponent(coach.coachCode || "")}`;
   const photo = resolveMediaUrl(coach.profile_Pic_Url || coach.logo_Url);
   const jsonLd = {
@@ -181,15 +183,7 @@ async function ProfileBody({ params }: { params: Params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <CoachProfileView
-        coach={toProfileDetails(coach, {
-          cutoff,
-          gallery: gallery.map((photo) => ({
-            id: String(photo.docId),
-            src: resolveMediaUrl(photo.filePath),
-          })),
-        })}
-      />
+      <CoachProfileView coach={toProfileDetails(coach, showcase)} />
     </>
   );
 }
@@ -203,41 +197,32 @@ async function loadCoachOrNull(params: Params) {
   }
 }
 
-function httpUrl(value: string): string {
-  const trimmed = value.trim();
-  return /^https?:\/\//i.test(trimmed) ? trimmed : "";
-}
-
-function toProfileDetails(
-  coach: CoachProfile,
-  extras: {
-    cutoff: number;
-    gallery: { id: string; src: string }[];
-  },
-) {
-  const packages = (coach.packages ?? []).map((pkg) => ({
-    id: pkg.id,
-    name: pkg.name,
-    price: pkg.price,
-    duration: pkg.duration,
-    description: pkg.description,
-    imageSrc: resolveMediaUrl(pkg.imageUrl) || "",
+function toProfileDetails(coach: CoachProfile, showcase: CoachShowcase) {
+  const toPost = (post: CoachPost): ShowcasePost => ({
+    id: post.postId,
+    title: post.title,
+    description: post.description,
+    when: formatDateLabel(post.postDate),
+    location: post.location,
+    src: resolveMediaUrl(post.mediaUrl) || "",
+    isVideo: post.mediaType === "video",
+    clientName: post.clientName,
+  });
+  const byCategory = (code: string) =>
+    showcase.posts
+      .filter((post) => post.categoryCode === code)
+      .map(toPost)
+      .filter((post) => post.src);
+  const packages: ShowcasePackage[] = showcase.packages.map((pkg) => ({
+    id: pkg.packageId,
+    brandName: pkg.brandName,
+    name: pkg.packageName,
+    total: pkg.totalAmount,
+    items: pkg.items.map((item) => ({
+      name: item.itemName,
+      amount: item.amount,
+    })),
   }));
-  const events = getUpcomingCoachEvents(coach.events ?? [], extras.cutoff).map(
-    (evt) => {
-      const when = [formatEventDateLabel(evt.date), evt.time.trim()]
-        .filter(Boolean)
-        .join(" · ");
-      return {
-        id: evt.id,
-        title: evt.title,
-        when,
-        location: evt.location,
-        href: httpUrl(evt.link),
-        imageSrc: resolveMediaUrl(evt.imageUrl) || "",
-      };
-    },
-  );
   return {
     coachCode: coach.coachCode,
     coachName: coach.coachName?.trim() || "Coach Profile",
@@ -255,7 +240,8 @@ function toProfileDetails(
     coverSrc: resolveMediaUrl(coach.cover_Url) || "",
     whatsappUrl: whatsAppUrlFromMobile(coach.mobile) ?? "#",
     packages,
-    events,
-    gallery: extras.gallery.filter((photo) => photo.src),
+    gallery: byCategory(POST_CATEGORY.gallery),
+    events: byCategory(POST_CATEGORY.event),
+    stories: byCategory(POST_CATEGORY.success),
   };
 }

@@ -12,7 +12,7 @@ const base: SlideInput = {
   openLeadCount: 0,
   dueCount: 0,
   packageCount: 2,
-  eventCount: 1,
+  postCounts: { gallery: 4, event: 1, success: 1 },
   validity: { dateLabel: "1 Jan 2030", tone: "ok", daysLeft: 400 },
   profileHref: "/coach/abc",
 };
@@ -59,7 +59,7 @@ describe("buildDashboardSlides", () => {
       openLeadCount: 1,
       dueCount: 1,
       packageCount: 0,
-      eventCount: 0,
+      postCounts: { gallery: 0, event: 0, success: 0 },
     });
     expect(list.length).toBeLessThanOrEqual(6);
   });

@@ -1,4 +1,5 @@
 import type { ValidityInfo } from "@/lib/validity";
+import type { CoachPost } from "@/types/showcase";
 
 import { isSubscriptionRequired } from "@/config/practice";
 import { DASHBOARD_CAROUSEL } from "@/constants/ui";
@@ -23,6 +24,19 @@ export type Slide = {
   ring?: number;
 };
 
+/** How many gallery, event and success posts the coach has published. */
+export type PostCounts = { gallery: number; event: number; success: number };
+
+export function countPosts(posts: CoachPost[]): PostCounts {
+  const counts: PostCounts = { gallery: 0, event: 0, success: 0 };
+  for (const post of posts) {
+    if (post.categoryCode === "GALLERY") counts.gallery += 1;
+    else if (post.categoryCode === "EVENT") counts.event += 1;
+    else if (post.categoryCode === "SUCCESS") counts.success += 1;
+  }
+  return counts;
+}
+
 export type SlideInput = {
   /** False until the counts and profile have loaded. */
   ready: boolean;
@@ -32,7 +46,7 @@ export type SlideInput = {
   openLeadCount: number;
   dueCount: number;
   packageCount: number | null;
-  eventCount: number | null;
+  postCounts: PostCounts | null;
   validity: ValidityInfo | null | undefined;
   profileHref: string;
 };
@@ -49,7 +63,7 @@ export function buildDashboardSlides({
   openLeadCount,
   dueCount,
   packageCount,
-  eventCount,
+  postCounts,
   validity,
   profileHref,
 }: SlideInput): Slide[] {
@@ -146,27 +160,27 @@ export function buildDashboardSlides({
       tag: { icon: "fas fa-box", label: "Packages" },
       title: "Show clients",
       em: "what you offer",
-      text: "Add your coaching packages with a price and duration. They appear on your public page.",
+      text: "Bundle the products you recommend into a package with its own price. It appears on your public page.",
       cta: {
         href: "/dashboard/packages",
         icon: "fas fa-plus",
-        label: "Add a package",
+        label: "Create a package",
       },
       icon: "fas fa-box",
     });
   }
-  if (completion >= 100 && eventCount === 0) {
+  if (completion >= 100 && postCounts?.event === 0) {
     list.push({
       id: "events",
       tone: 1,
       tag: { icon: "fas fa-calendar-alt", label: "Events" },
       title: "Host a workshop or",
       em: "free webinar",
-      text: "Events on your public page bring new people to you. Add a date, time and place or a link.",
+      text: "Photos and videos of workshops and events on your public page bring new people to you.",
       cta: {
         href: "/dashboard/events",
         icon: "fas fa-plus",
-        label: "Add an event",
+        label: "Add a workshop or event",
       },
       icon: "fas fa-calendar-alt",
     });
@@ -232,20 +246,37 @@ export function buildDashboardSlides({
       icon: "fas fa-camera",
     });
   }
-  list.push({
-    id: "gallery",
-    tone: 2,
-    tag: { icon: "fas fa-images", label: "Public page" },
-    title: "Make your page",
-    em: "feel real",
-    text: "Add gallery photos of your sessions and workshops. Pages with photos get more enquiries.",
-    cta: {
-      href: "/dashboard/profile",
-      icon: "fas fa-image",
-      label: "Add photos",
-    },
-    icon: "fas fa-images",
-  });
+  if (clientCount > 0 && postCounts?.success === 0) {
+    list.push({
+      id: "success",
+      tone: 1,
+      tag: { icon: "fas fa-trophy", label: "Success stories" },
+      title: "Share a client's",
+      em: "success story",
+      text: "Pick a client, add their photo or video and a few words. With your confirmation it appears on your public page.",
+      cta: {
+        href: "/dashboard/events",
+        icon: "fas fa-plus",
+        label: "Add a success story",
+      },
+      icon: "fas fa-trophy",
+    });
+  }
+  if (postCounts?.gallery === 0 || postCounts == null)
+    list.push({
+      id: "gallery",
+      tone: 2,
+      tag: { icon: "fas fa-images", label: "Public page" },
+      title: "Make your page",
+      em: "feel real",
+      text: "Add photos or videos of your training sessions and results. Pages with photos get more enquiries.",
+      cta: {
+        href: "/dashboard/events",
+        icon: "fas fa-image",
+        label: "Add photos",
+      },
+      icon: "fas fa-images",
+    });
   list.push({
     id: "refer",
     tone: 3,

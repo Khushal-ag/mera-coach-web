@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from "react";
 
 import type { ReactNode } from "react";
 
+import type {
+  ShowcasePackage,
+  ShowcasePost,
+} from "@/components/coach-profile/coach-showcase";
+
 import { CoachPhoto } from "@/components/coach-photo";
+import { CoachShowcase } from "@/components/coach-profile/coach-showcase";
 import { ListEmpty } from "@/components/list-empty";
 import { Stars } from "@/components/stars";
 import { MenuSelect } from "@/components/ui/menu-select";
@@ -14,7 +20,6 @@ import {
   ENQUIRY_ADVICE_OPTION,
   EXPERTISE_BLURB,
 } from "@/constants/coach-profile";
-import { PROFILE_VISIBLE } from "@/constants/ui";
 import { submitCoachEnquiry } from "@/lib/api/coach";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { copyText } from "@/lib/clipboard";
@@ -36,23 +41,10 @@ export type CoachProfileDetails = {
   /** Cover image from Edit Profile. Shown softly behind the profile header. */
   coverSrc: string;
   whatsappUrl: string;
-  packages: {
-    id: string;
-    name: string;
-    price: string;
-    duration: string;
-    description: string;
-    imageSrc: string;
-  }[];
-  events: {
-    id: string;
-    title: string;
-    when: string;
-    location: string;
-    href: string;
-    imageSrc: string;
-  }[];
-  gallery: { id: string; src: string }[];
+  packages: ShowcasePackage[];
+  gallery: ShowcasePost[];
+  events: ShowcasePost[];
+  stories: ShowcasePost[];
 };
 
 type ModalState =
@@ -65,11 +57,6 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
   const mobileRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const [service, setService] = useState("");
-  const [expanded, setExpanded] = useState({
-    packages: false,
-    gallery: false,
-    events: false,
-  });
   const qrRef = useRef<HTMLImageElement>(null);
   const [sending, setSending] = useState(false);
   const [modal, setModal] = useState<ModalState | null>(null);
@@ -103,6 +90,11 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
     const reload = modal?.kind === "success" && modal.enquiry;
     setModal(null);
     if (reload) window.location.reload();
+  }
+
+  function enquireAbout(label: string) {
+    setService(label);
+    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
   }
 
   function copyProfileLink() {
@@ -462,200 +454,14 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
         </div>
       </div>
 
-      {coach.packages.length > 0 ?
-        <section className="cp-showcase" id="packages">
-          <div className="container">
-            <div className="section-header">
-              <div className="section-tag">
-                <i className="fas fa-box" /> Packages
-              </div>
-              <h2 className="section-title">Coaching Packages</h2>
-              <p className="section-subtitle">
-                Offers {coach.coachName} lists on this profile.
-              </p>
-            </div>
-            <div className="cp-offer-grid">
-              {(expanded.packages ?
-                coach.packages
-              : coach.packages.slice(0, PROFILE_VISIBLE.packages)
-              ).map((pkg) => (
-                <article className="cp-offer-card" key={pkg.id}>
-                  {pkg.imageSrc ?
-                    <img src={pkg.imageSrc} alt="" />
-                  : null}
-                  <div className="cp-offer-body">
-                    <h3>{pkg.name}</h3>
-                    {pkg.price || pkg.duration ?
-                      <p className="cp-offer-meta">
-                        {[pkg.price, pkg.duration].filter(Boolean).join(" · ")}
-                      </p>
-                    : null}
-                    {pkg.description ?
-                      <p>{pkg.description}</p>
-                    : null}
-                    <button
-                      type="button"
-                      className="btn btn-outline"
-                      onClick={() => {
-                        setService(pkg.name);
-                        document
-                          .getElementById("contact")
-                          ?.scrollIntoView({ behavior: "smooth" });
-                      }}
-                    >
-                      Enquire about this
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-            {coach.packages.length > PROFILE_VISIBLE.packages ?
-              <div className="cp-showmore">
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={() =>
-                    setExpanded((prev) => ({
-                      ...prev,
-                      packages: !prev.packages,
-                    }))
-                  }
-                >
-                  {expanded.packages ?
-                    "Show less"
-                  : `Show all ${coach.packages.length} packages`}
-                </button>
-              </div>
-            : null}
-          </div>
-        </section>
-      : null}
-
-      {coach.gallery.length > 0 ?
-        <section className="cp-showcase cp-showcase-alt" id="gallery">
-          <div className="container">
-            <div className="section-header">
-              <div className="section-tag">
-                <i className="fas fa-images" /> Gallery
-              </div>
-              <h2 className="section-title">Photo Gallery</h2>
-            </div>
-            <div className="cp-gallery-grid">
-              {(expanded.gallery ?
-                coach.gallery
-              : coach.gallery.slice(0, PROFILE_VISIBLE.gallery)
-              ).map((photo) => (
-                <img key={photo.id} src={photo.src} alt="" />
-              ))}
-            </div>
-            {coach.gallery.length > PROFILE_VISIBLE.gallery ?
-              <div className="cp-showmore">
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={() =>
-                    setExpanded((prev) => ({ ...prev, gallery: !prev.gallery }))
-                  }
-                >
-                  {expanded.gallery ?
-                    "Show less"
-                  : `Show all ${coach.gallery.length} photos`}
-                </button>
-              </div>
-            : null}
-          </div>
-        </section>
-      : null}
-
-      {coach.events.length > 0 ?
-        <section className="cp-showcase" id="events">
-          <div className="container">
-            <div className="section-header">
-              <div className="section-tag">
-                <i className="fas fa-calendar-alt" /> Events
-              </div>
-              <h2 className="section-title">Upcoming Events</h2>
-            </div>
-            <div className="cp-offer-grid">
-              {(expanded.events ?
-                coach.events
-              : coach.events.slice(0, PROFILE_VISIBLE.events)
-              ).map((evt) => (
-                <article className="cp-offer-card" key={evt.id}>
-                  {evt.imageSrc ?
-                    <img src={evt.imageSrc} alt="" />
-                  : null}
-                  <div className="cp-offer-body">
-                    <h3>{evt.title}</h3>
-                    {evt.when ?
-                      <p className="cp-offer-line">
-                        <i className="fas fa-calendar-alt" aria-hidden />
-                        {evt.when}
-                      </p>
-                    : null}
-                    {evt.location ?
-                      <p className="cp-offer-line">
-                        <i className="fas fa-map-marker-alt" aria-hidden />
-                        {(
-                          /^(online|zoom|google meet|virtual)/i.test(
-                            evt.location,
-                          )
-                        ) ?
-                          evt.location
-                        : <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(evt.location)}`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            {evt.location}
-                          </a>
-                        }
-                      </p>
-                    : null}
-                    {evt.href ?
-                      <a
-                        className="btn btn-outline"
-                        href={evt.href}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Event details
-                      </a>
-                    : <button
-                        type="button"
-                        className="btn btn-outline"
-                        onClick={() => {
-                          setService(evt.title);
-                          document
-                            .getElementById("contact")
-                            ?.scrollIntoView({ behavior: "smooth" });
-                        }}
-                      >
-                        Enquire about this event
-                      </button>
-                    }
-                  </div>
-                </article>
-              ))}
-            </div>
-            {coach.events.length > PROFILE_VISIBLE.events ?
-              <div className="cp-showmore">
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={() =>
-                    setExpanded((prev) => ({ ...prev, events: !prev.events }))
-                  }
-                >
-                  {expanded.events ?
-                    "Show less"
-                  : `Show all ${coach.events.length} events`}
-                </button>
-              </div>
-            : null}
-          </div>
-        </section>
-      : null}
+      <CoachShowcase
+        coachName={coach.coachName}
+        packages={coach.packages}
+        gallery={coach.gallery}
+        events={coach.events}
+        stories={coach.stories}
+        onEnquire={enquireAbout}
+      />
 
       <section className="cp-contact" id="contact">
         <div className="cp-contact-shapes">

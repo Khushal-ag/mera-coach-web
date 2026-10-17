@@ -30,3 +30,27 @@ export function genderLabel(value?: string | null): string {
   if (value === "F") return "Female";
   return value ?? "";
 }
+
+/** 2500 becomes "₹2,500". Whole rupees are shown without decimals. */
+export function formatMoney(amount: number): string {
+  const value = Number.isFinite(amount) ? amount : 0;
+  return `₹${value.toLocaleString("en-IN", {
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+/** "2026-10-17" becomes "17 Oct 2026". Anything else is returned as is. */
+export function formatDateLabel(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value.trim());
+  if (!match) return value.trim();
+  return new Date(
+    Number(match[1]),
+    Number(match[2]) - 1,
+    Number(match[3]),
+  ).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
