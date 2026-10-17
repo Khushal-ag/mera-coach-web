@@ -36,6 +36,7 @@ function mapPackage(raw: unknown): CoachShowcasePackage {
     brandName: text(r.brandName),
     packageName: text(r.packageName),
     totalAmount: num(r.totalAmount),
+    isActive: r.isActive !== false,
     items: items.map((item) => {
       const i = (item ?? {}) as Record<string, unknown>;
       return {
@@ -101,6 +102,8 @@ export async function fetchProductItems(
     code: item.code,
     label: item.label,
     brandCode,
+    // The master sends its suggested price in `description`.
+    price: num(item.description),
   }));
 }
 
@@ -119,6 +122,16 @@ export async function savePackage(
     body: input,
   });
   return mapPackage(saved);
+}
+
+export async function setPackageActive(
+  packageId: number,
+  isActive: boolean,
+): Promise<void> {
+  await authedFetch<boolean>(`v1/Showcase/packages/${packageId}/active`, {
+    method: "POST",
+    body: { isActive },
+  });
 }
 
 export async function deletePackage(packageId: number): Promise<void> {

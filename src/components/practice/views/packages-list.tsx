@@ -18,6 +18,7 @@ import {
   fetchMyPackages,
   fetchProductBrands,
   savePackage,
+  setPackageActive,
 } from "@/lib/api/showcase";
 import { formatMoney } from "@/lib/format";
 
@@ -68,9 +69,10 @@ export function PackagesListView() {
       );
       setEditing(null);
       setMessage(
-        input.packageId ? "Package updated." : (
-          "Package published on your profile."
-        ),
+        input.isActive === false ?
+          "Package saved. It is hidden from your profile until you switch it on."
+        : input.packageId ? "Package updated."
+        : "Package published on your profile.",
       );
     } catch (err) {
       setFormError(
@@ -78,6 +80,34 @@ export function PackagesListView() {
       );
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function toggleVisible(pkg: CoachShowcasePackage) {
+    const next = !pkg.isActive;
+    setError(null);
+    setMessage(null);
+    setPackages((prev) =>
+      prev.map((p) =>
+        p.packageId === pkg.packageId ? { ...p, isActive: next } : p,
+      ),
+    );
+    try {
+      await setPackageActive(pkg.packageId, next);
+      setMessage(
+        next ?
+          `"${pkg.packageName}" is now shown on your profile.`
+        : `"${pkg.packageName}" is hidden from your profile.`,
+      );
+    } catch (err) {
+      setPackages((prev) =>
+        prev.map((p) =>
+          p.packageId === pkg.packageId ? { ...p, isActive: !next } : p,
+        ),
+      );
+      setError(
+        err instanceof Error ? err.message : "Could not update the package.",
+      );
     }
   }
 
@@ -162,7 +192,7 @@ export function PackagesListView() {
           {packages.map((pkg) => (
             <article
               key={pkg.packageId}
-              className="clt-card flex min-w-0 flex-col overflow-hidden"
+              className={`clt-card flex min-w-0 flex-col overflow-hidden ${pkg.isActive ? "" : "opacity-80"}`}
             >
               <div className="flex items-start justify-between gap-3 bg-mc-secondary px-4 py-3 text-white">
                 <div className="min-w-0">
@@ -228,6 +258,23 @@ export function PackagesListView() {
                 <span className="font-display text-xl font-bold text-ink tabular-nums">
                   {formatMoney(pkg.totalAmount)}
                 </span>
+              </div>
+              <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
+                <span className="text-sm font-semibold text-ink">
+                  {pkg.isActive ? "Shown on profile" : "Hidden from profile"}
+                </span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={pkg.isActive}
+                  aria-label={`Show ${pkg.packageName} on your public profile`}
+                  onClick={() => void toggleVisible(pkg)}
+                  className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition ${pkg.isActive ? "bg-mc-secondary" : "bg-[#c9c2bb]"}`}
+                >
+                  <span
+                    className={`inline-block size-5 rounded-full bg-white shadow transition-transform ${pkg.isActive ? "translate-x-6" : "translate-x-1"}`}
+                  />
+                </button>
               </div>
             </article>
           ))}

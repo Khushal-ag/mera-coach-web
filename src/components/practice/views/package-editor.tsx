@@ -60,6 +60,7 @@ export function PackageEditor({
     initial ? String(initial.totalAmount) : "",
   );
   const [totalEdited, setTotalEdited] = useState(Boolean(initial));
+  const [isActive, setIsActive] = useState(initial?.isActive ?? true);
   const [localError, setLocalError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -124,6 +125,7 @@ export function PackageEditor({
       brandCode,
       packageName: trimmed,
       totalAmount,
+      isActive,
       items,
     });
   }
@@ -138,7 +140,13 @@ export function PackageEditor({
       </div>
       <div className="clt-card-body grid gap-6">
         {error || localError ?
-          <AlertBanner tone="error">{localError ?? error}</AlertBanner>
+          <div
+            ref={(el) =>
+              el?.scrollIntoView({ behavior: "smooth", block: "center" })
+            }
+          >
+            <AlertBanner tone="error">{localError ?? error}</AlertBanner>
+          </div>
         : null}
 
         <fieldset className="min-w-0">
@@ -200,7 +208,13 @@ export function PackageEditor({
                 "No products are available for this master yet."
               : undefined
             }
-            onChange={(e) => setPick(e.target.value)}
+            onChange={(e) => {
+              setPick(e.target.value);
+              const suggested = catalog.find(
+                (option) => option.code === e.target.value,
+              )?.price;
+              setPrice(suggested ? String(suggested) : "");
+            }}
           >
             <option value="">
               {brandCode ? "Select a product" : "Select product master first"}
@@ -298,6 +312,32 @@ export function PackageEditor({
               }}
             />
           </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-line px-5 py-4">
+          <div className="min-w-0">
+            <p className="font-display text-sm font-semibold text-ink">
+              {isActive ? "Active" : "Inactive"}
+            </p>
+            <p className="text-xs text-ink-muted">
+              {isActive ?
+                "Shown on your public profile."
+              : "Hidden from your public profile. You can switch it on any time."
+              }
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isActive}
+            aria-label="Show this package on your public profile"
+            onClick={() => setIsActive((on) => !on)}
+            className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition ${isActive ? "bg-mc-secondary" : "bg-[#c9c2bb]"}`}
+          >
+            <span
+              className={`inline-block size-5 rounded-full bg-white shadow transition-transform ${isActive ? "translate-x-6" : "translate-x-1"}`}
+            />
+          </button>
         </div>
 
         <div className="flex flex-col gap-3 border-t border-line pt-5 sm:flex-row">

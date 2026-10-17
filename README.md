@@ -85,7 +85,7 @@ src/
 
 ## Packages, gallery and events
 
-- **Packages** (`/dashboard/packages`): the coach picks a product master and products, which come from the API (`MstProductBrand`, `MstProductItem`), then sets each price and an editable total. Nothing is hardcoded.
+- **Packages** (`/dashboard/packages`): the coach picks a product master and products, which come from the API (`MstProductBrand`, `MstProductItem`), then sets each price and an editable total. Nothing is hardcoded. Each package card has a switch to show or hide it on the public profile.
 - **Gallery & Events** (`/dashboard/events`): one form, three categories from the API (`MstPostCategory`): Gallery (photo or video with a tag), Workshop & Event, and Client Success (needs a client and consent). Photos and videos upload as `POST_MEDIA` documents, up to 10 MB.
 - The public coach page shows Packages, Gallery, Events and Success stories from `GET /v1/Showcase/public`. Success stories appear only with consent and show the client's first name.
 - Code: `src/components/practice/views/{package-editor,packages-list,post-form,posts-list}.tsx`, `src/lib/api/showcase.ts`, `src/constants/showcase.ts`.

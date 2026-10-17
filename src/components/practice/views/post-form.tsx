@@ -174,7 +174,13 @@ export function PostForm({ categories, initial, onPublish, onCancel }: Props) {
       </div>
       <div className="clt-card-body grid gap-5">
         {error ?
-          <AlertBanner tone="error">{error}</AlertBanner>
+          <div
+            ref={(el) =>
+              el?.scrollIntoView({ behavior: "smooth", block: "center" })
+            }
+          >
+            <AlertBanner tone="error">{error}</AlertBanner>
+          </div>
         : null}
 
         <fieldset className="min-w-0">

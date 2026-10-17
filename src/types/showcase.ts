@@ -10,6 +10,8 @@ export type CoachShowcasePackage = {
   brandName: string;
   packageName: string;
   totalAmount: number;
+  /** False when the coach has switched the package off (hidden from the public profile). */
+  isActive: boolean;
   items: PackageItem[];
 };
 
@@ -41,6 +43,8 @@ export type SavePackageInput = {
   brandCode: string;
   packageName: string;
   totalAmount: number;
+  /** Omit to keep the current setting (shown for a new package). */
+  isActive?: boolean;
   items: PackageItem[];
 };
 
@@ -70,4 +74,6 @@ export type ProductItemOption = {
   code: string;
   label: string;
   brandCode: string;
+  /** Suggested price from the product master. The coach can change it. */
+  price: number;
 };
