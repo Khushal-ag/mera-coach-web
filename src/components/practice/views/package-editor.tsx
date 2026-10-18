@@ -54,6 +54,7 @@ export function PackageEditor({
   const [name, setName] = useState(initial?.packageName ?? "");
   const [items, setItems] = useState<PackageItem[]>(initial?.items ?? []);
   const [catalog, setCatalog] = useState<ProductItemOption[]>([]);
+  const [category, setCategory] = useState("");
   const [pick, setPick] = useState("");
   const [price, setPrice] = useState("");
   const [total, setTotal] = useState(
@@ -84,6 +85,25 @@ export function PackageEditor({
   const available = catalog.filter(
     (option) => !items.some((item) => item.itemCode === option.code),
   );
+  const categories = useMemo(
+    () =>
+      [
+        ...new Set(catalog.map((option) => option.category).filter(Boolean)),
+      ].sort((a, b) => a.localeCompare(b)),
+    [catalog],
+  );
+  const shownProducts = available.filter(
+    (option) => !category || option.category === category,
+  );
+  // With no category chosen, products are grouped by category inside the list.
+  const groups = useMemo(() => {
+    const map = new Map<string, ProductItemOption[]>();
+    for (const option of shownProducts) {
+      const key = option.category || "Other";
+      map.set(key, [...(map.get(key) ?? []), option]);
+    }
+    return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
+  }, [shownProducts]);
   const brandLocked = items.length > 0;
 
   function addItem() {
@@ -161,7 +181,12 @@ export function PackageEditor({
                   role="radio"
                   aria-checked={on}
                   disabled={brandLocked && !on}
-                  onClick={() => setBrandCode(brand.code)}
+                  onClick={() => {
+                    setBrandCode(brand.code);
+                    setCategory("");
+                    setPick("");
+                    setPrice("");
+                  }}
                   className={cn(
                     "inline-flex min-h-11 items-center gap-2 rounded-full border-2 px-5 font-display text-sm font-semibold transition",
                     on ?
@@ -197,51 +222,82 @@ export function PackageEditor({
           onChange={(e) => setName(e.target.value)}
         />
 
-        <div className="grid gap-3 rounded-2xl border border-line bg-[#fdf8f2] p-4 sm:grid-cols-[minmax(0,1fr)_9rem_auto] sm:items-end">
-          <SelectField
-            label="Select product"
-            value={pick}
-            disabled={!brandCode}
-            hint={
-              !brandCode ? "Choose a product master first."
-              : available.length === 0 ?
-                "No products are available for this master yet."
-              : undefined
-            }
-            onChange={(e) => {
-              setPick(e.target.value);
-              const suggested = catalog.find(
-                (option) => option.code === e.target.value,
-              )?.price;
-              setPrice(suggested ? String(suggested) : "");
-            }}
-          >
-            <option value="">
-              {brandCode ? "Select a product" : "Select product master first"}
-            </option>
-            {available.map((option) => (
-              <option key={option.code} value={option.code}>
-                {option.label}
+        <div className="grid gap-3 rounded-2xl border border-line bg-[#fdf8f2] p-4">
+          {categories.length > 0 ?
+            <SelectField
+              label="Category"
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setPick("");
+                setPrice("");
+              }}
+            >
+              <option value="">All categories</option>
+              {categories.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </SelectField>
+          : null}
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_9rem_auto] sm:items-end">
+            <SelectField
+              label="Select product"
+              value={pick}
+              disabled={!brandCode}
+              hint={
+                !brandCode ? "Choose a product master first."
+                : available.length === 0 ?
+                  "No products are available for this master yet."
+                : undefined
+              }
+              onChange={(e) => {
+                setPick(e.target.value);
+                const suggested = catalog.find(
+                  (option) => option.code === e.target.value,
+                )?.price;
+                setPrice(suggested ? String(suggested) : "");
+              }}
+            >
+              <option value="">
+                {brandCode ? "Select a product" : "Select product master first"}
               </option>
-            ))}
-          </SelectField>
-          <TextField
-            label="Price"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            value={price}
-            placeholder="0"
-            onChange={(e) => setPrice(e.target.value)}
-          />
-          <button
-            type="button"
-            className="mc-btn-secondary min-h-11 w-full sm:w-auto"
-            disabled={!brandCode || busy}
-            onClick={addItem}
-          >
-            <i className="fas fa-plus" aria-hidden /> Add
-          </button>
+              {category ?
+                shownProducts.map((option) => (
+                  <option key={option.code} value={option.code}>
+                    {option.label}
+                  </option>
+                ))
+              : groups.map(([group, options]) => (
+                  <optgroup key={group} label={group}>
+                    {options.map((option) => (
+                      <option key={option.code} value={option.code}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))
+              }
+            </SelectField>
+            <TextField
+              label="Price"
+              type="number"
+              inputMode="decimal"
+              min={0}
+              value={price}
+              placeholder="0"
+              onChange={(e) => setPrice(e.target.value)}
+            />
+            <button
+              type="button"
+              className="mc-btn-secondary min-h-11 w-full sm:w-auto"
+              disabled={!brandCode || busy}
+              onClick={addItem}
+            >
+              <i className="fas fa-plus" aria-hidden /> Add
+            </button>
+          </div>
         </div>
 
         <div className="min-w-0">

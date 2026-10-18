@@ -5737,10 +5737,10 @@
   background: var(--gradient);
   border-color: transparent;
 }
-.mc-public .sv-tool-featured h3 {
-  color: #fff;
+.mc-public .sv-tool-card.sv-tool-featured h3 {
+  color: var(--white);
 }
-.mc-public .sv-tool-featured p {
+.mc-public .sv-tool-card.sv-tool-featured p {
   color: rgba(255, 255, 255, 0.68);
 }
 .mc-public .sv-tool-featured .sv-tc-num {

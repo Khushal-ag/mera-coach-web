@@ -59,6 +59,8 @@ export function RegisterProfileStep({
             />
             <div className="rg-upload-placeholder" id="rgLogoPreview">
               {logoPreview ?
+                // Local blob preview cannot be optimized by next/image.
+                // eslint-disable-next-line @next/next/no-img-element
                 <img src={logoPreview} alt="Logo" className="rg-img-preview" />
               : <>
                   <i className="fas fa-cloud-upload-alt" />
@@ -94,6 +96,8 @@ export function RegisterProfileStep({
             />
             <div className="rg-upload-placeholder" id="rgPhotoPreview">
               {photoPreview ?
+                // Local blob preview cannot be optimized by next/image.
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={photoPreview}
                   alt="Photo"

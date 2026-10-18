@@ -93,18 +93,20 @@ export async function fetchProductItems(
   brandCode: string,
 ): Promise<ProductItemOption[]> {
   if (!brandCode) return [];
-  const response = await fetchMasterItems({
-    ItemType: "PRODUCTITEM",
-    filterText: brandCode,
+  const rows = await authedFetch<unknown[]>(
+    `v1/Showcase/products?brandCode=${encodeURIComponent(brandCode)}`,
+  );
+  return (rows ?? []).map((raw) => {
+    const r = (raw ?? {}) as Record<string, unknown>;
+    return {
+      code: text(r.itemCode),
+      label: text(r.itemName),
+      brandCode,
+      price: num(r.price),
+      category: text(r.category),
+      packSize: text(r.packSize),
+    };
   });
-  if (!isApiSuccess(response)) return [];
-  return (response.responseObj ?? []).map((item) => ({
-    code: item.code,
-    label: item.label,
-    brandCode,
-    // The master sends its suggested price in `description`.
-    price: num(item.description),
-  }));
 }
 
 // ── Coach's own packages and posts ─────────────────────────────────────────

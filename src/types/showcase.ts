@@ -76,4 +76,7 @@ export type ProductItemOption = {
   brandCode: string;
   /** Suggested price from the product master. The coach can change it. */
   price: number;
+  /** Product group, for example WEIGHT MANAGEMENT PRODUCTS. Empty when the master has none. */
+  category: string;
+  packSize: string;
 };

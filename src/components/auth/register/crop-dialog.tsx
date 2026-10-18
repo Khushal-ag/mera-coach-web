@@ -75,6 +75,8 @@ export function CropDialog({ form }: { form: RegisterFormController }) {
             borderRadius: 10,
           }}
         >
+          {/* Local blob preview cannot be optimized by next/image. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={crop.url}
             alt=""

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { requestForgotPassword, resetCoachPassword } from "@/lib/api/practice";
+import { passwordPolicyError } from "@/lib/password";
 
 type Step = "request" | "confirm";
 
@@ -54,8 +55,9 @@ export function ForgotPasswordForm() {
       setError("Enter the reset code from your email.");
       return;
     }
-    if (newPassword.length < 6) {
-      setError("New password must be at least 6 characters.");
+    const passwordError = passwordPolicyError(newPassword);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
     if (newPassword !== confirmPassword) {

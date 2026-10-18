@@ -6,6 +6,7 @@ import Link from "next/link";
 import { PracticePageHeader } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { changeCoachPassword } from "@/lib/api/practice";
+import { passwordPolicyError } from "@/lib/password";
 
 function PasswordField({
   label,
@@ -73,8 +74,9 @@ export function ChangePasswordView() {
     e.preventDefault();
     setError(null);
     setMessage(null);
-    if (newPassword.length < 6) {
-      setError("New password must be at least 6 characters.");
+    const passwordError = passwordPolicyError(newPassword);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
     if (newPassword !== confirm) {
