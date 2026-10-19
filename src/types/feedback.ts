@@ -9,7 +9,10 @@ export type FeedbackContext = {
 export type FeedbackSubmitInput = {
   coachCode: string;
   clientCode: string;
-  rating: number;
+  knowledge: number;
+  communication: number;
+  personalAttention: number;
+  guidanceResponse: number;
+  resultsProgress: number;
   comments?: string;
-  clientName?: string;
 };

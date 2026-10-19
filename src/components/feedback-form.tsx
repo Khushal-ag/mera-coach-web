@@ -2,12 +2,21 @@
 
 import { useState } from "react";
 
-import { Star } from "lucide-react";
+import {
+  BarChart3,
+  GraduationCap,
+  MessageCircle,
+  MessageSquare,
+  Star,
+  User,
+} from "lucide-react";
+
+import type { RatingIcon, RatingKey } from "@/constants/feedback";
 
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { TextAreaField } from "@/components/ui/field";
 import { siteConfig } from "@/config/site";
-import { RATING_LABELS } from "@/constants/feedback";
+import { RATING_LABELS, RATING_PARAMETERS } from "@/constants/feedback";
 import { submitFeedback } from "@/lib/api/feedback";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { appHomeDeepLink } from "@/lib/app-deep-link";
@@ -24,7 +33,13 @@ export function FeedbackForm({
   coachName?: string;
   clientName?: string;
 }) {
-  const [rating, setRating] = useState(5);
+  const [scores, setScores] = useState<Record<RatingKey, number>>({
+    knowledge: 0,
+    communication: 0,
+    personalAttention: 0,
+    guidanceResponse: 0,
+    resultsProgress: 0,
+  });
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
@@ -32,15 +47,19 @@ export function FeedbackForm({
 
   async function onSubmit(formData: FormData) {
     if (status === "success" || status === "loading") return;
+    if (RATING_PARAMETERS.some(({ key }) => scores[key] < 1)) {
+      setStatus("error");
+      setMessage("Please rate every parameter.");
+      return;
+    }
     setStatus("loading");
     setMessage(null);
     try {
       const response = await submitFeedback({
         coachCode,
         clientCode,
-        rating,
+        ...scores,
         comments: String(formData.get("comments") ?? "").trim() || undefined,
-        clientName: clientName || undefined,
       });
       if (!isApiSuccess(response)) {
         setStatus("error");
@@ -58,6 +77,7 @@ export function FeedbackForm({
   }
 
   const busy = status === "loading";
+  const rating = overallRating(scores);
 
   return (
     <div className="space-y-5">
@@ -66,71 +86,74 @@ export function FeedbackForm({
         <FeedbackThanks
           coachName={coachName}
           clientName={clientName}
-          rating={rating}
+          rating={Math.round(rating * 10) / 10}
           message={message}
         />
       : <form
           action={onSubmit}
           className="space-y-6 rounded-[22px] border border-line bg-white p-4 shadow-[0_16px_40px_rgba(44,24,16,0.08)] sm:p-8"
         >
-          <div className="space-y-3">
-            <p id="feedback-rating-label" className="mc-field-label">
-              Rating
-            </p>
-            <div
-              role="radiogroup"
-              aria-labelledby="feedback-rating-label"
-              aria-describedby="feedback-rating-value"
-              className="grid grid-cols-5 gap-2 sm:flex sm:flex-wrap sm:gap-3"
-            >
-              {[1, 2, 3, 4, 5].map((value) => {
-                const selected = value <= rating;
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    role="radio"
-                    aria-checked={value === rating}
-                    aria-label={`${value} star${value === 1 ? "" : "s"}`}
+          <div className="overflow-hidden rounded-2xl border border-line">
+            <ul className="divide-y divide-line px-3 sm:px-5">
+              {RATING_PARAMETERS.map(({ key, label, icon }) => (
+                <li
+                  key={key}
+                  className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-mc-accent/10 text-mc-accent">
+                      <ParameterIcon icon={icon} />
+                    </span>
+                    <span
+                      id={`feedback-${key}-label`}
+                      className="font-display text-base font-bold text-mc-secondary"
+                    >
+                      {label}
+                    </span>
+                  </div>
+                  <StarRow
+                    labelledBy={`feedback-${key}-label`}
+                    value={scores[key]}
                     disabled={busy}
-                    onClick={() => setRating(value)}
-                    className={cn(
-                      "inline-flex h-11 min-h-11 w-full min-w-11 items-center justify-center rounded-2xl border transition sm:size-12 sm:w-12 sm:rounded-full",
-                      selected ?
-                        "border-[color:var(--mc-accent)] bg-[color:var(--mc-accent)] text-white"
-                      : "border-2 border-mc-secondary bg-white text-mc-secondary hover:bg-mc-secondary hover:text-white",
-                      "disabled:opacity-60",
-                    )}
-                  >
-                    <Star
-                      className="size-6 sm:size-7"
-                      strokeWidth={1.75}
-                      fill={selected ? "currentColor" : "none"}
-                      aria-hidden
-                    />
-                  </button>
-                );
-              })}
+                    onChange={(value) =>
+                      setScores((prev) => ({ ...prev, [key]: value }))
+                    }
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 rounded-2xl bg-mc-accent/10 px-4 py-4 sm:px-5">
+            <div>
+              <p className="font-display text-lg font-bold text-mc-secondary">
+                Overall Rating
+              </p>
+              <p className="text-sm text-ink-muted" aria-live="polite">
+                {rating > 0 ?
+                  `${rating.toFixed(1)} of 5 · ${RATING_LABELS[Math.round(rating)]}`
+                : "Rate each parameter above"}
+              </p>
             </div>
-            <p id="feedback-rating-value" className="text-sm text-ink-muted">
-              <span className="font-semibold text-ink">{rating} of 5</span>
-              <span className="mx-1.5 text-line" aria-hidden>
-                ·
-              </span>
-              <span className="font-semibold text-mc-accent">
-                {RATING_LABELS[rating] ?? "Excellent"}
-              </span>
-            </p>
+            <div className="flex gap-1 text-mc-accent" aria-hidden>
+              {[1, 2, 3, 4, 5].map((value) => (
+                <Star
+                  key={value}
+                  className="size-6 sm:size-7"
+                  strokeWidth={1.75}
+                  fill={value <= Math.round(rating) ? "currentColor" : "none"}
+                />
+              ))}
+            </div>
           </div>
 
           <TextAreaField
             name="comments"
-            label="Comments"
-            rows={6}
+            label="Comments (Optional)"
+            rows={5}
             maxLength={1000}
             disabled={busy}
-            placeholder="What stood out, and what could be better?"
-            hint="Optional."
+            placeholder="Share your experience, what stood out, and what could be better?"
             inputClassName="min-h-36"
           />
 
@@ -144,10 +167,81 @@ export function FeedbackForm({
             aria-busy={busy}
             className="mc-btn-primary w-full"
           >
-            {busy ? "Submitting feedback" : "Submit feedback"}
+            {busy ? "Submitting feedback" : "Submit Feedback"}
           </button>
         </form>
       }
+    </div>
+  );
+}
+
+/** Average of the five parameters, 0 until every one is rated. Mirrors the API formula. */
+function overallRating(scores: Record<RatingKey, number>) {
+  const values = RATING_PARAMETERS.map(({ key }) => scores[key]);
+  if (values.some((value) => value < 1)) return 0;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function ParameterIcon({ icon }: { icon: RatingIcon }) {
+  const className = "size-5";
+  switch (icon) {
+    case "graduation":
+      return <GraduationCap className={className} aria-hidden />;
+    case "chat":
+      return <MessageCircle className={className} aria-hidden />;
+    case "person":
+      return <User className={className} aria-hidden />;
+    case "message":
+      return <MessageSquare className={className} aria-hidden />;
+    case "progress":
+      return <BarChart3 className={className} aria-hidden />;
+  }
+}
+
+function StarRow({
+  labelledBy,
+  value,
+  disabled,
+  onChange,
+}: {
+  labelledBy: string;
+  value: number;
+  disabled: boolean;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div
+      role="radiogroup"
+      aria-labelledby={labelledBy}
+      className="flex gap-1 sm:gap-1.5"
+    >
+      {[1, 2, 3, 4, 5].map((star) => {
+        const selected = star <= value;
+        return (
+          <button
+            key={star}
+            type="button"
+            role="radio"
+            aria-checked={star === value}
+            aria-label={`${star} star${star === 1 ? "" : "s"}`}
+            disabled={disabled}
+            onClick={() => onChange(star)}
+            className={cn(
+              "inline-flex size-9 items-center justify-center rounded-full transition disabled:opacity-60 sm:size-10",
+              selected ? "text-mc-accent" : (
+                "text-ink-muted/50 hover:text-mc-accent/70"
+              ),
+            )}
+          >
+            <Star
+              className="size-6 sm:size-7"
+              strokeWidth={1.75}
+              fill="currentColor"
+              aria-hidden
+            />
+          </button>
+        );
+      })}
     </div>
   );
 }

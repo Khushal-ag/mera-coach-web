@@ -19,7 +19,29 @@ import {
 } from "@/constants/showcase";
 import { fetchProductItems } from "@/lib/api/showcase";
 import { formatMoney } from "@/lib/format";
-import { cn } from "@/lib/utils";
+
+/** Blank category or pack size on a product. Not an extra API level. */
+const UNSPECIFIED = "\u241e";
+const EMPTY_PRODUCTS: ProductItemOption[] = [];
+
+function levelKey(value: string | undefined): string {
+  const trimmed = value?.trim() ?? "";
+  return trimmed || UNSPECIFIED;
+}
+
+function levelLabel(value: string): string {
+  return value === UNSPECIFIED ? "Not specified" : value;
+}
+
+function uniqueLevels(values: (string | undefined)[]): string[] {
+  const keys = [...new Set(values.map(levelKey))];
+  keys.sort((a, b) => {
+    if (a === UNSPECIFIED) return 1;
+    if (b === UNSPECIFIED) return -1;
+    return a.localeCompare(b);
+  });
+  return keys;
+}
 
 type Props = {
   brands: ProductBrandOption[];
@@ -38,9 +60,9 @@ function parseAmount(value: string): number | null {
 }
 
 /**
- * Package creation: pick a product master once, name the package, add products
- * from that master with a price, and set a total. The total is the coach's own
- * figure and does not have to match the breakup.
+ * Package creation: name the package, then pick a product through the master
+ * hierarchy (brand, category, pack, product). The coach sets each price and a
+ * total. The total is their own figure and does not have to match the breakup.
  */
 export function PackageEditor({
   brands,
@@ -54,7 +76,10 @@ export function PackageEditor({
   const [name, setName] = useState(initial?.packageName ?? "");
   const [items, setItems] = useState<PackageItem[]>(initial?.items ?? []);
   const [catalog, setCatalog] = useState<ProductItemOption[]>([]);
+  const [loadedFor, setLoadedFor] = useState("");
+  const [catalogError, setCatalogError] = useState(false);
   const [category, setCategory] = useState("");
+  const [pack, setPack] = useState("");
   const [pick, setPick] = useState("");
   const [price, setPrice] = useState("");
   const [total, setTotal] = useState(
@@ -65,10 +90,21 @@ export function PackageEditor({
   const [localError, setLocalError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!brandCode) return;
     let cancelled = false;
-    void fetchProductItems(brandCode).then((rows) => {
-      if (!cancelled) setCatalog(rows);
-    });
+    void fetchProductItems(brandCode)
+      .then((rows) => {
+        if (cancelled) return;
+        setCatalog(rows);
+        setCatalogError(false);
+        setLoadedFor(brandCode);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setCatalog([]);
+        setCatalogError(true);
+        setLoadedFor(brandCode);
+      });
     return () => {
       cancelled = true;
     };
@@ -82,34 +118,76 @@ export function PackageEditor({
     totalEdited ? total
     : items.length ? String(sum)
     : "";
-  const available = catalog.filter(
-    (option) => !items.some((item) => item.itemCode === option.code),
+  const catalogLoading = Boolean(brandCode) && loadedFor !== brandCode;
+  const catalogFailed =
+    Boolean(brandCode) && loadedFor === brandCode && catalogError;
+  const visibleCatalog = useMemo(
+    () => (loadedFor === brandCode && !catalogError ? catalog : EMPTY_PRODUCTS),
+    [loadedFor, brandCode, catalogError, catalog],
+  );
+  const available = useMemo(
+    () =>
+      visibleCatalog.filter(
+        (option) => !items.some((item) => item.itemCode === option.code),
+      ),
+    [visibleCatalog, items],
   );
   const categories = useMemo(
-    () =>
-      [
-        ...new Set(catalog.map((option) => option.category).filter(Boolean)),
-      ].sort((a, b) => a.localeCompare(b)),
-    [catalog],
+    () => uniqueLevels(available.map((option) => option.category)),
+    [available],
   );
-  const shownProducts = available.filter(
-    (option) => !category || option.category === category,
-  );
-  // With no category chosen, products are grouped by category inside the list.
-  const groups = useMemo(() => {
-    const map = new Map<string, ProductItemOption[]>();
-    for (const option of shownProducts) {
-      const key = option.category || "Other";
-      map.set(key, [...(map.get(key) ?? []), option]);
-    }
-    return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
-  }, [shownProducts]);
+  const categoryValue = categories.includes(category) ? category : "";
+  const packs = useMemo(() => {
+    if (!categoryValue) return [];
+    return uniqueLevels(
+      available
+        .filter((option) => levelKey(option.category) === categoryValue)
+        .map((option) => option.packSize),
+    );
+  }, [available, categoryValue]);
+  const packValue = packs.includes(pack) ? pack : "";
+  const shownProducts = useMemo(() => {
+    if (!categoryValue || !packValue) return [];
+    return available.filter(
+      (option) =>
+        levelKey(option.category) === categoryValue &&
+        levelKey(option.packSize) === packValue,
+    );
+  }, [available, categoryValue, packValue]);
+  const picked = shownProducts.find((option) => option.code === pick) ?? null;
   const brandLocked = items.length > 0;
+
+  function chooseBrand(code: string) {
+    if (brandLocked || code === brandCode) return;
+    setBrandCode(code);
+    setCategory("");
+    setPack("");
+    setPick("");
+    setPrice("");
+  }
+
+  function chooseCategory(value: string) {
+    if (value === category) return;
+    setCategory(value);
+    setPack("");
+    setPick("");
+    setPrice("");
+  }
+
+  function choosePack(value: string) {
+    if (value === pack) return;
+    setPack(value);
+    setPick("");
+    setPrice("");
+  }
 
   function addItem() {
     setLocalError(null);
-    const product = catalog.find((option) => option.code === pick);
+    const product = picked;
     const amount = parseAmount(price);
+    if (!brandCode) return setLocalError("Choose a product brand.");
+    if (!categoryValue) return setLocalError("Select a category.");
+    if (!packValue) return setLocalError("Select a pack.");
     if (!product) return setLocalError("Select a product to add.");
     if (amount == null) return setLocalError("Enter the price of the product.");
     if (items.length >= PACKAGE_MAX_ITEMS) {
@@ -136,7 +214,7 @@ export function PackageEditor({
     setLocalError(null);
     const trimmed = name.trim();
     const totalAmount = parseAmount(shownTotal);
-    if (!brandCode) return setLocalError("Choose a product master.");
+    if (!brandCode) return setLocalError("Choose a product brand.");
     if (!trimmed) return setLocalError("Enter a package name.");
     if (items.length === 0) return setLocalError("Add at least one product.");
     if (totalAmount == null) return setLocalError("Enter the package total.");
@@ -169,50 +247,6 @@ export function PackageEditor({
           </div>
         : null}
 
-        <fieldset className="min-w-0">
-          <legend className="mc-field-label mb-2">Product master</legend>
-          <div className="flex flex-wrap gap-2" role="radiogroup">
-            {brands.map((brand) => {
-              const on = brand.code === brandCode;
-              return (
-                <button
-                  key={brand.code}
-                  type="button"
-                  role="radio"
-                  aria-checked={on}
-                  disabled={brandLocked && !on}
-                  onClick={() => {
-                    setBrandCode(brand.code);
-                    setCategory("");
-                    setPick("");
-                    setPrice("");
-                  }}
-                  className={cn(
-                    "inline-flex min-h-11 items-center gap-2 rounded-full border-2 px-5 font-display text-sm font-semibold transition",
-                    on ?
-                      "border-mc-secondary bg-mc-secondary-light text-mc-secondary"
-                    : "border-line bg-white text-ink hover:border-mc-secondary",
-                    brandLocked && !on && "cursor-not-allowed opacity-45",
-                  )}
-                >
-                  <i
-                    className={on ? "fas fa-check-circle" : "far fa-circle"}
-                    aria-hidden
-                  />
-                  {brand.label}
-                </button>
-              );
-            })}
-          </div>
-          <p className="mc-field-hint mt-2">
-            {brands.length === 0 ?
-              "No product masters are available yet. They will appear here once added."
-            : brandLocked ?
-              "Remove all products to choose a different master."
-            : "Select one master. It can only be chosen once per package."}
-          </p>
-        </fieldset>
-
         <TextField
           label="Package name"
           required
@@ -223,69 +257,115 @@ export function PackageEditor({
         />
 
         <div className="grid gap-3 rounded-2xl border border-line bg-[#fdf8f2] p-4">
-          {categories.length > 0 ?
-            <SelectField
-              label="Category"
-              value={category}
-              onChange={(e) => {
-                setCategory(e.target.value);
-                setPick("");
-                setPrice("");
-              }}
-            >
-              <option value="">All categories</option>
-              {categories.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </SelectField>
-          : null}
+          <SelectField
+            label="Product brand"
+            value={brandCode}
+            disabled={brandLocked || brands.length === 0}
+            hint={
+              brands.length === 0 ?
+                "No product brands are available yet. They will appear here once added."
+              : brandLocked ?
+                "Remove all products to change the brand."
+              : undefined
+            }
+            onChange={(e) => chooseBrand(e.target.value)}
+          >
+            <option value="">Select a brand</option>
+            {brands.map((brand) => (
+              <option key={brand.code} value={brand.code}>
+                {brand.label}
+              </option>
+            ))}
+          </SelectField>
+
+          <SelectField
+            label="Category"
+            value={categoryValue}
+            disabled={
+              !brandCode ||
+              catalogLoading ||
+              catalogFailed ||
+              categories.length === 0
+            }
+            hint={
+              brandCode && catalogFailed ? "Could not load products."
+              : brandCode && catalogLoading ?
+                "Loading products."
+              : brandCode && !catalogLoading && visibleCatalog.length === 0 ?
+                "No products are available for this brand yet."
+              : brandCode && !catalogLoading && available.length === 0 ?
+                "Every product from this brand is already in the package."
+              : undefined
+            }
+            onChange={(e) => chooseCategory(e.target.value)}
+          >
+            <option value="">
+              {!brandCode ?
+                "Select a brand first"
+              : catalogLoading ?
+                "Loading..."
+              : "Select a category"}
+            </option>
+            {categories.map((key) => (
+              <option key={key} value={key}>
+                {levelLabel(key)}
+              </option>
+            ))}
+          </SelectField>
+
+          <SelectField
+            label="Pack"
+            value={packValue}
+            disabled={!categoryValue || packs.length === 0}
+            onChange={(e) => choosePack(e.target.value)}
+          >
+            <option value="">
+              {categoryValue ? "Select a pack" : "Select a category first"}
+            </option>
+            {packs.map((key) => (
+              <option key={key} value={key}>
+                {levelLabel(key)}
+              </option>
+            ))}
+          </SelectField>
+
           <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_9rem_auto] sm:items-end">
             <SelectField
-              label="Select product"
-              value={pick}
-              disabled={!brandCode}
+              label="Product"
+              value={picked?.code ?? ""}
+              disabled={!packValue || shownProducts.length === 0}
               hint={
-                !brandCode ? "Choose a product master first."
-                : available.length === 0 ?
-                  "No products are available for this master yet."
+                (
+                  packValue &&
+                  shownProducts.length === 0 &&
+                  available.length > 0
+                ) ?
+                  "No products are left for this pack."
                 : undefined
               }
               onChange={(e) => {
                 setPick(e.target.value);
-                const suggested = catalog.find(
+                const suggested = visibleCatalog.find(
                   (option) => option.code === e.target.value,
                 )?.price;
                 setPrice(suggested ? String(suggested) : "");
               }}
             >
               <option value="">
-                {brandCode ? "Select a product" : "Select product master first"}
+                {packValue ? "Select a product" : "Select a pack first"}
               </option>
-              {category ?
-                shownProducts.map((option) => (
-                  <option key={option.code} value={option.code}>
-                    {option.label}
-                  </option>
-                ))
-              : groups.map(([group, options]) => (
-                  <optgroup key={group} label={group}>
-                    {options.map((option) => (
-                      <option key={option.code} value={option.code}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))
-              }
+              {shownProducts.map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.label}
+                </option>
+              ))}
             </SelectField>
             <TextField
               label="Price"
               type="number"
               inputMode="decimal"
               min={0}
-              value={price}
+              value={picked ? price : ""}
               placeholder="0"
               onChange={(e) => setPrice(e.target.value)}
             />
