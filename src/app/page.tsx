@@ -9,6 +9,7 @@ import {
   HomeSearchSection,
   HomeStories,
 } from "@/components/home/home-live";
+import { StatNumber } from "@/components/home/stat-number";
 import { BLOG_POSTS, PROOF_AVATARS } from "@/constants/home";
 import { publicPageMetadata } from "@/lib/seo";
 
@@ -43,8 +44,8 @@ export default function HomePage() {
               <em>Business</em>
             </h1>
             <p className="hero-subtitle">
-              Manage clients, track progress and build your coaching brand
-              &mdash; all in one powerful platform designed for health coaches.
+              Manage clients, track progress and build your coaching brand in
+              one platform designed for health coaches.
             </p>
             <div className="hero-ctas">
               <Link href="/register" className="btn btn-gold">
@@ -153,37 +154,27 @@ export default function HomePage() {
         <div className="container">
           <div className="stats-row">
             <div className="stat-item">
-              <span className="stat-num">
-                500<span style={{ fontSize: 28 }}>+</span>
-              </span>
+              <StatNumber target={500} unit="+" />
               <span className="stat-label">Verified Coaches</span>
             </div>
             <div className="stat-divider" />
             <div className="stat-item">
-              <span className="stat-num">
-                25K<span style={{ fontSize: 28 }}>+</span>
-              </span>
+              <StatNumber target={25} inline="K" unit="+" />
               <span className="stat-label">Happy Clients</span>
             </div>
             <div className="stat-divider" />
             <div className="stat-item">
-              <span className="stat-num">
-                15<span style={{ fontSize: 28 }}>+</span>
-              </span>
+              <StatNumber target={15} unit="+" />
               <span className="stat-label">Coaching Categories</span>
             </div>
             <div className="stat-divider" />
             <div className="stat-item">
-              <span className="stat-num">
-                4.9<span style={{ fontSize: 28 }}>/5</span>
-              </span>
+              <StatNumber target={4.9} decimals={1} unit="/5" />
               <span className="stat-label">Average Rating</span>
             </div>
             <div className="stat-divider" />
             <div className="stat-item">
-              <span className="stat-num">
-                10K<span style={{ fontSize: 28 }}>+</span>
-              </span>
+              <StatNumber target={10} inline="K" unit="+" />
               <span className="stat-label">Transformations</span>
             </div>
           </div>
@@ -204,9 +195,9 @@ export default function HomePage() {
               Everything You Need to Run Your Coaching Practice
             </h2>
             <p className="section-subtitle">
-              One powerful platform with all the tools to manage, grow and
-              showcase your coaching business &mdash; so you can focus on what
-              matters most: your clients.
+              One platform with all the tools to manage, grow and showcase your
+              coaching business, so you can focus on what matters most: your
+              clients.
             </p>
           </div>
           <div className="features-grid">
@@ -309,7 +300,7 @@ export default function HomePage() {
               <p>
                 Build your personal landing page, define your coaching services
                 and upload your success stories. Your profile is your digital
-                storefront &mdash; make it shine.
+                storefront. Make it shine.
               </p>
             </div>
             <div className="step-card">
@@ -317,8 +308,8 @@ export default function HomePage() {
               <h3>Start Managing Clients</h3>
               <p>
                 Begin adding clients, tracking their progress and managing leads
-                &mdash; all from one clean dashboard. Watch your coaching
-                practice grow, day by day.
+                from one clean dashboard. Watch your coaching practice grow, day
+                by day.
               </p>
             </div>
           </div>
@@ -337,8 +328,8 @@ export default function HomePage() {
             </div>
             <h2 className="section-title">Choose Your Path</h2>
             <p className="section-subtitle">
-              Mera Coach serves both coaches and members &mdash; pick your path
-              and let us do the rest.
+              Mera Coach serves both coaches and members. Pick your path and let
+              us do the rest.
             </p>
           </div>
           <div className="path-grid">
@@ -360,7 +351,7 @@ export default function HomePage() {
                 </div>
                 <h3>Built for Coaches</h3>
                 <p>
-                  Run, grow and scale your coaching practice &mdash; from client
+                  Run, grow and scale your coaching practice, from client
                   management to building your personal brand online.
                 </p>
                 <ul className="path-features">

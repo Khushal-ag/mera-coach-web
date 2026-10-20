@@ -175,7 +175,7 @@ export async function fetchLocationByPin(params: {
 }
 
 export type FoodMasterItem = {
-  id: number;
+  id: string;
   name: string;
   cal: number;
   cat: string;

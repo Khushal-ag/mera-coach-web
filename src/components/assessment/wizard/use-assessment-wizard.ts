@@ -121,19 +121,19 @@ export function useAssessmentWizard({
   useEffect(() => {
     if (phases[step]?.id !== "meals") return;
     let cancelled = false;
-    void fetchFoodMaster(
-      countryCd || "IN",
-      cuisineLabel || form.regionalCuisine,
-    ).then((data) => {
-      if (cancelled) return;
-      setFoodMaster(data);
-      setFoodMasterReady(true);
-    });
+    // The PC002 code, same as the app sends.
+    void fetchFoodMaster(countryCd || "IN", form.regionalCuisine).then(
+      (data) => {
+        if (cancelled) return;
+        setFoodMaster(data);
+        setFoodMasterReady(true);
+      },
+    );
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, cuisineLabel, countryCd]);
+  }, [step, form.regionalCuisine, countryCd]);
 
   function optionsFor(pc: string): MasterOption[] {
     const live = paramLists[pc];

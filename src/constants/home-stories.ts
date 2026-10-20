@@ -17,13 +17,13 @@ export const STORY_TEMPLATES = [
     badge: "💼 Managing 40+ clients easily",
     icon: "fas fa-briefcase",
     quote:
-      "The client management dashboard on Mera Coach saves me at least 3 hours every week. Tracking health data, managing leads and following up — all from one clean interface. Absolutely brilliant!",
+      "The client management dashboard on Mera Coach saves me at least 3 hours every week. Tracking health data, managing leads and following up, all from one clean interface. Absolutely brilliant!",
   },
   {
     badge: "🌐 Clients from across India",
     icon: "fas fa-globe-asia",
     quote:
-      "I am based in a small city but Mera Coach gave me a national presence. I now consult clients from Mumbai, Delhi and Bangalore — all online. This platform broke every geographical barrier for me.",
+      "I am based in a small city but Mera Coach gave me a national presence. I now consult clients from Mumbai, Delhi and Bangalore, all online. This platform broke every geographical barrier for me.",
   },
   {
     badge: "⭐ Profile views doubled in 30 days",
@@ -35,7 +35,7 @@ export const STORY_TEMPLATES = [
     badge: "📱 Direct WhatsApp leads daily",
     icon: "fas fa-mobile-alt",
     quote:
-      "The WhatsApp integration on Mera Coach is a game changer. Clients see my profile, tap the button and they are directly chatting with me. No middlemen, no delays — pure direct connection!",
+      "The WhatsApp integration on Mera Coach is a game changer. Clients see my profile, tap the button and they are directly chatting with me. No middlemen, no delays. Pure direct connection!",
   },
 ];
 

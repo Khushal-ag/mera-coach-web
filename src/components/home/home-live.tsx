@@ -140,8 +140,7 @@ export async function HomeCategories() {
           <h2 className="section-title">Coaching for Every Goal</h2>
           <p className="section-subtitle">
             Whether you want to lose weight, build strength, find inner peace or
-            improve your overall lifestyle &mdash; we have the right expert for
-            you.
+            improve your overall lifestyle, we have the right expert for you.
           </p>
         </div>
         <div className="category-grid">
@@ -268,8 +267,8 @@ export async function HomeStories() {
           </div>
           <h2 className="section-title">What Our Coaches Say</h2>
           <p className="section-subtitle">
-            Real coaches, real growth &mdash; hear how Mera Coach transformed
-            their practice and helped them reach more clients.
+            Real coaches, real growth. Hear how Mera Coach transformed their
+            practice and helped them reach more clients.
           </p>
         </div>
         <HomeCarousel
