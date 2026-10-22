@@ -157,6 +157,11 @@ export function FeedbackForm({
             inputClassName="min-h-36"
           />
 
+          <p className="text-xs text-ink-muted">
+            Your first name, ratings and comment appear on the coach&apos;s
+            public profile. Only your latest feedback counts.
+          </p>
+
           {status === "error" && message ?
             <AlertBanner tone="error">{message}</AlertBanner>
           : null}

@@ -173,7 +173,7 @@ export function buildDashboardSlides({
     list.push({
       id: "events",
       tone: 1,
-      tag: { icon: "fas fa-calendar-alt", label: "Events" },
+      tag: { icon: "fas fa-calendar-alt", label: "Posts" },
       title: "Host a workshop or",
       em: "free webinar",
       text: "Photos and videos of workshops and events on your public page bring new people to you.",

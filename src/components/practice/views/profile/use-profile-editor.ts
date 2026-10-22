@@ -30,11 +30,7 @@ import {
 import { resolveMediaUrl } from "@/lib/media/media-url";
 import { premiumHref } from "@/lib/premium-link";
 import { getProfileCompletion } from "@/lib/profile-completion";
-import {
-  validateEmail,
-  validateMobile,
-  validateRequired,
-} from "@/lib/validation";
+import { validateRequired } from "@/lib/validation";
 
 /** Empty input is missing. 0 is a saved value and still counts, matching the API. */
 export function enteredCount(raw: string): number | null {
@@ -60,6 +56,7 @@ export type ProfileDraft = {
   mobile: string;
   email: string;
   localLanguage: string;
+  recheckupDays: string;
   experienceYears: string;
   happyClients: string;
   certifications: string;
@@ -95,6 +92,7 @@ export function profileTextFromCoach(
     mobile: coach.mobile ?? "",
     email: coach.email ?? emailFallback ?? "",
     localLanguage: coach.localLanguage ?? "",
+    recheckupDays: String(coach.recheckupDays ?? 7),
     experienceYears:
       coach.experienceYears != null ? String(coach.experienceYears) : "",
     happyClients:
@@ -124,6 +122,7 @@ export function profileDraftKey(draft: ProfileDraft) {
     mobile: draft.mobile.trim(),
     email: draft.email.trim(),
     localLanguage: draft.localLanguage.trim(),
+    recheckupDays: String(Number(draft.recheckupDays) || 7),
     experienceYears: String(Number(draft.experienceYears) || 0),
     happyClients: String(Number(draft.happyClients) || 0),
     certifications: String(Number(draft.certifications) || 0),
@@ -168,6 +167,7 @@ export function useProfileEditor() {
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
   const [localLanguage, setLocalLanguage] = useState("");
+  const [recheckupDays, setRecheckupDays] = useState("7");
   const [experienceYears, setExperienceYears] = useState("");
   const [happyClients, setHappyClients] = useState("");
   const [certifications, setCertifications] = useState("");
@@ -246,6 +246,7 @@ export function useProfileEditor() {
         mobile,
         email,
         localLanguage,
+        recheckupDays,
         experienceYears,
         happyClients,
         certifications,
@@ -274,6 +275,7 @@ export function useProfileEditor() {
     mobile,
     email,
     localLanguage,
+    recheckupDays,
     experienceYears,
     happyClients,
     certifications,
@@ -371,6 +373,7 @@ export function useProfileEditor() {
     setMobile(draft.mobile);
     setEmail(draft.email);
     setLocalLanguage(draft.localLanguage);
+    setRecheckupDays(draft.recheckupDays);
     setExperienceYears(draft.experienceYears);
     setHappyClients(draft.happyClients);
     setCertifications(draft.certifications);
@@ -395,6 +398,7 @@ export function useProfileEditor() {
       mobile,
       email,
       localLanguage,
+      recheckupDays,
       experienceYears,
       happyClients,
       certifications,
@@ -534,11 +538,18 @@ export function useProfileEditor() {
     if (!profile || !profileDirty) return;
     const problems: Array<[number, string | null]> = [
       [1, validateRequired(coachName, "Display name")],
-      [1, coachTypeCode ? null : "Please select a coach category."],
-      [1, validateMobile(mobile)],
-      [1, validateEmail(email, true)],
       [2, validateRequired(experienceYears, "Experience")],
       [2, validateRequired(happyClients, "Happy clients")],
+      [
+        2,
+        (
+          Number.isInteger(Number(recheckupDays)) &&
+          Number(recheckupDays) >= 1 &&
+          Number(recheckupDays) <= 365
+        ) ?
+          null
+        : "Assessment period must be a whole number of days between 1 and 365.",
+      ],
       [
         3,
         pinCode.trim().length === 6 && /^\d+$/.test(pinCode.trim()) ?
@@ -575,6 +586,7 @@ export function useProfileEditor() {
         country_Cd: countryCd.trim(),
         pinCode: pinCode.trim(),
         localLanguage: localLanguage.trim(),
+        recheckupDays: Number(recheckupDays),
         experienceYears: Number(experienceYears) || 0,
         happyClientCount: Number(happyClients) || 0,
         certificationCount: Number(certifications) || 0,
@@ -718,6 +730,8 @@ export function useProfileEditor() {
     setEmail,
     localLanguage,
     setLocalLanguage,
+    recheckupDays,
+    setRecheckupDays,
     experienceYears,
     setExperienceYears,
     happyClients,

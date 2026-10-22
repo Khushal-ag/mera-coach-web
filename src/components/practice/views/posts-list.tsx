@@ -99,8 +99,8 @@ export function PostsListView() {
   return (
     <div className="min-w-0">
       <PracticePageHeader
-        title="Gallery & events"
-        description="Gallery photos, workshops and events, and client success stories shown on your public profile."
+        title="Posts"
+        description="Photos, workshops and client success stories shown on your public profile."
         icon={
           <i className="fas fa-images" style={{ fontSize: 20 }} aria-hidden />
         }
@@ -114,7 +114,7 @@ export function PostsListView() {
                 setEditing(0);
               }}
             >
-              <i className="fas fa-plus" aria-hidden /> Add gallery / event
+              <i className="fas fa-plus" aria-hidden /> Add post
             </button>
           : null
         }
@@ -141,14 +141,14 @@ export function PostsListView() {
         <EmptyState
           icon="fas fa-images"
           title="Nothing published yet"
-          description="Add photos and videos for your gallery, workshops and events, or share a client's success story."
+          description="Add a photo or video, announce a workshop, or share a client's success story."
           action={
             <button
               type="button"
               className="mc-btn-primary"
               onClick={() => setEditing(0)}
             >
-              <i className="fas fa-plus" aria-hidden /> Add gallery / event
+              <i className="fas fa-plus" aria-hidden /> Add post
             </button>
           }
         />

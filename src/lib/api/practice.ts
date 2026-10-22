@@ -387,6 +387,8 @@ export async function fetchAuthedCoachProfile(): Promise<CoachProfile | null> {
     ),
     localLanguage:
       String(pick(raw, "localLanguage", "LocalLanguage") ?? "") || null,
+    recheckupDays:
+      Number(pick(raw, "recheckupDays", "RecheckupDays") ?? 7) || 7,
     email: String(pick(raw, "email", "Email") ?? "") || null,
     mobile: String(pick(raw, "mobile", "Mobile") ?? "") || null,
     pinCode: String(pick(raw, "pinCode", "PinCode") ?? "") || null,
@@ -437,6 +439,7 @@ export async function saveCoachProfileEssentials(params: {
   country_Cd?: string;
   pinCode?: string;
   localLanguage?: string;
+  recheckupDays?: number;
   experienceYears?: number;
   happyClientCount?: number;
   certificationCount?: number;
@@ -465,6 +468,7 @@ export async function saveCoachProfileEssentials(params: {
         params.certificationCount ?? profile.certificationCount ?? 0,
       tagline: params.tagline,
       localLanguage: params.localLanguage ?? profile.localLanguage ?? "",
+      recheckupDays: params.recheckupDays ?? profile.recheckupDays ?? 7,
       locality: params.locality,
       add_Line: params.add_Line ?? profile.add_Line ?? "",
       city_Cd: params.city_Cd,

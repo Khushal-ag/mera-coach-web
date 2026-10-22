@@ -8,8 +8,10 @@ import type {
   ShowcasePackage,
   ShowcasePost,
 } from "@/components/coach-profile/coach-showcase";
+import type { ReviewsPage } from "@/types/reviews";
 
 import { CoachPhoto } from "@/components/coach-photo";
+import { CoachReviews } from "@/components/coach-profile/coach-reviews";
 import { CoachShowcase } from "@/components/coach-profile/coach-showcase";
 import { ListEmpty } from "@/components/list-empty";
 import { Stars } from "@/components/stars";
@@ -36,6 +38,7 @@ export type CoachProfileDetails = {
   clients: number;
   certs: number;
   rating: number;
+  reviewsPage: ReviewsPage;
   reviews: number;
   photoSrc: string;
   /** Cover image from Edit Profile. Shown softly behind the profile header. */
@@ -462,6 +465,8 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
         stories={coach.stories}
         onEnquire={enquireAbout}
       />
+
+      <CoachReviews coachCode={coach.coachCode} initial={coach.reviewsPage} />
 
       <section className="cp-contact" id="contact">
         <div className="cp-contact-shapes">

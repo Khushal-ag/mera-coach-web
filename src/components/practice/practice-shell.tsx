@@ -29,9 +29,10 @@ const navItems = [
   { href: "/dashboard/packages", label: "Packages", icon: "fas fa-box" },
   {
     href: "/dashboard/events",
-    label: "Gallery & Events",
+    label: "Posts",
     icon: "fas fa-images",
   },
+  { href: "/dashboard/reviews", label: "Reviews", icon: "fas fa-star" },
   { href: "/dashboard/profile", label: "My Profile", icon: "fas fa-id-card" },
 ] as const;
 

@@ -20,6 +20,8 @@ export function ProfileEditStep2({ editor }: { editor: ProfileEditor }) {
     setServiceCodes,
     localLanguage,
     setLocalLanguage,
+    recheckupDays,
+    setRecheckupDays,
     experienceYears,
     setExperienceYears,
     happyClients,
@@ -35,8 +37,8 @@ export function ProfileEditStep2({ editor }: { editor: ProfileEditor }) {
           <i className="fas fa-briefcase" />
         </div>
         <div>
-          <h2>Coach Details</h2>
-          <p>Your expertise, services and experience</p>
+          <h2>Professional details</h2>
+          <p>Fields marked * are needed to appear on Find a Coach</p>
         </div>
       </div>
       <div className="rg-grid">
@@ -52,6 +54,9 @@ export function ProfileEditStep2({ editor }: { editor: ProfileEditor }) {
         <div className="rg-field rg-col-2">
           <label>
             <i className="fas fa-quote-left" /> Tagline
+            <span className="rg-req" aria-hidden>
+              *
+            </span>
           </label>
           <input value={tagline} onChange={(e) => setTagline(e.target.value)} />
         </div>
@@ -102,6 +107,24 @@ export function ProfileEditStep2({ editor }: { editor: ProfileEditor }) {
             value={localLanguage}
             onChange={(e) => setLocalLanguage(e.target.value)}
           />
+        </div>
+        <div className="rg-field rg-col-2">
+          <label>
+            <i className="fas fa-calendar-check" /> Assessment period (days)
+            <span className="rg-req" aria-hidden>
+              *
+            </span>
+          </label>
+          <input
+            value={recheckupDays}
+            onChange={(e) => setRecheckupDays(e.target.value)}
+            type="number"
+            min={1}
+            max={365}
+          />
+          <small>
+            Days after an assessment when a client is due for the next one.
+          </small>
         </div>
       </div>
       <div className="mt-4">

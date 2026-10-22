@@ -137,8 +137,16 @@ export function useAssessmentWizard({
 
   function optionsFor(pc: string): MasterOption[] {
     const live = paramLists[pc];
-    if (live && live.length > 0) return live;
-    return (PARAM_FALLBACKS[pc] ?? []).map((label) => ({ code: label, label }));
+    const options =
+      live && live.length > 0 ?
+        live
+      : (PARAM_FALLBACKS[pc] ?? []).map((label) => ({ code: label, label }));
+    // "None of the above" always comes first in the medical and allergy lists.
+    const isNone = (o: MasterOption) =>
+      o.label.toLowerCase().includes("none of the");
+    return options.some(isNone) ?
+        [...options.filter(isNone), ...options.filter((o) => !isNone(o))]
+      : options;
   }
   const labelOf = (value: string, pc: string) =>
     resolveParamLabel(value, optionsFor(pc)) || value;

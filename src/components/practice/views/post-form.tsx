@@ -165,11 +165,10 @@ export function PostForm({ categories, initial, onPublish, onCancel }: Props) {
     file ? file.type.startsWith("video/") : existingType === "video";
 
   return (
-    <section className="clt-card min-w-0" aria-label="Add gallery or event">
+    <section className="clt-card min-w-0" aria-label="Add post">
       <div className="clt-card-header">
         <h2>
-          <i className="fas fa-images" />{" "}
-          {initial ? "Edit gallery / event" : "Add gallery / event"}
+          <i className="fas fa-images" /> {initial ? "Edit post" : "Add post"}
         </h2>
       </div>
       <div className="clt-card-body grid gap-5">

@@ -7,6 +7,7 @@ import type {
   ShowcasePost,
 } from "@/components/coach-profile/coach-showcase";
 import type { CoachProfile } from "@/types/coach";
+import type { ReviewsPage } from "@/types/reviews";
 import type { CoachPost, CoachShowcase } from "@/types/showcase";
 
 import {
@@ -17,6 +18,7 @@ import { CoachProfileSkeleton } from "@/components/skeletons/coach-profile-skele
 import { siteConfig } from "@/config/site";
 import { POST_CATEGORY } from "@/constants/showcase";
 import { fetchCoachProfile, isApiSuccess } from "@/lib/api";
+import { fetchPublicReviews } from "@/lib/api/reviews";
 import { fetchPublicShowcase } from "@/lib/api/showcase";
 import { splitServiceNames } from "@/lib/coach/services";
 import { whatsAppUrlFromMobile } from "@/lib/coach/whatsapp";
@@ -118,10 +120,13 @@ export default function CoachProfilePage({ params }: { params: Params }) {
 async function ProfileBody({ params }: { params: Params }) {
   const coach = await loadCoachOrNull(params);
   if (!coach) return <CoachProfileMissing />;
-  const showcase = await fetchPublicShowcase(coach.coachCode).catch(() => ({
-    packages: [],
-    posts: [],
-  }));
+  const [showcase, reviewsPage] = await Promise.all([
+    fetchPublicShowcase(coach.coachCode).catch(() => ({
+      packages: [],
+      posts: [],
+    })),
+    fetchPublicReviews(coach.coachCode).catch(() => null),
+  ]);
   const url = `${siteConfig.url}/coach/${encodeURIComponent(coach.coachCode || "")}`;
   const photo = resolveMediaUrl(coach.profile_Pic_Url || coach.logo_Url);
   const jsonLd = {
@@ -183,7 +188,9 @@ async function ProfileBody({ params }: { params: Params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <CoachProfileView coach={toProfileDetails(coach, showcase)} />
+      <CoachProfileView
+        coach={toProfileDetails(coach, showcase, reviewsPage)}
+      />
     </>
   );
 }
@@ -197,7 +204,11 @@ async function loadCoachOrNull(params: Params) {
   }
 }
 
-function toProfileDetails(coach: CoachProfile, showcase: CoachShowcase) {
+function toProfileDetails(
+  coach: CoachProfile,
+  showcase: CoachShowcase,
+  reviewsPage: ReviewsPage | null,
+) {
   const toPost = (post: CoachPost): ShowcasePost => ({
     id: post.postId,
     title: post.title,
@@ -235,6 +246,21 @@ function toProfileDetails(coach: CoachProfile, showcase: CoachShowcase) {
     clients: coach.happyClientCount ?? 0,
     certs: coach.certificationCount ?? 0,
     rating: coach.rating ?? 0,
+    reviewsPage: reviewsPage ?? {
+      summary: {
+        reviewCount: 0,
+        average: 0,
+        knowledge: 0,
+        communication: 0,
+        personalAttention: 0,
+        guidanceResponse: 0,
+        resultsProgress: 0,
+        starCounts: [0, 0, 0, 0, 0],
+      },
+      items: [],
+      page: 1,
+      totalCount: 0,
+    },
     reviews: coach.reviewCount ?? 0,
     photoSrc: resolveMediaUrl(coach.profile_Pic_Url) || "",
     coverSrc: resolveMediaUrl(coach.cover_Url) || "",

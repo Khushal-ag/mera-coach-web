@@ -134,7 +134,7 @@ export function ProfileSettingsView() {
                         <span className="rg-step-num">1</span>
                         <i className="fas fa-check rg-step-done" />
                       </div>
-                      <span>Basic Info</span>
+                      <span>Your name</span>
                     </div>
                     <div className="rg-step-line" />
                     <div
@@ -150,7 +150,7 @@ export function ProfileSettingsView() {
                         <span className="rg-step-num">2</span>
                         <i className="fas fa-check rg-step-done" />
                       </div>
-                      <span>Coach Details</span>
+                      <span>Professional details</span>
                     </div>
                     <div className="rg-step-line" />
                     <div

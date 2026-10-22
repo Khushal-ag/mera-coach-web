@@ -102,6 +102,7 @@ function normalizeProfile(payload: unknown): CoachProfile | null {
     ),
     localLanguage:
       pick<string | null>(r, "localLanguage", "LocalLanguage") ?? null,
+    recheckupDays: Number(pick(r, "recheckupDays", "RecheckupDays") ?? 7) || 7,
     rating: Number(pick(r, "rating", "Rating") ?? 0),
     reviewCount: Number(pick(r, "reviewCount", "ReviewCount") ?? 0),
     isProfileVisible: Boolean(

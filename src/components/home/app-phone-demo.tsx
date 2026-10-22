@@ -497,7 +497,7 @@ export function AppPhoneDemo() {
             [
               ["grid", "Dashboard"],
               ["cube", "Packages"],
-              ["calendar", "Events"],
+              ["calendar", "Posts"],
               ["person", "Profile"],
             ] as const
           ).map(([icon, label], index) => (

@@ -56,6 +56,8 @@ export type CoachProfile = {
   happyClientCount?: number;
   certificationCount?: number;
   localLanguage?: string | null;
+  /** Days between client assessments. Defaults to 7. */
+  recheckupDays?: number;
   rating?: number;
   reviewCount?: number;
   isProfileVisible?: boolean;

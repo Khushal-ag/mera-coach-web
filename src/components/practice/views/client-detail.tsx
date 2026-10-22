@@ -10,6 +10,7 @@ import {
 
 import type { MasterOption } from "@/lib/api/master";
 import type { ClientDetail } from "@/types/practice";
+import type { ReviewsPage } from "@/types/reviews";
 
 import { useAuth } from "@/components/auth-provider";
 import { ClientAvatar } from "@/components/practice/client-avatar";
@@ -18,6 +19,7 @@ import { PhotoGallery } from "@/components/practice/photo-gallery";
 import { ClientBmiReportView } from "@/components/practice/views/client-bmi-report";
 import { ClientCheckupView } from "@/components/practice/views/client-checkup";
 import { ClientDietPlanView } from "@/components/practice/views/client-diet-plan";
+import { ReviewsList } from "@/components/reviews/reviews-list";
 import { ClientProfileSkeleton } from "@/components/skeletons/client-profile-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { CLIENT_SECTION_ICONS } from "@/constants/client";
@@ -27,6 +29,7 @@ import {
 } from "@/constants/documents";
 import { fetchParamList, resolveParamLabel } from "@/lib/api/master";
 import { fetchClientDetail } from "@/lib/api/practice";
+import { fetchMyReviews } from "@/lib/api/reviews";
 import { formatBmi, getBmi, getBmiCategory } from "@/lib/bmi";
 import { copyText } from "@/lib/clipboard";
 import { buildFeedbackWebUrl } from "@/lib/feedback-url";
@@ -172,6 +175,38 @@ function ProfileContact({
         );
       })}
     </dl>
+  );
+}
+
+/** This client's current review. Read-only: the coach cannot edit or remove it. */
+function ClientReview({ clientCode }: { clientCode: string }) {
+  const [data, setData] = useState<ReviewsPage | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void fetchMyReviews({ clientCode })
+      .then((page) => {
+        if (!cancelled) setData(page);
+      })
+      .catch(() => {
+        if (!cancelled) setData(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [clientCode]);
+  if (!data || data.items.length === 0) return null;
+  return (
+    <section className="mc-panel px-5 py-5">
+      <h2 className="font-display text-lg font-bold text-ink">Client review</h2>
+      <p className="mb-3 text-sm text-ink-muted">
+        What this client said about your coaching
+      </p>
+      <ReviewsList
+        initial={data}
+        loadPage={(page) => fetchMyReviews({ clientCode, page })}
+        showSummary={false}
+      />
+    </section>
   );
 }
 
@@ -460,6 +495,10 @@ export function ClientDetailView() {
                   value={detail.additionalNotes}
                 />
               </Section>
+
+              {detail.clientCode ?
+                <ClientReview clientCode={detail.clientCode} />
+              : null}
 
               {session?.coachCode && detail.clientCode ?
                 <PhotoGallery

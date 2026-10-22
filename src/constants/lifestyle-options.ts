@@ -49,6 +49,7 @@ export const PREGNANCY_BF_OPTIONS = [
 ] as const;
 
 export const MEDICAL_CONDITIONS = [
+  "None of the above",
   "Diabetes (Type 2)",
   "Diabetes (Type 1)",
   "High Blood Pressure",
@@ -60,17 +61,16 @@ export const MEDICAL_CONDITIONS = [
   "Kidney Issues",
   "Heart Disease",
   "Arthritis / Joint Pain",
-  "None of the above",
 ] as const;
 
 export const FOOD_ALLERGIES = [
+  "None of the above",
   "Dairy / Lactose",
   "Gluten / Wheat",
   "Nuts",
   "Eggs",
   "Soy",
   "Seafood",
-  "None of the above",
 ] as const;
 
 export const PRIMARY_GOALS = [
