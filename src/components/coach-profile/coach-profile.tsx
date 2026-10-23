@@ -13,6 +13,7 @@ import type { ReviewsPage } from "@/types/reviews";
 import { CoachPhoto } from "@/components/coach-photo";
 import { CoachReviews } from "@/components/coach-profile/coach-reviews";
 import { CoachShowcase } from "@/components/coach-profile/coach-showcase";
+import { ExpandableBio } from "@/components/coach-profile/expandable-bio";
 import { ListEmpty } from "@/components/list-empty";
 import { Stars } from "@/components/stars";
 import { MenuSelect } from "@/components/ui/menu-select";
@@ -292,7 +293,7 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                 </div>
               : null}
               {coach.bio ?
-                <p className="cp-hero-bio">{coach.bio}</p>
+                <ExpandableBio text={coach.bio} />
               : null}
               <div className="cp-share-row">
                 <span className="cp-share-label">Share:</span>

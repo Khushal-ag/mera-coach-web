@@ -211,6 +211,7 @@ const nextConfig: NextConfig = {
   agentRules: false,
   experimental: {
     turbopackRustReactCompiler: true,
+    agentUpgrade: "security",
   },
   images: {
     remotePatterns,

@@ -141,11 +141,15 @@ export function useAssessmentWizard({
       live && live.length > 0 ?
         live
       : (PARAM_FALLBACKS[pc] ?? []).map((label) => ({ code: label, label }));
-    // "None of the above" always comes first in the medical and allergy lists.
+    // The "none" option comes first in the medical and allergy lists, so it says "None of the below".
     const isNone = (o: MasterOption) =>
       o.label.toLowerCase().includes("none of the");
-    return options.some(isNone) ?
-        [...options.filter(isNone), ...options.filter((o) => !isNone(o))]
+    const none = options.filter(isNone).map((o) => ({
+      ...o,
+      label: "None of the below",
+    }));
+    return none.length ?
+        [...none, ...options.filter((o) => !isNone(o))]
       : options;
   }
   const labelOf = (value: string, pc: string) =>
