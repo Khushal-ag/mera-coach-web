@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import type { CoachPublicListItem } from "@/types/coach";
 
 import { CoachListView } from "@/components/coach-directory/coach-list-view";
+import { COACHES_PER_PAGE } from "@/constants/coach-directory";
 import { fetchPublicCoaches, isApiSuccess } from "@/lib/api";
 import { fetchCoachCategories, fetchMasterOptions } from "@/lib/api/master";
 import { publicPageMetadata } from "@/lib/seo";
@@ -27,6 +28,19 @@ type SearchParams = Promise<{
   page?: string;
   pageNum?: string;
 }>;
+
+/** The best rated coaches overall, whatever the visitor has filtered by. The API sorts by rating by default. */
+async function loadTopRated() {
+  try {
+    const list = await fetchPublicCoaches({ page: 1, pageSize: 5 });
+    if (isApiSuccess(list) && list.responseObj) {
+      return list.responseObj.items;
+    }
+  } catch {
+    // The list simply stays hidden.
+  }
+  return [] as CoachPublicListItem[];
+}
 
 async function loadCoachList(input: {
   search: string;
@@ -52,7 +66,7 @@ async function loadCoachList(input: {
       state: input.state || undefined,
       city: input.city || undefined,
       page: input.page,
-      pageSize: 10,
+      pageSize: COACHES_PER_PAGE,
     });
     if (isApiSuccess(list) && list.responseObj) {
       coaches = list.responseObj.items;
@@ -64,12 +78,21 @@ async function loadCoachList(input: {
       error instanceof Error ? error.message : "Could not load coaches.";
   }
 
-  const [categories, countries] = await Promise.all([
+  const [categories, countries, topRated] = await Promise.all([
     fetchCoachCategories(),
     fetchMasterOptions("Country"),
+    loadTopRated(),
   ]);
 
-  return { coaches, categories, countries, totalCount, totalPages, loadError };
+  return {
+    coaches,
+    categories,
+    countries,
+    topRated,
+    totalCount,
+    totalPages,
+    loadError,
+  };
 }
 
 export default function CoachDirectoryPage({

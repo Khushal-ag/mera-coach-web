@@ -184,6 +184,7 @@ export function MenuSelect({
         aria-required={required || undefined}
         aria-invalid={invalid || missing || undefined}
         title={selectedLabel}
+        data-empty={current === "" ? "" : undefined}
         onClick={() => {
           if (!disabled) setOpen((next) => !next);
         }}

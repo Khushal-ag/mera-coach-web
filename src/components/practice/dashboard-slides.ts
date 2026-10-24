@@ -174,13 +174,13 @@ export function buildDashboardSlides({
       id: "events",
       tone: 1,
       tag: { icon: "fas fa-calendar-alt", label: "Posts" },
-      title: "Host a workshop or",
+      title: "Share a workshop or",
       em: "free webinar",
-      text: "Photos and videos of workshops and events on your public page bring new people to you.",
+      text: "Photos and videos of your workshops on your public page bring new people to you.",
       cta: {
         href: "/dashboard/events",
         icon: "fas fa-plus",
-        label: "Add a workshop or event",
+        label: "Add a post",
       },
       icon: "fas fa-calendar-alt",
     });

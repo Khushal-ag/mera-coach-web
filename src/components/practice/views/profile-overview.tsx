@@ -173,7 +173,7 @@ export function ProfileOverview({
         <section className="mc-panel flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
           <div className="min-w-0">
             <h3 className="font-display text-base font-bold tracking-tight text-ink">
-              Gallery, events and success stories
+              Posts
             </h3>
             <p className="mt-1 text-sm text-ink-muted">
               Photos and videos shown on your public page.

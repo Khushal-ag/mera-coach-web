@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import type { MasterOption } from "@/lib/api/master";
 import type { CoachPublicListItem } from "@/types/coach";
@@ -10,6 +11,7 @@ import { CoachPhoto } from "@/components/coach-photo";
 import { ListEmpty } from "@/components/list-empty";
 import { MenuSelect } from "@/components/ui/menu-select";
 import { env } from "@/config/env";
+import { COACHES_PER_PAGE } from "@/constants/coach-directory";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 
 type Query = {
@@ -89,6 +91,7 @@ export function CoachListView({
   coaches,
   categories,
   countries,
+  topRated,
   totalCount,
   totalPages,
   loadError,
@@ -97,18 +100,30 @@ export function CoachListView({
   coaches: CoachPublicListItem[];
   categories: MasterOption[];
   countries: MasterOption[];
+  /** Highest rated coaches, shown beside the results. */
+  topRated: CoachPublicListItem[];
   totalCount: number;
   totalPages: number;
   loadError: string;
   query: Query;
 }) {
+  const router = useRouter();
   const [listView, setListView] = useState(false);
+  const [resetCount, setResetCount] = useState(0);
   const [sort, setSort] = useState("rating");
   const [minRating, setMinRating] = useState(0);
   const [expMin, setExpMin] = useState(0);
   const [expMax, setExpMax] = useState(999);
   const [states, setStates] = useState<MasterOption[]>([]);
   const [cities, setCities] = useState<MasterOption[]>([]);
+  const activeFilters = [
+    query.coachTypeCode,
+    query.country,
+    query.state,
+    query.city,
+  ].filter(Boolean).length;
+  // On phones the filters start folded away so the results are not pushed far down.
+  const [filtersOpen, setFiltersOpen] = useState(activeFilters > 0);
 
   useEffect(() => {
     if (!query.country) return;
@@ -142,8 +157,20 @@ export function CoachListView({
   }, [listCoaches, sort]);
 
   const displayTotal = totalCount;
-  const rangeStart = displayTotal > 0 ? (query.page - 1) * 10 + 1 : 0;
+  const rangeStart =
+    displayTotal > 0 ? (query.page - 1) * COACHES_PER_PAGE + 1 : 0;
   const rangeEnd = displayTotal > 0 ? rangeStart + listCoaches.length - 1 : 0;
+
+  /** Back to the unfiltered list: the pills, the dropdowns and the search box all start over. */
+  function clearAll() {
+    setMinRating(0);
+    setExpMin(0);
+    setExpMax(999);
+    setStates([]);
+    setCities([]);
+    setResetCount((count) => count + 1);
+    router.push("/coach");
+  }
 
   function selectCategory(code: string) {
     const select = document.getElementById(
@@ -240,7 +267,12 @@ export function CoachListView({
         <div className="container">
           <div className="cl-layout">
             <div className="cl-main">
-              <form action="/coach" className="cl-main-search" id="searchForm">
+              <form
+                action="/coach"
+                className="cl-main-search"
+                id="searchForm"
+                key={`${query.search}-${resetCount}`}
+              >
                 <div className="cl-main-search-wrap">
                   <i className="fas fa-search cl-main-search-icon" />
                   <input
@@ -290,6 +322,213 @@ export function CoachListView({
                   <button type="submit" aria-label="Submit search">
                     <i className="fas fa-search" /> Search
                   </button>
+                </div>
+              </form>
+
+              <form
+                action="/coach"
+                id="filterForm"
+                className="cl-filter-panel"
+                key={`${query.coachTypeCode}|${query.country}|${query.state}|${query.city}|${query.search}-${resetCount}`}
+              >
+                <input
+                  type="hidden"
+                  name="search"
+                  id="fSearch"
+                  defaultValue={query.search}
+                />
+                <input type="hidden" name="pageNum" value="1" />
+                <div className="cl-fp-head">
+                  <span className="cl-fp-title">
+                    <i className="fas fa-sliders-h" /> Filter Coaches
+                    {activeFilters > 0 ?
+                      <em className="cl-fp-count">{activeFilters}</em>
+                    : null}
+                  </span>
+                  <button
+                    type="button"
+                    className="cl-fp-toggle"
+                    aria-expanded={filtersOpen}
+                    aria-controls="clFilterBody"
+                    onClick={() => setFiltersOpen((open) => !open)}
+                  >
+                    {filtersOpen ? "Hide" : "Show"}{" "}
+                    <i
+                      className={
+                        filtersOpen ? "fas fa-chevron-up" : (
+                          "fas fa-chevron-down"
+                        )
+                      }
+                    />
+                  </button>
+                </div>
+                <div
+                  id="clFilterBody"
+                  className={
+                    filtersOpen ? "cl-fp-body cl-fp-body-open" : "cl-fp-body"
+                  }
+                >
+                  <div className="cl-fp-grid">
+                    <div className="cl-ff">
+                      <label className="cl-ff-label" htmlFor="fCoachType">
+                        <i className="fas fa-th-large" /> Category
+                      </label>
+                      <MenuSelect
+                        name="coachTypeCode"
+                        id="fCoachType"
+                        skin="public"
+                        className="ui-select"
+                        defaultValue={query.coachTypeCode}
+                        aria-label="All Categories"
+                        placeholder="All Categories"
+                        options={[
+                          { value: "", label: "All Categories" },
+                          ...categories.map((category) => ({
+                            value: category.code,
+                            label: category.label,
+                          })),
+                        ]}
+                      />
+                    </div>
+                    <div className="cl-ff">
+                      <label className="cl-ff-label" htmlFor="fCountry">
+                        <i className="fas fa-globe" /> Country
+                      </label>
+                      <MenuSelect
+                        name="country"
+                        id="fCountry"
+                        skin="public"
+                        className="ui-select"
+                        defaultValue={query.country}
+                        aria-label="All"
+                        placeholder="All"
+                        options={[
+                          { value: "", label: "All" },
+                          ...countries.map((country) => ({
+                            value: country.code,
+                            label: country.label,
+                          })),
+                        ]}
+                        onChange={(event) =>
+                          void onCountryChange(event.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="cl-ff">
+                      <label className="cl-ff-label" htmlFor="fState">
+                        <i className="fas fa-map" /> State
+                      </label>
+                      <MenuSelect
+                        name="state"
+                        id="fState"
+                        skin="public"
+                        className="ui-select"
+                        defaultValue={query.state}
+                        aria-label="All"
+                        placeholder="All"
+                        options={[
+                          { value: "", label: "All" },
+                          ...states.map((state) => ({
+                            value: state.code,
+                            label: state.label,
+                          })),
+                        ]}
+                        onChange={(event) =>
+                          void onStateChange(event.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="cl-ff">
+                      <label className="cl-ff-label" htmlFor="fCity">
+                        <i className="fas fa-city" /> City
+                      </label>
+                      <MenuSelect
+                        name="city"
+                        id="fCity"
+                        skin="public"
+                        className="ui-select"
+                        defaultValue={query.city}
+                        aria-label="All Cities"
+                        placeholder="All Cities"
+                        options={[
+                          { value: "", label: "All Cities" },
+                          ...cities.map((city) => ({
+                            value: city.code,
+                            label: city.label,
+                          })),
+                        ]}
+                      />
+                    </div>
+                  </div>
+                  <div className="cl-fp-foot">
+                    <div className="cl-ff">
+                      <span className="cl-ff-label">
+                        <i className="fas fa-star cl-star" /> Min Rating
+                      </span>
+                      <div className="cl-ff-pills">
+                        {[
+                          { label: "All", min: 0 },
+                          { label: "4.0+", min: 4 },
+                          { label: "4.5+", min: 4.5 },
+                        ].map((pill) => (
+                          <button
+                            key={pill.label}
+                            type="button"
+                            className={
+                              minRating === pill.min ?
+                                "cl-ff-pill active"
+                              : "cl-ff-pill"
+                            }
+                            onClick={() => setMinRating(pill.min)}
+                          >
+                            {pill.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="cl-ff">
+                      <span className="cl-ff-label">
+                        <i className="fas fa-briefcase" /> Experience
+                      </span>
+                      <div className="cl-ff-pills">
+                        {[
+                          { label: "Any", min: 0, max: 999 },
+                          { label: "1–3y", min: 1, max: 3 },
+                          { label: "3–5y", min: 3, max: 5 },
+                          { label: "5–10y", min: 5, max: 10 },
+                          { label: "10y+", min: 10, max: 999 },
+                        ].map((pill) => (
+                          <button
+                            key={pill.label}
+                            type="button"
+                            className={
+                              expMin === pill.min && expMax === pill.max ?
+                                "cl-ff-pill active"
+                              : "cl-ff-pill"
+                            }
+                            onClick={() => {
+                              setExpMin(pill.min);
+                              setExpMax(pill.max);
+                            }}
+                          >
+                            {pill.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="cl-fp-actions">
+                      <button
+                        type="button"
+                        className="cl-ff-clear"
+                        onClick={clearAll}
+                      >
+                        <i className="fas fa-times" /> Clear All
+                      </button>
+                      <button type="submit" className="cl-ff-apply">
+                        <i className="fas fa-check" /> Apply Filters
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </form>
 
@@ -378,7 +617,7 @@ export function CoachListView({
                     .split(",")
                     .map((tag) => tag.trim())
                     .filter(Boolean)
-                    .slice(0, 3);
+                    .slice(0, 2);
                   return (
                     <div
                       key={coach.coachId || coach.coachCode}
@@ -542,177 +781,46 @@ export function CoachListView({
             </div>
 
             <aside className="cl-sidebar">
-              <form action="/coach" id="filterForm">
-                <input
-                  type="hidden"
-                  name="search"
-                  id="fSearch"
-                  defaultValue={query.search}
-                />
-                <input type="hidden" name="pageNum" value="1" />
-                <div className="cl-widget cl-filter-widget">
+              {topRated.length > 0 ?
+                <div className="cl-widget cl-top-widget">
                   <div className="cl-widget-head">
-                    <i className="fas fa-sliders-h" /> Filter Coaches
+                    <i className="fas fa-trophy" /> Top Coaches
                   </div>
-                  <div className="cl-widget-body cl-filter-body">
-                    <div className="cl-ff">
-                      <label className="cl-ff-label" htmlFor="fCoachType">
-                        <i className="fas fa-th-large" /> Category
-                      </label>
-                      <MenuSelect
-                        name="coachTypeCode"
-                        id="fCoachType"
-                        skin="public"
-                        className="ui-select"
-                        defaultValue={query.coachTypeCode}
-                        aria-label="All Categories"
-                        placeholder="All Categories"
-                        options={[
-                          { value: "", label: "All Categories" },
-                          ...categories.map((category) => ({
-                            value: category.code,
-                            label: category.label,
-                          })),
-                        ]}
-                      />
-                    </div>
-                    <div className="cl-ff-row">
-                      <div className="cl-ff">
-                        <label className="cl-ff-label" htmlFor="fCountry">
-                          <i className="fas fa-globe" /> Country
-                        </label>
-                        <MenuSelect
-                          name="country"
-                          id="fCountry"
-                          skin="public"
-                          className="ui-select"
-                          defaultValue={query.country}
-                          aria-label="All"
-                          placeholder="All"
-                          options={[
-                            { value: "", label: "All" },
-                            ...countries.map((country) => ({
-                              value: country.code,
-                              label: country.label,
-                            })),
-                          ]}
-                          onChange={(event) =>
-                            void onCountryChange(event.target.value)
-                          }
-                        />
-                      </div>
-                      <div className="cl-ff">
-                        <label className="cl-ff-label" htmlFor="fState">
-                          <i className="fas fa-map" /> State
-                        </label>
-                        <MenuSelect
-                          name="state"
-                          id="fState"
-                          skin="public"
-                          className="ui-select"
-                          defaultValue={query.state}
-                          aria-label="All"
-                          placeholder="All"
-                          options={[
-                            { value: "", label: "All" },
-                            ...states.map((state) => ({
-                              value: state.code,
-                              label: state.label,
-                            })),
-                          ]}
-                          onChange={(event) =>
-                            void onStateChange(event.target.value)
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div className="cl-ff">
-                      <label className="cl-ff-label" htmlFor="fCity">
-                        <i className="fas fa-city" /> City
-                      </label>
-                      <MenuSelect
-                        name="city"
-                        id="fCity"
-                        skin="public"
-                        className="ui-select"
-                        defaultValue={query.city}
-                        aria-label="All Cities"
-                        placeholder="All Cities"
-                        options={[
-                          { value: "", label: "All Cities" },
-                          ...cities.map((city) => ({
-                            value: city.code,
-                            label: city.label,
-                          })),
-                        ]}
-                      />
-                    </div>
-                    <div className="cl-ff-divider" />
-                    <div className="cl-ff">
-                      <label className="cl-ff-label">
-                        <i className="fas fa-star cl-star" /> Min Rating
-                      </label>
-                      <div className="cl-ff-pills">
-                        {[
-                          { label: "All", min: 0 },
-                          { label: "4.0+", min: 4 },
-                          { label: "4.5+", min: 4.5 },
-                        ].map((pill) => (
-                          <button
-                            key={pill.label}
-                            type="button"
-                            className={
-                              minRating === pill.min ?
-                                "cl-ff-pill active"
-                              : "cl-ff-pill"
-                            }
-                            onClick={() => setMinRating(pill.min)}
-                          >
-                            {pill.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="cl-ff">
-                      <label className="cl-ff-label">
-                        <i className="fas fa-briefcase" /> Experience
-                      </label>
-                      <div className="cl-ff-pills">
-                        {[
-                          { label: "Any", min: 0, max: 999 },
-                          { label: "1–3y", min: 1, max: 3 },
-                          { label: "3–5y", min: 3, max: 5 },
-                          { label: "5–10y", min: 5, max: 10 },
-                          { label: "10y+", min: 10, max: 999 },
-                        ].map((pill) => (
-                          <button
-                            key={pill.label}
-                            type="button"
-                            className={
-                              expMin === pill.min && expMax === pill.max ?
-                                "cl-ff-pill active"
-                              : "cl-ff-pill"
-                            }
-                            onClick={() => {
-                              setExpMin(pill.min);
-                              setExpMax(pill.max);
-                            }}
-                          >
-                            {pill.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="cl-ff-divider" />
-                    <button type="submit" className="cl-ff-apply">
-                      <i className="fas fa-check" /> Apply Filters
-                    </button>
-                    <Link href="/coach" className="cl-ff-clear">
-                      <i className="fas fa-times" /> Clear All
-                    </Link>
-                  </div>
+                  <ul className="cl-top-list">
+                    {topRated.map((coach) => {
+                      const photo = resolveMediaUrl(coach.profile_Pic_Url);
+                      return (
+                        <li key={coach.coachId || coach.coachCode}>
+                          <Link href={coachHref(coach)} className="cl-top-item">
+                            <span className="cl-top-avatar">
+                              <CoachPhoto
+                                src={photo}
+                                alt={coach.coachName}
+                                name={coach.coachName}
+                              />
+                            </span>
+                            <span className="cl-top-info">
+                              <strong>{coach.coachName}</strong>
+                              <span className="cl-top-sub">
+                                {coach.coachTypeName || coach.coachTypeCode}
+                                {coach.city_Cd ? ` · ${coach.city_Cd}` : ""}
+                              </span>
+                            </span>
+                            <span className="cl-top-rating">
+                              {coach.reviewCount > 0 ?
+                                <>
+                                  <i className="fas fa-star cl-star" />{" "}
+                                  {coach.rating.toFixed(1)}
+                                </>
+                              : "New"}
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
-              </form>
+              : null}
 
               <div className="cl-widget cl-cta-widget">
                 <div className="cl-cta-glow" />

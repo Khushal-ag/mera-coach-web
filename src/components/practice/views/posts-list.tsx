@@ -100,7 +100,7 @@ export function PostsListView() {
     <div className="min-w-0">
       <PracticePageHeader
         title="Posts"
-        description="Photos, workshops and client success stories shown on your public profile."
+        description="Photos, videos and client success stories shown on your public profile."
         icon={
           <i className="fas fa-images" style={{ fontSize: 20 }} aria-hidden />
         }
@@ -141,7 +141,7 @@ export function PostsListView() {
         <EmptyState
           icon="fas fa-images"
           title="Nothing published yet"
-          description="Add a photo or video, announce a workshop, or share a client's success story."
+          description="Add a photo or video, or share a client's success story."
           action={
             <button
               type="button"

@@ -41,7 +41,7 @@ export const PRIVACY_POLICY_SECTIONS: LegalSection[] = [
   },
   {
     title: "Website Visitors and Enquiries",
-    body: "If you use the enquiry, BMI, contact or feedback forms on mera-coach.com, we collect the details you type in, such as your name, mobile number, email address and message. We pass enquiries to the coach you contacted, and BMI callback requests to a coach who can help. Public coach profiles, including name, photo, category, city, services, packages and events, are visible to anyone and may be indexed by search engines.",
+    body: "If you use the enquiry, BMI, contact or feedback forms on mera-coach.com, we collect the details you type in, such as your name, mobile number, email address and message. We pass enquiries to the coach you contacted, and BMI callback requests to a coach who can help. Public coach profiles, including name, photo, category, city, services, packages and posts, are visible to anyone and may be indexed by search engines.",
   },
   {
     title: "Payments",

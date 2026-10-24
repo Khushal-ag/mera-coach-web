@@ -12,7 +12,12 @@ import type { ReviewsPage } from "@/types/reviews";
 
 import { CoachPhoto } from "@/components/coach-photo";
 import { CoachReviews } from "@/components/coach-profile/coach-reviews";
-import { CoachShowcase } from "@/components/coach-profile/coach-showcase";
+import {
+  CoachGallery,
+  EventsWidget,
+  PackagesWidget,
+  SuccessStories,
+} from "@/components/coach-profile/coach-showcase";
 import { ExpandableBio } from "@/components/coach-profile/expandable-bio";
 import { ListEmpty } from "@/components/list-empty";
 import { Stars } from "@/components/stars";
@@ -95,6 +100,8 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
     setModal(null);
     if (reload) window.location.reload();
   }
+
+  const whatsappUrl = coach.whatsappUrl === "#" ? null : coach.whatsappUrl;
 
   function enquireAbout(label: string) {
     setService(label);
@@ -405,15 +412,18 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
               </section>
             </div>
             <aside className="cp-mid-aside">
-              <div className="cp-sb-widget cp-sb-blog">
-                <div className="cp-sbw-head">
-                  <i className="fas fa-pen-fancy" /> Articles by{" "}
-                  {coach.coachName}
-                </div>
-                <div className="cp-sbw-blog-list">
-                  <ListEmpty title="No articles yet." icon="fas fa-pen-fancy" />
-                </div>
-              </div>
+              <PackagesWidget
+                packages={coach.packages}
+                coachName={coach.coachName}
+                whatsappUrl={whatsappUrl}
+                onEnquire={enquireAbout}
+              />
+              <EventsWidget
+                events={coach.events}
+                coachName={coach.coachName}
+                whatsappUrl={whatsappUrl}
+                onEnquire={enquireAbout}
+              />
               <div className="cp-sb-widget cp-sb-badge">
                 <div className="cp-sbw-head">
                   <i className="fas fa-medal" /> Platform Recognition
@@ -458,14 +468,7 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
         </div>
       </div>
 
-      <CoachShowcase
-        coachName={coach.coachName}
-        packages={coach.packages}
-        gallery={coach.gallery}
-        events={coach.events}
-        stories={coach.stories}
-        onEnquire={enquireAbout}
-      />
+      <CoachGallery gallery={coach.gallery} />
 
       <CoachReviews coachCode={coach.coachCode} initial={coach.reviewsPage} />
 
@@ -670,7 +673,13 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
               Hear from people who&apos;ve lived the transformation.
             </p>
           </div>
-          <ListEmpty title="No client stories yet." icon="fas fa-quote-left" />
+          {coach.stories.length > 0 ?
+            <SuccessStories stories={coach.stories} />
+          : <ListEmpty
+              title="No client stories yet."
+              icon="fas fa-quote-left"
+            />
+          }
         </div>
       </section>
 

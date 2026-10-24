@@ -273,24 +273,24 @@ export function PostForm({ categories, initial, onPublish, onCancel }: Props) {
           />
         </div>
 
-        <div className={cn(!needsClient && "opacity-60")}>
-          <p className="mc-field-label mb-2">Client</p>
-          <button
-            type="button"
-            disabled={!needsClient}
-            onClick={() => setPickerOpen(true)}
-            className="mc-field flex min-h-11 w-full items-center justify-between gap-3 text-left disabled:cursor-not-allowed"
-          >
-            <span className={cn(!clientName && "text-ink-muted")}>
-              {clientName || "Select client"}
-            </span>
-            <i
-              className="fas fa-chevron-down text-xs text-ink-muted"
-              aria-hidden
-            />
-          </button>
-          <p className="mc-field-hint">Only for Client Success.</p>
-        </div>
+        {needsClient ?
+          <div>
+            <p className="mc-field-label mb-2">Client</p>
+            <button
+              type="button"
+              onClick={() => setPickerOpen(true)}
+              className="mc-field flex min-h-11 w-full items-center justify-between gap-3 text-left"
+            >
+              <span className={cn(!clientName && "text-ink-muted")}>
+                {clientName || "Select client"}
+              </span>
+              <i
+                className="fas fa-chevron-down text-xs text-ink-muted"
+                aria-hidden
+              />
+            </button>
+          </div>
+        : null}
 
         <TextField
           label={isGallery ? "Tag" : "Title"}

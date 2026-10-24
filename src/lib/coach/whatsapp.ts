@@ -22,3 +22,8 @@ export function whatsAppUrlFromMobile(mobile?: string | null): string | null {
   }
   return null;
 }
+
+/** Opens the WhatsApp chat with this message already typed in. */
+export function whatsAppUrlWithText(chatUrl: string, text: string): string {
+  return `${chatUrl}?text=${encodeURIComponent(text)}`;
+}

@@ -29,5 +29,5 @@ export function PackageCardsSkeleton({ cards = 3 }: { cards?: number }) {
 }
 
 export function EventCardsSkeleton({ cards = 3 }: { cards?: number }) {
-  return <CardGridSkeleton cards={cards} label="Loading events" />;
+  return <CardGridSkeleton cards={cards} label="Loading posts" />;
 }

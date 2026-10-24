@@ -4,14 +4,6 @@ import type { Review, ReviewSummary } from "@/types/reviews";
 
 import { formatDateLabel } from "@/lib/format";
 
-const REVIEW_PARAMETERS = [
-  { key: "knowledge", label: "Knowledge" },
-  { key: "communication", label: "Communication" },
-  { key: "personalAttention", label: "Personal Attention" },
-  { key: "guidanceResponse", label: "Guidance & Response" },
-  { key: "resultsProgress", label: "Results & Progress" },
-] as const;
-
 /** Five stars, filled up to the rounded value. */
 function StarRow({
   value,
@@ -51,11 +43,20 @@ function Bar({ ratio }: { ratio: number }) {
   );
 }
 
-/** Average, star breakdown and per-parameter averages, like a product review summary. */
-export function ReviewSummaryCard({ summary }: { summary: ReviewSummary }) {
+/** Average and star breakdown, like a product review summary. */
+export function ReviewSummaryCard({
+  summary,
+  bare = false,
+}: {
+  summary: ReviewSummary;
+  /** Drop the card border and padding, for use inside a larger card. */
+  bare?: boolean;
+}) {
   if (summary.reviewCount === 0) return null;
   return (
-    <div className="rounded-[22px] border border-line bg-white p-5">
+    <div
+      className={bare ? "" : "rounded-[22px] border border-line bg-white p-5"}
+    >
       <div className="flex items-center gap-4">
         <p className="font-display text-5xl font-extrabold text-ink">
           {summary.average.toFixed(1)}
@@ -80,26 +81,28 @@ export function ReviewSummaryCard({ summary }: { summary: ReviewSummary }) {
           );
         })}
       </div>
-      <div className="mt-4 space-y-1.5 border-t border-line pt-4">
-        {REVIEW_PARAMETERS.map(({ key, label }) => (
-          <div key={key} className="flex items-center gap-3 text-xs">
-            <span className="w-36 font-semibold text-ink">{label}</span>
-            <Bar ratio={summary[key] / 5} />
-            <span className="w-7 text-right font-semibold text-ink">
-              {summary[key].toFixed(1)}
-            </span>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
 
 /** One client's review. Read-only: there is no edit or remove control. */
-export function ReviewCard({ review }: { review: Review }) {
+export function ReviewCard({
+  review,
+  className = "",
+  soft = false,
+}: {
+  review: Review;
+  className?: string;
+  /** A tinted card without a border, for use inside a larger white card. */
+  soft?: boolean;
+}) {
   const initial = (review.clientName.trim()[0] ?? "?").toUpperCase();
   return (
-    <article className="rounded-[22px] border border-line bg-white p-5">
+    <article
+      className={`rounded-[22px] p-5 ${
+        soft ? "bg-mc-accent/[0.06]" : "border border-line bg-white"
+      } ${className}`}
+    >
       <header className="flex items-center gap-3">
         <span
           className="inline-flex size-10 items-center justify-center rounded-full bg-mc-secondary/10 font-display font-bold text-mc-secondary"
@@ -127,16 +130,6 @@ export function ReviewCard({ review }: { review: Review }) {
           {review.comments}
         </p>
       : null}
-      <ul className="mt-3 flex flex-wrap gap-1.5">
-        {REVIEW_PARAMETERS.map(({ key, label }) => (
-          <li
-            key={key}
-            className="rounded-full bg-mc-accent/10 px-2.5 py-1 text-[11px] font-semibold text-ink-muted"
-          >
-            {label} {review[key]}/5
-          </li>
-        ))}
-      </ul>
     </article>
   );
 }

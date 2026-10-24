@@ -20,7 +20,7 @@ import {
 import { fetchProductItems } from "@/lib/api/showcase";
 import { formatMoney } from "@/lib/format";
 
-/** Blank category or pack size on a product. Not an extra API level. */
+/** Blank category on a product. Not an extra API level. */
 const UNSPECIFIED = "\u241e";
 const EMPTY_PRODUCTS: ProductItemOption[] = [];
 
@@ -61,7 +61,7 @@ function parseAmount(value: string): number | null {
 
 /**
  * Package creation: name the package, then pick a product through the master
- * hierarchy (brand, category, pack, product). The coach sets each price and a
+ * hierarchy (brand, category, product). The coach sets each price and a
  * total. The total is their own figure and does not have to match the breakup.
  */
 export function PackageEditor({
@@ -79,7 +79,6 @@ export function PackageEditor({
   const [loadedFor, setLoadedFor] = useState("");
   const [catalogError, setCatalogError] = useState(false);
   const [category, setCategory] = useState("");
-  const [pack, setPack] = useState("");
   const [pick, setPick] = useState("");
   const [price, setPrice] = useState("");
   const [total, setTotal] = useState(
@@ -137,23 +136,12 @@ export function PackageEditor({
     [available],
   );
   const categoryValue = categories.includes(category) ? category : "";
-  const packs = useMemo(() => {
+  const shownProducts = useMemo(() => {
     if (!categoryValue) return [];
-    return uniqueLevels(
-      available
-        .filter((option) => levelKey(option.category) === categoryValue)
-        .map((option) => option.packSize),
+    return available.filter(
+      (option) => levelKey(option.category) === categoryValue,
     );
   }, [available, categoryValue]);
-  const packValue = packs.includes(pack) ? pack : "";
-  const shownProducts = useMemo(() => {
-    if (!categoryValue || !packValue) return [];
-    return available.filter(
-      (option) =>
-        levelKey(option.category) === categoryValue &&
-        levelKey(option.packSize) === packValue,
-    );
-  }, [available, categoryValue, packValue]);
   const picked = shownProducts.find((option) => option.code === pick) ?? null;
   const brandLocked = items.length > 0;
 
@@ -161,7 +149,6 @@ export function PackageEditor({
     if (brandLocked || code === brandCode) return;
     setBrandCode(code);
     setCategory("");
-    setPack("");
     setPick("");
     setPrice("");
   }
@@ -169,14 +156,6 @@ export function PackageEditor({
   function chooseCategory(value: string) {
     if (value === category) return;
     setCategory(value);
-    setPack("");
-    setPick("");
-    setPrice("");
-  }
-
-  function choosePack(value: string) {
-    if (value === pack) return;
-    setPack(value);
     setPick("");
     setPrice("");
   }
@@ -187,7 +166,6 @@ export function PackageEditor({
     const amount = parseAmount(price);
     if (!brandCode) return setLocalError("Choose a product brand.");
     if (!categoryValue) return setLocalError("Select a category.");
-    if (!packValue) return setLocalError("Select a pack.");
     if (!product) return setLocalError("Select a product to add.");
     if (amount == null) return setLocalError("Enter the price of the product.");
     if (items.length >= PACKAGE_MAX_ITEMS) {
@@ -313,34 +291,18 @@ export function PackageEditor({
             ))}
           </SelectField>
 
-          <SelectField
-            label="Pack"
-            value={packValue}
-            disabled={!categoryValue || packs.length === 0}
-            onChange={(e) => choosePack(e.target.value)}
-          >
-            <option value="">
-              {categoryValue ? "Select a pack" : "Select a category first"}
-            </option>
-            {packs.map((key) => (
-              <option key={key} value={key}>
-                {levelLabel(key)}
-              </option>
-            ))}
-          </SelectField>
-
           <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_9rem_auto] sm:items-end">
             <SelectField
               label="Product"
               value={picked?.code ?? ""}
-              disabled={!packValue || shownProducts.length === 0}
+              disabled={!categoryValue || shownProducts.length === 0}
               hint={
                 (
-                  packValue &&
+                  categoryValue &&
                   shownProducts.length === 0 &&
                   available.length > 0
                 ) ?
-                  "No products are left for this pack."
+                  "No products are left in this category."
                 : undefined
               }
               onChange={(e) => {
@@ -352,7 +314,7 @@ export function PackageEditor({
               }}
             >
               <option value="">
-                {packValue ? "Select a product" : "Select a pack first"}
+                {categoryValue ? "Select a product" : "Select a category first"}
               </option>
               {shownProducts.map((option) => (
                 <option key={option.code} value={option.code}>
