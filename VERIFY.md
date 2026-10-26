@@ -21,6 +21,7 @@ Configure on **meracoachapi** (`appsettings` / Azure App Settings), not in this 
 | `Razorpay:KeyId` | Public key returned to web as `keyId` |
 | `Razorpay:KeySecret` | Server-only; signs orders + verifies Checkout signature |
 | `Razorpay:WebhookSecret` | Optional fallback for `POST /v1/Coach/premium-webhook` |
+| `Razorpay:RefundsEnabled` | `true` lets a coach cancel a plan that has not started and refunds it in full (`POST /v1/Coach/premium-cancel-upcoming`). Default `false`. Turn it on only after a test-mode refund works on staging. |
 | `AppSettings:PaymentPageUrl` | Should point at `{web}/premium` |
 
 Without KeyId + KeySecret, order create returns an error such as “Razorpay is not configured.”
@@ -62,6 +63,30 @@ Without KeyId + KeySecret, order create returns an error such as “Razorpay is 
 3. Complete Checkout → web calls `POST /v1/Coach/premium-confirm` with `razorpayOrderId`, `razorpayPaymentId`, `razorpaySignature`.
 4. On `isPaid: true` → redirect `/premium/success?orderId=…&plan=…&periodEnd=…`.
 5. In app: pull-to-refresh profile; premium period should match.
+
+### Subscription rules (run on staging after deploying the API)
+
+Access is `MstCoach.ValidUpto`. A payment starts where the last **paid** period ends (or today when none is running) and `ValidUpto` becomes the end of the new period. Free days (sign-up trial, validity set by hand) are replaced, never added on. For each case, check the new `TxnCoachSubscription` row (`PeriodStart`, `PeriodEnd`), `MstCoach.ValidUpto`, and `GET /v1/Coach/premium`.
+
+| Case | Expected |
+| --- | --- |
+| Coach still on the free trial (for example 5 days left) pays Monthly | `ValidUpto` = today + 1 month, **not** trial days + 1 month; `PeriodStart` ≈ now |
+| Coach with long free validity (set by hand) pays Quarterly | `ValidUpto` = today + 3 months |
+| New coach pays Monthly | `PeriodStart` ≈ now, `ValidUpto` = now + 1 month, status `active`, no `nextPlanName` |
+| Active coach (more than 15 days left) buys a different plan | Row `PeriodStart` = old `ValidUpto`; `GET premium` shows `nextPlanName`, `hasUpcomingPlan: true` |
+| Same coach tries any plan again | `premium-order` returns error code 645, no order row created |
+| Active coach (more than 15 days left) tries the plan they have | Error code 645 |
+| Same plan with 15 days or fewer left | Order created; payment extends from `ValidUpto` |
+| Expired coach buys the old plan | Allowed; `PeriodStart` ≈ now |
+| `premium-confirm` and `premium-webhook` for one order, back to back | One period only; second call returns already-paid, `ValidUpto` unchanged |
+| Pay tapped twice within 30 minutes for the same coach, plan and promo | Second `premium-order` returns the first Razorpay order, no new `TxnCoachSubscription` row |
+| Cancel the lined-up plan (`premium-cancel-upcoming`, refunds enabled, Razorpay test mode) | Row becomes `Refunded`, Razorpay refund created with the order id as receipt, `ValidUpto` back to the lined-up plan's `PeriodStart`, `hasUpcomingPlan` false |
+| Same cancel called again after it succeeded | Error "no plan lined up", no second refund |
+| Cancel when Razorpay refuses (for example a payment that is not captured) | Row back to `Paid`, plan unchanged, error shown |
+| Cancel interrupted after Razorpay refunded (kill the API between the two steps) | Row stays `Refunding`; calling cancel again completes it ("already refunded" from Razorpay), no second refund |
+| Cancel with `RefundsEnabled` false | Error "not available right now", nothing changes |
+| `/premium?coachId=…&planId=<id>` | Checkout opens on that plan; an unknown id falls back to the shortest |
+| `GET /v1/Coach/premium-history` | Paid orders only, newest first, reference masked to its last 6 characters |
 
 ### Failure cases to spot-check
 
