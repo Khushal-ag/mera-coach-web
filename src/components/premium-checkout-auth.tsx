@@ -77,6 +77,7 @@ export function PremiumCheckoutAuth({
         initialCoachId={coachId}
         initialCoachCode={coachCode}
         displayName={displayName}
+        initialPlanId={searchParams.get("planId") ?? ""}
       />
     </>
   );

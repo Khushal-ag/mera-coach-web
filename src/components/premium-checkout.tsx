@@ -38,6 +38,8 @@ type Props = {
   initialCoachCode?: string;
   /** Session display name. The code stays internal and is never edited. */
   displayName?: string;
+  /** Plan id to start on, from the app's Pay Now link. */
+  initialPlanId?: string;
 };
 
 type RazorpaySuccess = {
@@ -132,6 +134,7 @@ export function PremiumCheckout({
   initialCoachId = 0,
   initialCoachCode = "",
   displayName = "",
+  initialPlanId = "",
 }: Props) {
   const router = useRouter();
   const identified = initialCoachId > 0 || Boolean(initialCoachCode.trim());
@@ -154,7 +157,11 @@ export function PremiumCheckout({
     : null,
   );
   const [coachLoading, setCoachLoading] = useState(identified);
-  const [planId, setPlanId] = useState(() => defaultPlanId(plans));
+  // The app can open checkout on the plan the coach picked there; anything that is not a live plan is ignored.
+  const [planId, setPlanId] = useState(() =>
+    plans.some((plan) => String(plan.planId) === initialPlanId) ? initialPlanId
+    : defaultPlanId(plans),
+  );
   const [promoCode, setPromoCode] = useState(suggestedPromo?.code ?? "");
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
