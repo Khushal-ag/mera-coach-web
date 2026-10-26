@@ -622,7 +622,13 @@
 .mc-public .rg-field textarea:focus-visible,
 .mc-public .bmi-lead-input:focus-visible,
 .mc-public .app-notify-input:focus-visible,
-.mc-public select.cl-sort-select:focus-visible {
+.mc-public select.cl-sort-select:focus-visible,
+.mc-public .search-box input:focus-visible,
+.mc-public .search-box select:focus-visible,
+.mc-public .search-box .ui-select-btn:focus-visible,
+.mc-public .cl-main-search-wrap input:focus-visible,
+.mc-dash .clt-search-box input:focus-visible,
+.mc-dash .mc-field:focus-visible {
   outline: none;
 }
 /* Small dot and pill controls keep their look but get a 44px touch area. */

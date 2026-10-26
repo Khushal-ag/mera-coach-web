@@ -1,6 +1,6 @@
 /**
  * Signed-in coach identity for the website.
- * JWT is kept in memory + sessionStorage (same spirit as app SecureStore),
+ * JWT is kept in memory + localStorage (same spirit as app SecureStore),
  * and sent as Authorization: Bearer on meracoachapi calls: not via a Next BFF.
  */
 export type CoachSession = {
@@ -15,7 +15,6 @@ export type CoachSession = {
   profileUrl?: string;
   /**
    * Cached GET /v1/Coach/premium `isPaid`.
-   * Undefined until the first load after login or session restore.
-   */
+   * Undefined until the first load after login or session restore.\n   */
   premiumPaid?: boolean;
 };

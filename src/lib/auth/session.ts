@@ -4,8 +4,7 @@ import { SESSION_STORAGE_KEY } from "@/constants/app";
 
 /**
  * Client session store — mirrors mera-coach-app SecureStore + in-memory token.
- * Choice: memory (sync reads for apiFetch) + sessionStorage (survives refresh
- * in the same tab; cleared when the tab closes). No httpOnly cookie / Next BFF.
+ * Uses localStorage so authentication persists across browser visits and tabs.
  */
 
 let current: CoachSession | null = null;
@@ -17,8 +16,13 @@ function notify() {
   listeners.forEach((listener) => listener());
 }
 
-function canUseStorage() {
-  return typeof window !== "undefined" && typeof sessionStorage !== "undefined";
+function readStorageRaw(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.localStorage.getItem(SESSION_STORAGE_KEY);
+  } catch {
+    return null;
+  }
 }
 
 export function subscribeToAuthSession(listener: Listener): () => void {
@@ -42,52 +46,43 @@ export function saveSession(session: CoachSession): void {
     : undefined;
   current =
     typeof premiumPaid === "boolean" ? { ...session, premiumPaid } : session;
-  if (canUseStorage()) {
+
+  if (typeof window !== "undefined") {
     try {
-      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+      window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(current));
     } catch {
-      // Quota / private mode — memory session still works for this tab life.
+      // Quota / private mode — memory session still works for this tab
     }
   }
+
   notify();
 }
 
 function restoreSession(): CoachSession | null {
-  if (!canUseStorage()) {
-    current = null;
-    return null;
-  }
   try {
-    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    const raw = readStorageRaw();
     if (!raw) {
       current = null;
       return null;
     }
     const parsed = JSON.parse(raw) as CoachSession;
     if (!parsed?.token || !parsed.coachId) {
-      sessionStorage.removeItem(SESSION_STORAGE_KEY);
-      current = null;
+      clearSession();
       return null;
     }
     if (isJwtExpired(parsed.token)) {
-      sessionStorage.removeItem(SESSION_STORAGE_KEY);
-      current = null;
+      clearSession();
       return null;
     }
     current = parsed;
     return parsed;
   } catch {
-    try {
-      sessionStorage.removeItem(SESSION_STORAGE_KEY);
-    } catch {
-      // ignore
-    }
-    current = null;
+    clearSession();
     return null;
   }
 }
 
-/** Restore from sessionStorage and notify subscribers. */
+/** Restore from persistent localStorage and notify subscribers. */
 export function reloadSession(): CoachSession | null {
   const session = restoreSession();
   notify();
@@ -96,9 +91,9 @@ export function reloadSession(): CoachSession | null {
 
 export function clearSession(): void {
   current = null;
-  if (canUseStorage()) {
+  if (typeof window !== "undefined") {
     try {
-      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+      window.localStorage.removeItem(SESSION_STORAGE_KEY);
     } catch {
       // ignore
     }
@@ -106,15 +101,50 @@ export function clearSession(): void {
   notify();
 }
 
+/** Safe Base64URL decoder supporting unpadded strings and UTF-8 characters. */
+function decodeBase64Url(base64Url: string): string {
+  let base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  while (base64.length % 4 !== 0) {
+    base64 += "=";
+  }
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return new TextDecoder().decode(bytes);
+}
+
+function decodeJwtPayload(token: string): { exp?: number } | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length < 2 || !parts[1]) return null;
+    const json = decodeBase64Url(parts[1]);
+    return JSON.parse(json) as { exp?: number };
+  } catch {
+    return null;
+  }
+}
+
 function isJwtExpired(token: string): boolean {
   try {
-    const payloadPart = token.split(".")[1];
-    if (!payloadPart) return true;
-    const json = atob(payloadPart.replace(/-/g, "+").replace(/_/g, "/"));
-    const payload = JSON.parse(json) as { exp?: number };
-    if (!payload.exp) return false;
+    const parts = token.split(".");
+    if (parts.length < 2) return true;
+    const payload = decodeJwtPayload(token);
+    if (!payload) return true;
+    if (typeof payload.exp !== "number") return false;
     return Date.now() >= payload.exp * 1000;
   } catch {
     return true;
   }
+}
+
+// Synchronize auth state across open browser tabs
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (event) => {
+    if (event.key === SESSION_STORAGE_KEY) {
+      restoreSession();
+      notify();
+    }
+  });
 }

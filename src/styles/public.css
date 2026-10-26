@@ -584,6 +584,12 @@
   margin: -36px auto 0;
   position: relative;
   z-index: 10;
+  transition: var(--transition);
+}
+
+.mc-public .search-box:focus-within {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-lg), 0 0 0 3px rgba(192, 75, 43, 0.15);
 }
 
 .mc-public .search-box select {
@@ -610,6 +616,11 @@
   color: var(--text);
   padding: 18px 20px;
   flex: 1;
+}
+
+.mc-public .search-box input:focus,
+.mc-public .search-box input:focus-visible {
+  outline: none;
 }
 
 .mc-public .search-box input::placeholder {
@@ -665,6 +676,11 @@
   border-radius: 15px 0 0 15px;
   background: #fff;
   padding: 18px 16px;
+}
+
+.mc-public .ui-select-bar .ui-select-btn:focus,
+.mc-public .ui-select-bar .ui-select-btn:focus-visible {
+  outline: none;
 }
 .mc-public .search-box > button {
   border-radius: 0 15px 15px 0;
@@ -6317,6 +6333,11 @@
   font-size: 15px;
   color: var(--text);
   background: transparent;
+}
+
+.mc-public .cl-main-search-wrap input:focus,
+.mc-public .cl-main-search-wrap input:focus-visible {
+  outline: none;
 }
 
 .mc-public .cl-main-search-wrap input::placeholder {

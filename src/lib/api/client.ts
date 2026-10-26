@@ -78,7 +78,12 @@ export async function apiFetch<T>(
     body = null;
   }
 
-  if (res.status === 401 && typeof window !== "undefined") {
+  if (
+    res.status === 401 &&
+    typeof window !== "undefined" &&
+    !skipAuth &&
+    token
+  ) {
     clearSession();
   }
 

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { PracticePageHeader } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { changeCoachPassword } from "@/lib/api/practice";
-import { passwordPolicyError } from "@/lib/password";
+import { PASSWORD_RULE, passwordPolicyError } from "@/lib/password";
 
 function PasswordField({
   label,
@@ -86,7 +86,7 @@ export function ChangePasswordView() {
     setBusy(true);
     try {
       await changeCoachPassword({ currentPassword, newPassword });
-      setMessage("Password updated.");
+      setMessage("Password updated successfully.");
       setCurrent("");
       setNew("");
       setConfirm("");
@@ -133,7 +133,7 @@ export function ChangePasswordView() {
             autoComplete="new-password"
             value={newPassword}
             onChange={setNew}
-            hint="At least 6 characters."
+            hint={PASSWORD_RULE}
           />
           <PasswordField
             label="Confirm new password"

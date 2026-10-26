@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { requestForgotPassword, resetCoachPassword } from "@/lib/api/practice";
-import { passwordPolicyError } from "@/lib/password";
+import { PASSWORD_RULE, passwordPolicyError } from "@/lib/password";
 
 type Step = "request" | "confirm";
 
@@ -124,6 +124,15 @@ export function ForgotPasswordForm() {
               disabled={busy}
             />
           </div>
+          <span
+            style={{
+              fontSize: "0.75rem",
+              color: "var(--mc-muted, #64748b)",
+              marginTop: 4,
+            }}
+          >
+            {PASSWORD_RULE}
+          </span>
         </div>
         <div className="lg-field">
           <label htmlFor="confirmPassword">

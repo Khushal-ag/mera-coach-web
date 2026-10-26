@@ -31,7 +31,7 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/** Memory only. sessionStorage is restored after mount, never during hydration. */
+/** Memory only. localStorage is restored after mount, never during hydration. */
 function getClientSessionSnapshot(): CoachSession | null {
   return getSession();
 }

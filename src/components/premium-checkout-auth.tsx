@@ -55,7 +55,7 @@ export function PremiumCheckoutAuth({
   }, [mounted, ready, session, fromApp, router, loginHref]);
 
   // Deep-link identity is on the server. A stored session is applied only
-  // after mount, so the plan catalog paints without reading sessionStorage.
+  // after mount, so the plan catalog paints without reading localStorage.
   const sessionCoach = mounted && ready && session ? session : null;
   const coachId =
     fromApp ? initialCoachId

@@ -6,7 +6,7 @@ const listeners = new Set<() => void>();
 
 /**
  * Stays false through server render and the hydrating client render.
- * AuthProvider flips it after mount, once sessionStorage has been read.
+ * AuthProvider flips it after mount, once localStorage has been read.
  */
 let clientReady = false;
 

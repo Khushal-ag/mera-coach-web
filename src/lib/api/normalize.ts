@@ -23,6 +23,7 @@ export function normalizeApiBody<T>(raw: unknown): GenericResponse<T> {
   const responseObj = (record.responseObj ??
     record.ResponseObj ??
     null) as T | null;
+
   const errorObj: ApiError[] = errorRaw.map((item) => {
     if (!item || typeof item !== "object") {
       return { errorCode: -1, errorMessage: "Unknown error" };
@@ -35,6 +36,33 @@ export function normalizeApiBody<T>(raw: unknown): GenericResponse<T> {
       ),
     };
   });
+
+  // Extract ASP.NET ValidationProblemDetails / RFC 7807 problem details if no custom errors
+  if (errorObj.length === 0) {
+    const aspErrors = record.errors ?? record.Errors;
+    if (aspErrors && typeof aspErrors === "object") {
+      for (const msgs of Object.values(aspErrors as Record<string, unknown>)) {
+        if (Array.isArray(msgs)) {
+          for (const msg of msgs) {
+            if (typeof msg === "string" && msg.trim()) {
+              errorObj.push({ errorCode: 400, errorMessage: msg.trim() });
+            }
+          }
+        } else if (typeof msgs === "string" && msgs.trim()) {
+          errorObj.push({ errorCode: 400, errorMessage: msgs.trim() });
+        }
+      }
+    } else if (typeof record.detail === "string" && record.detail.trim()) {
+      errorObj.push({ errorCode: -1, errorMessage: record.detail.trim() });
+    } else if (
+      typeof record.title === "string" &&
+      record.title.trim() &&
+      record.title !== "One or more validation errors occurred."
+    ) {
+      errorObj.push({ errorCode: -1, errorMessage: record.title.trim() });
+    }
+  }
+
   return { errorObj, responseObj };
 }
 
