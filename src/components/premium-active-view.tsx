@@ -70,6 +70,14 @@ export function PremiumActiveView({
 }: Props) {
   const [showPlans, setShowPlans] = useState(false);
 
+  // The API refuses the plan that is already last in line, and every plan while one is lined up. Offer only what it
+  // will sell, so a coach is never sent to checkout to be turned away.
+  const buyablePlans =
+    subscription?.hasUpcomingPlan ? []
+    : subscription?.blockedPlanId ?
+      plans.filter((plan) => plan.planId !== subscription.blockedPlanId)
+    : plans;
+
   const planName =
     subscription?.planName ||
     (subscription?.durationMonths ?
@@ -389,26 +397,35 @@ export function PremiumActiveView({
             Go to Coach Dashboard <i className="fas fa-arrow-right" />
           </Link>
 
-          <button
-            type="button"
-            onClick={() => setShowPlans(!showPlans)}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              background: showPlans ? "#edf2ee" : "#ffffff",
-              color: "#1c2e24",
-              border: "1.5px solid #d5ddd8",
-              padding: "11px 20px",
-              borderRadius: 10,
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            <i className="fas fa-sync-alt" />
-            {showPlans ? "Hide Available Plans" : "Renew or Change Plan"}
-          </button>
+          {buyablePlans.length > 0 ?
+            <button
+              type="button"
+              onClick={() => setShowPlans(!showPlans)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                background: showPlans ? "#edf2ee" : "#ffffff",
+                color: "#1c2e24",
+                border: "1.5px solid #d5ddd8",
+                padding: "11px 20px",
+                borderRadius: 10,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              <i className="fas fa-sync-alt" />
+              {showPlans ? "Hide Available Plans" : "Renew or Change Plan"}
+            </button>
+          : <span
+              style={{ fontSize: 13, color: "#5c6b64", alignSelf: "center" }}
+            >
+              {subscription?.renewalOpensOn ?
+                `Your next plan is already lined up. You can renew or change it from ${formatDisplayDate(subscription.renewalOpensOn)}.`
+              : "There is nothing to change right now."}
+            </span>
+          }
         </div>
       </div>
 
@@ -440,7 +457,7 @@ export function PremiumActiveView({
 
           <PremiumCheckout
             key={`${coachId}:${coachCode}:${displayName}:renewal`}
-            plans={plans}
+            plans={buyablePlans}
             promo={promo}
             initialCoachId={coachId}
             initialCoachCode={coachCode}

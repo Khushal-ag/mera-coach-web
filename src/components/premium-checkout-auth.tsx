@@ -125,7 +125,7 @@ export function PremiumCheckoutAuth({
     const effectiveSubscription: CoachSubscriptionDetails =
       offer?.subscription ?? {
         status: "active",
-        planName: offer?.planName || "Monthly",
+        planName: offer?.planName ?? "",
         expiresOn: sessionCoach?.validUpto ?? null,
       };
 

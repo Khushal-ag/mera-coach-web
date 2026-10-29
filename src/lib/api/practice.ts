@@ -350,6 +350,7 @@ export async function fetchCoachPremiumOffer(): Promise<CoachPremiumOffer> {
         (
           pick<string>(subscriptionRaw, "expiresOn", "ExpiresOn") ?? ""
         ).trim() || null,
+      planId: Number(pick(subscriptionRaw, "planId", "PlanId") ?? 0) || null,
       periodEndsOn:
         (
           pick<string>(subscriptionRaw, "periodEndsOn", "PeriodEndsOn") ?? ""
@@ -373,6 +374,9 @@ export async function fetchCoachPremiumOffer(): Promise<CoachPremiumOffer> {
           pick<string>(subscriptionRaw, "renewalOpensOn", "RenewalOpensOn") ??
           ""
         ).trim() || null,
+      blockedPlanId:
+        Number(pick(subscriptionRaw, "blockedPlanId", "BlockedPlanId") ?? 0) ||
+        null,
       hasUpcomingPlan: Boolean(
         pick(subscriptionRaw, "hasUpcomingPlan", "HasUpcomingPlan"),
       ),
@@ -406,7 +410,7 @@ export async function fetchCoachPaymentHistory(): Promise<
     "v1/Coach/premium-history",
   );
   if (!raw || typeof raw !== "object") return [];
-  const list = pick<unknown[]>(raw, "orders", "Orders") ?? [];
+  const list = pick<unknown[]>(raw, "payments", "Payments") ?? [];
   if (!Array.isArray(list)) return [];
   return list.map((item) => {
     const rec = (item && typeof item === "object" ? item : {}) as Record<
