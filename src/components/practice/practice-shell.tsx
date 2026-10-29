@@ -32,7 +32,6 @@ const navItems = [
     label: "Posts",
     icon: "fas fa-images",
   },
-  { href: "/dashboard/reviews", label: "Reviews", icon: "fas fa-star" },
   { href: "/dashboard/profile", label: "My Profile", icon: "fas fa-id-card" },
 ] as const;
 
@@ -115,7 +114,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
 
   // Free plan or paid: decides whether the sidebar offers an upgrade.
   useEffect(() => {
-    if (!session) return;
+    if (!session || !isSubscriptionRequired()) return;
     let cancelled = false;
     void ensurePremiumStatus()
       .then((value) => {
@@ -177,7 +176,8 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
   const needsRenewal =
     validityTone !== "ok" && isSubscriptionRequired() && !!validityInfo;
 
-  const onFreePlan = (paid ?? session.premiumPaid) === false;
+  const onFreePlan =
+    isSubscriptionRequired() && (paid ?? session.premiumPaid) === false;
   const premiumLink = premiumHref(session);
 
   const nav = (

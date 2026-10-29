@@ -76,9 +76,43 @@ export type EnquiryLead = {
   notes: string;
 };
 
+export type CoachSubscriptionDetails = {
+  status: "none" | "active" | "expired" | string;
+  planName?: string;
+  amount?: number;
+  durationMonths?: number;
+  startedOn?: string | null;
+  expiresOn?: string | null;
+  planId?: number | null;
+  periodEndsOn?: string | null;
+  nextPlanName?: string | null;
+  nextAmount?: number | null;
+  nextDurationMonths?: number | null;
+  nextStartsOn?: string | null;
+  nextEndsOn?: string | null;
+  renewalOpensOn?: string | null;
+  blockedPlanId?: number | null;
+  hasUpcomingPlan?: boolean;
+  canCancelUpcomingPlan?: boolean;
+};
+
+export type CoachPaymentHistoryItem = {
+  orderId: string;
+  planName: string;
+  durationMonths: number;
+  amount: number;
+  promoCode?: string | null;
+  orderedOn: string;
+  periodStart?: string | null;
+  periodEnd?: string | null;
+  paymentReference?: string | null;
+  status: string;
+};
+
 export type CoachPremiumOffer = {
   isPaid: boolean;
   planName?: string;
+  subscription?: CoachSubscriptionDetails;
 };
 
 export type SaveClientDetailInput = {

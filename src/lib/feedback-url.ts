@@ -1,24 +1,60 @@
 /**
  * Shared feedback link contract with mera-coach-app `buildFeedbackWebUrl`.
- * Client opens the public web form; query params identify coach + client.
+ * Client opens the public web form; query param `ref` contains encrypted coach + client token.
  *
- * URL: `{siteUrl}/feedback?coachCode={code}&clientCode={code}`
+ * URL: `{siteUrl}/feedback?ref={encrypted_token}` (legacy fallback: `?coachCode={code}&clientCode={code}`)
  * API: GET `/v1/Coach/feedback-context?coachCode&clientCode`
  *      POST `/v1/Coach/feedback` { coachCode, clientCode, rating, comments?, clientName? }
  */
 
 import { env } from "@/config/env";
 
+import { encodeFeedbackToken } from "./feedback-crypto";
+
 export function buildFeedbackWebUrl(params: {
   coachCode: string;
   clientCode: string;
   siteUrl?: string;
 }): string | null {
-  const base = (params.siteUrl ?? env.siteUrl).replace(/\/$/, "");
+  let base = params.siteUrl;
+  if (!base) {
+    if (typeof window !== "undefined" && window.location.origin) {
+      base = window.location.origin;
+    } else {
+      base = env.siteUrl;
+    }
+  }
+  base = base.replace(/\/$/, "");
   const coachCode = params.coachCode.trim();
   const clientCode = params.clientCode.trim();
   if (!base || !coachCode || !clientCode) return null;
 
-  const qs = new URLSearchParams({ coachCode, clientCode });
+  const token = encodeFeedbackToken(coachCode, clientCode);
+  if (!token) return null;
+  const qs = new URLSearchParams({ ref: token });
   return `${base}/feedback?${qs.toString()}`;
+}
+
+export function buildFeedbackMessage(params: {
+  clientName?: string;
+  coachName?: string;
+  feedbackUrl: string;
+}): string {
+  const clientFirst = params.clientName?.trim().split(/\s+/)[0];
+  const greeting = clientFirst ? `Hi ${clientFirst}` : "Hi";
+  const coachBit =
+    params.coachName?.trim() ?
+      ` for your coach ${params.coachName.trim()}`
+    : " for your coach";
+  return `${greeting}, please share quick feedback${coachBit} on Mera Coach:\n${params.feedbackUrl}`;
+}
+
+export function buildFeedbackWhatsAppUrl(
+  phone: string,
+  message: string,
+): string | null {
+  const clean = phone.replace(/\D/g, "").replace(/^0+/, "");
+  const digits = clean.length === 10 ? `91${clean}` : clean;
+  if (digits.length < 10) return null;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }

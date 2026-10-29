@@ -92,6 +92,7 @@ export type CoachRegisterInput = {
   mobile: string;
   email: string;
   coachTypeCode: string;
+  referrerMobile?: string;
 };
 
 /** Profile details saved right after registration (CoachId > 0, registration token). */

@@ -7,7 +7,9 @@ import type {
   ClientDetail,
   ClientMeals,
   ClientSummary,
+  CoachPaymentHistoryItem,
   CoachPremiumOffer,
+  CoachSubscriptionDetails,
   EnquiryLead,
   GeneratedDietPlan,
   RecheckupDueClient,
@@ -322,6 +324,8 @@ export async function fetchCoachPremiumOffer(): Promise<CoachPremiumOffer> {
   );
   let isPaid = paidFlag;
   let planName: string | undefined;
+  let subscription: CoachSubscriptionDetails | undefined;
+
   if (subscriptionRaw && typeof subscriptionRaw === "object") {
     const status = String(pick(subscriptionRaw, "status", "Status") ?? "")
       .trim()
@@ -330,6 +334,52 @@ export async function fetchCoachPremiumOffer(): Promise<CoachPremiumOffer> {
     planName =
       String(pick(subscriptionRaw, "planName", "PlanName") ?? "").trim() ||
       undefined;
+
+    subscription = {
+      status,
+      planName: planName ?? "",
+      amount: Number(pick(subscriptionRaw, "amount", "Amount") ?? 0),
+      durationMonths: Number(
+        pick(subscriptionRaw, "durationMonths", "DurationMonths") ?? 0,
+      ),
+      startedOn:
+        (
+          pick<string>(subscriptionRaw, "startedOn", "StartedOn") ?? ""
+        ).trim() || null,
+      expiresOn:
+        (
+          pick<string>(subscriptionRaw, "expiresOn", "ExpiresOn") ?? ""
+        ).trim() || null,
+      periodEndsOn:
+        (
+          pick<string>(subscriptionRaw, "periodEndsOn", "PeriodEndsOn") ?? ""
+        ).trim() || null,
+      nextPlanName:
+        (
+          pick<string>(subscriptionRaw, "nextPlanName", "NextPlanName") ?? ""
+        ).trim() || null,
+      nextAmount:
+        Number(pick(subscriptionRaw, "nextAmount", "NextAmount") ?? 0) || null,
+      nextStartsOn:
+        (
+          pick<string>(subscriptionRaw, "nextStartsOn", "NextStartsOn") ?? ""
+        ).trim() || null,
+      nextEndsOn:
+        (
+          pick<string>(subscriptionRaw, "nextEndsOn", "NextEndsOn") ?? ""
+        ).trim() || null,
+      renewalOpensOn:
+        (
+          pick<string>(subscriptionRaw, "renewalOpensOn", "RenewalOpensOn") ??
+          ""
+        ).trim() || null,
+      hasUpcomingPlan: Boolean(
+        pick(subscriptionRaw, "hasUpcomingPlan", "HasUpcomingPlan"),
+      ),
+      canCancelUpcomingPlan: Boolean(
+        pick(subscriptionRaw, "canCancelUpcomingPlan", "CanCancelUpcomingPlan"),
+      ),
+    };
   }
   if (!planName) {
     const nestedPlan = pick<Record<string, unknown>>(raw, "plan", "Plan");
@@ -346,7 +396,44 @@ export async function fetchCoachPremiumOffer(): Promise<CoachPremiumOffer> {
           "",
       ).trim() || undefined;
   }
-  return { isPaid, planName };
+  return { isPaid, planName, subscription };
+}
+
+export async function fetchCoachPaymentHistory(): Promise<
+  CoachPaymentHistoryItem[]
+> {
+  const raw = await authedFetch<Record<string, unknown> | null>(
+    "v1/Coach/premium-history",
+  );
+  if (!raw || typeof raw !== "object") return [];
+  const list = pick<unknown[]>(raw, "orders", "Orders") ?? [];
+  if (!Array.isArray(list)) return [];
+  return list.map((item) => {
+    const rec = (item && typeof item === "object" ? item : {}) as Record<
+      string,
+      unknown
+    >;
+    return {
+      orderId: String(pick(rec, "orderId", "OrderId") ?? ""),
+      planName: String(pick(rec, "planName", "PlanName") ?? ""),
+      durationMonths: Number(
+        pick(rec, "durationMonths", "DurationMonths") ?? 0,
+      ),
+      amount: Number(pick(rec, "amount", "Amount") ?? 0),
+      promoCode:
+        (pick<string>(rec, "promoCode", "PromoCode") ?? "").trim() || null,
+      orderedOn: String(pick(rec, "orderedOn", "OrderedOn") ?? ""),
+      periodStart:
+        (pick<string>(rec, "periodStart", "PeriodStart") ?? "").trim() || null,
+      periodEnd:
+        (pick<string>(rec, "periodEnd", "PeriodEnd") ?? "").trim() || null,
+      paymentReference:
+        (
+          pick<string>(rec, "paymentReference", "PaymentReference") ?? ""
+        ).trim() || null,
+      status: String(pick(rec, "status", "Status") ?? "Paid"),
+    };
+  });
 }
 
 export async function fetchAuthedCoachProfile(): Promise<CoachProfile | null> {

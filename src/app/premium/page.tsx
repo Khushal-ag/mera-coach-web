@@ -20,6 +20,7 @@ export const metadata = publicPageMetadata({
 type SearchParams = Promise<{
   coachId?: string;
   coachCode?: string;
+  coachName?: string;
   reason?: string;
 }>;
 
@@ -69,6 +70,7 @@ async function PremiumCatalog({
   const params = await searchParams;
   const initialCoachId = Number(params.coachId ?? "0") || 0;
   const initialCoachCode = params.coachCode ?? "";
+  const initialCoachName = params.coachName ?? "";
   const fromAddClient = params.reason === "add-client";
 
   let plans: CoachCatalogPlan[] = [];
@@ -125,6 +127,7 @@ async function PremiumCatalog({
         promo={promo}
         initialCoachId={initialCoachId}
         initialCoachCode={initialCoachCode}
+        initialCoachName={initialCoachName}
       />
       <p className="rg-card-foot" style={{ marginTop: 24 }}>
         Pay Now in the app opens checkout for your account. On the web, sign in

@@ -337,6 +337,10 @@ export function PremiumCheckout({
             if (periodEnd) qs.set("periodEnd", periodEnd);
             if (paidCoachId > 0) qs.set("coachId", String(paidCoachId));
             if (resolvedCode) qs.set("coachCode", resolvedCode);
+            const coachName = resolvedCoach?.coachName || displayName;
+            if (coachName && coachName !== "Coach") {
+              qs.set("coachName", coachName);
+            }
             try {
               await refreshPremiumStatus();
             } catch {

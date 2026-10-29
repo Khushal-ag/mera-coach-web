@@ -30,6 +30,7 @@ export function useRegisterForm(categories: MasterOption[]) {
   const [category, setCategory] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
+  const [referrerMobile, setReferrerMobile] = useState("");
   const [services, setServices] = useState<MasterOption[]>([]);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -114,6 +115,25 @@ export function useRegisterForm(categories: MasterOption[]) {
         return false;
       }
     }
+
+    if (referrerMobile.trim()) {
+      const refVal = referrerMobile.trim();
+      if (!/^[6-9]\d{9}$/.test(refVal)) {
+        setAlert(
+          "Please enter a valid 10-digit referral mobile number (starting with 6-9).",
+        );
+        setInvalid("rgReferrerMobile");
+        document.getElementById("rgReferrerMobile")?.focus();
+        return false;
+      }
+      if (refVal === mobile.trim()) {
+        setAlert("Referral mobile cannot be the same as your mobile number.");
+        setInvalid("rgReferrerMobile");
+        document.getElementById("rgReferrerMobile")?.focus();
+        return false;
+      }
+    }
+
     setInvalid(null);
     setAlert("");
     return true;
@@ -158,6 +178,9 @@ export function useRegisterForm(categories: MasterOption[]) {
         coachTypeCode: category.trim(),
         mobile: mobile.trim(),
         email: email.trim(),
+        ...(referrerMobile.trim() ?
+          { referrerMobile: referrerMobile.trim() }
+        : {}),
       });
       if (!isApiSuccess(response) || !response.responseObj) {
         setAlert(
@@ -346,6 +369,8 @@ export function useRegisterForm(categories: MasterOption[]) {
     setMobile,
     email,
     setEmail,
+    referrerMobile,
+    setReferrerMobile,
     services,
     setServices,
     servicesOpen,

@@ -22,6 +22,8 @@ export function RegisterAccountStep({
     setMobile,
     email,
     setEmail,
+    referrerMobile,
+    setReferrerMobile,
     fieldClass,
     clearInvalid,
     continueFromStep1,
@@ -37,7 +39,7 @@ export function RegisterAccountStep({
         </div>
         <div>
           <h2>Create Your Account</h2>
-          <p>Just 4 fields, your account is ready instantly</p>
+          <p>Quick setup, your account is ready instantly</p>
         </div>
         <span className="rg-required-note">* Required</span>
       </div>
@@ -126,6 +128,27 @@ export function RegisterAccountStep({
           <span className="rg-field-note">
             <i className="fas fa-info-circle" /> Password will be sent to this
             email
+          </span>
+        </div>
+        <div className="rg-field rg-col-2">
+          <label htmlFor="rgReferrerMobile">
+            <i className="fas fa-users" /> Referred by (mobile){" "}
+            <span className="rg-opt">(optional)</span>
+          </label>
+          <input
+            id="rgReferrerMobile"
+            className={fieldClass("rgReferrerMobile")}
+            placeholder="Optional 10-digit mobile"
+            maxLength={10}
+            value={referrerMobile}
+            onChange={(event) => {
+              setReferrerMobile(event.target.value);
+              clearInvalid("rgReferrerMobile");
+            }}
+          />
+          <span className="rg-field-note">
+            <i className="fas fa-info-circle" /> If someone recommended Mera
+            Coach, enter their mobile
           </span>
         </div>
       </div>

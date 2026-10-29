@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { FeedbackForm } from "@/components/feedback-form";
 import { FeedbackFormSkeleton } from "@/components/skeletons/feedback-skeleton";
 import { fetchFeedbackContext, isApiSuccess } from "@/lib/api";
+import { decodeFeedbackToken } from "@/lib/feedback-crypto";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
@@ -15,6 +16,8 @@ export const metadata = publicPageMetadata({
 });
 
 type SearchParams = Promise<{
+  ref?: string;
+  token?: string;
   coachCode?: string;
   clientCode?: string;
   coachcode?: string;
@@ -37,14 +40,11 @@ export default function FeedbackPage({
             </div>
             <div className="rg-head-inner">
               <div className="rg-head-icon">
-                <i className="fas fa-comment-dots" />
+                <i className="fas fa-star" />
               </div>
               <div>
-                <h1>How was your coaching?</h1>
-                <p>
-                  A rating and a few words for your coach. It only takes a
-                  minute.
-                </p>
+                <h1>Client Feedback</h1>
+                <p>Share your experience with your wellness coach</p>
               </div>
             </div>
           </div>
@@ -61,8 +61,17 @@ export default function FeedbackPage({
 
 async function FeedbackBody({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
-  const coachCode = (params.coachCode ?? params.coachcode ?? "").trim();
-  const clientCode = (params.clientCode ?? params.clientcode ?? "").trim();
+  let coachCode = (params.coachCode ?? params.coachcode ?? "").trim();
+  let clientCode = (params.clientCode ?? params.clientcode ?? "").trim();
+
+  const refToken = (params.ref ?? params.token ?? "").trim();
+  if (refToken) {
+    const decoded = decodeFeedbackToken(refToken);
+    if (decoded) {
+      coachCode = decoded.coachCode;
+      clientCode = decoded.clientCode;
+    }
+  }
 
   if (!coachCode || !clientCode) {
     return (

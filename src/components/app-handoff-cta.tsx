@@ -11,6 +11,8 @@ type AppHandoffCtaProps = {
   autoRedirectMs?: number;
   /** Supporting copy under the button. */
   hint?: string;
+  /** Additional tip for refreshing or accessing the app. */
+  refreshTip?: string;
   className?: string;
 };
 
@@ -22,6 +24,7 @@ export function AppHandoffCta({
   href,
   autoRedirectMs = 2800,
   hint,
+  refreshTip,
   className,
 }: AppHandoffCtaProps) {
   const [attempted, setAttempted] = useState(false);
@@ -38,19 +41,35 @@ export function AppHandoffCta({
   return (
     <div
       className={
-        className ?? "rounded-2xl border border-line bg-surface/80 p-4 sm:p-5"
+        className ??
+        "rounded-2xl border border-line bg-surface/80 p-5 text-center sm:p-6"
       }
     >
-      <a href={href} className="mc-btn-primary inline-flex w-full sm:w-auto">
+      <a
+        href={href}
+        className="mc-btn-primary inline-flex w-full items-center justify-center gap-2 sm:w-auto"
+      >
+        <i className="fas fa-mobile-alt" aria-hidden="true" />
         {siteConfig.app.handoffLabel}
       </a>
       {hint ?
-        <p className="mt-3 text-sm text-ink-muted">{hint}</p>
+        <p className="mt-3 text-sm leading-relaxed font-medium text-ink-muted">
+          {hint}
+        </p>
+      : null}
+      {refreshTip ?
+        <div className="mt-3 inline-flex items-center gap-2 rounded-xl border border-line/60 bg-paper-elevated px-3 py-2 text-left text-xs text-ink-muted">
+          <i
+            className="fas fa-info-circle shrink-0 text-mc-secondary"
+            aria-hidden="true"
+          />
+          <span>{refreshTip}</span>
+        </div>
       : null}
       {autoRedirectMs > 0 ?
-        <p className="mt-2 text-xs text-ink-muted">
+        <p className="mt-3 text-xs text-ink-muted">
           {attempted ?
-            "If the app did not open, tap the button above."
+            "Tap the button above anytime to open the app directly."
           : "Opening the app in a moment…"}
         </p>
       : null}

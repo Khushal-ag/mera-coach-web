@@ -9,6 +9,7 @@ import { CoachPhoto } from "@/components/coach-photo";
 import { ProfileCoverImage } from "@/components/coach-profile/profile-cover-image";
 import { ShareProfileButton } from "@/components/coach-profile/share-profile-button";
 import { SupportActions } from "@/components/practice/support-dialog";
+import { isSubscriptionRequired } from "@/config/practice";
 
 function LogoMark({ src }: { src: string }) {
   const [failed, setFailed] = useState(false);
@@ -216,22 +217,24 @@ export function ProfileOverview({
             : "Share this page when you want someone to open your profile."}
           </p>
         </section>
-        <section className="mc-panel p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="font-display text-base font-bold tracking-tight text-ink">
-              Subscription
-            </h3>
-            <span className="rounded-full bg-mc-secondary-light px-2.5 py-1 font-display text-sm font-bold text-mc-secondary">
-              {premiumLabel}
-            </span>
-          </div>
-          <Link
-            href={premiumLink}
-            className="mc-btn-primary mt-4 min-h-10 w-full text-[13px]"
-          >
-            Manage Premium
-          </Link>
-        </section>
+        {isSubscriptionRequired() ?
+          <section className="mc-panel p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="font-display text-base font-bold tracking-tight text-ink">
+                Subscription
+              </h3>
+              <span className="rounded-full bg-mc-secondary-light px-2.5 py-1 font-display text-sm font-bold text-mc-secondary">
+                {premiumLabel}
+              </span>
+            </div>
+            <Link
+              href={premiumLink}
+              className="mc-btn-primary mt-4 min-h-10 w-full text-[13px]"
+            >
+              Manage Premium
+            </Link>
+          </section>
+        : null}
         <section className="mc-panel p-2 sm:p-3">
           <h3 className="px-2 pt-2 pb-1 font-display text-base font-bold tracking-tight text-ink sm:px-3">
             Account

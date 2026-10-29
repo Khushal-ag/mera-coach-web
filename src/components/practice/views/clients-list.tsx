@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { ClientSummary } from "@/types/practice";
 
 import { useAuth } from "@/components/auth-provider";
+import { ClientFeedbackModal } from "@/components/practice/client-feedback-modal";
 import {
   CltPageHead,
   CltPager,
@@ -19,6 +20,7 @@ import { TableSkeletonRows } from "@/components/skeletons/client-profile-skeleto
 import { AVATAR_COLORS } from "@/constants/brand";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import { fetchClientList } from "@/lib/api/practice";
+import { buildFeedbackWebUrl } from "@/lib/feedback-url";
 import { initials } from "@/lib/format";
 
 function avatarColor(name: string) {
@@ -46,6 +48,10 @@ export function ClientsListView() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState({ option: "", text: "" });
+  const [feedbackClient, setFeedbackClient] = useState<ClientSummary | null>(
+    null,
+  );
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!session?.coachCode) return;
@@ -218,14 +224,15 @@ export function ClientsListView() {
                   <th>Check-up</th>
                   <th>Report</th>
                   <th>Diet Chart</th>
+                  <th>Feedback</th>
                 </tr>
               </thead>
               <tbody>
                 {loading && rows == null ?
-                  <TableSkeletonRows columns={10} />
+                  <TableSkeletonRows columns={11} />
                 : paged.slice.length === 0 ?
                   <tr className="clt-no-results">
-                    <td colSpan={10}>
+                    <td colSpan={11}>
                       <i className="fas fa-user-slash" />
                       No clients found.
                     </td>
@@ -322,6 +329,40 @@ export function ClientsListView() {
                             </span>
                           }
                         </td>
+                        <td>
+                          <button
+                            type="button"
+                            className="clt-action-btn clt-ab-feedback"
+                            title="Get Feedback Link"
+                            onClick={() => {
+                              const url = buildFeedbackWebUrl({
+                                coachCode: session?.coachCode ?? "",
+                                clientCode: code,
+                              });
+                              if (
+                                url &&
+                                typeof navigator !== "undefined" &&
+                                navigator.clipboard
+                              ) {
+                                void navigator.clipboard
+                                  .writeText(url)
+                                  .then(() => {
+                                    setToastMessage(
+                                      `Feedback link for ${client.name || "client"} copied!`,
+                                    );
+                                    setTimeout(
+                                      () => setToastMessage(null),
+                                      3000,
+                                    );
+                                  })
+                                  .catch(() => {});
+                              }
+                              setFeedbackClient(client);
+                            }}
+                          >
+                            <i className="fas fa-comment-dots" />
+                          </button>
+                        </td>
                       </tr>
                     );
                   })
@@ -339,6 +380,37 @@ export function ClientsListView() {
           />
         </div>
       </div>
+      <ClientFeedbackModal
+        client={feedbackClient}
+        coachCode={session?.coachCode ?? ""}
+        coachName={session?.fullName ?? ""}
+        isOpen={Boolean(feedbackClient)}
+        onClose={() => setFeedbackClient(null)}
+      />
+      {toastMessage ?
+        <div
+          style={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            backgroundColor: "#111827",
+            color: "#ffffff",
+            padding: "12px 20px",
+            borderRadius: 10,
+            fontSize: 13,
+            fontWeight: 600,
+            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.2)",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            zIndex: 10000,
+            animation: "fadeIn 0.2s ease-out",
+          }}
+        >
+          <i className="fas fa-check-circle" style={{ color: "#10b981" }} />
+          {toastMessage}
+        </div>
+      : null}
     </div>
   );
 }
