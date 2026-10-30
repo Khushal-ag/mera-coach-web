@@ -31,9 +31,11 @@ import {
 import { submitCoachEnquiry } from "@/lib/api/coach";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { copyText } from "@/lib/clipboard";
+import { coachProfilePath } from "@/lib/coach/profile-path";
 
 export type CoachProfileDetails = {
   coachCode: string;
+  urlFriendlyName?: string | null;
   coachName: string;
   coachType: string;
   city: string;
@@ -69,7 +71,7 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
   const qrRef = useRef<HTMLImageElement>(null);
   const [sending, setSending] = useState(false);
   const [modal, setModal] = useState<ModalState | null>(null);
-  const profileUrl = `${siteConfig.url}/coach/${encodeURIComponent(coach.coachCode)}`;
+  const profileUrl = `${siteConfig.url}${coachProfilePath(coach)}`;
   const shareText = encodeURIComponent(
     `${coach.coachName} – Check out this coach on Mera Coach! ${profileUrl}`,
   );

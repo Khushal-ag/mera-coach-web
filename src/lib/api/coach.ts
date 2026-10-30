@@ -73,6 +73,9 @@ function normalizeProfile(payload: unknown): CoachProfile | null {
   return {
     coachId: Number(pick(r, "coachId", "CoachId") ?? 0),
     coachCode: String(pick(r, "coachCode", "CoachCode") ?? ""),
+    urlFriendlyName:
+      String(pick(r, "urlFriendlyName", "UrlFriendlyName") ?? "").trim() ||
+      null,
     coachName: String(pick(r, "coachName", "CoachName") ?? ""),
     businessName:
       pick<string | null>(r, "businessName", "BusinessName") ?? null,

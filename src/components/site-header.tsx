@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { useAuth } from "@/components/auth-provider";
+import { isSubscriptionRequired } from "@/config/practice";
 import { siteConfig } from "@/config/site";
 import { premiumHref } from "@/lib/premium-link";
 
@@ -87,6 +88,8 @@ export function SiteHeader() {
   }
 
   const signedIn = hydrated && ready && !!session;
+  // Plans are only offered when the subscription limit is on, or to a coach who already has one.
+  const showPremium = isSubscriptionRequired() || !!session?.premiumPaid;
 
   useEffect(() => {
     if (!open) return;
@@ -142,9 +145,11 @@ export function SiteHeader() {
           <div className="nav-actions">
             {signedIn && session ?
               <>
-                <Link href={premiumHref(session)} className="nav-premium">
-                  <i className="fas fa-crown" aria-hidden /> Premium
-                </Link>
+                {showPremium ?
+                  <Link href={premiumHref(session)} className="nav-premium">
+                    <i className="fas fa-crown" aria-hidden /> Premium
+                  </Link>
+                : null}
                 <Link href="/dashboard" className="btn btn-primary">
                   <i className="fas fa-th-large" aria-hidden /> Dashboard
                 </Link>
@@ -214,13 +219,15 @@ export function SiteHeader() {
         ))}
         {signedIn && session ?
           <div className="mobile-actions">
-            <Link
-              href={premiumHref(session)}
-              className="nav-premium"
-              onClick={close}
-            >
-              <i className="fas fa-crown" aria-hidden /> Premium
-            </Link>
+            {showPremium ?
+              <Link
+                href={premiumHref(session)}
+                className="nav-premium"
+                onClick={close}
+              >
+                <i className="fas fa-crown" aria-hidden /> Premium
+              </Link>
+            : null}
             <Link href="/dashboard" className="btn btn-primary" onClick={close}>
               <i className="fas fa-th-large" aria-hidden /> Dashboard
             </Link>

@@ -44,7 +44,11 @@ async function publicCoachRoutes(
       if (!isApiSuccess(response) || !response.responseObj) break;
       totalPages = response.responseObj.totalPages || 1;
       for (const coach of response.responseObj.items) {
-        const slug = (coach.coachCode || String(coach.coachId)).trim();
+        const slug = (
+          coach.urlFriendlyName ||
+          coach.coachCode ||
+          String(coach.coachId)
+        ).trim();
         if (!slug || seen.has(slug)) continue;
         seen.add(slug);
         entries.push({

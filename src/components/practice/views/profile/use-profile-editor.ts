@@ -186,10 +186,11 @@ export function useProfileEditor() {
   });
 
   const publicUrl = useMemo(() => {
-    const code = session?.coachCode || profile?.coachCode;
-    if (!code) return null;
-    return `${env.siteUrl.replace(/\/$/, "")}/coach/${encodeURIComponent(code)}`;
-  }, [session?.coachCode, profile?.coachCode]);
+    const slug =
+      profile?.urlFriendlyName || session?.coachCode || profile?.coachCode;
+    if (!slug) return null;
+    return `${env.siteUrl.replace(/\/$/, "")}/coach/${encodeURIComponent(slug)}`;
+  }, [session?.coachCode, profile?.coachCode, profile?.urlFriendlyName]);
 
   const completion = useMemo(
     () =>

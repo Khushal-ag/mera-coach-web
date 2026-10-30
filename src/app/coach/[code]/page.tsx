@@ -1,4 +1,5 @@
 import { cache, Suspense } from "react";
+import { permanentRedirect } from "next/navigation";
 
 import type { Metadata } from "next";
 
@@ -20,6 +21,7 @@ import { POST_CATEGORY } from "@/constants/showcase";
 import { fetchCoachProfile, isApiSuccess } from "@/lib/api";
 import { fetchPublicReviews } from "@/lib/api/reviews";
 import { fetchPublicShowcase } from "@/lib/api/showcase";
+import { coachProfilePath } from "@/lib/coach/profile-path";
 import { splitServiceNames } from "@/lib/coach/services";
 import { whatsAppUrlFromMobile } from "@/lib/coach/whatsapp";
 import { formatDateLabel } from "@/lib/format";
@@ -86,12 +88,11 @@ export async function generateMetadata({
       category ?
         `${coach.coachName}, ${category}${city ? ` in ${city}` : ""} | Mera Coach`
       : `${coach.coachName} | Mera Coach`;
-    const canonicalCode = coach.coachCode || code;
     return {
       title: { absolute: title },
       description,
       alternates: {
-        canonical: `/coach/${encodeURIComponent(canonicalCode)}`,
+        canonical: coachProfilePath(coach),
       },
       openGraph: {
         title: coach.coachName,
@@ -120,6 +121,11 @@ export default function CoachProfilePage({ params }: { params: Params }) {
 async function ProfileBody({ params }: { params: Params }) {
   const coach = await loadCoachOrNull(params);
   if (!coach) return <CoachProfileMissing />;
+  // The code (or id) URL still works, but the friendly address is the one to keep and share.
+  const { code: requested } = await params;
+  if (coach.urlFriendlyName && requested !== coach.urlFriendlyName) {
+    permanentRedirect(coachProfilePath(coach));
+  }
   const [showcase, reviewsPage] = await Promise.all([
     fetchPublicShowcase(coach.coachCode).catch(() => ({
       packages: [],
@@ -127,7 +133,7 @@ async function ProfileBody({ params }: { params: Params }) {
     })),
     fetchPublicReviews(coach.coachCode).catch(() => null),
   ]);
-  const url = `${siteConfig.url}/coach/${encodeURIComponent(coach.coachCode || "")}`;
+  const url = `${siteConfig.url}${coachProfilePath(coach)}`;
   const photo = resolveMediaUrl(coach.profile_Pic_Url || coach.logo_Url);
   const jsonLd = {
     "@context": "https://schema.org",
@@ -236,6 +242,7 @@ function toProfileDetails(
   }));
   return {
     coachCode: coach.coachCode,
+    urlFriendlyName: coach.urlFriendlyName,
     coachName: coach.coachName?.trim() || "Coach Profile",
     coachType: coach.coachTypeName?.trim() ?? "",
     city: coach.city_Cd?.trim() ?? "",

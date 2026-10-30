@@ -11,6 +11,7 @@ import { fetchAuthedCoachProfile } from "@/lib/api/practice";
 import { ensurePremiumStatus } from "@/lib/auth/premium-status";
 import { saveSession } from "@/lib/auth/session";
 import { initials } from "@/lib/format";
+import { autoFillProfileLocation } from "@/lib/location/current-place";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 import { premiumHref } from "@/lib/premium-link";
 import { cn } from "@/lib/utils";
@@ -114,7 +115,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
 
   // Free plan or paid: decides whether the sidebar offers an upgrade.
   useEffect(() => {
-    if (!session || !isSubscriptionRequired()) return;
+    if (!session) return;
     let cancelled = false;
     void ensurePremiumStatus()
       .then((value) => {
@@ -135,6 +136,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
     void fetchAuthedCoachProfile()
       .then((profile) => {
         if (cancelled || !profile) return;
+        void autoFillProfileLocation(profile);
         setFreshValidUpto(profile.validUpto ?? null);
         if (profile.profile_Pic_Url) {
           setFreshPhoto(profile.profile_Pic_Url);

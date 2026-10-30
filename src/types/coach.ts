@@ -35,6 +35,8 @@ export type CoachPublicPagedResult = {
 export type CoachProfile = {
   coachId: number;
   coachCode: string;
+  /** Public address segment, for example "harish-bali-health-coach-mathura". */
+  urlFriendlyName?: string | null;
   coachName: string;
   businessName?: string | null;
   coachTypeCode?: string | null;

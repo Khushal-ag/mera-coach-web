@@ -1,6 +1,7 @@
 import type { CoachPublicListItem } from "@/types/coach";
 
 import { CAT_COUNT_COLOR, CAT_ICON_BG } from "@/constants/home";
+import { coachProfilePath } from "@/lib/coach/profile-path";
 
 export function categoryStyle(index: number) {
   return {
@@ -10,9 +11,7 @@ export function categoryStyle(index: number) {
 }
 
 export function coachHref(coach: CoachPublicListItem) {
-  return coach.coachCode ?
-      `/coach/${encodeURIComponent(coach.coachCode)}`
-    : `/coach/${coach.coachId}`;
+  return coachProfilePath(coach);
 }
 
 export function serviceTags(names: string) {

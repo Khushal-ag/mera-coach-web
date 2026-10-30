@@ -16,6 +16,7 @@ import {
   PARAM_FALLBACKS,
 } from "@/constants/assessment";
 import { useScrollTopOnChange } from "@/hooks/use-scroll-top-on-change";
+import { uploadDocument } from "@/lib/api/document";
 import {
   fetchFoodMaster,
   fetchParamList,
@@ -32,6 +33,11 @@ import {
   saveMeals,
 } from "@/lib/api/practice";
 import { computeBmiMetrics } from "@/lib/assessment/bmi-metrics";
+import { getSession } from "@/lib/auth/session";
+import {
+  fileToBase64DataUrl,
+  validateRegisterImage,
+} from "@/lib/media/image-file";
 import {
   validateAge,
   validateEmail,
@@ -68,6 +74,8 @@ export function useAssessmentWizard({
     () => initialForm ?? blankAssessmentForm(),
   );
   const [ids, setIds] = useState<AssessmentIds>(initialIds);
+  // One photo for a new client, same as the app: it becomes the profile picture and the first progress photo.
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [bmiSaved, setBmiSaved] = useState(false);
   const [hasUnsavedDietPlan, setHasUnsavedDietPlan] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -187,10 +195,24 @@ export function useAssessmentWizard({
     setForm((f) => ({ ...f, dob: value, ...(age ? { age } : {}) }));
   }
 
+  function pickPhoto(file: File | null) {
+    if (!file) {
+      setPhotoFile(null);
+      return;
+    }
+    const problem = validateRegisterImage(file);
+    if (problem) {
+      setError(problem.message);
+      return;
+    }
+    setError(null);
+    setPhotoFile(file);
+  }
   function validateIdentity(): string | null {
     // Age is required. Date of birth is optional and fills the age in when given.
     const ageError = validateAge(form.age);
     return (
+      (!ids.clientCode && !photoFile ? "Client photo is required." : null) ??
       validateRequired(form.clientName, "Full name") ??
       validateRequired(form.mobileNo, "Mobile number") ??
       validateEmail(form.emailId) ??
@@ -247,6 +269,29 @@ export function useAssessmentWizard({
         return false;
       }
       setIds(next);
+      if (photoFile) {
+        // The client is already saved, so a failed upload is reported but does not undo it.
+        try {
+          const dataUrl = await fileToBase64DataUrl(photoFile);
+          for (const docType of ["PROFILE_PIC", "PROGRESS_PHOTO"] as const) {
+            await uploadDocument({
+              base64DataUrl: dataUrl,
+              coachCode,
+              refCode: next.clientCode,
+              refType: "CLIENT",
+              docType,
+              savedBy: getSession()?.coachId ?? 0,
+            });
+          }
+          setPhotoFile(null);
+        } catch (err) {
+          setError(
+            err instanceof Error ?
+              `${err.message} You can add the photo from the client profile.`
+            : "The client photo could not be uploaded. You can add it from the client profile.",
+          );
+        }
+      }
       return true;
     }
 
@@ -457,6 +502,8 @@ export function useAssessmentWizard({
     setForm,
     ids,
     setIds,
+    photoFile,
+    setPhotoFile,
     bmiSaved,
     setBmiSaved,
     hasUnsavedDietPlan,
@@ -467,6 +514,7 @@ export function useAssessmentWizard({
     setGenerating,
     error,
     setError,
+    pickPhoto,
     aiUnavailable,
     setAiUnavailable,
     paramLists,

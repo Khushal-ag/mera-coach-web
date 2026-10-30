@@ -446,6 +446,8 @@ export async function fetchAuthedCoachProfile(): Promise<CoachProfile | null> {
   return {
     coachId: Number(pick(raw, "coachId", "CoachId") ?? 0),
     coachCode: String(pick(raw, "coachCode", "CoachCode") ?? ""),
+    urlFriendlyName:
+      String(pick(raw, "urlFriendlyName", "UrlFriendlyName") ?? "") || null,
     coachName: String(pick(raw, "coachName", "CoachName") ?? ""),
     businessName:
       String(pick(raw, "businessName", "BusinessName") ?? "") || null,

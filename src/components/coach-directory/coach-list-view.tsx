@@ -12,6 +12,7 @@ import { ListEmpty } from "@/components/list-empty";
 import { MenuSelect } from "@/components/ui/menu-select";
 import { env } from "@/config/env";
 import { COACHES_PER_PAGE } from "@/constants/coach-directory";
+import { coachProfilePath } from "@/lib/coach/profile-path";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 
 type Query = {
@@ -52,9 +53,7 @@ function Stars({ rating }: { rating: number }) {
 }
 
 function coachHref(coach: CoachPublicListItem) {
-  return coach.coachCode ?
-      `/coach/${encodeURIComponent(coach.coachCode)}`
-    : `/coach/${coach.coachId}`;
+  return coachProfilePath(coach);
 }
 
 function pageHref(query: Query, page: number) {

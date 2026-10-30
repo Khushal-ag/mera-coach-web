@@ -1,4 +1,3 @@
-import { isSubscriptionRequired } from "@/config/practice";
 import { fetchCoachPremiumOffer } from "@/lib/api/practice";
 import { getSession, saveSession } from "@/lib/auth/session";
 
@@ -15,7 +14,6 @@ let inflight: {
 } | null = null;
 
 export function refreshPremiumStatus(): Promise<boolean | undefined> {
-  if (!isSubscriptionRequired()) return Promise.resolve(undefined);
   const token = getSession()?.token;
   if (!token) return Promise.resolve(undefined);
   const gen = ++generation;
@@ -37,7 +35,6 @@ export function refreshPremiumStatus(): Promise<boolean | undefined> {
 
 /** Use the cached flag. Fetch once only when this session has never loaded it. */
 export function ensurePremiumStatus(): Promise<boolean | undefined> {
-  if (!isSubscriptionRequired()) return Promise.resolve(undefined);
   const session = getSession();
   if (!session) return Promise.resolve(undefined);
   if (typeof session.premiumPaid === "boolean") {

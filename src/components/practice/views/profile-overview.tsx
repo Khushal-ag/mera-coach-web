@@ -10,6 +10,7 @@ import { ProfileCoverImage } from "@/components/coach-profile/profile-cover-imag
 import { ShareProfileButton } from "@/components/coach-profile/share-profile-button";
 import { SupportActions } from "@/components/practice/support-dialog";
 import { isSubscriptionRequired } from "@/config/practice";
+import { describeValidity } from "@/lib/validity";
 
 function LogoMark({ src }: { src: string }) {
   const [failed, setFailed] = useState(false);
@@ -45,7 +46,11 @@ export type ProfileOverviewProps = {
   photoSrc: string;
   logoSrc: string;
   publicUrl: string | null | undefined;
-  session: { coachCode?: string; coachId: number } | null;
+  session: {
+    coachCode?: string;
+    coachId: number;
+    premiumPaid?: boolean;
+  } | null;
   premiumLabel: string;
   premiumLink: string;
   completion: { percent: number; missingLabels: string[] };
@@ -217,23 +222,12 @@ export function ProfileOverview({
             : "Share this page when you want someone to open your profile."}
           </p>
         </section>
-        {isSubscriptionRequired() ?
-          <section className="mc-panel p-4 sm:p-5">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="font-display text-base font-bold tracking-tight text-ink">
-                Subscription
-              </h3>
-              <span className="rounded-full bg-mc-secondary-light px-2.5 py-1 font-display text-sm font-bold text-mc-secondary">
-                {premiumLabel}
-              </span>
-            </div>
-            <Link
-              href={premiumLink}
-              className="mc-btn-primary mt-4 min-h-10 w-full text-[13px]"
-            >
-              Manage Premium
-            </Link>
-          </section>
+        {isSubscriptionRequired() || session?.premiumPaid ?
+          <SubscriptionCard
+            validUpto={profile.validUpto}
+            premiumLabel={premiumLabel}
+            premiumLink={premiumLink}
+          />
         : null}
         <section className="mc-panel p-2 sm:p-3">
           <h3 className="px-2 pt-2 pb-1 font-display text-base font-bold tracking-tight text-ink sm:px-3">
@@ -293,5 +287,81 @@ export function ProfileOverview({
         : null}
       </aside>
     </div>
+  );
+}
+
+const TONE_STYLE = {
+  ok: {
+    chip: "bg-mc-secondary-light text-mc-secondary",
+    icon: "fa-circle-check",
+  },
+  soon: { chip: "bg-amber-100 text-amber-800", icon: "fa-clock" },
+  expired: { chip: "bg-red-100 text-red-700", icon: "fa-circle-exclamation" },
+} as const;
+
+function daysLeftText(daysLeft: number) {
+  if (daysLeft < 0) return "Expired";
+  if (daysLeft === 0) return "Ends today";
+  return daysLeft === 1 ? "1 day left" : `${daysLeft} days left`;
+}
+
+function SubscriptionCard({
+  validUpto,
+  premiumLabel,
+  premiumLink,
+}: {
+  validUpto?: string | null;
+  premiumLabel: string;
+  premiumLink: string;
+}) {
+  const validity = describeValidity(validUpto);
+  const tone = TONE_STYLE[validity?.tone ?? "ok"];
+  const needsRenewal = validity ? validity.tone !== "ok" : false;
+  return (
+    <section className="mc-panel p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="font-display text-base font-bold tracking-tight text-ink">
+          <i className="fas fa-crown mr-2 text-mc-accent" aria-hidden />
+          Subscription
+        </h3>
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-display text-sm font-bold ${tone.chip}`}
+        >
+          <i className={`fas ${tone.icon}`} aria-hidden />
+          {validity?.tone === "expired" ? "Expired" : premiumLabel}
+        </span>
+      </div>
+      {validity ?
+        <div className="mt-4 flex items-end justify-between gap-3 rounded-xl bg-mc-secondary-light/60 px-4 py-3">
+          <div>
+            <p className="text-xs font-semibold tracking-wide text-ink-muted uppercase">
+              Valid until
+            </p>
+            <p className="font-display text-lg font-extrabold text-ink">
+              {validity.dateLabel}
+            </p>
+          </div>
+          <p className="text-sm font-bold text-ink">
+            {daysLeftText(validity.daysLeft)}
+          </p>
+        </div>
+      : null}
+      {needsRenewal ?
+        <p className="mt-3 text-sm text-ink-muted">
+          {validity?.tone === "expired" ?
+            "Renew to add new clients again."
+          : "Renew soon so you never lose access."}
+        </p>
+      : <p className="mt-3 text-sm text-ink-muted">
+          No automatic renewal. You are only charged when you choose a plan.
+        </p>
+      }
+      <Link
+        href={premiumLink}
+        className="mc-btn-primary mt-4 min-h-10 w-full text-[13px]"
+      >
+        {needsRenewal ? "Renew plan" : "Manage plan"}
+      </Link>
+    </section>
   );
 }
