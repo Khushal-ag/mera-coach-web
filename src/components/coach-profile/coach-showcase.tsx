@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { SHOWCASE_PREVIEW } from "@/constants/showcase";
 import { splitPackDetail } from "@/lib/coach/pack-detail";
@@ -46,7 +46,8 @@ function Media({
   return post.isVideo ?
       <video
         className={className}
-        src={post.src}
+        // #t=0.1 makes the browser paint the first frame instead of a black box.
+        src={`${post.src}#t=0.1`}
         controls
         playsInline
         preload="metadata"
@@ -289,8 +290,21 @@ export function EventsWidget({
 /** Photo and video gallery section. Renders nothing when there is none. */
 export function CoachGallery({ gallery }: { gallery: ShowcasePost[] }) {
   const [open, setOpen] = useState(false);
+  const [viewing, setViewing] = useState<ShowcasePost | null>(null);
+
+  useEffect(() => {
+    if (!viewing) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setViewing(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [viewing]);
+
   if (gallery.length === 0) return null;
   const shown = open ? gallery : gallery.slice(0, SHOWCASE_PREVIEW.gallery);
+  const titled = (post: ShowcasePost) =>
+    post.title && post.title !== "Gallery photo" ? post.title : "";
   return (
     <section className="cp-showcase cp-showcase-alt" id="gallery">
       <div className="container">
@@ -302,12 +316,39 @@ export function CoachGallery({ gallery }: { gallery: ShowcasePost[] }) {
         </div>
         <div className="cp-gallery-grid">
           {shown.map((post) => (
-            <figure key={post.id} className="cp-gallery-item">
-              <Media post={post} />
-              {post.title && post.title !== "Gallery photo" ?
-                <figcaption className="cp-gallery-tag">{post.title}</figcaption>
+            <button
+              key={post.id}
+              type="button"
+              className="cp-gallery-tile"
+              onClick={() => setViewing(post)}
+              aria-label={
+                post.isVideo ?
+                  `Play video${titled(post) ? `: ${titled(post)}` : ""}`
+                : `View photo${titled(post) ? `: ${titled(post)}` : ""}`
+              }
+            >
+              {
+                post.isVideo ?
+                  <>
+                    {/* #t=0.1 paints the first frame instead of a black box. */}
+                    <video
+                      src={`${post.src}#t=0.1`}
+                      preload="metadata"
+                      muted
+                      playsInline
+                      aria-hidden
+                    />
+                    <span className="cp-gallery-play" aria-hidden>
+                      <i className="fas fa-play" />
+                    </span>
+                  </>
+                  // eslint-disable-next-line @next/next/no-img-element
+                : <img src={post.src} alt={post.title} loading="lazy" />
+              }
+              {titled(post) ?
+                <span className="cp-gallery-title">{titled(post)}</span>
               : null}
-            </figure>
+            </button>
           ))}
         </div>
         <ShowMore
@@ -318,6 +359,37 @@ export function CoachGallery({ gallery }: { gallery: ShowcasePost[] }) {
           onToggle={() => setOpen((v) => !v)}
         />
       </div>
+      {viewing ?
+        <div
+          className="cp-viewer"
+          role="dialog"
+          aria-modal="true"
+          aria-label={titled(viewing) || "Gallery"}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setViewing(null);
+          }}
+        >
+          <button
+            type="button"
+            className="cp-viewer-close"
+            aria-label="Close"
+            onClick={() => setViewing(null)}
+          >
+            <i className="fas fa-times" />
+          </button>
+          <div>
+            {
+              viewing.isVideo ?
+                <video src={viewing.src} controls autoPlay playsInline />
+                // eslint-disable-next-line @next/next/no-img-element
+              : <img src={viewing.src} alt={viewing.title} />
+            }
+            {titled(viewing) ?
+              <p className="cp-viewer-title">{titled(viewing)}</p>
+            : null}
+          </div>
+        </div>
+      : null}
     </section>
   );
 }

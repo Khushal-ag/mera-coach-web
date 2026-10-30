@@ -25,12 +25,14 @@ export function CoachReviews({
   const [busy, setBusy] = useState(false);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
+  const [index, setIndex] = useState(0);
   const track = useRef<HTMLDivElement>(null);
   const hasMore = items.length < initial.totalCount;
 
   const syncArrows = useCallback(() => {
     const el = track.current;
     if (!el) return;
+    setIndex(Math.round(el.scrollLeft / (el.clientWidth + 16)));
     setCanPrev(el.scrollLeft > 4);
     setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
   }, []);
@@ -83,16 +85,16 @@ export function CoachReviews({
           </div>
           <h2 className="section-title">What clients say</h2>
         </div>
-        <div className="mx-auto grid max-w-4xl overflow-hidden rounded-[26px] border border-line bg-white md:grid-cols-[17rem_minmax(0,1fr)]">
+        <div className="mx-auto grid max-w-5xl overflow-hidden rounded-[26px] border border-line bg-white md:grid-cols-[17rem_minmax(0,1fr)]">
           <div className="border-b border-line p-6 md:border-r md:border-b-0">
             <ReviewSummaryCard summary={initial.summary} bare />
           </div>
           <div className="min-w-0 p-5 sm:p-6">
             <div className="mb-3 flex min-h-9 items-center justify-between gap-3">
               <p className="font-display text-sm font-bold text-ink">
-                {many ? "Latest reviews" : "Review"}
+                {many ? "Latest reviews" : "Latest review"}
               </p>
-              {many ?
+              {items.length > 0 ?
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -126,9 +128,26 @@ export function CoachReviews({
                   key={review.feedbackId}
                   review={review}
                   soft
-                  className="w-full shrink-0 snap-start"
+                  className="min-h-44 w-full shrink-0 snap-center"
                 />
               ))}
+            </div>
+            <div className="mt-4 flex items-center justify-center gap-3">
+              <div className="flex items-center gap-1.5" aria-hidden>
+                {items.slice(0, 8).map((review, dot) => (
+                  <span
+                    key={review.feedbackId}
+                    className={`h-1.5 rounded-full transition-all ${
+                      dot === Math.min(index, 7) ?
+                        "w-5 bg-mc-accent"
+                      : "w-1.5 bg-line"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-xs font-semibold text-ink-muted">
+                {Math.min(index + 1, initial.totalCount)} / {initial.totalCount}
+              </span>
             </div>
           </div>
         </div>
