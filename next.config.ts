@@ -153,6 +153,10 @@ const contentSecurityPolicy = [
   isProd ?
     "img-src 'self' data: blob: https:"
   : "img-src 'self' data: blob: https: http:",
+  // Uploaded gallery and post videos come from the API host. Without this they fall back to default-src 'self' and are blocked.
+  isProd ?
+    "media-src 'self' data: blob: https:"
+  : "media-src 'self' data: blob: https: http:",
   "font-src 'self' data:",
   isProd ?
     "connect-src 'self' https: https://api.razorpay.com https://lumberjack.razorpay.com"
