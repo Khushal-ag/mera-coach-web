@@ -16,15 +16,9 @@ export function buildFeedbackWebUrl(params: {
   clientCode: string;
   siteUrl?: string;
 }): string | null {
-  let base = params.siteUrl;
-  if (!base) {
-    if (typeof window !== "undefined" && window.location.origin) {
-      base = window.location.origin;
-    } else {
-      base = env.siteUrl;
-    }
-  }
-  base = base.replace(/\/$/, "");
+  // Always the public site address (NEXT_PUBLIC_SITE_URL), never the page the coach happens to be on:
+  // a link copied from localhost or a preview deployment would not open for the client.
+  const base = (params.siteUrl ?? env.siteUrl).replace(/\/$/, "");
   const coachCode = params.coachCode.trim();
   const clientCode = params.clientCode.trim();
   if (!base || !coachCode || !clientCode) return null;
