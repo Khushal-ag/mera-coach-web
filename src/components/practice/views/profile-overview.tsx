@@ -10,6 +10,7 @@ import { ProfileCoverImage } from "@/components/coach-profile/profile-cover-imag
 import { ShareProfileButton } from "@/components/coach-profile/share-profile-button";
 import { SupportActions } from "@/components/practice/support-dialog";
 import { isSubscriptionRequired } from "@/config/practice";
+import { coachProfilePath } from "@/lib/coach/profile-path";
 import { describeValidity } from "@/lib/validity";
 
 function LogoMark({ src }: { src: string }) {
@@ -205,7 +206,10 @@ export function ProfileOverview({
             />
             {publicUrl ?
               <Link
-                href={`/coach/${encodeURIComponent(session?.coachCode || profile.coachCode || "")}`}
+                href={coachProfilePath({
+                  urlFriendlyName: profile.urlFriendlyName,
+                  coachCode: session?.coachCode || profile.coachCode,
+                })}
                 className="mc-btn-secondary w-full"
                 target="_blank"
                 rel="noopener noreferrer"
