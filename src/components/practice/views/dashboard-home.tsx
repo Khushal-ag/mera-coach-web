@@ -16,6 +16,8 @@ import {
   buildDashboardSlides,
   countPosts,
 } from "@/components/practice/dashboard-slides";
+import { DashboardCarouselSkeleton } from "@/components/skeletons/dashboard-skeleton";
+import { AlertBanner } from "@/components/ui/alert-banner";
 import { DASHBOARD_CAROUSEL } from "@/constants/ui";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import {
@@ -237,7 +239,7 @@ export function DashboardHomeView() {
         </div>
       </div>
       {error ?
-        <p className="rg-alert">{error}</p>
+        <AlertBanner tone="error">{error}</AlertBanner>
       : null}
       <div className="db-layout-grid">
         <div className="db-left-col">
@@ -279,13 +281,7 @@ export function DashboardHomeView() {
           </div>
 
           {loading || completion == null ?
-            <div
-              className="db-carousel-wrap"
-              aria-busy="true"
-              aria-label="Loading highlights"
-            >
-              <div className="db-carousel mc-skeleton" />
-            </div>
+            <DashboardCarouselSkeleton />
           : slides.length > 0 ?
             <div
               className="db-carousel-wrap"

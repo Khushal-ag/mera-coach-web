@@ -10,8 +10,9 @@ export const POST_CATEGORY = {
 /** Document type for a post's photo or video. */
 export const POST_MEDIA_DOC_TYPE = "POST_MEDIA" as const;
 
-/** A post's photo or video may be up to this size. */
-export const POST_MEDIA_MAX_BYTES = 10 * 1024 * 1024;
+/** Same limits as the API (DocumentAppService): photos 5 MB, videos 25 MB. */
+export const POST_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+export const POST_VIDEO_MAX_BYTES = 25 * 1024 * 1024;
 
 export const POST_MEDIA_ACCEPT =
   "image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm,.jpg,.jpeg,.png,.webp,.mp4,.mov,.webm";

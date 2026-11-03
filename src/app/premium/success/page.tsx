@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import type { Metadata } from "next";
 
@@ -7,6 +8,7 @@ import { AppHandoffCta } from "@/components/app-handoff-cta";
 import { PageBanner } from "@/components/marketing/page-banner";
 import { RefreshPremiumStatus } from "@/components/refresh-premium-status";
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { isSubscriptionRequired } from "@/config/practice";
 import { fetchCoachProfile, isApiSuccess } from "@/lib/api";
 import { premiumPaidDeepLink } from "@/lib/app-deep-link";
 
@@ -30,6 +32,10 @@ export default function PremiumSuccessPage({
 }: {
   searchParams: SearchParams;
 }) {
+  if (!isSubscriptionRequired()) {
+    redirect("/dashboard");
+  }
+
   return (
     <>
       <PageBanner

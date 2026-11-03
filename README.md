@@ -150,12 +150,12 @@ src/
 ### Packages, gallery and events
 
 - **Packages** (`/dashboard/packages`): the coach picks a brand and its products, which come from the API's product master, then sets each price and an editable total. A category filter narrows the list and a product's suggested price pre-fills. A switch on each package shows or hides it on the public profile.
-- **Posts** (`/dashboard/events`): one form with three categories from the API: Gallery (a photo or video with a short tag), Workshop & Event, and Client Success, which needs a client and the coach's consent. Photos and videos upload up to 10 MB.
+- **Posts** (`/dashboard/events`): one form with three categories from the API: Gallery (a photo or video with a short tag), Workshop & Event, and Client Success, which needs a client and the coach's consent. Photos upload up to 5 MB and videos up to 25 MB, the same as the API.
 - The public profile shows packages, gallery, events and success stories. Success stories appear only with consent and show the client's first name.
 
 ### Registration and uploads
 
-Registering returns a short-lived upload token (30 minutes). The form uses it to upload the logo and photo and to save the service details, so no account has open write access before sign-in. Logos and photos can be JPG, PNG or WebP, up to 2 MB.
+Registering returns a short-lived upload token (30 minutes). The form uses it to upload the logo and photo and to save the service details, so no account has open write access before sign-in. Logos and photos can be JPG, PNG or WebP, up to 5 MB.
 
 ---
 

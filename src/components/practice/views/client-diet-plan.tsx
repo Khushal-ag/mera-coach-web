@@ -13,9 +13,16 @@ import { AssessmentWizardLazy as AssessmentWizard } from "@/components/assessmen
 import { useAuth } from "@/components/auth-provider";
 import { EmptyState } from "@/components/practice/empty-state";
 import { PracticePageHeader } from "@/components/practice/page-header";
+import { PdfDownloadAlert } from "@/components/practice/pdf-download-alert";
 import { ClientDietSkeleton } from "@/components/skeletons/client-profile-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
-import { downloadAuthedPdf, PDF_PATH } from "@/lib/api/pdf";
+import {
+  downloadAuthedPdf,
+  HTML_REPORT_PATH,
+  isPdfHostUnavailableError,
+  PDF_PATH,
+  printAuthedHtmlReport,
+} from "@/lib/api/pdf";
 import {
   fetchAuthedCoachProfile,
   fetchClientDetail,
@@ -40,8 +47,10 @@ export function ClientDietPlanView({
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [pdfHostUnavailable, setPdfHostUnavailable] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [printBusy, setPrintBusy] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
@@ -84,6 +93,24 @@ export function ClientDietPlanView({
     };
   }, [session?.coachCode, code, reloadKey]);
 
+  async function onPrint() {
+    if (!session?.coachCode) return;
+    setPrintBusy(true);
+    setPdfError(null);
+    try {
+      await printAuthedHtmlReport(HTML_REPORT_PATH.dietPlan, {
+        coachCode: session.coachCode,
+        clientCode: code,
+      });
+    } catch (err) {
+      setPdfError(
+        err instanceof Error ? err.message : "Could not open print preview.",
+      );
+    } finally {
+      setPrintBusy(false);
+    }
+  }
+
   async function onPdf() {
     if (!session?.coachCode) return;
     setPdfBusy(true);
@@ -98,9 +125,12 @@ export function ClientDietPlanView({
         "diet-plan.pdf",
       );
     } catch (err) {
-      setPdfError(
-        err instanceof Error ? err.message : "Could not download PDF.",
-      );
+      const message =
+        err instanceof Error ? err.message : "Could not download PDF.";
+      if (isPdfHostUnavailableError(message)) {
+        setPdfHostUnavailable(true);
+      }
+      setPdfError(message);
     } finally {
       setPdfBusy(false);
     }
@@ -166,12 +196,13 @@ export function ClientDietPlanView({
         <button
           type="button"
           className="mc-btn-secondary w-full sm:w-auto"
-          onClick={() => window.print()}
+          disabled={printBusy}
+          onClick={() => void onPrint()}
         >
-          Print
+          {printBusy ? "Preparing…" : "Print"}
         </button>
       : null}
-      {plan ?
+      {plan && !pdfHostUnavailable ?
         <button
           type="button"
           className="mc-btn-secondary w-full sm:w-auto"
@@ -222,7 +253,11 @@ export function ClientDietPlanView({
         <AlertBanner tone="error">{error}</AlertBanner>
       : null}
       {pdfError ?
-        <AlertBanner tone="error">{pdfError}</AlertBanner>
+        <PdfDownloadAlert
+          message={pdfError}
+          className="mb-4"
+          onDismiss={() => setPdfError(null)}
+        />
       : null}
 
       {loading ?

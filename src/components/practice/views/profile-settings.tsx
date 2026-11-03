@@ -29,7 +29,7 @@ export function ProfileSettingsView() {
     businessName,
     tagline,
     startEdit,
-    save,
+    cancelEdit,
     pageTopRef,
     publicUrl,
     completion,
@@ -45,10 +45,15 @@ export function ProfileSettingsView() {
   } = editor;
 
   return (
-    <div ref={pageTopRef} className="min-w-0">
+    <div ref={pageTopRef} className={cn("min-w-0", editing && "cl-form-page")}>
       {editing ?
         <PracticePageHeader
           title="Edit profile"
+          back={{
+            href: "/dashboard/profile",
+            label: "Back to profile",
+            onClick: cancelEdit,
+          }}
           icon={
             <i className="fas fa-user" style={{ fontSize: 20 }} aria-hidden />
           }
@@ -97,13 +102,7 @@ export function ProfileSettingsView() {
           <ProfileFormSkeleton />
         : <div className="mc-public">
             <div className="rg-page" style={{ padding: 0, maxWidth: 860 }}>
-              <form
-                className="rg-card"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (editStep === 4) void save();
-                }}
-              >
+              <form className="rg-card" onSubmit={(e) => e.preventDefault()}>
                 <div className="rg-card-head">
                   <div className="rg-head-blobs">
                     <div className="rg-hb rg-hb-1" />
@@ -121,69 +120,73 @@ export function ProfileSettingsView() {
                     </div>
                   </div>
                   <div className="rg-steps" style={{ display: "flex" }}>
-                    <div
+                    <button
+                      type="button"
                       className={cn(
                         "rg-step",
                         editStep === 1 ? "rg-step-active" : "",
                         editStep > 1 ? "rg-step-complete" : "",
                       )}
                       onClick={() => setEditStep(1)}
-                      style={{ cursor: "pointer" }}
+                      aria-current={editStep === 1 ? "step" : undefined}
                     >
                       <div className="rg-step-circle">
                         <span className="rg-step-num">1</span>
                         <i className="fas fa-check rg-step-done" />
                       </div>
                       <span>Your name</span>
-                    </div>
-                    <div className="rg-step-line" />
-                    <div
+                    </button>
+                    <div className="rg-step-line" aria-hidden />
+                    <button
+                      type="button"
                       className={cn(
                         "rg-step",
                         editStep === 2 ? "rg-step-active" : "",
                         editStep > 2 ? "rg-step-complete" : "",
                       )}
                       onClick={() => setEditStep(2)}
-                      style={{ cursor: "pointer" }}
+                      aria-current={editStep === 2 ? "step" : undefined}
                     >
                       <div className="rg-step-circle">
                         <span className="rg-step-num">2</span>
                         <i className="fas fa-check rg-step-done" />
                       </div>
                       <span>Professional details</span>
-                    </div>
-                    <div className="rg-step-line" />
-                    <div
+                    </button>
+                    <div className="rg-step-line" aria-hidden />
+                    <button
+                      type="button"
                       className={cn(
                         "rg-step",
                         editStep === 3 ? "rg-step-active" : "",
                         editStep > 3 ? "rg-step-complete" : "",
                       )}
                       onClick={() => setEditStep(3)}
-                      style={{ cursor: "pointer" }}
+                      aria-current={editStep === 3 ? "step" : undefined}
                     >
                       <div className="rg-step-circle">
                         <span className="rg-step-num">3</span>
                         <i className="fas fa-check rg-step-done" />
                       </div>
                       <span>Contact</span>
-                    </div>
-                    <div className="rg-step-line" />
-                    <div
+                    </button>
+                    <div className="rg-step-line" aria-hidden />
+                    <button
+                      type="button"
                       className={cn(
                         "rg-step",
                         editStep === 4 ? "rg-step-active" : "",
                         editStep > 4 ? "rg-step-complete" : "",
                       )}
                       onClick={() => setEditStep(4)}
-                      style={{ cursor: "pointer" }}
+                      aria-current={editStep === 4 ? "step" : undefined}
                     >
                       <div className="rg-step-circle">
                         <span className="rg-step-num">4</span>
                         <i className="fas fa-check rg-step-done" />
                       </div>
                       <span>Profile</span>
-                    </div>
+                    </button>
                   </div>
                 </div>
                 <div className="rg-card-body">

@@ -1,5 +1,6 @@
 import type { GenericResponse } from "@/lib/api/types";
 
+import { PARAM_WIRE_CODE_LABELS } from "@/constants/lifestyle-options";
 import { apiFetch } from "@/lib/api/client";
 import { pick } from "@/lib/api/normalize";
 
@@ -101,16 +102,51 @@ export function resolveParamCode(
   return hit ? hit.code : v;
 }
 
-/** Code or label in, label out. Unknown master-looking codes resolve to empty. */
+const MASTER_ITEM_CODE = /^[A-Za-z]{2,4}\d{2,}$/;
+
+function findParamOption(
+  value: string,
+  options: MasterOption[],
+): MasterOption | undefined {
+  const lower = value.toLowerCase();
+  return options.find(
+    (o) =>
+      o.code === value ||
+      o.label === value ||
+      o.code.toLowerCase() === lower ||
+      o.label.toLowerCase() === lower,
+  );
+}
+
+/** Code or label in, label out. Unknown master item codes resolve to empty. */
 export function resolveParamLabel(
   value: string | undefined | null,
   options: MasterOption[],
 ): string {
   const v = (value ?? "").trim();
   if (!v) return "";
-  const hit = options.find((o) => o.code === v || o.label === v);
+
+  const wireLabel = PARAM_WIRE_CODE_LABELS[v.toUpperCase()];
+  if (wireLabel) return wireLabel;
+
+  const hit = findParamOption(v, options);
   if (hit) return hit.label;
-  return /^[A-Za-z]{2,4}\d{2,}$/.test(v) ? "" : v;
+
+  if (MASTER_ITEM_CODE.test(v)) return "";
+
+  return v;
+}
+
+/** Comma-separated codes or labels in, human-readable list out. */
+export function resolveParamLabels(
+  value: string | undefined | null,
+  options: MasterOption[],
+): string {
+  return (value ?? "")
+    .split(",")
+    .map((part) => resolveParamLabel(part, options))
+    .filter(Boolean)
+    .join(", ");
 }
 
 export async function fetchCoachCategories(): Promise<MasterOption[]> {

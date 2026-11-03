@@ -1,17 +1,122 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import type { CoachProfile } from "@/types/coach";
+import type { CoachPost } from "@/types/showcase";
 
 import { CoachPhoto } from "@/components/coach-photo";
 import { ProfileCoverImage } from "@/components/coach-profile/profile-cover-image";
 import { ShareProfileButton } from "@/components/coach-profile/share-profile-button";
 import { SupportActions } from "@/components/practice/support-dialog";
 import { isSubscriptionRequired } from "@/config/practice";
+import { fetchMyPosts } from "@/lib/api/showcase";
 import { coachProfilePath } from "@/lib/coach/profile-path";
+import { resolveMediaUrl } from "@/lib/media/media-url";
 import { describeValidity } from "@/lib/validity";
+
+const POSTS_SHOWN = 8;
+
+/** The coach's own posts, as they appear on the public page. Manage opens the full list. */
+function ProfilePosts() {
+  const [posts, setPosts] = useState<CoachPost[] | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchMyPosts()
+      .then((rows) => {
+        if (!cancelled) setPosts(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setFailed(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return (
+    <section className="mc-panel p-4 sm:p-5">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="font-display text-base font-bold tracking-tight text-ink">
+            Posts
+          </h3>
+          <p className="mt-1 text-sm text-ink-muted">
+            Photos and videos shown on your public page.
+          </p>
+        </div>
+        <Link href="/dashboard/events" className="mc-btn-secondary">
+          <i className="fas fa-images" aria-hidden /> Manage
+        </Link>
+      </div>
+      {failed ?
+        <p className="text-sm text-ink-muted">
+          Could not load your posts. Open Manage to try again.
+        </p>
+      : posts === null ?
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-3 md:grid-cols-4">
+          {Array.from({ length: 4 }, (_, index) => (
+            <div key={index} className="mc-skeleton aspect-square" />
+          ))}
+        </div>
+      : posts.length === 0 ?
+        <p className="text-sm text-ink-muted">
+          No posts yet. Add photos, workshops or success stories from Manage.
+        </p>
+      : <div className="grid grid-cols-3 gap-1.5 sm:gap-3 md:grid-cols-4">
+          {posts.slice(0, POSTS_SHOWN).map((post) => (
+            <Link
+              key={post.postId}
+              href="/dashboard/events"
+              title={post.title}
+              className="group relative block aspect-square overflow-hidden rounded-lg bg-black/5"
+            >
+              {
+                post.mediaType === "video" ?
+                  <>
+                    <video
+                      src={resolveMediaUrl(post.mediaUrl)}
+                      muted
+                      preload="metadata"
+                      className="absolute inset-0 size-full object-cover"
+                    />
+                    <span className="absolute inset-0 grid place-items-center">
+                      <i
+                        className="fas fa-play-circle text-3xl text-white drop-shadow"
+                        aria-hidden
+                      />
+                    </span>
+                  </>
+                  // eslint-disable-next-line @next/next/no-img-element
+                : <img
+                    src={resolveMediaUrl(post.mediaUrl)}
+                    alt={post.title}
+                    loading="lazy"
+                    className="absolute inset-0 size-full object-cover transition group-hover:scale-105"
+                  />
+
+              }
+            </Link>
+          ))}
+        </div>
+      }
+      {posts && posts.length > POSTS_SHOWN ?
+        <p className="mt-3 text-sm text-ink-muted">
+          Showing {POSTS_SHOWN} of {posts.length}.{" "}
+          <Link
+            href="/dashboard/events"
+            className="font-semibold text-mc-secondary"
+          >
+            See all
+          </Link>
+        </p>
+      : null}
+    </section>
+  );
+}
 
 function LogoMark({ src }: { src: string }) {
   const [failed, setFailed] = useState(false);
@@ -177,19 +282,7 @@ export function ProfileOverview({
             </div>
           </div>
         </section>
-        <section className="mc-panel flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
-          <div className="min-w-0">
-            <h3 className="font-display text-base font-bold tracking-tight text-ink">
-              Posts
-            </h3>
-            <p className="mt-1 text-sm text-ink-muted">
-              Photos and videos shown on your public page.
-            </p>
-          </div>
-          <Link href="/dashboard/events" className="mc-btn-secondary">
-            <i className="fas fa-images" aria-hidden /> Manage
-          </Link>
-        </section>
+        <ProfilePosts />
       </div>
       <aside className="grid gap-4 lg:sticky lg:top-24">
         <section className="mc-panel p-4 sm:p-5">
@@ -226,7 +319,7 @@ export function ProfileOverview({
             : "Share this page when you want someone to open your profile."}
           </p>
         </section>
-        {isSubscriptionRequired() || session?.premiumPaid ?
+        {isSubscriptionRequired() ?
           <SubscriptionCard
             validUpto={profile.validUpto}
             premiumLabel={premiumLabel}

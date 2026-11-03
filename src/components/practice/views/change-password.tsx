@@ -100,67 +100,84 @@ export function ChangePasswordView() {
   }
 
   return (
-    <div className="min-w-0">
+    <div className="cl-form-page cp-page min-w-0">
       <PracticePageHeader
         title="Change password"
         back={{ href: "/dashboard/profile", label: "Back to profile" }}
         description="Update the password for your coach login."
         icon={<i className="fas fa-key" style={{ fontSize: 20 }} aria-hidden />}
       />
-      {error ?
-        <AlertBanner tone="error">{error}</AlertBanner>
-      : null}
-      {message ?
-        <AlertBanner tone="success">{message}</AlertBanner>
-      : null}
-      <form
-        className="ac-card cp-card"
-        onSubmit={(e) => void onSubmit(e)}
-        noValidate
-      >
-        <h5 className="ac-card-title">
-          <i className="fas fa-key" /> Update Password
-        </h5>
-        <div className="cp-body">
-          <PasswordField
-            label="Current password"
-            autoComplete="current-password"
-            value={currentPassword}
-            onChange={setCurrent}
-          />
-          <PasswordField
-            label="New password"
-            autoComplete="new-password"
-            value={newPassword}
-            onChange={setNew}
-            hint={PASSWORD_RULE}
-          />
-          <PasswordField
-            label="Confirm new password"
-            autoComplete="new-password"
-            value={confirm}
-            onChange={setConfirm}
-            error={
-              confirm && newPassword !== confirm ?
-                "Passwords do not match."
-              : undefined
-            }
-          />
-          <div className="cp-actions">
-            <button
-              type="submit"
-              className="mc-btn-primary"
-              disabled={busy || !currentPassword || !newPassword || !confirm}
-              aria-busy={busy}
-            >
-              {busy ? "Updating password" : "Update password"}
-            </button>
-            <Link href="/dashboard/profile" className="mc-btn-secondary">
-              Cancel
-            </Link>
+      <div className="cp-alerts">
+        {error ?
+          <AlertBanner tone="error">{error}</AlertBanner>
+        : null}
+        {message ?
+          <AlertBanner tone="success">{message}</AlertBanner>
+        : null}
+      </div>
+      <div className="cp-layout">
+        <form
+          className="ac-card cp-card"
+          onSubmit={(e) => void onSubmit(e)}
+          noValidate
+        >
+          <h5 className="ac-card-title">
+            <i className="fas fa-key" /> Update Password
+          </h5>
+          <div className="cp-body">
+            <PasswordField
+              label="Current password"
+              autoComplete="current-password"
+              value={currentPassword}
+              onChange={setCurrent}
+            />
+            <PasswordField
+              label="New password"
+              autoComplete="new-password"
+              value={newPassword}
+              onChange={setNew}
+              hint={PASSWORD_RULE}
+            />
+            <PasswordField
+              label="Confirm new password"
+              autoComplete="new-password"
+              value={confirm}
+              onChange={setConfirm}
+              error={
+                confirm && newPassword !== confirm ?
+                  "Passwords do not match."
+                : undefined
+              }
+            />
+            <div className="cp-actions">
+              <button
+                type="submit"
+                className="mc-btn-primary"
+                disabled={busy || !currentPassword || !newPassword || !confirm}
+                aria-busy={busy}
+              >
+                {busy ? "Updating password" : "Update password"}
+              </button>
+              <Link href="/dashboard/profile" className="mc-btn-secondary">
+                Cancel
+              </Link>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+        <aside className="ac-card cp-tips" aria-label="Password tips">
+          <h5 className="ac-card-title">
+            <i className="fas fa-shield-alt" /> Keep your account safe
+          </h5>
+          <ul className="cp-tips-list">
+            <li>Pick a password you do not use anywhere else.</li>
+            <li>Do not include your name or mobile number.</li>
+            <li>
+              Forgot your current password? Sign out, then use{" "}
+              <b>Forgot password</b> on the sign-in page.
+            </li>
+          </ul>
+        </aside>
+      </div>
     </div>
   );
 }

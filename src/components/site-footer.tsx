@@ -3,10 +3,13 @@ import Link from "next/link";
 
 import { AppStoreBadges } from "@/components/app-store-badges";
 import { env } from "@/config/env";
+import { isSubscriptionRequired } from "@/config/practice";
 import { siteConfig } from "@/config/site";
 import { FOOTER_SOCIALS } from "@/constants/footer";
 
 export function SiteFooter() {
+  const showSubscriptionPlans = isSubscriptionRequired();
+
   return (
     <div className="mc-public">
       <footer className="footer">
@@ -90,9 +93,11 @@ export function SiteFooter() {
                 <li>
                   <Link href="/dashboard">Coach Dashboard</Link>
                 </li>
-                <li>
-                  <Link href="/premium">Subscription Plans</Link>
-                </li>
+                {showSubscriptionPlans ?
+                  <li>
+                    <Link href="/premium">Subscription Plans</Link>
+                  </li>
+                : null}
               </ul>
             </div>
             <div className="footer-col">

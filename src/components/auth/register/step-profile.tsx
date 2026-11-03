@@ -65,7 +65,7 @@ export function RegisterProfileStep({
               : <>
                   <i className="fas fa-cloud-upload-alt" />
                   <strong>Click to upload logo</strong>
-                  <span>2:1 landscape • PNG/JPG • Max 10 MB</span>
+                  <span>2:1 landscape • PNG/JPG • Max 5 MB</span>
                 </>
               }
             </div>
@@ -106,7 +106,7 @@ export function RegisterProfileStep({
               : <>
                   <i className="fas fa-camera" />
                   <strong>Click to upload photo</strong>
-                  <span>Square • PNG/JPG • Max 10 MB</span>
+                  <span>Square • PNG/JPG • Max 5 MB</span>
                 </>
               }
             </div>

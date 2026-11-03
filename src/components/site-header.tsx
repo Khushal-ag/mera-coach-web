@@ -88,8 +88,7 @@ export function SiteHeader() {
   }
 
   const signedIn = hydrated && ready && !!session;
-  // Plans are only offered when the subscription limit is on, or to a coach who already has one.
-  const showPremium = isSubscriptionRequired() || !!session?.premiumPaid;
+  const showPremium = isSubscriptionRequired();
 
   useEffect(() => {
     if (!open) return;

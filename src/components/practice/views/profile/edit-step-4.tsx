@@ -1,24 +1,25 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import type { ProfileEditor } from "./use-profile-editor";
+
+import type { ReportTemplate } from "@/lib/api/showcase";
 
 import { ImagePicker } from "@/components/media/image-picker";
 import { TextAreaField } from "@/components/ui/field";
+import { MenuSelect } from "@/components/ui/menu-select";
+import { fetchReportTemplates } from "@/lib/api/showcase";
 import { cn } from "@/lib/utils";
 
 export function ProfileEditStep4({ editor }: { editor: ProfileEditor }) {
   const {
-    profile,
     busy,
     editStep,
     setEditStep,
     coachName,
     coachDesc,
     setCoachDesc,
-    bmiTemplate,
-    setBmiTemplate,
-    dietTemplate,
-    setDietTemplate,
     logoUrl,
     profilePicUrl,
     coverUrl,
@@ -26,10 +27,34 @@ export function ProfileEditStep4({ editor }: { editor: ProfileEditor }) {
     photoPick,
     coverPick,
     cancelEdit,
+    save,
     setSlot,
-    completion,
-    profileDirty,
+    bmiTemplate,
+    setBmiTemplate,
+    dietTemplate,
+    setDietTemplate,
   } = editor;
+  const [bmiTemplates, setBmiTemplates] = useState<ReportTemplate[]>([]);
+  const [dietTemplates, setDietTemplates] = useState<ReportTemplate[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    void fetchReportTemplates("BMI").then((rows) => {
+      if (!cancelled) setBmiTemplates(rows);
+    });
+    void fetchReportTemplates("DIET").then((rows) => {
+      if (!cancelled) setDietTemplates(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  // Blank means the coach never chose: show the list's default (the API uses its own default).
+  const shownBmi =
+    bmiTemplate ||
+    (bmiTemplates.find((t) => t.isDefault) ?? bmiTemplates[0])?.code;
+  const shownDiet =
+    dietTemplate ||
+    (dietTemplates.find((t) => t.isDefault) ?? dietTemplates[0])?.code;
   return (
     <div className={cn("rg-panel", editStep === 4 ? "" : "rg-hidden")}>
       <div className="rg-section-head">
@@ -44,7 +69,7 @@ export function ProfileEditStep4({ editor }: { editor: ProfileEditor }) {
       <div className="space-y-4">
         <ImagePicker
           label="Cover image"
-          hint="Wide banner for your public profile. JPG, PNG, or WebP · max 2 MB"
+          hint="Wide banner for your public profile. JPG, PNG, or WebP · max 5 MB"
           value={coverPick}
           currentUrl={coverUrl}
           onChange={(file) => setSlot("cover", file)}
@@ -75,28 +100,39 @@ export function ProfileEditStep4({ editor }: { editor: ProfileEditor }) {
           value={coachDesc}
           onChange={(e) => setCoachDesc(e.target.value)}
         />
-        <TextAreaField
-          label="BMI report template notes"
-          value={bmiTemplate}
-          onChange={(e) => setBmiTemplate(e.target.value)}
-        />
-        <TextAreaField
-          label="Diet chart template notes"
-          value={dietTemplate}
-          onChange={(e) => setDietTemplate(e.target.value)}
-        />
-        <div className="rounded-[var(--radius-sm)] border border-line bg-paper px-4 py-3">
-          <p className="text-sm font-semibold text-ink">
-            Find a Coach visibility
-          </p>
-          <p className="mt-1 text-sm leading-relaxed text-ink-muted">
-            {profile?.isProfileVisible ?
-              "Listed. It stays on Find a Coach while the required public fields are filled in."
-            : completion.missingLabels.length ?
-              `Not listed yet. Still needed: ${completion.missingLabels.join(", ")}.`
-            : "Not listed yet. Save again once the required public fields are filled in."
-            }
-          </p>
+        <div className="rg-grid">
+          <div className="rg-field rg-col-2">
+            <label htmlFor="peBmiTemplate">
+              <i className="fas fa-file-medical" /> BMI report template
+            </label>
+            <MenuSelect
+              id="peBmiTemplate"
+              skin="public"
+              className="ui-select"
+              value={shownBmi ?? ""}
+              options={bmiTemplates.map((item) => ({
+                value: item.code,
+                label: item.label,
+              }))}
+              onChange={(event) => setBmiTemplate(event.target.value)}
+            />
+          </div>
+          <div className="rg-field rg-col-2">
+            <label htmlFor="peDietTemplate">
+              <i className="fas fa-utensils" /> Diet plan template
+            </label>
+            <MenuSelect
+              id="peDietTemplate"
+              skin="public"
+              className="ui-select"
+              value={shownDiet ?? ""}
+              options={dietTemplates.map((item) => ({
+                value: item.code,
+                label: item.label,
+              }))}
+              onChange={(event) => setDietTemplate(event.target.value)}
+            />
+          </div>
         </div>
       </div>
       <div className="rg-nav">
@@ -117,10 +153,11 @@ export function ProfileEditStep4({ editor }: { editor: ProfileEditor }) {
             Cancel
           </button>
           <button
-            type="submit"
+            type="button"
             className="btn rg-btn-next"
-            disabled={busy || !profileDirty}
+            disabled={busy}
             aria-busy={busy}
+            onClick={() => void save()}
           >
             {busy ? "Saving…" : "Save Profile"} <i className="fas fa-check" />
           </button>

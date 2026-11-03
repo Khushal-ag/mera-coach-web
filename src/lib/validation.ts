@@ -64,3 +64,15 @@ export function validateWeight(value: string): string | null {
   const w = parseFloat(value);
   return w < WEIGHT_KG_MIN || w > WEIGHT_KG_MAX ? message : null;
 }
+
+export const CLIENT_PROFILE_PHOTO_REQUIRED =
+  "Client profile photo is required.";
+
+/** Add client and checkup (when no Document API PROFILE_PIC yet). */
+export function validateClientProfilePhoto(options: {
+  hasExistingProfilePhoto: boolean;
+  hasPendingPhoto: boolean;
+}): string | null {
+  if (options.hasExistingProfilePhoto || options.hasPendingPhoto) return null;
+  return CLIENT_PROFILE_PHOTO_REQUIRED;
+}

@@ -623,9 +623,6 @@ export function CoachListView({
                         >
                           {label}
                         </span>
-                        <span className="cl-card-status online">
-                          <span className="cl-status-dot" /> Online
-                        </span>
                       </div>
                       <div className="cl-card-body">
                         <div className="cl-coach-name">{coach.coachName}</div>

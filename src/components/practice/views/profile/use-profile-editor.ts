@@ -2,12 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import type { ProfileDraft, ProfileText } from "./profile-draft";
+
 import type { PickedImage } from "@/components/media/image-picker";
 import type { MasterOption } from "@/lib/api/master";
 import type { CoachProfile } from "@/types/coach";
+import type { ProductBrandOption } from "@/types/showcase";
 
 import { useAuth } from "@/components/auth-provider";
 import { env } from "@/config/env";
+import { isSubscriptionRequired } from "@/config/practice";
 import { usePinLocationLookup } from "@/hooks/use-pin-location-lookup";
 import { useScrollTopOnChange } from "@/hooks/use-scroll-top-on-change";
 import { updateCoachMedia } from "@/lib/api/coach";
@@ -21,6 +25,7 @@ import {
   fetchAuthedCoachProfile,
   saveCoachProfileEssentials,
 } from "@/lib/api/practice";
+import { fetchProductBrands } from "@/lib/api/showcase";
 import { refreshPremiumStatus } from "@/lib/auth/premium-status";
 import { saveSession } from "@/lib/auth/session";
 import {
@@ -32,104 +37,19 @@ import { premiumHref } from "@/lib/premium-link";
 import { getProfileCompletion } from "@/lib/profile-completion";
 import { validateRequired } from "@/lib/validation";
 
-/** Empty input is missing. 0 is a saved value and still counts, matching the API. */
-export function enteredCount(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (!trimmed) return null;
-  const value = Number(trimmed);
-  return Number.isFinite(value) ? value : null;
-}
+import {
+  enteredCount,
+  profileDraftKey,
+  profileTextFromCoach,
+} from "./profile-draft";
 
-export type ProfileDraft = {
-  coachName: string;
-  businessName: string;
-  tagline: string;
-  coachDesc: string;
-  coachTypeCode: string;
-  serviceCodes: string[];
-  locality: string;
-  addLine: string;
-  city: string;
-  stateCd: string;
-  countryCd: string;
-  pinCode: string;
-  mobile: string;
-  email: string;
-  localLanguage: string;
-  recheckupDays: string;
-  experienceYears: string;
-  happyClients: string;
-  certifications: string;
-  bmiTemplate: string;
-  dietTemplate: string;
-  logoPick: boolean;
-  photoPick: boolean;
-  coverPick: boolean;
+export {
+  enteredCount,
+  profileDraftKey,
+  profileTextFromCoach,
+  type ProfileDraft,
+  type ProfileText,
 };
-
-export type ProfileText = Omit<
-  ProfileDraft,
-  "logoPick" | "photoPick" | "coverPick"
->;
-
-export function profileTextFromCoach(
-  coach: CoachProfile,
-  emailFallback?: string | null,
-): ProfileText {
-  return {
-    coachName: coach.coachName ?? "",
-    businessName: coach.businessName ?? "",
-    tagline: coach.tagline ?? "",
-    coachDesc: coach.coachDesc ?? "",
-    coachTypeCode: coach.coachTypeCode ?? "",
-    serviceCodes: coach.serviceCodes ?? [],
-    locality: coach.locality ?? "",
-    addLine: coach.add_Line ?? "",
-    city: coach.city_Cd ?? "",
-    stateCd: coach.state_Cd ?? "",
-    countryCd: coach.country_Cd || "IN",
-    pinCode: coach.pinCode ?? "",
-    mobile: coach.mobile ?? "",
-    email: coach.email ?? emailFallback ?? "",
-    localLanguage: coach.localLanguage ?? "",
-    recheckupDays: String(coach.recheckupDays ?? 7),
-    experienceYears:
-      coach.experienceYears != null ? String(coach.experienceYears) : "",
-    happyClients:
-      coach.happyClientCount != null ? String(coach.happyClientCount) : "",
-    certifications:
-      coach.certificationCount != null ? String(coach.certificationCount) : "",
-    bmiTemplate: coach.bmiReportTemplate ?? "",
-    dietTemplate: coach.dietChartTemplate ?? "",
-  };
-}
-
-export function profileDraftKey(draft: ProfileDraft) {
-  return JSON.stringify({
-    ...draft,
-    coachName: draft.coachName.trim(),
-    businessName: draft.businessName.trim(),
-    tagline: draft.tagline.trim(),
-    coachDesc: draft.coachDesc.trim(),
-    coachTypeCode: draft.coachTypeCode.trim(),
-    serviceCodes: [...draft.serviceCodes].sort(),
-    locality: draft.locality.trim(),
-    addLine: draft.addLine.trim(),
-    city: draft.city.trim(),
-    stateCd: draft.stateCd.trim(),
-    countryCd: draft.countryCd.trim(),
-    pinCode: draft.pinCode.trim(),
-    mobile: draft.mobile.trim(),
-    email: draft.email.trim(),
-    localLanguage: draft.localLanguage.trim(),
-    recheckupDays: String(Number(draft.recheckupDays) || 7),
-    experienceYears: String(Number(draft.experienceYears) || 0),
-    happyClients: String(Number(draft.happyClients) || 0),
-    certifications: String(Number(draft.certifications) || 0),
-    bmiTemplate: draft.bmiTemplate.trim(),
-    dietTemplate: draft.dietTemplate.trim(),
-  });
-}
 
 /** State and actions for the coach profile page: view, edit steps and save. */
 export function useProfileEditor() {
@@ -167,12 +87,14 @@ export function useProfileEditor() {
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
   const [localLanguage, setLocalLanguage] = useState("");
+  const [brandCode, setBrandCode] = useState("");
+  const [productBrands, setProductBrands] = useState<ProductBrandOption[]>([]);
+  const [bmiTemplate, setBmiTemplate] = useState("");
+  const [dietTemplate, setDietTemplate] = useState("");
   const [recheckupDays, setRecheckupDays] = useState("7");
   const [experienceYears, setExperienceYears] = useState("");
   const [happyClients, setHappyClients] = useState("");
   const [certifications, setCertifications] = useState("");
-  const [bmiTemplate, setBmiTemplate] = useState("");
-  const [dietTemplate, setDietTemplate] = useState("");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
@@ -207,6 +129,7 @@ export function useProfileEditor() {
         locality,
         add_Line: addLine,
         profile_Pic_Url: profilePicUrl,
+        brandCode,
         isProfileVisible: profile?.isProfileVisible,
         missingPublicFields: profile?.missingPublicFields,
       }),
@@ -223,6 +146,7 @@ export function useProfileEditor() {
       locality,
       addLine,
       profilePicUrl,
+      brandCode,
       profile?.isProfileVisible,
       profile?.missingPublicFields,
     ],
@@ -247,12 +171,13 @@ export function useProfileEditor() {
         mobile,
         email,
         localLanguage,
+        brandCode,
+        bmiTemplate,
+        dietTemplate,
         recheckupDays,
         experienceYears,
         happyClients,
         certifications,
-        bmiTemplate,
-        dietTemplate,
         logoPick: Boolean(logoPick),
         photoPick: Boolean(photoPick),
         coverPick: Boolean(coverPick),
@@ -276,12 +201,13 @@ export function useProfileEditor() {
     mobile,
     email,
     localLanguage,
+    brandCode,
+    bmiTemplate,
+    dietTemplate,
     recheckupDays,
     experienceYears,
     happyClients,
     certifications,
-    bmiTemplate,
-    dietTemplate,
     logoPick,
     photoPick,
     coverPick,
@@ -289,6 +215,9 @@ export function useProfileEditor() {
 
   useEffect(() => {
     void fetchCoachCategories().then(setCategories);
+    void fetchProductBrands()
+      .then(setProductBrands)
+      .catch(() => setProductBrands([]));
   }, []);
 
   useEffect(() => {
@@ -316,9 +245,12 @@ export function useProfileEditor() {
 
   useEffect(() => {
     let cancelled = false;
+    const subscriptionOn = isSubscriptionRequired();
     void Promise.all([
       fetchAuthedCoachProfile(),
-      refreshPremiumStatus().catch(() => undefined),
+      subscriptionOn ?
+        refreshPremiumStatus().catch(() => undefined)
+      : Promise.resolve(undefined),
     ])
       .then(([p, paid]) => {
         if (cancelled) return;
@@ -341,10 +273,12 @@ export function useProfileEditor() {
             );
           }
         }
-        if (typeof paid === "boolean") {
-          setPremiumLabel(paid ? "Active" : "Free plan");
-        } else {
-          setPremiumLabel("Status unavailable");
+        if (subscriptionOn) {
+          if (typeof paid === "boolean") {
+            setPremiumLabel(paid ? "Active" : "Free plan");
+          } else {
+            setPremiumLabel("Status unavailable");
+          }
         }
       })
       .catch((err) => {
@@ -374,12 +308,13 @@ export function useProfileEditor() {
     setMobile(draft.mobile);
     setEmail(draft.email);
     setLocalLanguage(draft.localLanguage);
+    setBrandCode(draft.brandCode);
+    setBmiTemplate(draft.bmiTemplate);
+    setDietTemplate(draft.dietTemplate);
     setRecheckupDays(draft.recheckupDays);
     setExperienceYears(draft.experienceYears);
     setHappyClients(draft.happyClients);
     setCertifications(draft.certifications);
-    setBmiTemplate(draft.bmiTemplate);
-    setDietTemplate(draft.dietTemplate);
   }
 
   function currentProfileText(): ProfileText {
@@ -399,12 +334,13 @@ export function useProfileEditor() {
       mobile,
       email,
       localLanguage,
+      brandCode,
+      bmiTemplate,
+      dietTemplate,
       recheckupDays,
       experienceYears,
       happyClients,
       certifications,
-      bmiTemplate,
-      dietTemplate,
     };
   }
 
@@ -418,6 +354,16 @@ export function useProfileEditor() {
     setMessage(null);
     setEditStep(1);
     setEditing(true);
+    if (baseline) {
+      setSavedKey(
+        profileDraftKey({
+          ...baseline,
+          logoPick: false,
+          photoPick: false,
+          coverPick: false,
+        }),
+      );
+    }
   }
 
   function cancelEdit() {
@@ -536,9 +482,10 @@ export function useProfileEditor() {
   }
 
   async function save() {
-    if (!profile || !profileDirty) return;
+    if (!profile) return;
     const problems: Array<[number, string | null]> = [
       [1, validateRequired(coachName, "Display name")],
+      [2, validateRequired(brandCode, "Product brand")],
       [2, validateRequired(experienceYears, "Experience")],
       [2, validateRequired(happyClients, "Happy clients")],
       [
@@ -587,6 +534,12 @@ export function useProfileEditor() {
         country_Cd: countryCd.trim(),
         pinCode: pinCode.trim(),
         localLanguage: localLanguage.trim(),
+        brandCode:
+          profile.brandCode?.trim() ?
+            profile.brandCode.trim()
+          : brandCode.trim(),
+        bmiReportTemplate: bmiTemplate.trim(),
+        dietChartTemplate: dietTemplate.trim(),
         recheckupDays: Number(recheckupDays),
         experienceYears: Number(experienceYears) || 0,
         happyClientCount: Number(happyClients) || 0,
@@ -596,8 +549,6 @@ export function useProfileEditor() {
         logo_Url: media.logo_Url ?? logoUrl,
         profile_Pic_Url: media.profile_Pic_Url ?? profilePicUrl,
         cover_Url: media.cover_Url ?? coverUrl,
-        bmiReportTemplate: bmiTemplate.trim(),
-        dietChartTemplate: dietTemplate.trim(),
       });
       let refreshed: CoachProfile | null = null;
       try {
@@ -730,7 +681,14 @@ export function useProfileEditor() {
     email,
     setEmail,
     localLanguage,
+    brandCode,
+    productBrands,
+    bmiTemplate,
+    dietTemplate,
     setLocalLanguage,
+    setBrandCode,
+    setBmiTemplate,
+    setDietTemplate,
     recheckupDays,
     setRecheckupDays,
     experienceYears,
@@ -739,10 +697,6 @@ export function useProfileEditor() {
     setHappyClients,
     certifications,
     setCertifications,
-    bmiTemplate,
-    setBmiTemplate,
-    dietTemplate,
-    setDietTemplate,
     logoUrl,
     setLogoUrl,
     profilePicUrl,

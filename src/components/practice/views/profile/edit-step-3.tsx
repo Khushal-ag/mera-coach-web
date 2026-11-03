@@ -1,7 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import type { ProfileEditor } from "./use-profile-editor";
 
+import type { MasterOption } from "@/lib/api/master";
+
+import { MenuSelect } from "@/components/ui/menu-select";
+import { fetchMasterOptions } from "@/lib/api/master";
 import { cn } from "@/lib/utils";
 
 export function ProfileEditStep3({ editor }: { editor: ProfileEditor }) {
@@ -22,6 +28,16 @@ export function ProfileEditStep3({ editor }: { editor: ProfileEditor }) {
     setPinCode,
     pinLookup,
   } = editor;
+  const [countries, setCountries] = useState<MasterOption[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    void fetchMasterOptions("Country").then((rows) => {
+      if (!cancelled) setCountries(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   return (
     <div className={cn("rg-panel", editStep === 3 ? "" : "rg-hidden")}>
       <div className="rg-section-head">
@@ -30,7 +46,10 @@ export function ProfileEditStep3({ editor }: { editor: ProfileEditor }) {
         </div>
         <div>
           <h2>Contact & Location</h2>
-          <p>Where clients can find you</p>
+          <p>
+            Where clients can find you. Enter your PIN code to auto-fill city
+            and state.
+          </p>
         </div>
       </div>
       <div className="rg-grid">
@@ -54,12 +73,23 @@ export function ProfileEditStep3({ editor }: { editor: ProfileEditor }) {
           : null}
         </div>
         <div className="rg-field rg-col-2">
-          <label>
-            <i className="fas fa-location-arrow" /> Locality
+          <label htmlFor="peCountry">
+            <i className="fas fa-globe" /> Country
           </label>
-          <input
-            value={locality}
-            onChange={(e) => setLocality(e.target.value)}
+          <MenuSelect
+            id="peCountry"
+            skin="public"
+            className="ui-select"
+            value={countryCd}
+            placeholder="Select country"
+            options={[
+              { value: "", label: "Select country" },
+              ...countries.map((item) => ({
+                value: item.code,
+                label: item.label,
+              })),
+            ]}
+            onChange={(event) => setCountryCd(event.target.value)}
           />
         </div>
         <div className="rg-field rg-col-2">
@@ -76,11 +106,11 @@ export function ProfileEditStep3({ editor }: { editor: ProfileEditor }) {
         </div>
         <div className="rg-field rg-col-2">
           <label>
-            <i className="fas fa-globe" /> Country code
+            <i className="fas fa-location-arrow" /> Locality
           </label>
           <input
-            value={countryCd}
-            onChange={(e) => setCountryCd(e.target.value)}
+            value={locality}
+            onChange={(e) => setLocality(e.target.value)}
           />
         </div>
         <div className="rg-field rg-col-2">

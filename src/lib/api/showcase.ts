@@ -12,7 +12,19 @@ import type {
 import { authedFetch } from "@/lib/api/authed";
 import { apiFetch } from "@/lib/api/client";
 import { fetchMasterItems } from "@/lib/api/master";
-import { isApiSuccess, num, text } from "@/lib/api/normalize";
+import { isApiSuccess, num, pick, text } from "@/lib/api/normalize";
+
+/** Human-readable brand name from master list; falls back to the code. */
+export function productBrandLabel(
+  brands: readonly ProductBrandOption[],
+  code: string,
+): string {
+  const trimmed = code.trim();
+  if (!trimmed) return "";
+  return (
+    brands.find((brand) => brand.code === trimmed)?.label.trim() || trimmed
+  );
+}
 
 function mapPackage(raw: unknown): CoachShowcasePackage {
   const r = (raw ?? {}) as Record<string, unknown>;
@@ -67,6 +79,27 @@ export async function fetchPostCategories(): Promise<PostCategoryOption[]> {
   }));
 }
 
+export type ReportTemplate = {
+  code: string;
+  label: string;
+  isDefault: boolean;
+};
+
+/** BMI report or diet plan designs from MstReportTemplate. `code` is the file name the API renders. */
+export async function fetchReportTemplates(
+  type: "BMI" | "DIET",
+): Promise<ReportTemplate[]> {
+  const response = await fetchMasterItems({
+    ItemType: type === "BMI" ? "BMITEMPLATE" : "DIETTEMPLATE",
+  });
+  if (!isApiSuccess(response)) return [];
+  return (response.responseObj ?? []).map((item) => ({
+    code: item.code,
+    label: item.label,
+    isDefault: item.description === "default",
+  }));
+}
+
 export async function fetchProductBrands(): Promise<ProductBrandOption[]> {
   const response = await fetchMasterItems({ ItemType: "PRODUCTBRAND" });
   if (!isApiSuccess(response)) return [];
@@ -76,6 +109,22 @@ export async function fetchProductBrands(): Promise<ProductBrandOption[]> {
   }));
 }
 
+/** Map one Showcase product row (camelCase or PascalCase ASP.NET payload). */
+export function mapProductItemOption(
+  raw: unknown,
+  brandCode: string,
+): ProductItemOption {
+  const r = (raw ?? {}) as Record<string, unknown>;
+  return {
+    code: text(pick(r, "itemCode", "ItemCode")),
+    label: text(pick(r, "itemName", "ItemName")),
+    brandCode,
+    price: num(pick(r, "price", "Price")),
+    category: text(pick(r, "category", "Category")),
+    packSize: text(pick(r, "packSize", "PackSize")),
+  };
+}
+
 export async function fetchProductItems(
   brandCode: string,
 ): Promise<ProductItemOption[]> {
@@ -83,17 +132,7 @@ export async function fetchProductItems(
   const rows = await authedFetch<unknown[]>(
     `Showcase/products?brandCode=${encodeURIComponent(brandCode)}`,
   );
-  return (rows ?? []).map((raw) => {
-    const r = (raw ?? {}) as Record<string, unknown>;
-    return {
-      code: text(r.itemCode),
-      label: text(r.itemName),
-      brandCode,
-      price: num(r.price),
-      category: text(r.category),
-      packSize: text(r.packSize),
-    };
-  });
+  return (rows ?? []).map((raw) => mapProductItemOption(raw, brandCode));
 }
 
 // ── Coach's own packages and posts ─────────────────────────────────────────

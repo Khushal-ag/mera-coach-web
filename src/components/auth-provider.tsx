@@ -11,6 +11,7 @@ import {
 
 import type { CoachSession } from "@/lib/auth/types";
 
+import { isSubscriptionRequired } from "@/config/practice";
 import { markClientReady, useMounted } from "@/hooks/use-mounted";
 import { ensurePremiumStatus } from "@/lib/auth/premium-status";
 import {
@@ -47,7 +48,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const restored = reloadSession();
     markClientReady();
-    if (restored && typeof restored.premiumPaid !== "boolean") {
+    if (
+      isSubscriptionRequired() &&
+      restored &&
+      typeof restored.premiumPaid !== "boolean"
+    ) {
       void ensurePremiumStatus().catch(() => undefined);
     }
   }, []);

@@ -18,7 +18,7 @@ export function validateRegisterImage(file: File): ImageValidationError | null {
   }
   if (file.size > REGISTER_IMAGE_MAX_BYTES) {
     return {
-      message: `"${file.name}" is too large. Maximum size is 2 MB.`,
+      message: `"${file.name}" is too large. Maximum size is 5 MB.`,
     };
   }
   return null;

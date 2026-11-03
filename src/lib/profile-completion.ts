@@ -19,6 +19,7 @@ type ProfileCompletionInput = {
   locality?: string | null;
   add_Line?: string | null;
   profile_Pic_Url?: string | null;
+  brandCode?: string | null;
   isProfileVisible?: boolean;
   missingPublicFields?: string[] | null;
 };
@@ -59,6 +60,11 @@ export function getProfileCompletion(
     },
     { key: "city", label: "City", done: hasText(profile.city_Cd) },
     { key: "tagline", label: "Tagline", done: hasText(profile.tagline) },
+    {
+      key: "brand",
+      label: "Product brand",
+      done: hasText(profile.brandCode),
+    },
     {
       key: "description",
       label: "About / description",

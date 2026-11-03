@@ -14,6 +14,7 @@ import type { ReviewsPage } from "@/types/reviews";
 
 import { useAuth } from "@/components/auth-provider";
 import { ClientAvatar } from "@/components/practice/client-avatar";
+import { EmptyState } from "@/components/practice/empty-state";
 import { PracticePageHeader } from "@/components/practice/page-header";
 import { PhotoGallery } from "@/components/practice/photo-gallery";
 import { ClientBmiReportView } from "@/components/practice/views/client-bmi-report";
@@ -27,7 +28,11 @@ import {
   CLIENT_PROGRESS_DOC_TYPE,
   CLIENT_PROGRESS_REF_TYPE,
 } from "@/constants/documents";
-import { fetchParamList, resolveParamLabel } from "@/lib/api/master";
+import {
+  fetchParamList,
+  resolveParamLabel,
+  resolveParamLabels,
+} from "@/lib/api/master";
 import { fetchClientDetail } from "@/lib/api/practice";
 import { fetchMyReviews } from "@/lib/api/reviews";
 import { formatBmi, getBmi, getBmiCategory } from "@/lib/bmi";
@@ -248,11 +253,7 @@ export function ClientDetailView() {
     [paramLists],
   );
   const labels = (value: string | undefined, paramCode: string) =>
-    (value ?? "")
-      .split(",")
-      .map((part) => label(part, paramCode))
-      .filter(Boolean)
-      .join(", ");
+    resolveParamLabels(value, paramLists[paramCode] ?? []);
 
   useEffect(() => {
     if (!code) return;
@@ -370,7 +371,7 @@ export function ClientDetailView() {
       <div
         role="tablist"
         aria-label="Client profile"
-        className="mb-6 flex gap-1 overflow-x-auto border-b border-line"
+        className="cl-client-tabs mb-6 flex gap-1 overflow-x-auto border-b border-line"
       >
         {clientTabs.map((item) => {
           const selected = tab === item.id;
@@ -534,6 +535,13 @@ export function ClientDetailView() {
             </aside>
           </div>
         </div>
+      : !loading && !detail ?
+        <EmptyState
+          icon="fas fa-user-slash"
+          title="Client not found"
+          description="This client may have been removed or the link is incorrect."
+          tone="error"
+        />
       : null}
     </div>
   );

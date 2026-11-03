@@ -255,7 +255,7 @@ export function PostForm({ categories, initial, onPublish, onCancel }: Props) {
                 Click to upload
               </span>
               <span className="text-xs text-ink-muted">
-                Photo or video (max 10 MB)
+                Photo (max 5 MB) or video (max 25 MB)
               </span>
             </button>
           }

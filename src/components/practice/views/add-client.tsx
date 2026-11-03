@@ -8,9 +8,10 @@ import { AssessmentWizardLazy as AssessmentWizard } from "@/components/assessmen
 import { useAuth } from "@/components/auth-provider";
 import { PracticePageHeader } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
-import { isSubscriptionRequired } from "@/config/practice";
+import { FREE_CLIENT_LIMIT, isSubscriptionRequired } from "@/config/practice";
 import { ADD_CLIENT_PREMIUM_HREF } from "@/constants/routes";
-import { fetchAuthedCoachProfile } from "@/lib/api/practice";
+import { SUPPORT_EMAIL } from "@/constants/support";
+import { fetchAuthedCoachProfile, fetchClientList } from "@/lib/api/practice";
 import { ensurePremiumStatus } from "@/lib/auth/premium-status";
 
 function subscriptionError(err: unknown) {
@@ -25,14 +26,34 @@ export function AddClientView() {
   const [message, setMessage] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [countryCd, setCountryCd] = useState("IN");
+  const [clientLimitHit, setClientLimitHit] = useState(false);
   const required = isSubscriptionRequired();
   const paid = session?.premiumPaid;
-  const allowed = !required || paid === true;
+  const allowed = !clientLimitHit && (!required || paid === true);
 
   useEffect(() => {
     if (!required || paid !== false) return;
     router.replace(ADD_CLIENT_PREMIUM_HREF);
   }, [paid, required, router]);
+
+  useEffect(() => {
+    if (required || !session?.coachCode) return;
+    let cancelled = false;
+    void fetchClientList({ coachCode: session.coachCode })
+      .then((clients) => {
+        if (!cancelled && clients.length >= FREE_CLIENT_LIMIT) {
+          setClientLimitHit(true);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setMessage(subscriptionError(err));
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [required, session?.coachCode]);
 
   useEffect(() => {
     if (!required || typeof paid === "boolean") return;
@@ -68,6 +89,31 @@ export function AddClientView() {
   }, [allowed]);
 
   if (required && paid === false) return null;
+
+  if (clientLimitHit) {
+    return (
+      <div className="min-w-0 space-y-4">
+        <PracticePageHeader
+          title="New Client"
+          crumbs={[
+            { label: "Home", href: "/dashboard" },
+            { label: "Clients", href: "/dashboard/clients" },
+            { label: "Add client" },
+          ]}
+          description="You've reached the current client limit."
+        />
+        <AlertBanner tone="info">
+          {`You can add up to ${FREE_CLIENT_LIMIT} clients for now. To add more, write to us at ${SUPPORT_EMAIL}.`}
+        </AlertBanner>
+        <Link
+          href="/dashboard/clients"
+          className="mc-btn-secondary w-full sm:w-auto"
+        >
+          Back to clients
+        </Link>
+      </div>
+    );
+  }
 
   if (required && typeof paid !== "boolean") {
     if (!message) return null;

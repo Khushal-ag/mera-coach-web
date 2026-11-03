@@ -1,6 +1,7 @@
 import type { CoachSession } from "@/lib/auth/types";
 import type { CoachLoginInput, CoachLoginResult } from "@/types/auth";
 
+import { isSubscriptionRequired } from "@/config/practice";
 import { apiFetch } from "@/lib/api/client";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { ApiRequestError } from "@/lib/api/types";
@@ -58,7 +59,9 @@ export async function loginCoach(
     }
 
     saveSession(session);
-    void ensurePremiumStatus().catch(() => undefined);
+    if (isSubscriptionRequired()) {
+      void ensurePremiumStatus().catch(() => undefined);
+    }
     return { error: null, session };
   } catch (error) {
     if (error instanceof ApiRequestError) {

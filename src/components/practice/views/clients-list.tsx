@@ -17,6 +17,7 @@ import {
   useSortedRows,
 } from "@/components/practice/clt-list";
 import { TableSkeletonRows } from "@/components/skeletons/client-profile-skeleton";
+import { AlertBanner } from "@/components/ui/alert-banner";
 import { AVATAR_COLORS } from "@/constants/brand";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import { fetchClientList } from "@/lib/api/practice";
@@ -130,10 +131,10 @@ export function ClientsListView() {
         }
       />
       {error ?
-        <p className="rg-alert">{error}</p>
+        <AlertBanner tone="error">{error}</AlertBanner>
       : null}
       {gateError ?
-        <p className="rg-alert">{gateError}</p>
+        <AlertBanner tone="error">{gateError}</AlertBanner>
       : null}
       <CltSearchCard
         optionId="cltSearchOption"
@@ -176,7 +177,7 @@ export function ClientsListView() {
             }}
           />
           <div className="clt-table-wrap">
-            <table className="clt-table">
+            <table className="clt-table clt-table--clients">
               <thead>
                 <tr>
                   <CltSortTh
@@ -221,10 +222,10 @@ export function ClientsListView() {
                     sort={sort}
                     onSort={toggle}
                   />
-                  <th>Check-up</th>
-                  <th>Report</th>
-                  <th>Diet Chart</th>
-                  <th>Feedback</th>
+                  <th className="clt-th-actions">Check-up</th>
+                  <th className="clt-th-actions">Report</th>
+                  <th className="clt-th-actions">Diet</th>
+                  <th className="clt-th-actions">Feedback</th>
                 </tr>
               </thead>
               <tbody>
@@ -288,12 +289,9 @@ export function ClientsListView() {
                               <i className="fas fa-calendar-alt" />
                               &nbsp;{client.lastCheckupDate}
                             </span>
-                          : <span style={{ color: "#b8a898", fontSize: 12 }}>
-                              No check-up
-                            </span>
-                          }
+                          : <span className="clt-muted">No check-up</span>}
                         </td>
-                        <td>
+                        <td className="clt-td-actions">
                           <Link
                             href={checkupHref}
                             className="clt-action-btn clt-ab-checkup"
@@ -302,7 +300,7 @@ export function ClientsListView() {
                             <i className="fas fa-clipboard-list" />
                           </Link>
                         </td>
-                        <td>
+                        <td className="clt-td-actions">
                           <Link
                             href={reportHref}
                             className="clt-action-btn clt-ab-report"
@@ -311,7 +309,7 @@ export function ClientsListView() {
                             <i className="fas fa-chart-bar" />
                           </Link>
                         </td>
-                        <td>
+                        <td className="clt-td-actions">
                           {dietReady ?
                             <Link
                               href={`/dashboard/clients/${encodeURIComponent(code)}/diet`}
@@ -321,15 +319,15 @@ export function ClientsListView() {
                               <i className="fas fa-utensils" />
                             </Link>
                           : <span
-                              className="clt-action-btn"
-                              style={{ opacity: 0.3, cursor: "not-allowed" }}
+                              className="clt-action-btn clt-action-disabled"
                               title="Lifestyle & Current Diet not captured yet"
+                              aria-disabled="true"
                             >
                               <i className="fas fa-utensils" />
                             </span>
                           }
                         </td>
-                        <td>
+                        <td className="clt-td-actions">
                           <button
                             type="button"
                             className="clt-action-btn clt-ab-feedback"
@@ -388,26 +386,8 @@ export function ClientsListView() {
         onClose={() => setFeedbackClient(null)}
       />
       {toastMessage ?
-        <div
-          style={{
-            position: "fixed",
-            bottom: 24,
-            right: 24,
-            backgroundColor: "#111827",
-            color: "#ffffff",
-            padding: "12px 20px",
-            borderRadius: 10,
-            fontSize: 13,
-            fontWeight: 600,
-            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.2)",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            zIndex: 10000,
-            animation: "fadeIn 0.2s ease-out",
-          }}
-        >
-          <i className="fas fa-check-circle" style={{ color: "#10b981" }} />
+        <div className="cl-toast" role="status">
+          <i className="fas fa-check-circle cl-toast-icon" aria-hidden />
           {toastMessage}
         </div>
       : null}

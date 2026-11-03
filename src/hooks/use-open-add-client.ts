@@ -3,11 +3,17 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { isSubscriptionRequired } from "@/config/practice";
+import { FREE_CLIENT_LIMIT, isSubscriptionRequired } from "@/config/practice";
 import { ADD_CLIENT_PREMIUM_HREF } from "@/constants/routes";
+import { SUPPORT_EMAIL } from "@/constants/support";
 import { resolveAddClientAccess } from "@/lib/add-client-access";
+import { fetchClientList } from "@/lib/api/practice";
 import { ensurePremiumStatus } from "@/lib/auth/premium-status";
 import { getSession } from "@/lib/auth/session";
+
+function clientLimitMessage() {
+  return `You can add up to ${FREE_CLIENT_LIMIT} clients for now. To add more, write to us at ${SUPPORT_EMAIL}.`;
+}
 
 /**
  * Add Client uses the premium flag already stored on the session.
@@ -20,6 +26,25 @@ export function useOpenAddClient() {
   const openAddClient = useCallback(async () => {
     setError(null);
     if (!isSubscriptionRequired()) {
+      const coachCode = getSession()?.coachCode?.trim();
+      if (!coachCode) {
+        setError("Sign in required.");
+        return;
+      }
+      try {
+        const clients = await fetchClientList({ coachCode });
+        if (clients.length >= FREE_CLIENT_LIMIT) {
+          setError(clientLimitMessage());
+          return;
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ?
+            err.message
+          : "Could not check your clients. Try again.",
+        );
+        return;
+      }
       router.push("/dashboard/clients/new");
       return;
     }

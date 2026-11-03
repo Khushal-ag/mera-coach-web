@@ -187,9 +187,12 @@ export function PostsListView() {
             ))}
           </div>
           {shown.length === 0 ?
-            <p className="py-10 text-center text-sm text-ink-muted">
-              Nothing in this category yet.
-            </p>
+            <EmptyState
+              icon="fas fa-filter"
+              title="Nothing in this category"
+              description="Switch to another tab or add a post in this category."
+              className="py-10"
+            />
           : <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {shown.map((post) => (
                 <article

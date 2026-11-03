@@ -480,6 +480,12 @@ export async function fetchAuthedCoachProfile(): Promise<CoachProfile | null> {
     ),
     localLanguage:
       String(pick(raw, "localLanguage", "LocalLanguage") ?? "") || null,
+    brandCode: String(pick(raw, "brandCode", "BrandCode") ?? "") || null,
+    brandName: String(pick(raw, "brandName", "BrandName") ?? "") || null,
+    bmiReportTemplate:
+      String(pick(raw, "bmiReportTemplate", "BmiReportTemplate") ?? "") || null,
+    dietChartTemplate:
+      String(pick(raw, "dietChartTemplate", "DietChartTemplate") ?? "") || null,
     recheckupDays:
       Number(pick(raw, "recheckupDays", "RecheckupDays") ?? 7) || 7,
     email: String(pick(raw, "email", "Email") ?? "") || null,
@@ -492,10 +498,6 @@ export async function fetchAuthedCoachProfile(): Promise<CoachProfile | null> {
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
-    bmiReportTemplate:
-      String(pick(raw, "bmiReportTemplate", "BmiReportTemplate") ?? "") || null,
-    dietChartTemplate:
-      String(pick(raw, "dietChartTemplate", "DietChartTemplate") ?? "") || null,
     isProfileVisible: (() => {
       const v = pick(
         raw,
@@ -532,6 +534,9 @@ export async function saveCoachProfileEssentials(params: {
   country_Cd?: string;
   pinCode?: string;
   localLanguage?: string;
+  bmiReportTemplate?: string;
+  dietChartTemplate?: string;
+  brandCode?: string;
   recheckupDays?: number;
   experienceYears?: number;
   happyClientCount?: number;
@@ -541,8 +546,6 @@ export async function saveCoachProfileEssentials(params: {
   logo_Url?: string | null;
   profile_Pic_Url?: string | null;
   cover_Url?: string | null;
-  bmiReportTemplate?: string;
-  dietChartTemplate?: string;
 }): Promise<void> {
   const { profile } = params;
   await authedFetch("Coach/save", {
@@ -561,6 +564,11 @@ export async function saveCoachProfileEssentials(params: {
         params.certificationCount ?? profile.certificationCount ?? 0,
       tagline: params.tagline,
       localLanguage: params.localLanguage ?? profile.localLanguage ?? "",
+      brandCode: params.brandCode ?? profile.brandCode ?? "",
+      bmiReportTemplate:
+        params.bmiReportTemplate ?? profile.bmiReportTemplate ?? "",
+      dietChartTemplate:
+        params.dietChartTemplate ?? profile.dietChartTemplate ?? "",
       recheckupDays: params.recheckupDays ?? profile.recheckupDays ?? 7,
       locality: params.locality,
       add_Line: params.add_Line ?? profile.add_Line ?? "",
@@ -572,10 +580,6 @@ export async function saveCoachProfileEssentials(params: {
       profile_Pic_Url: params.profile_Pic_Url ?? profile.profile_Pic_Url ?? "",
       cover_Url: params.cover_Url ?? profile.cover_Url ?? "",
       coachDesc: params.coachDesc,
-      bmiReportTemplate:
-        params.bmiReportTemplate ?? profile.bmiReportTemplate ?? "",
-      dietChartTemplate:
-        params.dietChartTemplate ?? profile.dietChartTemplate ?? "",
       serviceCodes: params.serviceCodes ?? profile.serviceCodes ?? [],
     },
   });

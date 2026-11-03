@@ -113,9 +113,8 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
     };
   }, [open]);
 
-  // Free plan or paid: decides whether the sidebar offers an upgrade.
   useEffect(() => {
-    if (!session) return;
+    if (!session || !isSubscriptionRequired()) return;
     let cancelled = false;
     void ensurePremiumStatus()
       .then((value) => {
@@ -169,11 +168,13 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
   const name = freshName || session.fullName || "Coach";
   const mark = initials(name, { fallback: "C" });
   const photo = resolveMediaUrl(freshPhoto || session.profileUrl);
-  const validityInfo = describeValidity(freshValidUpto ?? session.validUpto);
+  const subscriptionOn = isSubscriptionRequired();
+  const validityInfo =
+    subscriptionOn ?
+      describeValidity(freshValidUpto ?? session.validUpto)
+    : null;
   const validity =
-    validityInfo?.dateLabel ||
-    session.validUpto ||
-    (session.premiumPaid ? "Active" : "");
+    validityInfo?.dateLabel || (subscriptionOn ? session.validUpto || "" : "");
   const validityTone = validityInfo?.tone ?? "ok";
   const needsRenewal =
     validityTone !== "ok" && isSubscriptionRequired() && !!validityInfo;
@@ -350,11 +351,11 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
               <button
                 type="button"
                 className="cl-notif-btn"
-                title="Notifications"
-                aria-label="Notifications"
+                disabled
+                title="Notifications are not available yet"
+                aria-label="Notifications are not available yet"
               >
                 <i className="fas fa-bell" />
-                <span className="cl-notif-dot" />
               </button>
               <Link
                 href="/"

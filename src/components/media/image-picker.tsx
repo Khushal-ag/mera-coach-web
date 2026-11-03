@@ -26,7 +26,7 @@ type ImagePickerProps = {
 
 export function ImagePicker({
   label,
-  hint = "JPG, PNG, or WebP · max 2 MB",
+  hint = "JPG, PNG, or WebP · max 5 MB",
   value,
   currentUrl,
   name,

@@ -1,5 +1,17 @@
 /** Offline fallbacks matching mera-coach-app lifestyleOptions. */
 
+/** Synthetic exclusive option for medical / allergy multi-selects (app wire code). */
+export const NONE_OPTION = {
+  code: "NONE_OF_THE_BELOW",
+  label: "None of the below",
+} as const;
+
+/** Master wire codes that are not LI-style item codes — show a fixed label. */
+export const PARAM_WIRE_CODE_LABELS: Record<string, string> = {
+  NONE_OF_THE_BELOW: NONE_OPTION.label,
+  NONE_OF_THE_ABOVE: "None of the above",
+};
+
 export const FOOD_PREFERENCES = [
   "Vegetarian",
   "Vegan",

@@ -3,6 +3,8 @@
 import type { ProfileEditor } from "./use-profile-editor";
 
 import { ServiceMultiSelect } from "@/components/practice/service-multi-select";
+import { MenuSelect } from "@/components/ui/menu-select";
+import { LOCAL_LANGUAGE_OPTIONS } from "@/constants/local-languages";
 import { cn } from "@/lib/utils";
 
 export function ProfileEditStep2({ editor }: { editor: ProfileEditor }) {
@@ -20,6 +22,10 @@ export function ProfileEditStep2({ editor }: { editor: ProfileEditor }) {
     setServiceCodes,
     localLanguage,
     setLocalLanguage,
+    brandCode,
+    setBrandCode,
+    productBrands,
+    profile,
     recheckupDays,
     setRecheckupDays,
     experienceYears,
@@ -30,6 +36,11 @@ export function ProfileEditStep2({ editor }: { editor: ProfileEditor }) {
     setCertifications,
     visibleServiceOptions,
   } = editor;
+  const savedBrandCode = profile?.brandCode?.trim() ?? "";
+  const brandLocked = savedBrandCode.length > 0;
+  const brandLabel =
+    productBrands.find((brand) => brand.code === savedBrandCode)?.label ??
+    savedBrandCode;
   return (
     <div className={cn("rg-panel", editStep === 2 ? "" : "rg-hidden")}>
       <div className="rg-section-head">
@@ -50,6 +61,38 @@ export function ProfileEditStep2({ editor }: { editor: ProfileEditor }) {
             value={businessName}
             onChange={(e) => setBusinessName(e.target.value)}
           />
+        </div>
+        <div className="rg-field rg-col-2">
+          <label htmlFor="peProductBrand">
+            <i className="fas fa-tags" /> Product brand
+            <span className="rg-req" aria-hidden>
+              *
+            </span>
+          </label>
+          {brandLocked ?
+            <p className="ui-select border-border bg-muted/40 text-foreground flex min-h-11 items-center rounded-md border px-3.5 py-2 text-base">
+              {brandLabel}
+            </p>
+          : <MenuSelect
+              id="peProductBrand"
+              skin="public"
+              className="ui-select"
+              value={brandCode}
+              placeholder="Select brand"
+              options={[
+                { value: "", label: "Select brand" },
+                ...productBrands.map((brand) => ({
+                  value: brand.code,
+                  label: brand.label,
+                })),
+              ]}
+              onChange={(event) => setBrandCode(event.target.value)}
+            />
+          }
+          <small>
+            Used for your product packages. Package pages use this brand
+            automatically. Brand is fixed after you save it once.
+          </small>
         </div>
         <div className="rg-field rg-col-2">
           <label>
@@ -100,12 +143,23 @@ export function ProfileEditStep2({ editor }: { editor: ProfileEditor }) {
           />
         </div>
         <div className="rg-field rg-col-2">
-          <label>
+          <label htmlFor="peLanguage">
             <i className="fas fa-language" /> Local language
           </label>
-          <input
+          <MenuSelect
+            id="peLanguage"
+            skin="public"
+            className="ui-select"
             value={localLanguage}
-            onChange={(e) => setLocalLanguage(e.target.value)}
+            placeholder="Select language"
+            options={[
+              { value: "", label: "Select language" },
+              ...LOCAL_LANGUAGE_OPTIONS.map((item) => ({
+                value: item.code,
+                label: item.label,
+              })),
+            ]}
+            onChange={(event) => setLocalLanguage(event.target.value)}
           />
         </div>
         <div className="rg-field rg-col-2">
@@ -124,6 +178,7 @@ export function ProfileEditStep2({ editor }: { editor: ProfileEditor }) {
           />
           <small>
             Days after an assessment when a client is due for the next one.
+            Clients past this period show as due on your checkup list.
           </small>
         </div>
       </div>

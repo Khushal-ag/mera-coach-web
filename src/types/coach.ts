@@ -58,6 +58,11 @@ export type CoachProfile = {
   happyClientCount?: number;
   certificationCount?: number;
   localLanguage?: string | null;
+  /** Product brand for package catalog (MstProductBrand). */
+  brandCode?: string | null;
+  brandName?: string | null;
+  bmiReportTemplate?: string | null;
+  dietChartTemplate?: string | null;
   /** Days between client assessments. Defaults to 7. */
   recheckupDays?: number;
   rating?: number;
@@ -68,8 +73,6 @@ export type CoachProfile = {
   mobile?: string | null;
   pinCode?: string | null;
   serviceCodes?: string[];
-  bmiReportTemplate?: string | null;
-  dietChartTemplate?: string | null;
   missingPublicFields?: string[];
 };
 

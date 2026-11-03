@@ -12,3 +12,6 @@ function readFlag(raw: string | undefined): boolean {
 export function isSubscriptionRequired(): boolean {
   return readFlag(process.env.NEXT_PUBLIC_SUBSCRIPTION_REQUIRED);
 }
+
+/** Same cap as mera-coach-app when subscription gating is off. */
+export const FREE_CLIENT_LIMIT = 10;

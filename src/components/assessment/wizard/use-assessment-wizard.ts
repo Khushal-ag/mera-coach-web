@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import type { WizardProps } from "./types";
@@ -15,8 +15,12 @@ import {
   PARAM_CODES,
   PARAM_FALLBACKS,
 } from "@/constants/assessment";
+import {
+  CLIENT_PROFILE_DOC_TYPE,
+  CLIENT_PROFILE_REF_TYPE,
+} from "@/constants/documents";
 import { useScrollTopOnChange } from "@/hooks/use-scroll-top-on-change";
-import { uploadDocument } from "@/lib/api/document";
+import { listDocuments, uploadDocument } from "@/lib/api/document";
 import {
   fetchFoodMaster,
   fetchParamList,
@@ -38,8 +42,11 @@ import {
   fileToBase64DataUrl,
   validateRegisterImage,
 } from "@/lib/media/image-file";
+import { resolveMediaUrl } from "@/lib/media/media-url";
 import {
+  CLIENT_PROFILE_PHOTO_REQUIRED,
   validateAge,
+  validateClientProfilePhoto,
   validateEmail,
   validateHeight,
   validateRequired,
@@ -76,6 +83,62 @@ export function useAssessmentWizard({
   const [ids, setIds] = useState<AssessmentIds>(initialIds);
   // One photo for a new client, same as the app: it becomes the profile picture and the first progress photo.
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [existingPhotoForClient, setExistingPhotoForClient] = useState<{
+    clientCode: string;
+    url: string | null;
+  } | null>(null);
+  const existingProfilePhotoUrl =
+    ids.clientCode && existingPhotoForClient?.clientCode === ids.clientCode ?
+      existingPhotoForClient.url
+    : null;
+  const hasExistingProfilePhoto = Boolean(existingProfilePhotoUrl?.trim());
+
+  const loadExistingProfilePhotoForClient = useCallback(
+    async (clientCode: string): Promise<string | null> => {
+      const list = await listDocuments({
+        coachCode,
+        refCode: clientCode,
+        refType: CLIENT_PROFILE_REF_TYPE,
+        docType: CLIENT_PROFILE_DOC_TYPE,
+      });
+      const newest = list.reduce<(typeof list)[number] | null>(
+        (best, item) => (!best || item.docId > best.docId ? item : best),
+        null,
+      );
+      return newest ? resolveMediaUrl(newest.filePath) : null;
+    },
+    [coachCode],
+  );
+
+  const reloadExistingProfilePhoto = useCallback(async () => {
+    const clientCode = ids.clientCode;
+    if (!clientCode || !coachCode) return;
+    try {
+      const url = await loadExistingProfilePhotoForClient(clientCode);
+      setExistingPhotoForClient({ clientCode, url });
+    } catch {
+      setExistingPhotoForClient({ clientCode, url: null });
+    }
+  }, [coachCode, ids.clientCode, loadExistingProfilePhotoForClient]);
+
+  useEffect(() => {
+    const clientCode = ids.clientCode;
+    if (!clientCode || !coachCode) return;
+
+    let cancelled = false;
+    void loadExistingProfilePhotoForClient(clientCode)
+      .then((url) => {
+        if (cancelled) return;
+        setExistingPhotoForClient({ clientCode, url });
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setExistingPhotoForClient({ clientCode, url: null });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [coachCode, ids.clientCode, loadExistingProfilePhotoForClient]);
   const [bmiSaved, setBmiSaved] = useState(false);
   const [hasUnsavedDietPlan, setHasUnsavedDietPlan] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -208,11 +271,20 @@ export function useAssessmentWizard({
     setError(null);
     setPhotoFile(file);
   }
+  function scrollToClientProfilePhoto() {
+    document
+      .getElementById("client-profile-photo")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   function validateIdentity(): string | null {
     // Age is required. Date of birth is optional and fills the age in when given.
     const ageError = validateAge(form.age);
     return (
-      (!ids.clientCode && !photoFile ? "Client photo is required." : null) ??
+      validateClientProfilePhoto({
+        hasExistingProfilePhoto,
+        hasPendingPhoto: Boolean(photoFile),
+      }) ??
       validateRequired(form.clientName, "Full name") ??
       validateRequired(form.mobileNo, "Mobile number") ??
       validateEmail(form.emailId) ??
@@ -247,6 +319,7 @@ export function useAssessmentWizard({
       const v = validateIdentity();
       if (v) {
         setError(v);
+        if (v === CLIENT_PROFILE_PHOTO_REQUIRED) scrollToClientProfilePhoto();
         return false;
       }
       const next = await saveClientDetail({
@@ -273,7 +346,11 @@ export function useAssessmentWizard({
         // The client is already saved, so a failed upload is reported but does not undo it.
         try {
           const dataUrl = await fileToBase64DataUrl(photoFile);
-          for (const docType of ["PROFILE_PIC", "PROGRESS_PHOTO"] as const) {
+          const docTypes =
+            flow === "checkup" ?
+              (["PROFILE_PIC"] as const)
+            : (["PROFILE_PIC", "PROGRESS_PHOTO"] as const);
+          for (const docType of docTypes) {
             await uploadDocument({
               base64DataUrl: dataUrl,
               coachCode,
@@ -284,6 +361,7 @@ export function useAssessmentWizard({
             });
           }
           setPhotoFile(null);
+          if (flow === "checkup") await reloadExistingProfilePhoto();
         } catch (err) {
           setError(
             err instanceof Error ?
@@ -504,6 +582,9 @@ export function useAssessmentWizard({
     setIds,
     photoFile,
     setPhotoFile,
+    existingProfilePhotoUrl,
+    hasExistingProfilePhoto,
+    reloadExistingProfilePhoto,
     bmiSaved,
     setBmiSaved,
     hasUnsavedDietPlan,

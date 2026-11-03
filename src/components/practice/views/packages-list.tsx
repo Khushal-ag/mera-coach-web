@@ -1,22 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import type {
-  CoachShowcasePackage,
-  ProductBrandOption,
-  SavePackageInput,
-} from "@/types/showcase";
+import type { CoachShowcasePackage, SavePackageInput } from "@/types/showcase";
 
 import { EmptyState } from "@/components/practice/empty-state";
 import { PracticePageHeader } from "@/components/practice/page-header";
 import { PackageEditor } from "@/components/practice/views/package-editor";
 import { PackageCardsSkeleton } from "@/components/skeletons/packages-events-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { fetchAuthedCoachProfile } from "@/lib/api/practice";
 import {
   deletePackage,
   fetchMyPackages,
-  fetchProductBrands,
   savePackage,
   setPackageActive,
 } from "@/lib/api/showcase";
@@ -26,7 +22,9 @@ const MAX_PACKAGES = 10;
 
 export function PackagesListView() {
   const [packages, setPackages] = useState<CoachShowcasePackage[]>([]);
-  const [brands, setBrands] = useState<ProductBrandOption[]>([]);
+  const [coachBrandCode, setCoachBrandCode] = useState("");
+  const [coachBrandName, setCoachBrandName] = useState("");
+  const [profileLoaded, setProfileLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,12 +34,30 @@ export function PackagesListView() {
   const [editing, setEditing] = useState<number | null>(null);
 
   useEffect(() => {
+    if (editing === null) return;
     let cancelled = false;
-    void Promise.all([fetchMyPackages(), fetchProductBrands()])
-      .then(([mine, masters]) => {
+    void fetchAuthedCoachProfile()
+      .then((profile) => {
+        if (!cancelled) {
+          setCoachBrandCode(profile?.brandCode?.trim() ?? "");
+          setCoachBrandName(profile?.brandName?.trim() ?? "");
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [editing]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all([fetchMyPackages(), fetchAuthedCoachProfile()])
+      .then(([mine, profile]) => {
         if (cancelled) return;
         setPackages(mine);
-        setBrands(masters);
+        setCoachBrandCode(profile?.brandCode?.trim() ?? "");
+        setCoachBrandName(profile?.brandName?.trim() ?? "");
+        setProfileLoaded(true);
       })
       .catch((err) => {
         if (!cancelled)
@@ -50,7 +66,10 @@ export function PackagesListView() {
           );
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setProfileLoaded(true);
+        }
       });
     return () => {
       cancelled = true;
@@ -131,11 +150,39 @@ export function PackagesListView() {
   const editingPackage =
     editing ? (packages.find((p) => p.packageId === editing) ?? null) : null;
 
+  const pageDescription = useMemo(() => {
+    const base = `Up to ${MAX_PACKAGES} product packages for your public profile.`;
+    if (coachBrandCode && coachBrandName) {
+      return (
+        <>
+          {base}
+          <span className="mt-2 block text-sm leading-relaxed text-ink-muted">
+            <i className="fas fa-tags text-mc-secondary" aria-hidden />{" "}
+            <span className="font-semibold text-ink">Product brand:</span>{" "}
+            {coachBrandName}
+          </span>
+        </>
+      );
+    }
+    if (profileLoaded && !coachBrandCode && editing === null) {
+      return (
+        <>
+          {base}
+          <span className="mt-2 block text-sm leading-relaxed text-ink-muted">
+            Set a product brand under Edit profile → Professional details before
+            you create packages.
+          </span>
+        </>
+      );
+    }
+    return base;
+  }, [coachBrandCode, coachBrandName, profileLoaded, editing]);
+
   return (
     <div className="min-w-0">
       <PracticePageHeader
         title="Packages"
-        description={`Up to ${MAX_PACKAGES} product packages for your public profile.`}
+        description={pageDescription}
         icon={<i className="fas fa-box" style={{ fontSize: 20 }} aria-hidden />}
         action={
           canAdd && editing === null && packages.length > 0 ?
@@ -164,7 +211,8 @@ export function PackagesListView() {
       {editing !== null ?
         <PackageEditor
           key={editing}
-          brands={brands}
+          coachBrandCode={coachBrandCode}
+          coachBrandName={coachBrandName}
           initial={editingPackage}
           busy={busy}
           error={formError}

@@ -14,6 +14,7 @@ import {
   useSortedRows,
 } from "@/components/practice/clt-list";
 import { TableSkeletonRows } from "@/components/skeletons/client-profile-skeleton";
+import { AlertBanner } from "@/components/ui/alert-banner";
 import { fetchEnquiryLeads, updateEnquiryLead } from "@/lib/api/practice";
 
 export function LeadsListView() {
@@ -116,7 +117,7 @@ export function LeadsListView() {
     <div>
       <CltPageHead title="Leads" crumb="Leads" />
       {error ?
-        <p className="rg-alert">{error}</p>
+        <AlertBanner tone="error">{error}</AlertBanner>
       : null}
       <div className="clt-card">
         <div className="clt-card-header">
@@ -140,7 +141,7 @@ export function LeadsListView() {
             }}
           />
           <div className="clt-table-wrap">
-            <table className="clt-table">
+            <table className="clt-table clt-table--leads">
               <thead>
                 <tr>
                   <CltSortTh
@@ -195,13 +196,7 @@ export function LeadsListView() {
                       </td>
                       <td>{lead.lookingFor || "-"}</td>
                       <td>
-                        <label
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 6,
-                          }}
-                        >
+                        <label className="clt-status-check">
                           <input
                             type="checkbox"
                             checked={lead.isContacted}
@@ -216,8 +211,7 @@ export function LeadsListView() {
                       <td>
                         <input
                           type="text"
-                          className="clt-form-control"
-                          style={{ minWidth: 140 }}
+                          className="clt-form-control clt-notes-input"
                           placeholder="Add note…"
                           defaultValue={lead.notes}
                           disabled={savingId === lead.id}

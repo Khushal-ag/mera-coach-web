@@ -9,9 +9,16 @@ import type { BmiMeasurement, BmiReport } from "@/types/practice";
 import { useAuth } from "@/components/auth-provider";
 import { ListEmpty } from "@/components/list-empty";
 import { EmptyState } from "@/components/practice/empty-state";
+import { PdfDownloadAlert } from "@/components/practice/pdf-download-alert";
 import { BmiReportSkeleton } from "@/components/skeletons/client-profile-skeleton";
 import { BRAND } from "@/constants/brand";
-import { downloadAuthedPdf, PDF_PATH } from "@/lib/api/pdf";
+import {
+  downloadAuthedPdf,
+  HTML_REPORT_PATH,
+  isPdfHostUnavailableError,
+  PDF_PATH,
+  printAuthedHtmlReport,
+} from "@/lib/api/pdf";
 import { fetchBmiReport } from "@/lib/api/practice";
 import { resolveDisplayBmi } from "@/lib/bmi";
 import { genderLabel, initials } from "@/lib/format";
@@ -236,7 +243,7 @@ function ReportBody({ report }: { report: BmiReport }) {
           <h2>Measurement History</h2>
           <div className="tag">BMI Report</div>
         </div>
-        <div className="clt-table-wrap">
+        <div className="bmi-table-wrap">
           <table className="h-table">
             <thead>
               <tr>
@@ -358,12 +365,12 @@ function BmiProgressGraph({
         <h2>Progress Graph</h2>
         <div className="tag">Weight &amp; BMI</div>
       </div>
-      <div style={{ padding: "12px 16px 16px" }}>
+      <div className="bmi-graph-body">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           role="img"
           aria-label="Weight and BMI across check-ups"
-          style={{ width: "100%", height: "auto" }}
+          className="bmi-graph-svg"
         >
           <path
             d={path(weight)}
@@ -423,22 +430,12 @@ function BmiProgressGraph({
             </text>
           ))}
         </svg>
-        <div
-          style={{
-            display: "flex",
-            gap: 18,
-            justifyContent: "center",
-            fontSize: 12,
-            color: BRAND.inkMuted,
-          }}
-        >
+        <div className="bmi-graph-legend">
           <span>
-            <i className="fas fa-minus" style={{ color: BRAND.forest }} />{" "}
-            Weight (kg)
+            <i className="fas fa-minus legend-weight" aria-hidden /> Weight (kg)
           </span>
           <span>
-            <i className="fas fa-ellipsis-h" style={{ color: BRAND.gold }} />{" "}
-            BMI
+            <i className="fas fa-ellipsis-h legend-bmi" aria-hidden /> BMI
           </span>
         </div>
       </div>
@@ -457,8 +454,10 @@ export function ClientBmiReportView({
   const [report, setReport] = useState<BmiReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [pdfHostUnavailable, setPdfHostUnavailable] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [printBusy, setPrintBusy] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
@@ -488,6 +487,24 @@ export function ClientBmiReportView({
     };
   }, [session?.coachCode, code, reloadKey]);
 
+  async function onPrint() {
+    if (!session?.coachCode) return;
+    setPrintBusy(true);
+    setPdfError(null);
+    try {
+      await printAuthedHtmlReport(HTML_REPORT_PATH.bmiReport, {
+        coachCode: session.coachCode,
+        clientCode: code,
+      });
+    } catch (err) {
+      setPdfError(
+        err instanceof Error ? err.message : "Could not open print preview.",
+      );
+    } finally {
+      setPrintBusy(false);
+    }
+  }
+
   async function onPdf() {
     if (!session?.coachCode) return;
     setPdfBusy(true);
@@ -499,9 +516,12 @@ export function ClientBmiReportView({
         "bmi-report.pdf",
       );
     } catch (err) {
-      setPdfError(
-        err instanceof Error ? err.message : "Could not download PDF.",
-      );
+      const message =
+        err instanceof Error ? err.message : "Could not download PDF.";
+      if (isPdfHostUnavailableError(message)) {
+        setPdfHostUnavailable(true);
+      }
+      setPdfError(message);
     } finally {
       setPdfBusy(false);
     }
@@ -518,18 +538,34 @@ export function ClientBmiReportView({
           </Link>
         )}
         {report?.current ?
-          <button
-            type="button"
-            className="btn-pdf"
-            disabled={pdfBusy}
-            onClick={() => void onPdf()}
-          >
-            {pdfBusy ? "Preparing…" : "Download PDF"}
-          </button>
+          <>
+            <button
+              type="button"
+              className="btn-pdf"
+              disabled={printBusy}
+              onClick={() => void onPrint()}
+            >
+              {printBusy ? "Preparing…" : "Print"}
+            </button>
+            {!pdfHostUnavailable ?
+              <button
+                type="button"
+                className="btn-pdf"
+                disabled={pdfBusy}
+                onClick={() => void onPdf()}
+              >
+                {pdfBusy ? "Preparing…" : "Download PDF"}
+              </button>
+            : null}
+          </>
         : null}
       </div>
       {pdfError ?
-        <div className="error-card">{pdfError}</div>
+        <PdfDownloadAlert
+          message={pdfError}
+          className="mb-4"
+          onDismiss={() => setPdfError(null)}
+        />
       : null}
       {loading ?
         <BmiReportSkeleton />

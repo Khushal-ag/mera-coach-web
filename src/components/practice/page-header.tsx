@@ -10,6 +10,8 @@ export type PracticeCrumb = {
 export type PracticeBackLink = {
   href: string;
   label: string;
+  /** For a "page" that is only a state of the current route: runs instead of following the link. */
+  onClick?: () => void;
 };
 
 /**
@@ -47,7 +49,17 @@ export function PracticePageHeader({
           <h1 className="clt-page-title">{title}</h1>
           {back ?
             <nav className="clt-breadcrumb" aria-label="Breadcrumb">
-              <Link href={back.href}>
+              <Link
+                href={back.href}
+                onClick={
+                  back.onClick ?
+                    (event) => {
+                      event.preventDefault();
+                      back.onClick?.();
+                    }
+                  : undefined
+                }
+              >
                 <i className="fas fa-arrow-left" /> {back.label}
               </Link>
             </nav>

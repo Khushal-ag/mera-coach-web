@@ -16,6 +16,7 @@ import {
   useSortedRows,
 } from "@/components/practice/clt-list";
 import { TableSkeletonRows } from "@/components/skeletons/client-profile-skeleton";
+import { AlertBanner } from "@/components/ui/alert-banner";
 import { fetchRecheckupList } from "@/lib/api/practice";
 
 export function CheckupsDueView() {
@@ -86,7 +87,7 @@ export function CheckupsDueView() {
     <div>
       <CltPageHead title="Re-checkup Due" crumb="Re-checkup" />
       {error ?
-        <p className="rg-alert">{error}</p>
+        <AlertBanner tone="error">{error}</AlertBanner>
       : null}
       <CltSearchCard
         optionId="rcSearchOption"
@@ -129,7 +130,7 @@ export function CheckupsDueView() {
             }}
           />
           <div className="clt-table-wrap">
-            <table className="clt-table">
+            <table className="clt-table clt-table--recheck">
               <thead>
                 <tr>
                   <CltSortTh
@@ -174,7 +175,7 @@ export function CheckupsDueView() {
                     sort={sort}
                     onSort={toggle}
                   />
-                  <th>Check-up</th>
+                  <th className="clt-th-actions">Check-up</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,15 +232,12 @@ export function CheckupsDueView() {
                             </span>
                           : "-"}
                         </td>
-                        <td
-                          className="clt-td-num"
-                          style={{ color: "#c0392b", fontWeight: 600 }}
-                        >
+                        <td className="clt-td-num clt-overdue">
                           {item.daysOverdue > 0 ?
                             `${item.daysOverdue} day${item.daysOverdue === 1 ? "" : "s"}`
                           : "Today"}
                         </td>
-                        <td>
+                        <td className="clt-td-actions">
                           {code ?
                             <Link
                               href={`/dashboard/clients/${encodeURIComponent(code)}/checkup`}

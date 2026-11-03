@@ -1,4 +1,7 @@
-import { POST_MEDIA_MAX_BYTES } from "@/constants/showcase";
+import {
+  POST_IMAGE_MAX_BYTES,
+  POST_VIDEO_MAX_BYTES,
+} from "@/constants/showcase";
 
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
@@ -14,8 +17,11 @@ export function validatePostMedia(file: File): string | null {
   if (!ALLOWED_TYPES.has(file.type)) {
     return "Choose a JPG, PNG or WebP photo, or an MP4, MOV or WebM video.";
   }
-  if (file.size > POST_MEDIA_MAX_BYTES) {
-    return "The file is larger than 10 MB. Choose a smaller one.";
+  if (file.type.startsWith("video/")) {
+    if (file.size > POST_VIDEO_MAX_BYTES)
+      return "The video is larger than 25 MB. Choose a smaller one.";
+  } else if (file.size > POST_IMAGE_MAX_BYTES) {
+    return "The photo is larger than 5 MB. Choose a smaller one.";
   }
   return null;
 }

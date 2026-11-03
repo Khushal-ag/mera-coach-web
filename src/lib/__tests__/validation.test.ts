@@ -1,14 +1,43 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  CLIENT_PROFILE_PHOTO_REQUIRED,
   isValidMobile,
   validateAge,
+  validateClientProfilePhoto,
   validateEmail,
   validateHeight,
   validateMobile,
   validateRequired,
   validateWeight,
 } from "@/lib/validation";
+
+describe("client profile photo", () => {
+  test("required on add client and checkup when none exists", () => {
+    expect(
+      validateClientProfilePhoto({
+        hasExistingProfilePhoto: false,
+        hasPendingPhoto: false,
+      }),
+    ).toBe(CLIENT_PROFILE_PHOTO_REQUIRED);
+  });
+  test("optional on checkup when PROFILE_PIC already exists", () => {
+    expect(
+      validateClientProfilePhoto({
+        hasExistingProfilePhoto: true,
+        hasPendingPhoto: false,
+      }),
+    ).toBeNull();
+  });
+  test("satisfied by a pending upload", () => {
+    expect(
+      validateClientProfilePhoto({
+        hasExistingProfilePhoto: false,
+        hasPendingPhoto: true,
+      }),
+    ).toBeNull();
+  });
+});
 
 describe("mobile", () => {
   test("accepts 10 digits starting 6 to 9, ignoring spaces and dashes", () => {

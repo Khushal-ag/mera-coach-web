@@ -1,10 +1,12 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import type { CoachCatalogPlan, CoachSuggestedPromo } from "@/types/premium";
 
 import { PremiumCheckoutAuth } from "@/components/premium-checkout-auth";
 import { PremiumPlansSkeleton } from "@/components/skeletons/premium-plans-skeleton";
+import { isSubscriptionRequired } from "@/config/practice";
 import { fetchPremiumPlans, firstApiError, isApiSuccess } from "@/lib/api";
 import { publicPageMetadata } from "@/lib/seo";
 
@@ -29,6 +31,10 @@ export default function PremiumPage({
 }: {
   searchParams: SearchParams;
 }) {
+  if (!isSubscriptionRequired()) {
+    redirect("/dashboard");
+  }
+
   return (
     <div className="mc-public">
       <div className="rg-page">

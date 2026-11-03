@@ -1,3 +1,34 @@
+/** Highlights carousel placeholder while dashboard stats and slides load. */
+export function DashboardCarouselSkeleton() {
+  return (
+    <div
+      className="db-carousel-wrap"
+      aria-busy="true"
+      aria-label="Loading highlights"
+    >
+      <div className="db-carousel db-carousel-skeleton">
+        <div className="db-carousel-skeleton-shapes" aria-hidden>
+          <div className="db-sl-s db-sl-s1" />
+          <div className="db-sl-s db-sl-s2" />
+        </div>
+        <div className="db-carousel-skeleton-inner">
+          <div className="db-carousel-skeleton-content">
+            <div className="db-carousel-skeleton-pill" />
+            <div className="db-carousel-skeleton-line db-carousel-skeleton-line-lg" />
+            <div className="db-carousel-skeleton-line db-carousel-skeleton-line-md" />
+            <div className="db-carousel-skeleton-line db-carousel-skeleton-line-sm" />
+            <div className="db-carousel-skeleton-line db-carousel-skeleton-line-xs" />
+            <div className="db-carousel-skeleton-btn" />
+          </div>
+          <div className="db-carousel-skeleton-visual" aria-hidden>
+            <div className="db-carousel-skeleton-ring" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Shown before the coach session is known. It reuses the dashboard shell
  * classes so the sidebar and header do not jump when the real shell mounts.
@@ -41,7 +72,7 @@ export function DashboardShellSkeleton() {
                 <div key={item} className="mc-skeleton h-32 rounded-2xl" />
               ))}
             </div>
-            <div className="mc-skeleton mt-6 h-64 rounded-2xl" />
+            <DashboardCarouselSkeleton />
           </main>
         </div>
       </div>
