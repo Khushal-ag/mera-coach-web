@@ -105,6 +105,9 @@ export function useProfileEditor() {
   const pinLookup = usePinLocationLookup(pinCode, countryCd || "IN", (loc) => {
     if (loc.city) setCity(loc.city);
     if (loc.state) setStateCd(loc.state);
+    if (loc.countryCode) {
+      setCountryCd((current) => (current.trim() ? current : loc.countryCode));
+    }
   });
 
   const publicUrl = useMemo(() => {

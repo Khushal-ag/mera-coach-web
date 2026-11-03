@@ -14,6 +14,7 @@ import {
   fetchServicesForCategory,
 } from "@/lib/api/master";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
+import { mapPinLookupToFields } from "@/lib/location/pin-location";
 import {
   fileToBase64DataUrl,
   validateRegisterImage,
@@ -333,8 +334,16 @@ export function useRegisterForm(categories: MasterOption[]) {
         countryCode: country || "IN",
       });
       if (!location) return;
-      if (location.city) setCity(location.city);
-      if (location.state) setStateName(location.state);
+      const mapped = mapPinLookupToFields(
+        location,
+        country || "IN",
+        value.trim(),
+      );
+      if (mapped.city) setCity(mapped.city);
+      if (mapped.state) setStateName(mapped.state);
+      if (mapped.countryCode && !country.trim()) {
+        setCountry(mapped.countryCode);
+      }
     } catch {
       // Leave city and state as entered.
     } finally {

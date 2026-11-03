@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from "react";
 
 import { PIN_LENGTH, PIN_LOOKUP_DEBOUNCE_MS } from "@/constants/location";
 import { fetchLocationByPin } from "@/lib/api/master";
+import { mapPinLookupToFields } from "@/lib/location/pin-location";
 
 type PinLocation = {
   city: string;
   state: string;
+  countryCode: string;
 };
 
 /**
@@ -24,9 +26,11 @@ export function usePinLocationLookup(
   error: string | null;
   city: string;
   state: string;
+  countryCode: string;
 } {
   const digits = pinCode.replace(/\D/g, "").slice(0, PIN_LENGTH);
-  const active = digits.length === PIN_LENGTH && Boolean(countryCode);
+  const lookupCountry = (countryCode || "IN").trim() || "IN";
+  const active = digits.length === PIN_LENGTH;
   const onResolvedRef = useRef(onResolved);
 
   const [lookingUp, setLookingUp] = useState(false);
@@ -34,6 +38,7 @@ export function usePinLocationLookup(
   const [location, setLocation] = useState<PinLocation>({
     city: "",
     state: "",
+    countryCode: "",
   });
 
   useEffect(() => {
@@ -47,24 +52,22 @@ export function usePinLocationLookup(
     const timer = window.setTimeout(() => {
       setLookingUp(true);
       setError(null);
-      void fetchLocationByPin({ pinCode: digits, countryCode })
+      void fetchLocationByPin({ pinCode: digits, countryCode: lookupCountry })
         .then((loc) => {
           if (cancelled) return;
-          const nextCity = loc?.city?.trim() ?? "";
-          const nextState = loc?.state?.trim() ?? "";
-          if (!nextCity && !nextState) {
+          const mapped = mapPinLookupToFields(loc, lookupCountry, digits);
+          if (!mapped.city && !mapped.state) {
             setError("Pin code not found.");
-            setLocation({ city: "", state: "" });
+            setLocation({ city: "", state: "", countryCode: "" });
             return;
           }
-          const next = { city: nextCity, state: nextState };
-          setLocation(next);
-          onResolvedRef.current?.(next);
+          setLocation(mapped);
+          onResolvedRef.current?.(mapped);
         })
         .catch((err) => {
           if (cancelled) return;
           setError(err instanceof Error ? err.message : "Pin code not found.");
-          setLocation({ city: "", state: "" });
+          setLocation({ city: "", state: "", countryCode: "" });
         })
         .finally(() => {
           if (!cancelled) setLookingUp(false);
@@ -75,10 +78,16 @@ export function usePinLocationLookup(
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [active, digits, countryCode]);
+  }, [active, digits, lookupCountry]);
 
   if (!active) {
-    return { lookingUp: false, error: null, city: "", state: "" };
+    return {
+      lookingUp: false,
+      error: null,
+      city: "",
+      state: "",
+      countryCode: "",
+    };
   }
 
   return {
@@ -86,5 +95,6 @@ export function usePinLocationLookup(
     error,
     city: location.city,
     state: location.state,
+    countryCode: location.countryCode,
   };
 }

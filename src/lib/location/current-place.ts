@@ -2,6 +2,7 @@ import type { CoachProfile } from "@/types/coach";
 
 import { fetchLocationByPin } from "@/lib/api/master";
 import { saveCoachProfileEssentials } from "@/lib/api/practice";
+import { mapPinLookupToFields } from "@/lib/location/pin-location";
 
 /** Asks the browser for the coach's position and looks the address up on OpenStreetMap (Nominatim). */
 
@@ -88,11 +89,18 @@ export async function autoFillProfileLocation(
   }
   try {
     const place = await detectCurrentPlace();
-    const country = profile.country_Cd || "IN";
-    const city = await fetchLocationByPin({
+    const lookupCountry = profile.country_Cd?.trim() || "IN";
+    const pinResult = await fetchLocationByPin({
       pinCode: place.pinCode,
-      countryCode: country,
+      countryCode: lookupCountry,
     }).catch(() => null);
+    const mapped = mapPinLookupToFields(
+      pinResult,
+      lookupCountry,
+      place.pinCode,
+    );
+    const countryCd =
+      profile.country_Cd?.trim() || mapped.countryCode || lookupCountry;
     await saveCoachProfileEssentials({
       profile,
       coachName: profile.coachName,
@@ -102,9 +110,9 @@ export async function autoFillProfileLocation(
       email: profile.email ?? "",
       locality: profile.locality || place.locality,
       add_Line: profile.add_Line || place.addLine,
-      city_Cd: profile.city_Cd || city?.city || "",
-      state_Cd: profile.state_Cd || city?.state || "",
-      country_Cd: country,
+      city_Cd: profile.city_Cd || mapped.city || "",
+      state_Cd: profile.state_Cd || mapped.state || "",
+      country_Cd: countryCd,
       pinCode: place.pinCode,
     });
     return true;
