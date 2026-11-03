@@ -14,7 +14,7 @@ export type CoachSession = {
   /** Profile photo path/URL as returned by login (`profileUrl`). */
   profileUrl?: string;
   /**
-   * Cached GET /v1/Coach/premium `isPaid`.
+   * Cached GET /Coach/premium `isPaid`.
    * Undefined until the first load after login or session restore.\n   */
   premiumPaid?: boolean;
 };

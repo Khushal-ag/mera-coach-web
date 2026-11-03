@@ -13,6 +13,21 @@ export function pick<T>(
   return undefined;
 }
 
+/** A finite number, else 0, for loosely typed API fields. */
+export function num(value: unknown): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+/** A string, else "", for loosely typed API fields. */
+export function text(value: unknown): string {
+  return (
+    typeof value === "string" ? value
+    : value == null ? ""
+    : String(value)
+  );
+}
+
 /** Normalize ASP.NET payloads that may arrive as camelCase or PascalCase. */
 export function normalizeApiBody<T>(raw: unknown): GenericResponse<T> {
   if (!raw || typeof raw !== "object") {

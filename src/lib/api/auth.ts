@@ -15,7 +15,7 @@ type WebLoginResult = {
 };
 
 /**
- * Coach login against meracoachapi `/v1/Auth/login` (same as Expo app).
+ * Coach login against meracoachapi `/Auth/login` (same as Expo app).
  * Password is SHA-256 hex hashed client-side before send.
  */
 export async function loginCoach(
@@ -32,7 +32,7 @@ export async function loginCoach(
 
   try {
     const hashedPassword = await hashPassword(password);
-    const envelope = await apiFetch<CoachLoginResult>("/v1/Auth/login", {
+    const envelope = await apiFetch<CoachLoginResult>("/Auth/login", {
       method: "POST",
       skipAuth: true,
       body: JSON.stringify({

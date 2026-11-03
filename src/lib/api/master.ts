@@ -48,10 +48,10 @@ export async function fetchMasterItems(params: {
   if (params.ItemType) query.set("ItemType", params.ItemType);
   if (params.itemType) query.set("itemType", params.itemType);
   if (params.filterText) query.set("filterText", params.filterText);
-  const response = await apiFetch<unknown>(
-    `/v1/Master/GetMasterItem?${query}`,
-    { next: { revalidate: 3600 }, skipAuth: true },
-  );
+  const response = await apiFetch<unknown>(`/Master/GetMasterItem?${query}`, {
+    next: { revalidate: 3600 },
+    skipAuth: true,
+  });
   return {
     ...response,
     responseObj: normalizeMasterItems(response.responseObj),
@@ -168,7 +168,7 @@ export async function fetchLocationByPin(params: {
   if (!pinCode) return null;
   const query = new URLSearchParams({ countryCode, pinCode });
   const response = await apiFetch<unknown>(
-    `/v1/Master/GetLocationByPin?${query}`,
+    `/Master/GetLocationByPin?${query}`,
     { skipAuth: true },
   );
   return normalizeLocation(response.responseObj);
@@ -190,7 +190,7 @@ export async function fetchFoodMaster(
 ): Promise<FoodMaster> {
   try {
     const query = new URLSearchParams({ country, region });
-    const res = await apiFetch<FoodMaster>(`/v1/Master/food-master?${query}`, {
+    const res = await apiFetch<FoodMaster>(`/Master/food-master?${query}`, {
       next: { revalidate: 3600 },
       skipAuth: true,
     });
@@ -205,7 +205,7 @@ export async function fetchFoodCalories(
   foodName: string,
   qty = 1,
 ): Promise<number> {
-  const res = await apiFetch<{ cal?: number }>("/v1/Master/food-calories", {
+  const res = await apiFetch<{ cal?: number }>("/Master/food-calories", {
     method: "POST",
     body: JSON.stringify({ foodName, qty }),
     skipAuth: true,

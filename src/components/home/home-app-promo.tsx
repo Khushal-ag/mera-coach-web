@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { MouseEvent } from "react";
 
 import { AppPhoneDemo } from "@/components/home/app-phone-demo";
+import { env } from "@/config/env";
 import { isValidMobile } from "@/lib/validation";
 
 export function HomeAppPromo() {
@@ -18,6 +19,13 @@ export function HomeAppPromo() {
     event.preventDefault();
     setOpen(true);
   }
+
+  /** A live store link opens the store; until then the badge opens the notify form. */
+  const storeProps = (url: string | undefined) =>
+    url ?
+      { href: url, target: "_blank", rel: "noopener noreferrer" }
+    : { href: "#app-notify", onClick: openNotify };
+  const appIsLive = Boolean(env.appLinks.playStore || env.appLinks.appStore);
 
   function submit() {
     const trimmedName = name.trim();
@@ -77,15 +85,14 @@ export function HomeAppPromo() {
                   public profile
                 </li>
                 <li>
-                  <i className="fas fa-check-circle" /> Manage packages, events
+                  <i className="fas fa-check-circle" /> Manage packages, posts
                   and your profile
                 </li>
               </ul>
               <div className="app-promo-badges">
                 <a
-                  href="#app-notify"
                   className="app-badge app-badge-play"
-                  onClick={openNotify}
+                  {...storeProps(env.appLinks.playStore)}
                 >
                   <i className="fab fa-google-play" />
                   <span>
@@ -94,9 +101,8 @@ export function HomeAppPromo() {
                   </span>
                 </a>
                 <a
-                  href="#app-notify"
                   className="app-badge app-badge-apple"
-                  onClick={openNotify}
+                  {...storeProps(env.appLinks.appStore)}
                 >
                   <i className="fab fa-apple" />
                   <span>
@@ -105,16 +111,18 @@ export function HomeAppPromo() {
                   </span>
                 </a>
               </div>
-              <p className="app-promo-coming">
-                <i className="fas fa-clock" /> Launching soon.{" "}
-                <a
-                  href="#app-notify"
-                  onClick={openNotify}
-                  className="app-notify-link"
-                >
-                  Notify me when it&apos;s live
-                </a>
-              </p>
+              {appIsLive ? null : (
+                <p className="app-promo-coming">
+                  <i className="fas fa-clock" /> Launching soon.{" "}
+                  <a
+                    href="#app-notify"
+                    onClick={openNotify}
+                    className="app-notify-link"
+                  >
+                    Notify me when it&apos;s live
+                  </a>
+                </p>
+              )}
             </div>
             <div className="app-promo-visual">
               <AppPhoneDemo />

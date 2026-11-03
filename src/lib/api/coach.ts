@@ -140,7 +140,7 @@ export async function fetchPublicCoaches(params?: {
     query.set("sortBy", params.sortBy);
   query.set("page", String(params?.page ?? 1));
   query.set("pageSize", String(params?.pageSize ?? 12));
-  const response = await apiFetch<unknown>(`/v1/Coach/public?${query}`, {
+  const response = await apiFetch<unknown>(`/Coach/public?${query}`, {
     // Public directory. Anonymous so the response can be cached.
     next: { revalidate: 60 },
     skipAuth: true,
@@ -162,11 +162,11 @@ type BmiLeadInput = {
   bmiCategory?: string;
 };
 
-/** Public BMI lead capture: `POST /v1/Coach/bmi-lead` (same as app). */
+/** Public BMI lead capture: `POST /Coach/bmi-lead` (same as app). */
 export async function submitBmiLead(
   params: BmiLeadInput,
 ): Promise<GenericResponse<object>> {
-  return apiFetch<object>("/v1/Coach/bmi-lead", {
+  return apiFetch<object>("/Coach/bmi-lead", {
     method: "POST",
     body: JSON.stringify({
       clientName: params.clientName,
@@ -193,7 +193,7 @@ export async function fetchCoachProfile(params: {
     query.set("coachId", String(params.coachId));
   }
   if (params.coachCode) query.set("coachCode", params.coachCode);
-  const response = await apiFetch<unknown>(`/v1/Coach/profile-by-id?${query}`, {
+  const response = await apiFetch<unknown>(`/Coach/profile-by-id?${query}`, {
     // Public profile. Do not attach a coach session: that would skip the cache.
     next: { revalidate: 60 },
     skipAuth: true,
@@ -223,7 +223,7 @@ function normalizeRegisterResult(raw: unknown): CoachRegisterResult | null {
 
 /** Creates the account. The API e-mails the first password and returns a short-lived upload token. */
 export async function registerCoach(body: CoachRegisterInput) {
-  const response = await apiFetch<unknown>("/v1/Coach/save", {
+  const response = await apiFetch<unknown>("/Coach/save", {
     method: "POST",
     body: JSON.stringify({ coachId: 0, ...body }),
     skipAuth: true,
@@ -239,7 +239,7 @@ export async function saveRegisteredCoachDetails(
   body: CoachRegisterDetailsInput,
   token: string,
 ) {
-  const response = await apiFetch<unknown>("/v1/Coach/save", {
+  const response = await apiFetch<unknown>("/Coach/save", {
     method: "POST",
     bearer: token,
     body: JSON.stringify({
@@ -267,7 +267,7 @@ export async function saveRegisteredCoachDetails(
 
 /** Attach logo / profile photo URLs after Document upload. */
 export async function updateCoachMedia(body: CoachMediaUpdateInput) {
-  const response = await apiFetch<unknown>("/v1/Coach/save", {
+  const response = await apiFetch<unknown>("/Coach/save", {
     method: "POST",
     body: JSON.stringify({
       coachId: body.coachId,
@@ -283,7 +283,7 @@ export async function updateCoachMedia(body: CoachMediaUpdateInput) {
 }
 
 export async function submitCoachEnquiry(body: CoachEnquiryInput) {
-  return apiFetch<unknown>("/v1/Coach/enquiry", {
+  return apiFetch<unknown>("/Coach/enquiry", {
     method: "POST",
     body: JSON.stringify(body),
   });

@@ -39,7 +39,7 @@ export async function uploadDocument(
   /** Registration token, only for the first upload before the coach has signed in. */
   token?: string,
 ): Promise<UploadDocumentResult> {
-  const response = await apiFetch<unknown>("/v1/Document/upload", {
+  const response = await apiFetch<unknown>("/Document/upload", {
     method: "POST",
     ...(token ? { bearer: token } : {}),
     body: JSON.stringify({
@@ -91,7 +91,7 @@ export async function listDocuments(params: {
   refType: string;
   docType: string;
 }): Promise<DocumentListItem[]> {
-  const data = await authedFetch<unknown[] | null>("v1/Document/list", {
+  const data = await authedFetch<unknown[] | null>("Document/list", {
     method: "GET",
     searchParams: {
       coachCode: params.coachCode,
@@ -111,7 +111,7 @@ export async function deleteDocument(params: {
   const coachCode = params.coachCode.trim();
   if (docId <= 0) throw new Error("Cannot delete photo: missing document id.");
   if (!coachCode) throw new Error("Cannot delete photo: missing coach code.");
-  await authedFetch("v1/Document/delete", {
+  await authedFetch("Document/delete", {
     method: "POST",
     body: { docId, coachCode },
   });

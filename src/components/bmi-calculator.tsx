@@ -13,7 +13,7 @@ import { isValidMobile } from "@/lib/validation";
  * Public BMI calculator + lead form.
  * App PublicBmiScreen collects name/mobile only; web adds client-side BMI math
  * (same thresholds as app `utils/bmi`) and posts optional measurement fields
- * to `POST /v1/Coach/bmi-lead`.
+ * to `POST /Coach/bmi-lead`.
  */
 export function BmiCalculator({
   layout = "split",

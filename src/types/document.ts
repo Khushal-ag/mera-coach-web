@@ -1,4 +1,4 @@
-/** Document upload shapes (meracoachapi `/v1/Document/upload`). */
+/** Document upload shapes (meracoachapi `/Document/upload`). */
 
 export type CoachDocType =
   | "LOGO"

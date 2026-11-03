@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { AppStoreBadges } from "@/components/app-store-badges";
 import { env } from "@/config/env";
 import { siteConfig } from "@/config/site";
 import { FOOTER_SOCIALS } from "@/constants/footer";
@@ -36,6 +37,12 @@ export function SiteFooter() {
                 you with verified Health, Fitness, Yoga, Nutrition and Lifestyle
                 coaches for every goal.
               </p>
+              <div className="footer-apps">
+                <p className="footer-apps-title">Get the app</p>
+                <div className="footer-apps-row">
+                  <AppStoreBadges />
+                </div>
+              </div>
               {FOOTER_SOCIALS.some((item) => env.social[item.key]) ?
                 <div className="footer-social">
                   {FOOTER_SOCIALS.filter((item) => env.social[item.key]).map(

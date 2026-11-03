@@ -21,7 +21,7 @@ export async function fetchFeedbackContext(params: {
 }) {
   const query = new URLSearchParams(params);
   const response = await apiFetch<unknown>(
-    `/v1/Coach/feedback-context?${query}`,
+    `/Coach/feedback-context?${query}`,
     // Names on a private feedback link. Do not cache across requests.
     { cache: "no-store", skipAuth: true },
   );
@@ -32,7 +32,7 @@ export async function fetchFeedbackContext(params: {
 }
 
 export async function submitFeedback(body: FeedbackSubmitInput) {
-  return apiFetch<{ feedbackId?: number }>("/v1/Coach/feedback", {
+  return apiFetch<{ feedbackId?: number }>("/Coach/feedback", {
     method: "POST",
     body: JSON.stringify(body),
   });

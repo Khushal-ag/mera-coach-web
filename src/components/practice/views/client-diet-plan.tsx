@@ -15,7 +15,7 @@ import { EmptyState } from "@/components/practice/empty-state";
 import { PracticePageHeader } from "@/components/practice/page-header";
 import { ClientDietSkeleton } from "@/components/skeletons/client-profile-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
-import { downloadAuthedPdf } from "@/lib/api/pdf";
+import { downloadAuthedPdf, PDF_PATH } from "@/lib/api/pdf";
 import {
   fetchAuthedCoachProfile,
   fetchClientDetail,
@@ -90,7 +90,7 @@ export function ClientDietPlanView({
     setPdfError(null);
     try {
       await downloadAuthedPdf(
-        "v1/Client/diet-plan-pdf",
+        PDF_PATH.dietPlan,
         {
           coachCode: session.coachCode,
           clientCode: code,

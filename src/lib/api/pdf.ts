@@ -1,6 +1,12 @@
 import { assertApiBaseUrl } from "@/config/env";
 import { clearSession, getCurrentToken } from "@/lib/auth/session";
 
+/** API paths of the PDF reports, relative to the API base. */
+export const PDF_PATH = {
+  bmiReport: "Client/bmi-report-pdf",
+  dietPlan: "Client/diet-plan-pdf",
+} as const;
+
 function filenameFromDisposition(
   header: string | null,
   fallback: string,
@@ -25,7 +31,7 @@ export async function downloadAuthedPdf(
   fallbackFilename: string,
 ): Promise<void> {
   const base = assertApiBaseUrl();
-  const normalized = path.replace(/^\//, "").replace("{version}", "1");
+  const normalized = path.replace(/^\//, "");
   const qs = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
     if (value === undefined || value === null || value === "") continue;

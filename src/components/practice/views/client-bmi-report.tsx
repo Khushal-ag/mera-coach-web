@@ -11,7 +11,7 @@ import { ListEmpty } from "@/components/list-empty";
 import { EmptyState } from "@/components/practice/empty-state";
 import { BmiReportSkeleton } from "@/components/skeletons/client-profile-skeleton";
 import { BRAND } from "@/constants/brand";
-import { downloadAuthedPdf } from "@/lib/api/pdf";
+import { downloadAuthedPdf, PDF_PATH } from "@/lib/api/pdf";
 import { fetchBmiReport } from "@/lib/api/practice";
 import { resolveDisplayBmi } from "@/lib/bmi";
 import { genderLabel, initials } from "@/lib/format";
@@ -494,7 +494,7 @@ export function ClientBmiReportView({
     setPdfError(null);
     try {
       await downloadAuthedPdf(
-        "v1/Client/bmi-report-pdf",
+        PDF_PATH.bmiReport,
         { coachCode: session.coachCode, clientCode: code },
         "bmi-report.pdf",
       );

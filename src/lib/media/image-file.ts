@@ -24,7 +24,7 @@ export function validateRegisterImage(file: File): ImageValidationError | null {
   return null;
 }
 
-/** Read a File as a `data:<mime>;base64,...` URL for `/v1/Document/upload`. */
+/** Read a File as a `data:<mime>;base64,...` URL for `/Document/upload`. */
 export function fileToBase64DataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

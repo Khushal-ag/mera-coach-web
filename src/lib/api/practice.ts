@@ -63,7 +63,7 @@ export async function fetchClientList(params: {
   searchText?: string;
   searchOption?: string;
 }): Promise<ClientSummary[]> {
-  const items = await authedFetch<unknown[]>("v1/Client/ClientList", {
+  const items = await authedFetch<unknown[]>("Client/ClientList", {
     method: "POST",
     body: {
       coachCode: params.coachCode,
@@ -81,7 +81,7 @@ export async function fetchRecheckupList(params: {
   searchOption?: string;
   searchText?: string;
 }): Promise<RecheckupDueClient[]> {
-  const items = await authedFetch<unknown[]>("v1/Client/recheckup-list", {
+  const items = await authedFetch<unknown[]>("Client/recheckup-list", {
     method: "POST",
     body: {
       coachCode: params.coachCode,
@@ -147,7 +147,7 @@ export async function fetchClientDetail(params: {
   assessmentCode?: string;
 }): Promise<ClientDetail> {
   const raw = await authedFetch<Record<string, unknown> | null>(
-    "v1/Client/ClientDetail",
+    "Client/ClientDetail",
     {
       method: "POST",
       body: params,
@@ -215,7 +215,7 @@ export async function saveClientDetail(
   input: SaveClientDetailInput,
 ): Promise<{ clientCode: string; assessmentCode: string }> {
   const raw = await authedFetch<Record<string, unknown>>(
-    "v1/Client/save-client-detail",
+    "Client/save-client-detail",
     {
       method: "POST",
       body: {
@@ -246,7 +246,7 @@ export async function saveClientDetail(
 export async function fetchEnquiryLeads(
   coachCode: string,
 ): Promise<EnquiryLead[]> {
-  const items = await authedFetch<unknown[]>("v1/Client/coach-enquiry-lead", {
+  const items = await authedFetch<unknown[]>("Client/coach-enquiry-lead", {
     method: "GET",
     searchParams: { mode: "list", coachCode },
   });
@@ -278,7 +278,7 @@ export async function updateEnquiryLead(params: {
   isContacted?: boolean;
   notes?: string;
 }): Promise<void> {
-  await authedFetch("v1/Client/coach-enquiry-lead", {
+  await authedFetch("Client/coach-enquiry-lead", {
     method: "POST",
     body: {
       mode: "update",
@@ -308,7 +308,7 @@ function readPaidFlag(value: unknown): boolean {
  */
 export async function fetchCoachPremiumOffer(): Promise<CoachPremiumOffer> {
   const raw = await authedFetch<Record<string, unknown> | null>(
-    "v1/Coach/premium",
+    "Coach/premium",
   );
   if (!raw || typeof raw !== "object") {
     throw new Error("Could not check subscription. Try again.");
@@ -407,7 +407,7 @@ export async function fetchCoachPaymentHistory(): Promise<
   CoachPaymentHistoryItem[]
 > {
   const raw = await authedFetch<Record<string, unknown> | null>(
-    "v1/Coach/premium-history",
+    "Coach/premium-history",
   );
   if (!raw || typeof raw !== "object") return [];
   const list = pick<unknown[]>(raw, "payments", "Payments") ?? [];
@@ -441,7 +441,7 @@ export async function fetchCoachPaymentHistory(): Promise<
 }
 
 export async function fetchAuthedCoachProfile(): Promise<CoachProfile | null> {
-  const raw = await authedFetch<Record<string, unknown>>("v1/Coach/profile");
+  const raw = await authedFetch<Record<string, unknown>>("Coach/profile");
   if (!raw) return null;
   return {
     coachId: Number(pick(raw, "coachId", "CoachId") ?? 0),
@@ -545,7 +545,7 @@ export async function saveCoachProfileEssentials(params: {
   dietChartTemplate?: string;
 }): Promise<void> {
   const { profile } = params;
-  await authedFetch("v1/Coach/save", {
+  await authedFetch("Coach/save", {
     method: "POST",
     body: {
       coachId: profile.coachId,
@@ -582,7 +582,7 @@ export async function saveCoachProfileEssentials(params: {
 }
 
 export async function saveLifestyle(input: SaveLifestyleInput): Promise<void> {
-  await authedFetch("v1/Client/save-lifestyle", {
+  await authedFetch("Client/save-lifestyle", {
     method: "POST",
     body: {
       assessmentCode: input.assessmentCode,
@@ -610,7 +610,7 @@ export async function saveMeals(params: {
   savedBy: string;
   meals: ClientMeals;
 }): Promise<void> {
-  await authedFetch("v1/Client/save-meals", {
+  await authedFetch("Client/save-meals", {
     method: "POST",
     body: {
       assessmentCode: params.ids.assessmentCode,
@@ -633,7 +633,7 @@ export async function saveBmi(params: {
   metrics: BodyMetrics;
   totalDailyIntakeCal?: number;
 }): Promise<void> {
-  await authedFetch("v1/Client/save-bmi", {
+  await authedFetch("Client/save-bmi", {
     method: "POST",
     body: {
       assessmentCode: params.assessmentCode,
@@ -657,7 +657,7 @@ export async function saveDietPlan(params: {
   plan: GeneratedDietPlan;
 }): Promise<SaveDietPlanResult> {
   const data = await authedFetch<Record<string, unknown> | null>(
-    "v1/Client/save-diet-plan",
+    "Client/save-diet-plan",
     {
       method: "POST",
       body: {
@@ -697,7 +697,7 @@ async function markAssessmentComplete(params: {
   assessmentCode?: string;
   savedBy: string;
 }): Promise<void> {
-  await authedFetch("v1/Client/mark-complete", {
+  await authedFetch("Client/mark-complete", {
     method: "POST",
     body: {
       assessmentCode: params.assessmentCode,
@@ -761,7 +761,7 @@ export async function fetchBmiReport(params: {
   assessmentCode?: string;
 }): Promise<BmiReport | null> {
   const raw = await authedFetch<Record<string, unknown> | null>(
-    "v1/Client/bmi-report",
+    "Client/bmi-report",
     {
       method: "GET",
       searchParams: {
@@ -823,7 +823,7 @@ export async function fetchDietPlanReport(params: {
   clientCode?: string;
   assessmentCode?: string;
 }): Promise<GeneratedDietPlan | null> {
-  const raw = await authedFetch<unknown>("v1/Client/diet-plan-report", {
+  const raw = await authedFetch<unknown>("Client/diet-plan-report", {
     method: "GET",
     searchParams: {
       coachCode: params.coachCode,
@@ -857,7 +857,7 @@ export async function generateDietPlan(params: {
   meals: ClientMeals;
 }): Promise<GeneratedDietPlan> {
   const m = params.meals;
-  const raw = await authedFetch<unknown>("v1/Master/generate-diet-plan", {
+  const raw = await authedFetch<unknown>("Master/generate-diet-plan", {
     method: "POST",
     body: {
       clientName: params.clientName,
@@ -899,7 +899,7 @@ export async function changeCoachPassword(params: {
   currentPassword: string;
   newPassword: string;
 }): Promise<void> {
-  await authedFetch("v1/Coach/change-password", {
+  await authedFetch("Coach/change-password", {
     method: "PUT",
     body: {
       currentPassword: params.currentPassword,
@@ -909,7 +909,7 @@ export async function changeCoachPassword(params: {
 }
 
 export async function requestForgotPassword(userName: string): Promise<void> {
-  const response = await apiFetch<unknown>("/v1/Auth/forgot-password", {
+  const response = await apiFetch<unknown>("/Auth/forgot-password", {
     method: "POST",
     body: JSON.stringify({ userName: userName.trim() }),
     skipAuth: true,
@@ -928,7 +928,7 @@ export async function resetCoachPassword(params: {
   token: string;
   newPassword: string;
 }): Promise<void> {
-  const response = await apiFetch<unknown>("/v1/Auth/reset-password", {
+  const response = await apiFetch<unknown>("/Auth/reset-password", {
     method: "POST",
     body: JSON.stringify({
       token: params.token.trim(),

@@ -2,7 +2,7 @@ import type { Review, ReviewsPage } from "@/types/reviews";
 
 import { authedFetch } from "@/lib/api/authed";
 import { apiFetch } from "@/lib/api/client";
-import { isApiSuccess } from "@/lib/api/normalize";
+import { isApiSuccess, num, text } from "@/lib/api/normalize";
 
 export const REVIEWS_PAGE_SIZE = 10;
 
@@ -21,19 +21,6 @@ const EMPTY: ReviewsPage = {
   page: 1,
   totalCount: 0,
 };
-
-function num(value: unknown): number {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function text(value: unknown): string {
-  return (
-    typeof value === "string" ? value
-    : value == null ? ""
-    : String(value)
-  );
-}
 
 function mapReviews(raw: unknown): ReviewsPage {
   const r = (raw ?? {}) as Record<string, unknown>;
@@ -82,7 +69,7 @@ export async function fetchPublicReviews(
     page: String(page),
     pageSize: String(REVIEWS_PAGE_SIZE),
   });
-  const response = await apiFetch<unknown>(`/v1/Coach/reviews?${query}`, {
+  const response = await apiFetch<unknown>(`/Coach/reviews?${query}`, {
     next: { revalidate: 60 },
     skipAuth: true,
   });
@@ -93,7 +80,7 @@ export async function fetchPublicReviews(
 export async function fetchMyReviews(
   options: { clientCode?: string; page?: number } = {},
 ): Promise<ReviewsPage> {
-  const raw = await authedFetch<unknown>("v1/Coach/my-reviews", {
+  const raw = await authedFetch<unknown>("Coach/my-reviews", {
     searchParams: {
       clientCode: options.clientCode,
       page: options.page ?? 1,

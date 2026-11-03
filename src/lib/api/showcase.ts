@@ -12,20 +12,7 @@ import type {
 import { authedFetch } from "@/lib/api/authed";
 import { apiFetch } from "@/lib/api/client";
 import { fetchMasterItems } from "@/lib/api/master";
-import { isApiSuccess } from "@/lib/api/normalize";
-
-function num(value: unknown): number {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function text(value: unknown): string {
-  return (
-    typeof value === "string" ? value
-    : value == null ? ""
-    : String(value)
-  );
-}
+import { isApiSuccess, num, text } from "@/lib/api/normalize";
 
 function mapPackage(raw: unknown): CoachShowcasePackage {
   const r = (raw ?? {}) as Record<string, unknown>;
@@ -94,7 +81,7 @@ export async function fetchProductItems(
 ): Promise<ProductItemOption[]> {
   if (!brandCode) return [];
   const rows = await authedFetch<unknown[]>(
-    `v1/Showcase/products?brandCode=${encodeURIComponent(brandCode)}`,
+    `Showcase/products?brandCode=${encodeURIComponent(brandCode)}`,
   );
   return (rows ?? []).map((raw) => {
     const r = (raw ?? {}) as Record<string, unknown>;
@@ -112,14 +99,14 @@ export async function fetchProductItems(
 // ── Coach's own packages and posts ─────────────────────────────────────────
 
 export async function fetchMyPackages(): Promise<CoachShowcasePackage[]> {
-  const rows = await authedFetch<unknown[]>("v1/Showcase/packages");
+  const rows = await authedFetch<unknown[]>("Showcase/packages");
   return (rows ?? []).map(mapPackage);
 }
 
 export async function savePackage(
   input: SavePackageInput,
 ): Promise<CoachShowcasePackage> {
-  const saved = await authedFetch<unknown>("v1/Showcase/packages", {
+  const saved = await authedFetch<unknown>("Showcase/packages", {
     method: "POST",
     body: input,
   });
@@ -130,25 +117,25 @@ export async function setPackageActive(
   packageId: number,
   isActive: boolean,
 ): Promise<void> {
-  await authedFetch<boolean>(`v1/Showcase/packages/${packageId}/active`, {
+  await authedFetch<boolean>(`Showcase/packages/${packageId}/active`, {
     method: "POST",
     body: { isActive },
   });
 }
 
 export async function deletePackage(packageId: number): Promise<void> {
-  await authedFetch<boolean>(`v1/Showcase/packages/${packageId}`, {
+  await authedFetch<boolean>(`Showcase/packages/${packageId}`, {
     method: "DELETE",
   });
 }
 
 export async function fetchMyPosts(): Promise<CoachPost[]> {
-  const rows = await authedFetch<unknown[]>("v1/Showcase/posts");
+  const rows = await authedFetch<unknown[]>("Showcase/posts");
   return (rows ?? []).map(mapPost);
 }
 
 export async function savePost(input: SavePostInput): Promise<CoachPost> {
-  const saved = await authedFetch<unknown>("v1/Showcase/posts", {
+  const saved = await authedFetch<unknown>("Showcase/posts", {
     method: "POST",
     body: input,
   });
@@ -156,7 +143,7 @@ export async function savePost(input: SavePostInput): Promise<CoachPost> {
 }
 
 export async function deletePost(postId: number): Promise<void> {
-  await authedFetch<boolean>(`v1/Showcase/posts/${postId}`, {
+  await authedFetch<boolean>(`Showcase/posts/${postId}`, {
     method: "DELETE",
   });
 }
@@ -170,7 +157,7 @@ export async function fetchPublicShowcase(
   const empty: CoachShowcase = { packages: [], posts: [] };
   if (!coachCode) return empty;
   const response = await apiFetch<unknown>(
-    `/v1/Showcase/public?coachCode=${encodeURIComponent(coachCode)}`,
+    `/Showcase/public?coachCode=${encodeURIComponent(coachCode)}`,
     { next: { revalidate: 60 }, skipAuth: true },
   );
   if (!isApiSuccess(response)) return empty;

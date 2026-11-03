@@ -3,8 +3,8 @@
  * Client opens the public web form; query param `ref` contains encrypted coach + client token.
  *
  * URL: `{siteUrl}/feedback?ref={encrypted_token}` (legacy fallback: `?coachCode={code}&clientCode={code}`)
- * API: GET `/v1/Coach/feedback-context?coachCode&clientCode`
- *      POST `/v1/Coach/feedback` { coachCode, clientCode, rating, comments?, clientName? }
+ * API: GET `/Coach/feedback-context?coachCode&clientCode`
+ *      POST `/Coach/feedback` { coachCode, clientCode, rating, comments?, clientName? }
  */
 
 import { env } from "@/config/env";

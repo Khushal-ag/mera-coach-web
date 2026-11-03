@@ -3,7 +3,7 @@ import { getSession, saveSession } from "@/lib/auth/session";
 
 /**
  * In-memory subscription flag on the coach session.
- * Same source as the app `coachPremium` query (`GET /v1/Coach/premium`).
+ * Same source as the app `coachPremium` query (`GET /Coach/premium`).
  * Add Client reads the cache and does not wait on the network when it is set.
  * Profile, Premium, and a confirmed payment refresh it.
  */

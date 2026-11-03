@@ -10,6 +10,17 @@ function readPublic(value: string | undefined): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
+/** A public URL that must be https, so a typo in the env cannot become a script or plain-http link. */
+export function readHttpsUrl(value: string | undefined): string | undefined {
+  const raw = readPublic(value);
+  if (!raw) return undefined;
+  try {
+    return new URL(raw).protocol === "https:" ? raw : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function stripTrailingSlash(url: string) {
   return url.replace(/\/$/, "");
 }
@@ -37,6 +48,11 @@ const social = {
   linkedin: readPublic(process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN),
 };
 
+const appLinks = {
+  playStore: readHttpsUrl(process.env.NEXT_PUBLIC_PLAY_STORE_URL),
+  appStore: readHttpsUrl(process.env.NEXT_PUBLIC_APP_STORE_URL),
+};
+
 export const env = {
   /** Canonical public site origin (no trailing slash). */
   siteUrl,
@@ -49,6 +65,8 @@ export const env = {
   imageHosts,
   /** Optional social profile URLs. Only configured ones are rendered. */
   social,
+  /** Store listings for the Mera Coach app. A store with no URL shows as "Coming soon". */
+  appLinks,
 } as const;
 
 export function assertApiBaseUrl(): string {

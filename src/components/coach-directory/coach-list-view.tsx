@@ -10,8 +10,8 @@ import type { CoachPublicListItem } from "@/types/coach";
 import { CoachPhoto } from "@/components/coach-photo";
 import { ListEmpty } from "@/components/list-empty";
 import { MenuSelect } from "@/components/ui/menu-select";
-import { env } from "@/config/env";
 import { COACHES_PER_PAGE } from "@/constants/coach-directory";
+import { fetchMasterOptions } from "@/lib/api/master";
 import { coachProfilePath } from "@/lib/coach/profile-path";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 
@@ -67,23 +67,9 @@ function pageHref(query: Query, page: number) {
   return `/coach?${params}`;
 }
 
+/** States or cities for a parent place; nothing until a parent is chosen. */
 async function fetchPlaces(itemType: string, filterText: string) {
-  if (!env.apiBaseUrl || !filterText) return [] as MasterOption[];
-  const params = new URLSearchParams({ itemType, filterText });
-  const response = await fetch(
-    `${env.apiBaseUrl}/v1/Master/GetMasterItem?${params}`,
-  );
-  const data = (await response.json()) as {
-    responseObj?: Array<Record<string, unknown>>;
-    ResponseObj?: Array<Record<string, unknown>>;
-  };
-  const rows = data.responseObj ?? data.ResponseObj ?? [];
-  return rows
-    .map((row) => ({
-      code: String(row.itemCode ?? row.ItemCode ?? "").trim(),
-      label: String(row.itemName ?? row.ItemName ?? "").trim(),
-    }))
-    .filter((row) => row.code && row.label);
+  return filterText ? fetchMasterOptions(itemType, filterText) : [];
 }
 
 export function CoachListView({

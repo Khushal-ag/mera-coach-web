@@ -78,7 +78,7 @@ function normalizeOrder(raw: unknown): CoachPremiumOrder | null {
 }
 
 export async function fetchPremiumPlans() {
-  const response = await apiFetch<unknown>("/v1/Coach/premium-plans", {
+  const response = await apiFetch<unknown>("/Coach/premium-plans", {
     // Public plan catalog. Checkout mutations stay uncached.
     next: { revalidate: 120 },
     skipAuth: true,
@@ -90,7 +90,7 @@ export async function fetchPremiumPlans() {
 }
 
 export async function createPremiumOrder(body: CreatePremiumOrderInput) {
-  const response = await apiFetch<unknown>("/v1/Coach/premium-order", {
+  const response = await apiFetch<unknown>("/Coach/premium-order", {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -101,7 +101,7 @@ export async function createPremiumOrder(body: CreatePremiumOrderInput) {
 }
 
 export async function confirmPremiumOrder(body: ConfirmPremiumOrderInput) {
-  const response = await apiFetch<unknown>("/v1/Coach/premium-confirm", {
+  const response = await apiFetch<unknown>("/Coach/premium-confirm", {
     method: "POST",
     body: JSON.stringify({
       orderId: body.orderId,

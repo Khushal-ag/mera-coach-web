@@ -6,7 +6,7 @@ import { PHONE_DEMO_SCREEN_MS, PHONE_DEMO_SCREENS } from "@/constants/home";
 import { cn } from "@/lib/utils";
 
 /** Outline icons in the style of the app's Ionicons tab bar. */
-function TabIcon({ name }: { name: "grid" | "cube" | "calendar" | "person" }) {
+function TabIcon({ name }: { name: "grid" | "cube" | "images" | "person" }) {
   const common = {
     viewBox: "0 0 24 24",
     fill: "none",
@@ -32,11 +32,13 @@ function TabIcon({ name }: { name: "grid" | "cube" | "calendar" | "person" }) {
         <path d="m4 7.2 8 4.3 8-4.3M12 11.5V21" />
       </svg>
     );
-  if (name === "calendar")
+  if (name === "images")
     return (
       <svg {...common}>
-        <rect x="4" y="5.5" width="16" height="14.5" rx="2" />
-        <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+        <rect x="3.5" y="7.5" width="14" height="12" rx="2" />
+        <path d="M7 4.5h11a2.5 2.5 0 0 1 2.5 2.5v9" />
+        <circle cx="8" cy="12" r="1.3" />
+        <path d="m4 18 4.2-4 3.3 3 2.5-2 3.5 3" />
       </svg>
     );
   return (
@@ -200,45 +202,36 @@ export function AppPhoneDemo() {
                 <p className="apd-name">Aarti Sharma</p>
                 <p className="apd-sub">Clients, leads, and checkup</p>
 
-                <div className="apd-strip">
-                  <div className="apd-metric">
-                    <span className="apd-mico apd-mico-g">
-                      <Ico name="users" />
+                <div className="apd-stats">
+                  <div className="apd-stat apd-stat-g">
+                    <span className="apd-stat-top">
+                      <b className="apd-count apd-count-128" />
+                      <span className="apd-stat-ico">
+                        <Ico name="users" />
+                      </span>
                     </span>
-                    <b className="apd-count apd-count-128" />
-                    <span>Clients</span>
+                    <b className="apd-stat-title">Clients</b>
+                    <small>View all</small>
                   </div>
-                  <div className="apd-metric">
-                    <span className="apd-mico apd-mico-a">
-                      <Ico name="filter" />
+                  <div className="apd-stat apd-stat-b">
+                    <span className="apd-stat-top">
+                      <b className="apd-count apd-count-12" />
+                      <span className="apd-stat-ico">
+                        <Ico name="filter" />
+                      </span>
                     </span>
-                    <b className="apd-count apd-count-12" />
-                    <span>Leads</span>
+                    <b className="apd-stat-title">Leads</b>
+                    <small>Follow up</small>
                   </div>
-                  <div className="apd-metric">
-                    <span className="apd-mico apd-mico-r">
-                      <Ico name="calendar-alt" />
+                  <div className="apd-stat apd-stat-p">
+                    <span className="apd-stat-top">
+                      <b className="apd-count apd-count-7" />
+                      <span className="apd-stat-ico">
+                        <Ico name="clipboard" />
+                      </span>
                     </span>
-                    <b className="apd-count apd-count-7" />
-                    <span>Due</span>
-                  </div>
-                </div>
-
-                <div className="apd-pc">
-                  <div className="apd-pc-top">
-                    <span className="apd-pc-ico">
-                      <Ico name="eye-slash" />
-                    </span>
-                    <span className="apd-pc-copy">
-                      <b>Complete profile to go public</b>
-                      <small>
-                        Finish the required fields to appear on Find a Coach.
-                      </small>
-                    </span>
-                    <em>72%</em>
-                  </div>
-                  <div className="apd-pc-track">
-                    <span />
+                    <b className="apd-stat-title">Checkups</b>
+                    <small>Due soon</small>
                   </div>
                 </div>
 
@@ -253,28 +246,30 @@ export function AppPhoneDemo() {
                   <Ico name="arrow-right" />
                 </div>
 
-                <div className="apd-quick">
-                  <div className="apd-qc apd-qc-g">
-                    <span>
-                      <Ico name="users" />
-                    </span>
-                    <b>My Clients</b>
-                    <small>View &amp; manage your clients</small>
-                  </div>
-                  <div className="apd-qc apd-qc-b">
-                    <span>
-                      <Ico name="filter" />
-                    </span>
-                    <b>Leads</b>
-                    <small>Track &amp; convert Leads</small>
-                  </div>
-                  <div className="apd-qc apd-qc-p">
-                    <span>
-                      <Ico name="clipboard" />
-                    </span>
-                    <b>Checkups</b>
-                    <small>View upcoming checkups</small>
-                  </div>
+                <div className="apd-tips-head">
+                  <span className="apd-tips-ico">
+                    <Ico name="lightbulb" />
+                  </span>
+                  <b>Tips for your week</b>
+                  <em>
+                    View All <Ico name="arrow-right" />
+                  </em>
+                </div>
+                <div className="apd-tip">
+                  <small className="apd-tip-tag">
+                    <Ico name="bullseye" /> Your Personal Coach
+                  </small>
+                  <b>
+                    Your Personal
+                    <br />
+                    Coach Awaits
+                  </b>
+                  <span className="apd-tip-copy">
+                    Get customized workout &amp; nutrition plan
+                  </span>
+                  <span className="apd-tip-play">
+                    <Ico name="play" />
+                  </span>
                 </div>
               </div>
             </div>
@@ -292,6 +287,15 @@ export function AppPhoneDemo() {
                 <span className="apd-uline" />
                 <p className="apd-muted">Client&apos;s basic details</p>
                 <div className="apd-card">
+                  <div className="apd-f">
+                    <label>
+                      Client Photo <i>*</i>
+                    </label>
+                    <div className="apd-photo">
+                      <Ico name="camera" />
+                      <span>Tap to add a photo *</span>
+                    </div>
+                  </div>
                   <div className="apd-f">
                     <label>
                       Full Name <i>*</i>
@@ -322,7 +326,25 @@ export function AppPhoneDemo() {
                     </div>
                   </div>
                   <div className="apd-f">
-                    <label>Age</label>
+                    <label>
+                      Location <i>*</i>
+                    </label>
+                    <div className="apd-in apd-in-empty">
+                      <Ico name="map-marker-alt" />
+                      <span>City / Area</span>
+                    </div>
+                  </div>
+                  <div className="apd-f">
+                    <label>Date of Birth (optional)</label>
+                    <div className="apd-in apd-in-empty">
+                      <Ico name="calendar-alt" />
+                      <span>Select date of birth</span>
+                    </div>
+                  </div>
+                  <div className="apd-f">
+                    <label>
+                      Age <i>*</i>
+                    </label>
                     <div className="apd-in">
                       <Ico name="calendar-alt" />
                       <span className="apd-type apd-type-age">34</span>
@@ -497,7 +519,7 @@ export function AppPhoneDemo() {
             [
               ["grid", "Dashboard"],
               ["cube", "Packages"],
-              ["calendar", "Posts"],
+              ["images", "Posts"],
               ["person", "Profile"],
             ] as const
           ).map(([icon, label], index) => (

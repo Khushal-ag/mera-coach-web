@@ -1,9 +1,5 @@
 import { apiFetch } from "@/lib/api/client";
-import {
-  firstApiError,
-  isApiSuccess,
-  isNoRecordsResponse,
-} from "@/lib/api/normalize";
+import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { ApiRequestError } from "@/lib/api/types";
 
 type AuthedFetchOptions = {
@@ -15,7 +11,7 @@ type AuthedFetchOptions = {
 
 /**
  * Authenticated coach calls → meracoachapi directly (Bearer from session).
- * Paths are API-relative without leading slash, e.g. `v1/Client/ClientList`.
+ * Paths are API-relative without leading slash, e.g. `Client/ClientList`.
  */
 export async function authedFetch<T>(
   path: string,
@@ -46,10 +42,6 @@ export async function authedFetch<T>(
       400,
       envelope.errorObj ?? [],
     );
-  }
-
-  if (isNoRecordsResponse(envelope)) {
-    return (envelope.responseObj ?? null) as T;
   }
 
   return (envelope.responseObj ?? null) as T;
