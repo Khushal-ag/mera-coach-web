@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
                 <h1>Forgot Password</h1>
                 <p>
                   Enter the email or mobile you use to sign in, then confirm
-                  with the reset code.
+                  with the 6-digit reset code.
                 </p>
               </div>
             </div>

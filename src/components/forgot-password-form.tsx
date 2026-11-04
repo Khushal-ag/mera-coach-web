@@ -34,7 +34,7 @@ export function ForgotPasswordForm() {
       await requestForgotPassword(trimmed);
       setStep("confirm");
       setInfo(
-        "If that account has an email or SMS channel, we sent a reset code. Enter it below.",
+        "If that account has an email or SMS channel, we sent a 6-digit reset code. Enter it below.",
       );
     } catch (err) {
       setError(
@@ -51,8 +51,9 @@ export function ForgotPasswordForm() {
     e.preventDefault();
     setError(null);
     setInfo(null);
-    if (!token.trim()) {
-      setError("Enter the reset code from your email.");
+    const digits = token.replace(/\D/g, "");
+    if (digits.length !== 6) {
+      setError("Enter the 6-digit reset code from your email.");
       return;
     }
     const passwordError = passwordPolicyError(newPassword);
@@ -66,7 +67,7 @@ export function ForgotPasswordForm() {
     }
     setBusy(true);
     try {
-      await resetCoachPassword({ token, newPassword });
+      await resetCoachPassword({ token: digits, newPassword });
       router.replace("/coach-login");
     } catch (err) {
       setError(
@@ -96,15 +97,21 @@ export function ForgotPasswordForm() {
         : null}
         <div className="lg-field">
           <label htmlFor="resetCode">
-            <i className="fas fa-key" /> Reset code
+            <i className="fas fa-key" /> 6-digit reset code
           </label>
           <div className="lg-input-wrap">
             <input
               id="resetCode"
               autoComplete="one-time-code"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              placeholder="000000"
               required
               value={token}
-              onChange={(e) => setToken(e.target.value)}
+              onChange={(e) =>
+                setToken(e.target.value.replace(/\D/g, "").slice(0, 6))
+              }
               disabled={busy}
             />
           </div>
