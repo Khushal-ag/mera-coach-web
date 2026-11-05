@@ -1,6 +1,7 @@
 "use client";
 
 import { PracticePageHeader } from "@/components/practice/page-header";
+import { ProfileCompletionCard } from "@/components/practice/profile-completion";
 import { ProfileOverview } from "@/components/practice/views/profile-overview";
 import {
   ProfileFormSkeleton,
@@ -190,6 +191,15 @@ export function ProfileSettingsView() {
                   </div>
                 </div>
                 <div className="rg-card-body">
+                  {!completion.isPublicReady || completion.percent < 100 ?
+                    <div className="mb-5">
+                      <ProfileCompletionCard
+                        completion={completion}
+                        variant="detailed"
+                        showAction={false}
+                      />
+                    </div>
+                  : null}
                   <ProfileEditStep1 editor={editor} />
                   <ProfileEditStep2 editor={editor} />
                   <ProfileEditStep3 editor={editor} />

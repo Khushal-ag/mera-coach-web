@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import type { CoachShowcasePackage, SavePackageInput } from "@/types/showcase";
 
@@ -17,6 +18,12 @@ import {
   setPackageActive,
 } from "@/lib/api/showcase";
 import { formatMoney } from "@/lib/format";
+import {
+  getPackagesEmptyStateCopy,
+  packagesPageDescription,
+  PROFESSIONAL_DETAILS_PROFILE_HREF,
+  shouldShowPackagesSubtitle,
+} from "@/lib/packages-list-ui";
 
 const MAX_PACKAGES = 10;
 
@@ -146,43 +153,25 @@ export function PackagesListView() {
     }
   }
 
-  const canAdd = !loading && packages.length < MAX_PACKAGES;
+  const canAdd = !loading && !!coachBrandCode && packages.length < MAX_PACKAGES;
   const editingPackage =
     editing ? (packages.find((p) => p.packageId === editing) ?? null) : null;
-
-  const pageDescription = useMemo(() => {
-    const base = `Up to ${MAX_PACKAGES} product packages for your public profile.`;
-    if (coachBrandCode && coachBrandName) {
-      return (
-        <>
-          {base}
-          <span className="mt-2 block text-sm leading-relaxed text-ink-muted">
-            <i className="fas fa-tags text-mc-secondary" aria-hidden />{" "}
-            <span className="font-semibold text-ink">Product brand:</span>{" "}
-            {coachBrandName}
-          </span>
-        </>
-      );
-    }
-    if (profileLoaded && !coachBrandCode && editing === null) {
-      return (
-        <>
-          {base}
-          <span className="mt-2 block text-sm leading-relaxed text-ink-muted">
-            Set a product brand under Edit profile → Professional details before
-            you create packages.
-          </span>
-        </>
-      );
-    }
-    return base;
-  }, [coachBrandCode, coachBrandName, profileLoaded, editing]);
+  const hasBrand = !!coachBrandCode;
+  const showPageDescription = shouldShowPackagesSubtitle(
+    hasBrand,
+    packages.length,
+  );
+  const emptyCopy = getPackagesEmptyStateCopy(hasBrand, coachBrandName);
 
   return (
     <div className="min-w-0">
       <PracticePageHeader
         title="Packages"
-        description={pageDescription}
+        description={
+          showPageDescription ?
+            packagesPageDescription(MAX_PACKAGES)
+          : undefined
+        }
         icon={<i className="fas fa-box" style={{ fontSize: 20 }} aria-hidden />}
         action={
           canAdd && editing === null && packages.length > 0 ?
@@ -200,6 +189,15 @@ export function PackagesListView() {
           : null
         }
       />
+
+      {coachBrandCode && coachBrandName && editing === null ?
+        <p className="mb-4">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-mc-secondary-light px-3 py-1 text-xs font-semibold text-ink">
+            <i className="fas fa-tag text-mc-secondary" aria-hidden />
+            {coachBrandName}
+          </span>
+        </p>
+      : null}
 
       {error ?
         <AlertBanner tone="error">{error}</AlertBanner>
@@ -224,16 +222,31 @@ export function PackagesListView() {
       : packages.length === 0 ?
         <EmptyState
           icon="fas fa-box"
-          title="No packages yet"
-          description="Bundle the products you recommend into a package with its own price. It shows on your public profile."
+          title={emptyCopy.title}
+          description={emptyCopy.description}
           action={
-            <button
-              type="button"
-              className="mc-btn-primary"
-              onClick={() => setEditing(0)}
-            >
-              <i className="fas fa-plus" aria-hidden /> Create package
-            </button>
+            profileLoaded && !coachBrandCode ?
+              <Link
+                href={PROFESSIONAL_DETAILS_PROFILE_HREF}
+                className="mc-btn-primary"
+              >
+                <i className="fas fa-user-pen" aria-hidden />{" "}
+                {emptyCopy.actionLabel}
+              </Link>
+            : canAdd ?
+              <button
+                type="button"
+                className="mc-btn-primary"
+                onClick={() => {
+                  setFormError(null);
+                  setMessage(null);
+                  setEditing(0);
+                }}
+              >
+                <i className="fas fa-plus" aria-hidden />{" "}
+                {emptyCopy.actionLabel}
+              </button>
+            : null
           }
         />
       : <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

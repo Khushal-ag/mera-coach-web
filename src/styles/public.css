@@ -9943,6 +9943,7 @@
   border: 1.5px solid var(--border) !important;
   border-radius: 10px !important;
   padding: 11px 22px !important;
+  min-height: 44px !important;
   font-size: 14px !important;
 }
 .mc-public .rg-btn-back:hover {
@@ -9957,6 +9958,7 @@
   color: #fff !important;
   border-radius: 10px !important;
   padding: 11px 24px !important;
+  min-height: 44px !important;
   font-size: 14px !important;
   box-shadow: 0 6px 20px rgba(27, 67, 50, 0.28) !important;
 }

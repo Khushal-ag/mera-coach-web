@@ -1,9 +1,10 @@
 /** Checklist aligned with mera-coach-app `getProfileCompletion` / API visibility rules. */
 
-type ProfileCompletionItem = {
+export type ProfileCompletionItem = {
   key: string;
   label: string;
   done: boolean;
+  where: string;
 };
 
 type ProfileCompletionInput = {
@@ -24,9 +25,11 @@ type ProfileCompletionInput = {
   missingPublicFields?: string[] | null;
 };
 
-type ProfileCompletion = {
+export type ProfileCompletion = {
   percent: number;
   items: ProfileCompletionItem[];
+  doneCount: number;
+  totalCount: number;
   isPublicReady: boolean;
   missingLabels: string[];
 };
@@ -51,45 +54,73 @@ export function getProfileCompletion(
       key: "photo",
       label: "Profile photo",
       done: hasText(profile.profile_Pic_Url),
+      where: "Name & photo",
     },
-    { key: "name", label: "Coach name", done: hasText(profile.coachName) },
+    {
+      key: "name",
+      label: "Coach name",
+      done: hasText(profile.coachName),
+      where: "Name & photo",
+    },
     {
       key: "category",
       label: "Coach category",
       done: hasText(profile.coachTypeCode),
+      where: "Set at sign up",
     },
-    { key: "city", label: "City", done: hasText(profile.city_Cd) },
-    { key: "tagline", label: "Tagline", done: hasText(profile.tagline) },
+    {
+      key: "city",
+      label: "City",
+      done: hasText(profile.city_Cd),
+      where: "Address (filled from pincode)",
+    },
+    {
+      key: "tagline",
+      label: "Tagline",
+      done: hasText(profile.tagline),
+      where: "Professional details",
+    },
     {
       key: "brand",
       label: "Product brand",
       done: hasText(profile.brandCode),
+      where: "Professional details",
     },
     {
       key: "description",
       label: "About / description",
       done: hasText(profile.coachDesc),
+      where: "Professional details",
     },
     {
       key: "services",
       label: "Services",
       done: services.some((code) => hasText(code)),
+      where: "Professional details",
     },
     {
       key: "experience",
       label: "Years of experience",
       done: enteredNumber(profile.experienceYears),
+      where: "Professional details",
     },
     {
       key: "clients",
       label: "Happy clients count",
       done: enteredNumber(profile.happyClientCount),
+      where: "Professional details",
     },
-    { key: "pincode", label: "Pincode", done: hasText(profile.pinCode) },
+    {
+      key: "pincode",
+      label: "Pincode",
+      done: hasText(profile.pinCode),
+      where: "Address",
+    },
     {
       key: "location",
       label: "Locality or address",
       done: !!locality || !!addLine,
+      where: "Address",
     },
   ];
 
@@ -100,13 +131,22 @@ export function getProfileCompletion(
   }
 
   const doneCount = items.filter((i) => i.done).length;
-  const percent = Math.round((doneCount / items.length) * 100);
+  const totalCount = items.length;
+  const percent = Math.round((doneCount / totalCount) * 100);
   const missingLabels = items.filter((i) => !i.done).map((i) => i.label);
 
+  const localReady = missingLabels.length === 0;
   const isPublicReady =
-    typeof profile.isProfileVisible === "boolean" ?
-      profile.isProfileVisible
-    : missingLabels.length === 0;
+    profile.isProfileVisible === true ? true
+    : profile.isProfileVisible === false ? false
+    : localReady;
 
-  return { percent, items, isPublicReady, missingLabels };
+  return {
+    percent,
+    items,
+    doneCount,
+    totalCount,
+    isPublicReady,
+    missingLabels,
+  };
 }

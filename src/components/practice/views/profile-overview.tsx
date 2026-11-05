@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+import type { ProfileCompletion } from "@/lib/profile-completion";
 import type { CoachProfile } from "@/types/coach";
 import type { CoachPost } from "@/types/showcase";
 
 import { CoachPhoto } from "@/components/coach-photo";
 import { ProfileCoverImage } from "@/components/coach-profile/profile-cover-image";
 import { ShareProfileButton } from "@/components/coach-profile/share-profile-button";
+import { ProfileCompletionCard } from "@/components/practice/profile-completion";
 import { SupportActions } from "@/components/practice/support-dialog";
 import { isSubscriptionRequired } from "@/config/practice";
 import { fetchMyPosts } from "@/lib/api/showcase";
@@ -159,7 +161,7 @@ export type ProfileOverviewProps = {
   } | null;
   premiumLabel: string;
   premiumLink: string;
-  completion: { percent: number; missingLabels: string[] };
+  completion: ProfileCompletion;
   onEdit: () => void;
 };
 
@@ -344,43 +346,12 @@ export function ProfileOverview({
             <SupportActions list />
           </div>
         </section>
-        {profile.isProfileVisible === false || completion.percent < 100 ?
-          <div className="grid gap-4">
-            {profile.isProfileVisible === false ?
-              <div className="mc-panel flex items-baseline justify-between gap-4 p-4 sm:p-5">
-                <div className="min-w-0">
-                  <p className="font-display text-sm font-bold text-ink">
-                    Find a Coach listing is off
-                  </p>
-                  <p className="mt-1 text-sm text-ink-muted">
-                    {completion.missingLabels.length ?
-                      `Save these details on this profile: ${completion.missingLabels.join(", ")}. Find a Coach lists a profile once every required field is saved.`
-                    : "Save this profile again. Find a Coach lists a profile once every required field is saved."
-                    }
-                  </p>
-                </div>
-                <p className="font-display text-3xl font-bold text-ink tabular-nums">
-                  {completion.percent}%
-                </p>
-              </div>
-            : profile && completion.percent < 100 ?
-              <div className="mc-panel flex items-baseline justify-between gap-4 p-4 sm:p-5">
-                <div className="min-w-0">
-                  <p className="font-display text-sm font-bold text-ink">
-                    Profile completion
-                  </p>
-                  {completion.missingLabels.length ?
-                    <p className="mt-1 text-sm text-ink-muted">
-                      Still needed: {completion.missingLabels.join(", ")}
-                    </p>
-                  : null}
-                </div>
-                <p className="font-display text-3xl font-bold text-ink tabular-nums">
-                  {completion.percent}%
-                </p>
-              </div>
-            : null}
-          </div>
+        {!completion.isPublicReady || completion.percent < 100 ?
+          <ProfileCompletionCard
+            completion={completion}
+            variant="detailed"
+            showAction={false}
+          />
         : null}
       </aside>
     </div>

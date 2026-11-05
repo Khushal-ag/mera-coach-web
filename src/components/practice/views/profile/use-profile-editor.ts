@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import type { ProfileDraft, ProfileText } from "./profile-draft";
 
@@ -54,6 +55,8 @@ export {
 /** State and actions for the coach profile page: view, edit steps and save. */
 export function useProfileEditor() {
   const { session } = useAuth();
+  const searchParams = useSearchParams();
+  const openedProfessionalStepRef = useRef(false);
   const [profile, setProfile] = useState<CoachProfile | null>(null);
   const [premiumLabel, setPremiumLabel] = useState<string>("…");
   const [error, setError] = useState<string | null>(null);
@@ -266,14 +269,21 @@ export function useProfileEditor() {
           if (!editingRef.current) {
             writeProfileText(loaded);
             setBaseline(loaded);
-            setSavedKey(
-              profileDraftKey({
-                ...loaded,
-                logoPick: false,
-                photoPick: false,
-                coverPick: false,
-              }),
-            );
+            const draftKey = profileDraftKey({
+              ...loaded,
+              logoPick: false,
+              photoPick: false,
+              coverPick: false,
+            });
+            setSavedKey(draftKey);
+            if (
+              !openedProfessionalStepRef.current &&
+              searchParams.get("step") === "professional"
+            ) {
+              openedProfessionalStepRef.current = true;
+              setEditStep(2);
+              setEditing(true);
+            }
           }
         }
         if (subscriptionOn) {
@@ -293,7 +303,7 @@ export function useProfileEditor() {
     return () => {
       cancelled = true;
     };
-  }, [session?.email]);
+  }, [searchParams, session?.email]);
 
   function writeProfileText(draft: ProfileText) {
     setCoachName(draft.coachName);
