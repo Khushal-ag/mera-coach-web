@@ -111,6 +111,8 @@ bun dev                      # http://localhost:3000
 | `NEXT_PUBLIC_SOCIAL_*`              | No       | Facebook, Instagram, X, YouTube and LinkedIn links. Only the ones you set show in the footer   |
 | `ANDROID_APP_SHA256_FINGERPRINTS`   | No       | Play app-signing fingerprints, so the Android app can open `/coach-login` links                |
 
+Support email, WhatsApp, address and hours: edit `src/config/contact.ts`.
+
 **Payment keys never go in the website.** Razorpay's key id and secret live on the API, which sends the website a `keyId` with each order.
 
 | Script               | What it does                                       |

@@ -3,9 +3,9 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { SUPPORT_EMAIL } from "@/config/contact";
 import { FREE_CLIENT_LIMIT, isSubscriptionRequired } from "@/config/practice";
 import { ADD_CLIENT_PREMIUM_HREF } from "@/constants/routes";
-import { SUPPORT_EMAIL } from "@/constants/support";
 import { resolveAddClientAccess } from "@/lib/add-client-access";
 import { fetchClientList } from "@/lib/api/practice";
 import { ensurePremiumStatus } from "@/lib/auth/premium-status";

@@ -2,6 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { AppStoreBadges } from "@/components/app-store-badges";
+import {
+  CONTACT_ADDRESS_LINE1,
+  CONTACT_ADDRESS_LINE2,
+  contactWhatsAppDisplay,
+  contactWhatsAppUrl,
+  SUPPORT_HOURS,
+} from "@/config/contact";
 import { env } from "@/config/env";
 import { isSubscriptionRequired } from "@/config/practice";
 import { siteConfig } from "@/config/site";
@@ -123,26 +130,34 @@ export function SiteFooter() {
                 <div className="footer-contact-item">
                   <i className="fas fa-envelope" />
                   <span>
-                    <a href={`mailto:${siteConfig.email.support}`}>
-                      {siteConfig.email.support}
+                    <a href={`mailto:${siteConfig.email}`}>
+                      {siteConfig.email}
                     </a>
                   </span>
                 </div>
                 <div className="footer-contact-item">
-                  <i className="fas fa-phone" />
-                  <span>+91 98765 43210</span>
+                  <i className="fab fa-whatsapp" />
+                  <span>
+                    <a
+                      href={contactWhatsAppUrl()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {contactWhatsAppDisplay()}
+                    </a>
+                  </span>
                 </div>
                 <div className="footer-contact-item">
                   <i className="fas fa-map-marker-alt" />
                   <span>
-                    Mera Coach HQ,
+                    {CONTACT_ADDRESS_LINE1}
                     <br />
-                    New Delhi, India
+                    {CONTACT_ADDRESS_LINE2}
                   </span>
                 </div>
                 <div className="footer-contact-item">
                   <i className="fas fa-clock" />
-                  <span>Mon–Sat: 9am – 6pm</span>
+                  <span>{SUPPORT_HOURS}</span>
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import { siteConfig } from "@/config/site";
 
-const SUPPORT_EMAIL = siteConfig.email.support;
+const SUPPORT_EMAIL = siteConfig.email;
 
 export interface LegalSection {
   title: string;

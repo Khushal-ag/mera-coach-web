@@ -1,11 +1,15 @@
-import { SUPPORT_EMAIL } from "@/constants/support";
+import {
+  supportEmail as getSupportEmail,
+  mailtoSupport,
+  SUPPORT_EMAIL,
+} from "@/config/contact";
 
 /** Match mera-coach-app `SUPPORT_EMAIL` / support mailto helpers. */
 
-export const supportEmail = SUPPORT_EMAIL;
+export const supportEmail = getSupportEmail();
 
 export function supportMailto(subject = "Mera Coach Support"): string {
-  return `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}`;
+  return mailtoSupport(subject);
 }
 
 export function accountDeletionMailto(): string {

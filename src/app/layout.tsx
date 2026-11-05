@@ -29,7 +29,7 @@ const jsonLd = {
       name: siteConfig.name,
       url: siteConfig.url,
       description: siteConfig.description,
-      email: siteConfig.email.team,
+      email: siteConfig.email,
       logo: `${siteConfig.url}${siteConfig.brand.logoMark}`,
       image: `${siteConfig.url}${siteConfig.ogImage.url}`,
       sameAs: Object.values(env.social).filter(Boolean),

@@ -54,10 +54,7 @@ export default function PrivacyPage() {
             ))}
             <p style={{ marginTop: 28 }}>
               Questions? Write to{" "}
-              <a href={`mailto:${siteConfig.email.support}`}>
-                {siteConfig.email.support}
-              </a>
-              .
+              <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>.
             </p>
           </div>
         </div>

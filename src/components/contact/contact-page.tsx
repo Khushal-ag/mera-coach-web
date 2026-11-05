@@ -10,6 +10,14 @@ import {
 import type { ReactNode } from "react";
 
 import { MenuSelect } from "@/components/ui/menu-select";
+import {
+  CONTACT_BASED_IN,
+  CONTACT_RESPONSE_TIME,
+  contactWhatsAppDisplay,
+  contactWhatsAppUrl,
+  mailtoSupport,
+  SUPPORT_EMAIL,
+} from "@/config/contact";
 import { REGISTER_SHARE_TEXT } from "@/constants/contact";
 import { submitCoachEnquiry } from "@/lib/api/coach";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
@@ -770,12 +778,12 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
               <div>
                 <div className="cii-label">WhatsApp Us</div>
                 <a
-                  href="https://wa.me/919999999999"
+                  href={contactWhatsAppUrl()}
                   className="cii-value"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  +91 99999 99999
+                  {contactWhatsAppDisplay()}
                 </a>
               </div>
             </div>
@@ -785,8 +793,8 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
               </div>
               <div>
                 <div className="cii-label">Email Us</div>
-                <a href="mailto:hello@mera-coach.com" className="cii-value">
-                  hello@mera-coach.com
+                <a href={mailtoSupport()} className="cii-value">
+                  {SUPPORT_EMAIL}
                 </a>
               </div>
             </div>
@@ -796,7 +804,7 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
               </div>
               <div>
                 <div className="cii-label">Response Time</div>
-                <div className="cii-value">Within 24 hours</div>
+                <div className="cii-value">{CONTACT_RESPONSE_TIME}</div>
               </div>
             </div>
             <div className="contact-info-item">
@@ -805,7 +813,7 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
               </div>
               <div>
                 <div className="cii-label">Based In</div>
-                <div className="cii-value">India, serving globally</div>
+                <div className="cii-value">{CONTACT_BASED_IN}</div>
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@
  * URLs come from the typed env module (`src/config/env.ts`).
  */
 
+import { SUPPORT_EMAIL } from "@/config/contact";
 import { env } from "@/config/env";
 
 export const siteConfig = {
@@ -12,11 +13,8 @@ export const siteConfig = {
     "Get found by clients. Grow your coaching business. Mera Coach connects personal trainers and coaches with clients through a public profile, client tools, and a subscription.",
   url: env.siteUrl,
   apiBaseUrl: env.apiBaseUrl,
-  /** Public contact + app-aligned support (`hello@mera-coach.com`). */
-  email: {
-    team: "Contact@mera-coach.com",
-    support: "hello@mera-coach.com",
-  },
+  /** Public contact — from `@/config/contact`. */
+  email: SUPPORT_EMAIL,
 
   authors: [{ name: "Hench Solutions", url: env.siteUrl }],
   creator: "Hench Solutions",

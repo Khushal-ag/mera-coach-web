@@ -8,9 +8,9 @@ import { AssessmentWizardLazy as AssessmentWizard } from "@/components/assessmen
 import { useAuth } from "@/components/auth-provider";
 import { PracticePageHeader } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { SUPPORT_EMAIL } from "@/config/contact";
 import { FREE_CLIENT_LIMIT, isSubscriptionRequired } from "@/config/practice";
 import { ADD_CLIENT_PREMIUM_HREF } from "@/constants/routes";
-import { SUPPORT_EMAIL } from "@/constants/support";
 import { fetchAuthedCoachProfile, fetchClientList } from "@/lib/api/practice";
 import { ensurePremiumStatus } from "@/lib/auth/premium-status";
 
