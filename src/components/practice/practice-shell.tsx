@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/components/auth-provider";
+import { NotificationBell } from "@/components/practice/notification-bell";
 import { isSubscriptionRequired } from "@/config/practice";
 import { useSidebarCollapsed } from "@/hooks/use-sidebar-collapsed";
 import { fetchAuthedCoachProfile } from "@/lib/api/practice";
@@ -348,15 +349,7 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                   : null}
                 </div>
               : null}
-              <button
-                type="button"
-                className="cl-notif-btn"
-                disabled
-                title="Notifications are not available yet"
-                aria-label="Notifications are not available yet"
-              >
-                <i className="fas fa-bell" />
-              </button>
+              <NotificationBell coach={session} />
               <Link
                 href="/"
                 className="cl-home-btn"

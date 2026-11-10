@@ -79,7 +79,7 @@ Premium plans are bought here with Razorpay. Clients leave feedback here through
 | `/services`, `/bmi`, `/contact`| Services, the BMI calculator with a callback form, and contact                                    |
 | `/register`                    | Coach registration                                                                                |
 | `/coach-login`                 | Coach sign-in, then `/dashboard`                                                                  |
-| `/dashboard`                   | The coach's practice: clients, leads, check-ups, packages, gallery and events, reviews, profile   |
+| `/dashboard`                   | The coach's practice: clients, leads, check-ups, packages, gallery and events, reviews, profile. The bell in the top bar opens the notifications |
 | `/premium`, `/premium/success` | Plans and Razorpay checkout, then the confirmation page                                            |
 | `/feedback`                    | Client feedback form, opened from a link with `?coachCode=&clientCode=`                           |
 | `/forgot-password`             | Password reset                                                                                    |
