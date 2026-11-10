@@ -19,6 +19,7 @@ import {
   updateNotificationPreference,
 } from "@/lib/api/notifications";
 import { notificationHref, timeAgo } from "@/lib/notification-link";
+import { actionLabel, splitBody } from "@/lib/notification-presentation";
 import { premiumHref } from "@/lib/premium-link";
 import { cn } from "@/lib/utils";
 
@@ -51,6 +52,7 @@ export function NotificationBell({
   const [open, setOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [items, setItems] = useState<AppNotification[] | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -116,6 +118,25 @@ export function NotificationBell({
 
   function fail(err: unknown, fallback: string) {
     setError(err instanceof Error ? err.message : fallback);
+  }
+
+  // Opening a row to read it is what marks it read.
+  function toggleOpen(item: AppNotification) {
+    setExpandedId((current) => (current === item.id ? null : item.id));
+    if (item.isRead) return;
+    setItems((prev) =>
+      (prev ?? []).map((n) => (n.id === item.id ? { ...n, isRead: true } : n)),
+    );
+    void markNotificationsRead(item.id)
+      .then(refresh)
+      .catch((err) => {
+        setItems((prev) =>
+          (prev ?? []).map((n) =>
+            n.id === item.id ? { ...n, isRead: false } : n,
+          ),
+        );
+        fail(err, "Could not mark that as read.");
+      });
   }
 
   function openItem(item: AppNotification) {
@@ -232,6 +253,7 @@ export function NotificationBell({
         onClick={() => {
           setError(null);
           setShowSettings(false);
+          setExpandedId(null);
           setOpen((v) => !v);
         }}
       >
@@ -323,70 +345,123 @@ export function NotificationBell({
               </p>
             : <>
                 <ul className="cl-notif-list">
-                  {items.map((item) => (
-                    <li key={item.id} className="cl-notif-item">
-                      <button
-                        type="button"
-                        className={cn(
-                          "cl-notif-row",
-                          !item.isRead && "is-unread",
-                        )}
-                        onClick={() => openItem(item)}
+                  {items.map((item) => {
+                    const expanded = item.id === expandedId;
+                    const { lead, rest } = splitBody(item.body);
+                    const action = actionLabel(item.type, item.route);
+                    return (
+                      <li
+                        key={item.id}
+                        className="cl-notif-item"
+                        data-group={item.groupCode}
                       >
-                        <span className="cl-notif-icon" aria-hidden>
-                          <i
-                            className={
-                              GROUP_ICON[item.groupCode] ?? "fas fa-bell"
-                            }
-                          />
-                        </span>
-                        <span className="cl-notif-text">
-                          <span className="cl-notif-title">
-                            {item.title}
-                            {item.isRead ? null : (
-                              <span
-                                className="cl-notif-dot"
-                                aria-label="Unread"
+                        <div
+                          className={cn(
+                            "cl-notif-row",
+                            item.isRead ? "is-read" : "is-unread",
+                            expanded && "is-open",
+                          )}
+                        >
+                          <button
+                            type="button"
+                            className="cl-notif-head"
+                            aria-expanded={expanded}
+                            onClick={() => toggleOpen(item)}
+                          >
+                            <span className="cl-notif-icon" aria-hidden>
+                              <i
+                                className={
+                                  GROUP_ICON[item.groupCode] ?? "fas fa-bell"
+                                }
                               />
-                            )}
-                          </span>
-                          <span className="cl-notif-body">{item.body}</span>
-                          <span className="cl-notif-time">
-                            {timeAgo(item.createdAt)}
-                          </span>
-                        </span>
-                      </button>
-                      <span className="cl-notif-actions">
-                        <button
-                          type="button"
-                          title={
-                            item.isRead ? "Mark as unread" : "Mark as read"
-                          }
-                          aria-label={
-                            item.isRead ? "Mark as unread" : "Mark as read"
-                          }
-                          onClick={() => void toggleRead(item)}
-                        >
-                          <i
-                            className={
-                              item.isRead ? "far fa-envelope" : (
-                                "far fa-envelope-open"
-                              )
-                            }
-                          />
-                        </button>
-                        <button
-                          type="button"
-                          title="Delete"
-                          aria-label="Delete notification"
-                          className="cl-notif-danger"
-                          onClick={() => void remove(item)}
-                        >
-                          <i className="far fa-trash-alt" />
-                        </button>
-                      </span>
-                    </li>
-                  ))}
+                            </span>
+                            <span className="cl-notif-text">
+                              <span className="cl-notif-title">
+                                <span className="cl-notif-title-text">
+                                  {item.title}
+                                </span>
+                                {item.isRead ? null : (
+                                  <span
+                                    className="cl-notif-dot"
+                                    role="img"
+                                    aria-label="Unread"
+                                  />
+                                )}
+                                <span className="cl-notif-time">
+                                  {timeAgo(item.createdAt)}
+                                </span>
+                                <i
+                                  className={
+                                    expanded ?
+                                      "fas fa-chevron-up cl-notif-chevron"
+                                    : "fas fa-chevron-down cl-notif-chevron"
+                                  }
+                                  aria-hidden
+                                />
+                              </span>
+                              {expanded ?
+                                <>
+                                  <span className="cl-notif-lead">{lead}</span>
+                                  {rest ?
+                                    <span className="cl-notif-rest">
+                                      {rest}
+                                    </span>
+                                  : null}
+                                </>
+                              : <span className="cl-notif-preview">
+                                  {item.body}
+                                </span>
+                              }
+                            </span>
+                          </button>
+                          {expanded ?
+                            <div className="cl-notif-foot">
+                              <button
+                                type="button"
+                                className="cl-notif-cta"
+                                onClick={() => openItem(item)}
+                              >
+                                {action} <i className="fas fa-arrow-right" />
+                              </button>
+                              <span className="cl-notif-actions">
+                                <button
+                                  type="button"
+                                  title={
+                                    item.isRead ? "Mark as unread" : (
+                                      "Mark as read"
+                                    )
+                                  }
+                                  aria-label={
+                                    item.isRead ? "Mark as unread" : (
+                                      "Mark as read"
+                                    )
+                                  }
+                                  onClick={() => void toggleRead(item)}
+                                >
+                                  <i
+                                    className={
+                                      item.isRead ? "far fa-envelope" : (
+                                        "far fa-envelope-open"
+                                      )
+                                    }
+                                  />
+                                </button>
+                                <button
+                                  type="button"
+                                  title="Delete"
+                                  aria-label="Delete notification"
+                                  className="cl-notif-danger"
+                                  onClick={() => void remove(item)}
+                                >
+                                  <i className="far fa-trash-alt" />
+                                </button>
+                              </span>
+                            </div>
+                          : null}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
                 {hasMore ?
                   <button

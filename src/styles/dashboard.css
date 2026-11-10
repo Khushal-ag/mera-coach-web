@@ -434,75 +434,165 @@
   display: grid;
   gap: 8px;
 }
+/* Each group has its own colour: --g for icons and the edge, --g-ink for text on the tint. */
 .mc-dash .cl-notif-item {
-  position: relative;
+  --g: #178676;
+  --g-tint: #d6ede5;
+  --g-ink: #11685c;
+}
+.mc-dash .cl-notif-item[data-group="BUSINESS"] {
+  --g: #d05c26;
+  --g-tint: #fdf0e8;
+  --g-ink: #b34a1c;
+}
+.mc-dash .cl-notif-item[data-group="SUBSCRIPTION"] {
+  --g: #e8a317;
+  --g-tint: #fdf3e0;
+  --g-ink: #8a5a00;
+}
+.mc-dash .cl-notif-item[data-group="FEEDBACK"] {
+  --g: #329450;
+  --g-tint: #e4f3e8;
+  --g-ink: #1f6b3a;
 }
 .mc-dash .cl-notif-row {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--cl-border);
+  border-radius: 12px;
+  transition: var(--cl-transition);
+}
+.mc-dash .cl-notif-row:hover,
+.mc-dash .cl-notif-row.is-open {
+  border-color: var(--g);
+}
+/* Unread stands out on a white card with a coloured edge; read ones sit flat on the page tone. */
+.mc-dash .cl-notif-row.is-unread {
+  background: var(--cl-white);
+}
+.mc-dash .cl-notif-row.is-unread::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--g);
+}
+.mc-dash .cl-notif-row.is-read {
+  background: var(--cl-bg);
+}
+.mc-dash .cl-notif-head {
   width: 100%;
   display: flex;
   gap: 10px;
   align-items: flex-start;
   text-align: left;
-  padding: 10px 70px 10px 10px;
-  border: 1px solid var(--cl-border);
-  border-radius: 12px;
-  background: var(--cl-white);
-  cursor: pointer;
+  padding: 12px 12px 12px 14px;
+  border: 0;
+  background: transparent;
+  color: inherit;
   font: inherit;
-  transition: var(--cl-transition);
-}
-.mc-dash .cl-notif-row:hover {
-  border-color: var(--cl-primary);
-}
-.mc-dash .cl-notif-row.is-unread {
-  background: var(--cl-bg);
-  border-color: var(--cl-primary);
+  cursor: pointer;
 }
 .mc-dash .cl-notif-icon {
   flex: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--cl-white);
-  border: 1px solid var(--cl-border);
-  color: var(--cl-primary);
-  font-size: 13px;
+  background: var(--g-tint);
+  color: var(--g-ink);
+  font-size: 15px;
+}
+.mc-dash .cl-notif-row.is-read .cl-notif-icon {
+  opacity: 0.6;
 }
 .mc-dash .cl-notif-text {
   display: grid;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
+  flex: 1;
 }
 .mc-dash .cl-notif-title {
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--cl-text);
   display: flex;
   align-items: center;
   gap: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--cl-text);
+}
+.mc-dash .cl-notif-row.is-read .cl-notif-title {
+  font-weight: 600;
+  color: var(--cl-text-lt);
+}
+.mc-dash .cl-notif-title-text {
+  min-width: 0;
 }
 .mc-dash .cl-notif-dot {
+  flex: none;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--cl-primary);
+  background: #d05c26;
 }
-.mc-dash .cl-notif-body {
-  color: var(--cl-text);
+.mc-dash .cl-notif-time {
+  margin-left: auto;
+  flex: none;
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--cl-text-lt);
+}
+.mc-dash .cl-notif-chevron {
+  flex: none;
+  font-size: 10px;
+  color: var(--cl-text-lt);
+}
+.mc-dash .cl-notif-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--cl-text-lt);
   font-size: 13px;
   line-height: 1.45;
 }
-.mc-dash .cl-notif-time {
+.mc-dash .cl-notif-lead {
+  color: var(--cl-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.mc-dash .cl-notif-rest {
   color: var(--cl-text-lt);
-  font-size: 11px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.mc-dash .cl-notif-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 12px 12px 60px;
+}
+.mc-dash .cl-notif-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: var(--g-tint);
+  color: var(--g-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.mc-dash .cl-notif-cta:hover {
+  filter: brightness(0.96);
 }
 .mc-dash .cl-notif-actions {
-  position: absolute;
-  top: 8px;
-  right: 8px;
   display: flex;
   gap: 2px;
 }
