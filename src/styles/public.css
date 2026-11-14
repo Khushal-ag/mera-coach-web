@@ -12101,3 +12101,181 @@ html {
 .mc-public .sv-member-cta .sv-btn-book:hover {
   background: #fff3e6 !important;
 }
+
+/* app phone demo: notifications screen (the app's group colours) */
+.mc-public .apd-ng-leads {
+  --g: #178676;
+  --gt: #d6ede5;
+  --gi: #11685c;
+}
+.mc-public .apd-ng-feedback {
+  --g: #329450;
+  --gt: #e4f3e8;
+  --gi: #11523c;
+}
+.mc-public .apd-ng-business {
+  --g: #d05c26;
+  --gt: #fdf0e8;
+  --gi: #b34a1c;
+}
+.mc-public .apd-scroll-alerts {
+  padding-top: 0.9em;
+}
+.mc-public .apd-ntools {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 0.8em;
+  font-size: 0.95em;
+  font-weight: 700;
+  color: #178676;
+}
+.mc-public .apd-ntools i {
+  margin-right: 0.3em;
+}
+.mc-public .apd-ntools-del {
+  color: #dc2626;
+}
+.mc-public .apd-nrow {
+  position: relative;
+  display: flex;
+  gap: 0.8em;
+  margin: 0 0 0.7em;
+  padding: 0.8em 0.9em 0.8em 1em;
+  border: 1px solid #dfe6e2;
+  border-radius: 1em;
+  background: #fff;
+  overflow: hidden;
+}
+.mc-public .apd-nrow-read {
+  background: #eef2ef;
+}
+.mc-public .apd-nrow-open {
+  border-color: var(--g);
+}
+.mc-public .apd-nbar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0.3em;
+  background: var(--g);
+}
+.mc-public .apd-nicon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 0.8em;
+  background: var(--gt);
+  color: var(--g);
+  font-size: 0.95em;
+}
+.mc-public .apd-nrow-read .apd-nicon {
+  opacity: 0.6;
+}
+.mc-public .apd-ntext {
+  flex: 1;
+  min-width: 0;
+}
+.mc-public .apd-ntext p {
+  margin: 0;
+}
+.mc-public .apd-ntitle {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 1.05em;
+  font-weight: 800;
+  color: #1c1c1c;
+}
+.mc-public .apd-nrow-read .apd-ntitle {
+  font-weight: 600;
+  color: #4a544f;
+}
+.mc-public .apd-ntitle small {
+  flex: none;
+  white-space: nowrap;
+  margin-left: auto;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: #6b756f;
+}
+.mc-public .apd-ntitle i.fas {
+  font-size: 0.75em;
+  color: #6b756f;
+}
+.mc-public .apd-ndot {
+  flex: none;
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: var(--g);
+}
+.mc-public .apd-npreview {
+  margin-top: 0.25em;
+  font-size: 0.92em;
+  line-height: 1.35;
+  color: #6b756f;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mc-public .apd-nlead {
+  margin-top: 0.35em;
+  font-size: 0.98em;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #1c1c1c;
+}
+.mc-public .apd-nrest {
+  margin-top: 0.2em;
+  font-size: 0.92em;
+  line-height: 1.35;
+  color: #6b756f;
+}
+.mc-public .apd-nfoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.6em;
+}
+.mc-public .apd-npill {
+  padding: 0.45em 0.9em;
+  border-radius: 2em;
+  background: var(--gt);
+  color: var(--gi);
+  font-size: 0.92em;
+  font-weight: 800;
+}
+.mc-public .apd-npill i {
+  margin-left: 0.3em;
+}
+.mc-public .apd-ntoolicons {
+  display: flex;
+  gap: 0.9em;
+  color: #178676;
+}
+.mc-public .apd-ntoolicons i:last-child {
+  color: #dc2626;
+}
+.mc-public .is-active .apd-ntools {
+  animation: apdRise 0.45s 0.2s ease backwards;
+}
+.mc-public .is-active .apd-nrow {
+  animation: apdRise 0.5s ease backwards;
+}
+.mc-public .is-active .apd-nrow-1 {
+  animation-delay: 0.45s;
+}
+.mc-public .is-active .apd-nrow-2 {
+  animation-delay: 0.7s;
+}
+.mc-public .is-active .apd-nrow-3 {
+  animation-delay: 0.95s;
+}
+.mc-public .is-active .apd-nrow-4 {
+  animation-delay: 1.2s;
+}
+.mc-public .is-active .apd-npill {
+  animation: apdPopIn 0.5s 1.5s ease backwards;
+}

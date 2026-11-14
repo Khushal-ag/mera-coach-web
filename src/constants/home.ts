@@ -57,6 +57,7 @@ export const PHONE_DEMO_SCREENS = [
   { id: "add", label: "Add client" },
   { id: "bmi", label: "Body composition" },
   { id: "diet", label: "Diet plan" },
+  { id: "alerts", label: "Notifications" },
 ] as const;
 
 export const PHONE_DEMO_SCREEN_MS = 8200;

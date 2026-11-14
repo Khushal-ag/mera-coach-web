@@ -73,13 +73,14 @@ Premium plans are bought here with Razorpay. Clients leave feedback here through
 
 | Route                          | What it is                                                                                        |
 | ------------------------------ | ------------------------------------------------------------------------------------------------- |
-| `/`                            | Marketing home                                                                                    |
+| `/`                            | Marketing home: coach search, then "Choose Your Path". Coaches see the practice tools and how it works; members see the coach directory, categories (from the API) and BMI. Links such as `/#bmi` open the right path |
 | `/coach`                       | Public coach directory with category, place and rating filters                                    |
 | `/coach/[name-or-code]`        | A coach's profile and enquiry form. The address is the coach's friendly name, for example `/coach/pradyumma-kumar-health-coach-mathura`. Older links using the coach code still work |
-| `/services`, `/bmi`, `/contact`| Services, the BMI calculator with a callback form, and contact                                    |
+| `/services`                    | Services: the exercise, nutrition and diet programmes in tabs (`/services#diet` opens one), plus the coach and member sign-up blocks |
+| `/bmi`, `/contact`             | The BMI calculator with a callback form, and contact                                              |
 | `/register`                    | Coach registration                                                                                |
 | `/coach-login`                 | Coach sign-in, then `/dashboard`                                                                  |
-| `/dashboard`                   | The coach's practice: clients, leads, check-ups, packages, gallery and events, reviews, profile. The bell in the top bar opens the notifications |
+| `/dashboard`                   | The coach's practice: clients, leads, check-ups, packages, gallery and events, reviews, profile. The bell in the top bar opens the notifications: a short preview per alert, a click expands it and marks it read, and a button opens the matching page |
 | `/premium`, `/premium/success` | Plans and Razorpay checkout, then the confirmation page                                            |
 | `/feedback`                    | Client feedback form, opened from a link with `?coachCode=&clientCode=`                           |
 | `/forgot-password`             | Password reset                                                                                    |

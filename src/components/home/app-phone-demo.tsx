@@ -53,13 +53,13 @@ function Ico({ name }: { name: string }) {
   return <i className={`fas fa-${name}`} aria-hidden />;
 }
 
-function WaveHeader() {
+function WaveHeader({ title = "Add Client" }: { title?: string }) {
   return (
     <header className="apd-wave">
       <span className="apd-circle">
         <Ico name="chevron-left" />
       </span>
-      <span className="apd-wave-title">Add Client</span>
+      <span className="apd-wave-title">{title}</span>
       <span className="apd-circle">
         <Ico name="home" />
       </span>
@@ -78,7 +78,8 @@ function SectionTitle({ children }: { children: string }) {
 
 /**
  * Animated phone mock of the coach app: Dashboard (stats, solid Add Client CTA,
- * YouTube “Watch and learn” carousel), Add Client, Body composition, Diet plan.
+ * YouTube “Watch and learn” carousel), Add Client, Body composition, Diet plan,
+ * Notifications (a preview per alert, one opened to its action button).
  * Each screen replays its animation when active; reduced motion keeps one screen.
  */
 export function AppPhoneDemo() {
@@ -507,6 +508,115 @@ export function AppPhoneDemo() {
                     <Ico name="fire" />
                     <span>Calories</span>
                     <b>280-320</b>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 5. Notifications */}
+          <section
+            className={cn("apd-screen apd-bg-wiz", active === 4 && "is-active")}
+            aria-hidden={active !== 4}
+          >
+            <WaveHeader title="Notifications" />
+            <div className="apd-body">
+              <div className="apd-scroll apd-scroll-alerts">
+                <div className="apd-ntools">
+                  <span>
+                    <Ico name="cog" /> Settings
+                  </span>
+                  <span>
+                    <Ico name="check-double" /> Mark all read
+                  </span>
+                  <span className="apd-ntools-del">
+                    <Ico name="trash" /> Clear all
+                  </span>
+                </div>
+
+                <div className="apd-nrow apd-nrow-1 apd-nrow-open apd-ng-leads">
+                  <span className="apd-nbar" />
+                  <span className="apd-nicon">
+                    <Ico name="users" />
+                  </span>
+                  <div className="apd-ntext">
+                    <p className="apd-ntitle">
+                      Lead waiting <i className="apd-ndot" />
+                      <small>12m ago</small>
+                      <Ico name="chevron-up" />
+                    </p>
+                    <p className="apd-nlead">
+                      Hi Aarti, Rohan Verma is waiting to hear from you about
+                      your coaching services.
+                    </p>
+                    <p className="apd-nrest">
+                      Contact them today to understand their needs.
+                    </p>
+                    <div className="apd-nfoot">
+                      <span className="apd-npill">
+                        Contact lead <Ico name="arrow-right" />
+                      </span>
+                      <span className="apd-ntoolicons">
+                        <Ico name="envelope-open" />
+                        <Ico name="trash" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="apd-nrow apd-nrow-2 apd-ng-feedback">
+                  <span className="apd-nbar" />
+                  <span className="apd-nicon">
+                    <Ico name="comment-dots" />
+                  </span>
+                  <div className="apd-ntext">
+                    <p className="apd-ntitle">
+                      New client feedback <i className="apd-ndot" />
+                      <small>1h ago</small>
+                      <Ico name="chevron-down" />
+                    </p>
+                    <p className="apd-npreview">
+                      Great news, Aarti! Neha Kapoor has shared feedback about
+                      your coaching. Read their feedback and see what they value
+                      most about your guidance.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="apd-nrow apd-nrow-3 apd-ng-business">
+                  <span className="apd-nbar" />
+                  <span className="apd-nicon">
+                    <Ico name="briefcase" />
+                  </span>
+                  <div className="apd-ntext">
+                    <p className="apd-ntitle">
+                      Create your first package <i className="apd-ndot" />
+                      <small>3h ago</small>
+                      <Ico name="chevron-down" />
+                    </p>
+                    <p className="apd-npreview">
+                      Hi Aarti, you haven&apos;t created a coaching package yet.
+                      Create your first package to showcase your services and
+                      attract new clients.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="apd-nrow apd-nrow-4 apd-nrow-read apd-ng-leads">
+                  <span className="apd-nicon">
+                    <Ico name="users" />
+                  </span>
+                  <div className="apd-ntext">
+                    <p className="apd-ntitle">
+                      Health checkup due
+                      <small>Yesterday</small>
+                      <Ico name="chevron-down" />
+                    </p>
+                    <p className="apd-npreview">
+                      Hi Aarti, it&apos;s time for Priya Nair&apos;s health
+                      checkup. Update their health details and track their
+                      progress.
+                    </p>
                   </div>
                 </div>
               </div>
