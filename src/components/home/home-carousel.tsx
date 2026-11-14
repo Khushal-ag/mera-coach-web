@@ -42,6 +42,19 @@ export function HomeCarousel({
     return () => window.removeEventListener("resize", measure);
   }, []);
 
+  // The carousel can start inside a hidden panel (width 0) and be shown later, so measure again whenever it resizes.
+  const hasViewport = pages > 1;
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const observer = new ResizeObserver(() => {
+      if (viewport.offsetWidth)
+        setStep(Math.round((viewport.offsetWidth + 24) / perView));
+    });
+    observer.observe(viewport);
+    return () => observer.disconnect();
+  }, [hasViewport, perView]);
+
   useEffect(() => {
     if (paused || maxPos <= 0) return;
     const timer = window.setInterval(() => {

@@ -51,25 +51,23 @@ export function SiteFooter() {
                 <p className="footer-apps-title">Get the app</p>
                 <div className="footer-apps-row">
                   <AppStoreBadges />
-                </div>
-              </div>
-              {FOOTER_SOCIALS.some((item) => env.social[item.key]) ?
-                <div className="footer-social">
                   {FOOTER_SOCIALS.filter((item) => env.social[item.key]).map(
                     (item) => (
                       <a
                         key={item.key}
+                        className={`footer-social-link footer-social-link--${item.key}`}
                         href={env.social[item.key]}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`Mera Coach on ${item.label}`}
                       >
-                        <i className={item.icon} />
+                        <i className={item.icon} aria-hidden />
+                        <span className="footer-social-name">{item.label}</span>
                       </a>
                     ),
                   )}
                 </div>
-              : null}
+              </div>
             </div>
             <div className="footer-col">
               <h4 aria-level={3}>Platform</h4>

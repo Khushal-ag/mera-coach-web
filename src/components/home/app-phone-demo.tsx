@@ -77,10 +77,9 @@ function SectionTitle({ children }: { children: string }) {
 }
 
 /**
- * Animated phone that plays through the coach app using the app's real
- * screens: Dashboard, Add Client, Body composition and the Diet plan step.
- * Each screen replays its animation when it becomes active. With reduced
- * motion it stays on one screen, fully drawn.
+ * Animated phone mock of the coach app: Dashboard (stats, solid Add Client CTA,
+ * YouTube “Watch and learn” carousel), Add Client, Body composition, Diet plan.
+ * Each screen replays its animation when active; reduced motion keeps one screen.
  */
 export function AppPhoneDemo() {
   const [active, setActive] = useState(0);
@@ -198,7 +197,7 @@ export function AppPhoneDemo() {
                     </span>
                   </div>
                 </div>
-                <p className="apd-greet">Good morning</p>
+                <p className="apd-greet">Good Morning</p>
                 <p className="apd-name">Aarti Sharma</p>
                 <p className="apd-sub">Clients, leads, and checkup</p>
 
@@ -243,33 +242,34 @@ export function AppPhoneDemo() {
                     <b>Add Client</b>
                     <small>Start a new assessment</small>
                   </span>
-                  <Ico name="arrow-right" />
+                  <Ico name="chevron-right" />
                 </div>
 
-                <div className="apd-tips-head">
-                  <span className="apd-tips-ico">
-                    <Ico name="lightbulb" />
-                  </span>
-                  <b>Tips for your week</b>
-                  <em>
-                    View All <Ico name="arrow-right" />
-                  </em>
-                </div>
-                <div className="apd-tip">
-                  <small className="apd-tip-tag">
-                    <Ico name="bullseye" /> Your Personal Coach
-                  </small>
-                  <b>
-                    Your Personal
-                    <br />
-                    Coach Awaits
-                  </b>
-                  <span className="apd-tip-copy">
-                    Get customized workout &amp; nutrition plan
-                  </span>
-                  <span className="apd-tip-play">
+                {/* Matches app DashboardCarousel (YouTube) — TipBanner is fallback only. */}
+                <div className="apd-yt-head">
+                  <span className="apd-yt-ico">
                     <Ico name="play" />
                   </span>
+                  <span className="apd-yt-copy">
+                    <b>Watch and learn</b>
+                    <small>Quick app tutorials and tips</small>
+                  </span>
+                </div>
+                <div className="apd-yt-card">
+                  <div className="apd-yt-thumb" aria-hidden>
+                    <span className="apd-yt-watch">
+                      <Ico name="play" /> Watch
+                    </span>
+                  </div>
+                  <b className="apd-yt-title">
+                    How to add a client in under a minute
+                  </b>
+                </div>
+                <div className="apd-yt-dots" aria-hidden>
+                  <i className="is-on" />
+                  <i />
+                  <i />
+                  <i />
                 </div>
               </div>
             </div>

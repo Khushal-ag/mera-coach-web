@@ -137,10 +137,14 @@ export async function HomeCategories() {
           <div className="section-tag">
             <i className="fas fa-th-large" /> Explore Categories
           </div>
-          <h2 className="section-title">Coaching for Every Goal</h2>
+          <h2 className="section-title">
+            Your Goals. Our Guidance. Real Transformation.
+          </h2>
           <p className="section-subtitle">
-            Whether you want to lose weight, build strength, find inner peace or
-            improve your overall lifestyle, we have the right expert for you.
+            <strong>Ready for a Healthier You?</strong>
+            <br />
+            Connect with expert coaches for fitness, nutrition, mental wellness,
+            and lasting lifestyle transformation.
           </p>
         </div>
         <div className="category-grid">

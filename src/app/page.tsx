@@ -9,6 +9,11 @@ import {
   HomeSearchSection,
   HomeStories,
 } from "@/components/home/home-live";
+import { HomePath } from "@/components/home/home-path";
+import {
+  HomeHowItWorks,
+  HomePlatformFeatures,
+} from "@/components/home/home-platform";
 import { StatNumber } from "@/components/home/stat-number";
 import { BLOG_POSTS, PROOF_AVATARS } from "@/constants/home";
 import { publicPageMetadata } from "@/lib/seo";
@@ -150,6 +155,28 @@ export default function HomePage() {
         <HomeSearchSection />
       </Suspense>
 
+      {/* Choose Your Path comes first; the cards then show the coach or the member sections. */}
+      <HomePath
+        coachPanel={
+          <>
+            <HomePlatformFeatures />
+            <HomeHowItWorks />
+            <HomeAppPromo />
+          </>
+        }
+        memberPanel={
+          <>
+            <Suspense fallback={null}>
+              <HomeFeaturedCoaches />
+            </Suspense>
+            <Suspense fallback={null}>
+              <HomeCategories />
+            </Suspense>
+            <HomeBmi />
+          </>
+        }
+      />
+
       <section className="trust-strip">
         <div className="container">
           <div className="stats-row">
@@ -182,272 +209,8 @@ export default function HomePage() {
       </section>
 
       <Suspense fallback={null}>
-        <HomeCategories />
-      </Suspense>
-
-      <section className="features-section">
-        <div className="container">
-          <div className="section-header">
-            <div className="section-tag">
-              <i className="fas fa-layer-group" /> Platform Features
-            </div>
-            <h2 className="section-title">
-              Everything You Need to Run Your Coaching Practice
-            </h2>
-            <p className="section-subtitle">
-              One platform with all the tools to manage, grow and showcase your
-              coaching business, so you can focus on what matters most: your
-              clients.
-            </p>
-          </div>
-          <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon-wrap fi-green">
-                <i className="fas fa-users" />
-              </div>
-              <h3>Client Management</h3>
-              <p>
-                Manage all your clients in one place. Store profiles, track
-                check-ups, view history and stay on top of every client&apos;s
-                journey with ease.
-              </p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon-wrap fi-blue">
-                <i className="fas fa-chart-line" />
-              </div>
-              <h3>Progress Tracking</h3>
-              <p>
-                Track health data, BMI, weight, measurements and milestones over
-                time. Generate insightful progress reports with a single click.
-              </p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon-wrap fi-gold">
-                <i className="fas fa-filter" />
-              </div>
-              <h3>Lead Management</h3>
-              <p>
-                Capture incoming leads, track their status and convert them into
-                paying clients. Never let a potential client slip through the
-                cracks again.
-              </p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon-wrap fi-teal">
-                <i className="fas fa-globe" />
-              </div>
-              <h3>Landing Page</h3>
-              <p>
-                Get your own professional coaching landing page on Mera Coach.
-                Share it, promote it and let your page do the selling for you
-                24/7.
-              </p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon-wrap fi-purple">
-                <i className="fas fa-trophy" />
-              </div>
-              <h3>Showcase Success Stories</h3>
-              <p>
-                Highlight real client transformations on your profile.
-                Before-and-after stories build trust and attract serious clients
-                to your coaching practice.
-              </p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon-wrap fi-red">
-                <i className="fas fa-star" />
-              </div>
-              <h3>Build Your Personal Brand</h3>
-              <p>
-                Establish yourself as an authority in your niche. Customise your
-                profile, showcase expertise and grow a recognisable coaching
-                brand online.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="how-it-works">
-        <div className="container">
-          <div className="section-header">
-            <div className="section-tag">
-              <i className="fas fa-route" /> How It Works
-            </div>
-            <h2 className="section-title">
-              Start Your Coaching Journey in 3 Simple Steps
-            </h2>
-            <p className="section-subtitle">
-              Getting set up on Mera Coach takes minutes. Here&apos;s how
-              coaches go from sign-up to fully running their practice.
-            </p>
-          </div>
-          <div className="steps-grid">
-            <div className="step-card">
-              <div className="step-num">1</div>
-              <h3>Sign Up as a Coach</h3>
-              <p>
-                Create your coach account and join our growing community in
-                minutes. Set your category, credentials and start building your
-                presence on India&apos;s #1 coaching platform.
-              </p>
-            </div>
-            <div className="step-card">
-              <div className="step-num">2</div>
-              <h3>Set Up Your Profile &amp; Services</h3>
-              <p>
-                Build your personal landing page, define your coaching services
-                and upload your success stories. Your profile is your digital
-                storefront. Make it shine.
-              </p>
-            </div>
-            <div className="step-card">
-              <div className="step-num">3</div>
-              <h3>Start Managing Clients</h3>
-              <p>
-                Begin adding clients, tracking their progress and managing leads
-                from one clean dashboard. Watch your coaching practice grow, day
-                by day.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Suspense fallback={null}>
-        <HomeFeaturedCoaches />
-      </Suspense>
-
-      <section className="choose-path" id="about">
-        <div className="container">
-          <div className="section-header">
-            <div className="section-tag">
-              <i className="fas fa-compass" /> Who Are You Here For?
-            </div>
-            <h2 className="section-title">Choose Your Path</h2>
-            <p className="section-subtitle">
-              Mera Coach serves both coaches and members. Pick your path and let
-              us do the rest.
-            </p>
-          </div>
-          <div className="path-grid">
-            <div className="path-card path-card-coach">
-              <div className="path-card-img">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=800&auto=format&fit=crop&q=85"
-                  alt="Coach with Nutrition"
-                />
-              </div>
-              <div className="path-overlay" />
-              <div className="path-content">
-                <div className="path-icon-wrap">
-                  <i className="fas fa-user-tie" />
-                </div>
-                <div className="path-pill path-pill-coach">
-                  <i className="fas fa-briefcase" /> For Coaches
-                </div>
-                <h3>Built for Coaches</h3>
-                <p>
-                  Run, grow and scale your coaching practice, from client
-                  management to building your personal brand online.
-                </p>
-                <ul className="path-features">
-                  <li>
-                    <i className="fas fa-check-circle" /> Manage all clients
-                    from one dashboard
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Track health data
-                    &amp; client progress
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Capture &amp; convert
-                    incoming leads
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Your own professional
-                    landing page
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Showcase client
-                    success stories
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Build your personal
-                    coaching brand
-                  </li>
-                </ul>
-                <Link href="/register" className="path-cta path-cta-coach">
-                  <i className="fas fa-rocket" /> Start as a Coach{" "}
-                  <i className="fas fa-arrow-right" />
-                </Link>
-              </div>
-            </div>
-            <div className="path-card path-card-member">
-              <div className="path-card-img">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop&q=85"
-                  alt="Yoga Wellness"
-                />
-              </div>
-              <div className="path-overlay" />
-              <div className="path-content">
-                <div className="path-icon-wrap">
-                  <i className="fas fa-spa" />
-                </div>
-                <div className="path-pill path-pill-member">
-                  <i className="fas fa-user" /> For Members
-                </div>
-                <h3>Looking for a Coach?</h3>
-                <p>
-                  Find the right expert for your health and wellness goals.
-                  Connect, consult and transform your life today.
-                </p>
-                <ul className="path-features">
-                  <li>
-                    <i className="fas fa-check-circle" /> Explore 500+ verified
-                    coaches
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Filter by goal,
-                    category &amp; location
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> View real success
-                    stories first
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Connect directly &amp;
-                    start your journey
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Track progress with
-                    your coach
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Personalised plans,
-                    not generic advice
-                  </li>
-                </ul>
-                <Link href="/coach" className="path-cta path-cta-member">
-                  <i className="fas fa-search" /> Find a Coach{" "}
-                  <i className="fas fa-arrow-right" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Suspense fallback={null}>
         <HomeStories />
       </Suspense>
-
-      <HomeBmi />
 
       <section className="blog" id="blog">
         <div className="container">
@@ -494,8 +257,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <HomeAppPromo />
-
       <section className="coach-cta">
         <div className="container">
           <div className="coach-cta-inner">
@@ -515,8 +276,8 @@ export default function HomePage() {
               </p>
               <div className="coach-cta-perks">
                 <div className="cta-perk">
-                  <i className="fas fa-check-circle" /> Free dedicated landing
-                  page
+                  <i className="fas fa-check-circle" /> Free business page /
+                  personal website
                 </div>
                 <div className="cta-perk">
                   <i className="fas fa-check-circle" /> Client management

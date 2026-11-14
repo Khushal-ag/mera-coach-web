@@ -11,7 +11,8 @@ export type MasterOption = {
   description?: string;
 };
 
-function normalizeMasterItems(payload: unknown): MasterOption[] {
+/** Master rows from the API; exported for tests. */
+export function normalizeMasterItems(payload: unknown): MasterOption[] {
   if (!Array.isArray(payload)) return [];
   return payload
     .map((row) => {
@@ -23,7 +24,9 @@ function normalizeMasterItems(payload: unknown): MasterOption[] {
         pick(r, "itemName", "ItemName", "label", "Label", "name", "Name") ?? "",
       ).trim();
       if (!code || !label) return null;
-      const iconClass = String(pick(r, "iconClass", "IconClass") ?? "").trim();
+      const iconClass = String(
+        pick(r, "iconClass", "IconClass", "icon", "Icon") ?? "",
+      ).trim();
       const description = String(
         pick(r, "description", "Description") ?? "",
       ).trim();

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ServicePrograms } from "@/components/services/service-programs";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
@@ -68,262 +69,55 @@ export default function ServicesPage() {
             </div>
             <div className="sv-hero-visual">
               <div className="sv-icon-grid">
-                <div className="sv-ic-card sv-ic-1">
+                <a href="#exercise" className="sv-ic-card sv-ic-1">
                   <div className="sv-ic-icon">
                     <i className="fas fa-dumbbell" />
                   </div>
                   <strong>Exercise Program</strong>
                   <span>Tailored workout plans</span>
-                </div>
-                <div className="sv-ic-card sv-ic-2">
+                </a>
+                <a href="#nutrition" className="sv-ic-card sv-ic-2">
                   <div className="sv-ic-icon">
                     <i className="fas fa-apple-alt" />
                   </div>
                   <strong>Nutrition Plans</strong>
                   <span>Certified nutritionists</span>
-                </div>
-                <div className="sv-ic-card sv-ic-3">
+                </a>
+                <a href="#diet" className="sv-ic-card sv-ic-3">
                   <div className="sv-ic-icon">
                     <i className="fas fa-utensils" />
                   </div>
                   <strong>Diet Program</strong>
                   <span>Science-backed diets</span>
-                </div>
-                <div className="sv-ic-card sv-ic-4">
+                </a>
+                <a href="#profiles" className="sv-ic-card sv-ic-4">
                   <div className="sv-ic-icon">
                     <i className="fas fa-id-card" />
                   </div>
                   <strong>Client Profiles</strong>
                   <span>Detailed health records</span>
-                </div>
-                <div className="sv-ic-card sv-ic-5">
+                </a>
+                <a href="#assessments" className="sv-ic-card sv-ic-5">
                   <div className="sv-ic-icon">
                     <i className="fas fa-heartbeat" />
                   </div>
                   <strong>Health Data</strong>
                   <span>Assessments &amp; tracking</span>
-                </div>
-                <div className="sv-ic-card sv-ic-6">
+                </a>
+                <a href="#reports" className="sv-ic-card sv-ic-6">
                   <div className="sv-ic-icon">
                     <i className="fas fa-chart-bar" />
                   </div>
                   <strong>Reports</strong>
                   <span>Recommendations &amp; insights</span>
-                </div>
+                </a>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <div className="sv-quicknav">
-        <div className="container">
-          <div className="sv-qn-list">
-            <a href="#exercise" className="sv-qn-item">
-              <i className="fas fa-dumbbell" /> Exercise Program
-            </a>
-            <a href="#nutrition" className="sv-qn-item">
-              <i className="fas fa-apple-alt" /> Nutrition Plans
-            </a>
-            <a href="#diet" className="sv-qn-item">
-              <i className="fas fa-utensils" /> Diet Program
-            </a>
-            <a href="#profiles" className="sv-qn-item">
-              <i className="fas fa-id-card" /> Client Profiles
-            </a>
-            <a href="#assessments" className="sv-qn-item">
-              <i className="fas fa-heartbeat" /> Health Assessments
-            </a>
-            <a href="#reports" className="sv-qn-item">
-              <i className="fas fa-chart-bar" /> Reports
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <section className="sv-programs" id="coaching">
-        <div className="container">
-          <div className="section-header">
-            <div className="section-tag">
-              <i className="fas fa-fire-alt" /> Coaching Programs
-            </div>
-            <h2 className="section-title">
-              Expert-Led Coaching <em>Programs</em>
-            </h2>
-            <p className="section-subtitle">
-              Science-backed programs crafted by India&apos;s top certified
-              coaches, tailored precisely to your body, goals, and lifestyle.
-            </p>
-          </div>
-          <div className="sv-prog-grid">
-            <div className="sv-prog-card" id="exercise">
-              <div className="sv-pc-header sv-pc-green">
-                <div className="sv-pc-icon-wrap">
-                  <i className="fas fa-dumbbell" />
-                </div>
-                <div className="sv-pc-head-text">
-                  <span className="sv-pc-label">Program 01</span>
-                  <h3>Exercise Program</h3>
-                </div>
-              </div>
-              <div className="sv-pc-body">
-                <p className="sv-pc-desc">
-                  Structured, progressive workout plans designed to your fitness
-                  level, whether you&apos;re a complete beginner or a seasoned
-                  athlete.
-                </p>
-                <ul className="sv-pc-features">
-                  <li>
-                    <i className="fas fa-check-circle sv-check-green" /> Custom
-                    workout plans by certified fitness trainers
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-green" />{" "}
-                    Progressive overload &amp; periodisation schedules
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-green" /> Home,
-                    gym &amp; hybrid training options
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-green" /> Video
-                    demonstrations &amp; form guidance
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-green" /> Weekly
-                    programme adjustments based on progress
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-green" /> Injury
-                    prevention &amp; mobility protocols
-                  </li>
-                </ul>
-                <div className="sv-pc-tags">
-                  <span>Strength</span>
-                  <span>Fat Loss</span>
-                  <span>HIIT</span>
-                  <span>Cardio</span>
-                  <span>Functional</span>
-                </div>
-              </div>
-              <div className="sv-pc-footer">
-                <Link href="/coach" className="btn sv-pc-btn sv-pcbtn-green">
-                  <i className="fas fa-user-check" /> Find a Fitness Coach
-                </Link>
-              </div>
-            </div>
-
-            <div className="sv-prog-card" id="nutrition">
-              <div className="sv-pc-header sv-pc-gold">
-                <div className="sv-pc-icon-wrap">
-                  <i className="fas fa-apple-alt" />
-                </div>
-                <div className="sv-pc-head-text">
-                  <span className="sv-pc-label">Program 02</span>
-                  <h3>Nutrition Plans</h3>
-                </div>
-              </div>
-              <div className="sv-pc-body">
-                <p className="sv-pc-desc">
-                  Personalised meal plans crafted by certified nutritionists to
-                  fuel your training, support recovery, and help you build
-                  sustainable eating habits.
-                </p>
-                <ul className="sv-pc-features">
-                  <li>
-                    <i className="fas fa-check-circle sv-check-gold" /> Custom
-                    macro &amp; calorie targets per body type
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-gold" /> Weekly
-                    meal plans with simple Indian recipes
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-gold" />{" "}
-                    Supplement guidance &amp; timing protocols
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-gold" />{" "}
-                    Hydration &amp; micronutrient planning
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-gold" /> Food
-                    preference &amp; allergy accommodation
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-gold" />{" "}
-                    Vegetarian, vegan &amp; regional diet options
-                  </li>
-                </ul>
-                <div className="sv-pc-tags">
-                  <span>Muscle Gain</span>
-                  <span>Weight Loss</span>
-                  <span>Macros</span>
-                  <span>Indian Diet</span>
-                  <span>Vegan</span>
-                </div>
-              </div>
-              <div className="sv-pc-footer">
-                <Link href="/coach" className="btn sv-pc-btn sv-pcbtn-gold">
-                  <i className="fas fa-user-check" /> Find a Nutritionist
-                </Link>
-              </div>
-            </div>
-
-            <div className="sv-prog-card" id="diet">
-              <div className="sv-pc-header sv-pc-red">
-                <div className="sv-pc-icon-wrap">
-                  <i className="fas fa-utensils" />
-                </div>
-                <div className="sv-pc-head-text">
-                  <span className="sv-pc-label">Program 03</span>
-                  <h3>Diet Program</h3>
-                </div>
-              </div>
-              <div className="sv-pc-body">
-                <p className="sv-pc-desc">
-                  Condition-specific and goal-oriented dietary programmes backed
-                  by clinical nutrition science, for weight management, gut
-                  health, heart wellness, skin &amp; beyond.
-                </p>
-                <ul className="sv-pc-features">
-                  <li>
-                    <i className="fas fa-check-circle sv-check-red" /> Weight
-                    management &amp; body recomposition plans
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-red" /> Digestive
-                    &amp; gut health protocols
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-red" />{" "}
-                    Heart-healthy &amp; cholesterol-lowering diets
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-red" /> Diabetic
-                    &amp; medical condition diet support
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle sv-check-red" />{" "}
-                    Anti-inflammatory &amp; longevity protocols
-                  </li>
-                </ul>
-                <div className="sv-pc-tags">
-                  <span>Gut Health</span>
-                  <span>Diabetes</span>
-                  <span>Heart</span>
-                  <span>Hormonal</span>
-                </div>
-              </div>
-              <div className="sv-pc-footer">
-                <Link href="/coach" className="btn sv-pc-btn sv-pcbtn-red">
-                  <i className="fas fa-user-check" /> Find a Diet Coach
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ServicePrograms />
 
       <section className="sv-platform" id="platform">
         <div className="container">
@@ -466,9 +260,6 @@ export default function ServicesPage() {
                 <Link href="/register" className="btn sv-btn-book">
                   <i className="fas fa-user-tie" /> Register as a Coach
                 </Link>
-                <Link href="/coach" className="btn sv-btn-outline">
-                  <i className="fas fa-search" /> Find a Coach
-                </Link>
               </div>
             </div>
             <div className="sv-fca-right">
@@ -476,6 +267,39 @@ export default function ServicesPage() {
               <img
                 src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&auto=format&fit=crop&q=80"
                 alt="Coaching Practice"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="sv-final-cta sv-cta sv-member-cta">
+        <div className="container">
+          <div className="sv-fca-inner sv-cta-inner">
+            <div className="sv-fca-left sv-cta-text">
+              <div className="section-tag sv-fca-tag sv-cta-tag">
+                <i className="fas fa-heart" /> For Members
+              </div>
+              <h2>
+                Ready for a
+                <br />
+                <em>Healthier You?</em>
+              </h2>
+              <p>
+                Connect with expert coaches for fitness, nutrition, mental
+                wellness, and lasting lifestyle transformation.
+              </p>
+              <div className="sv-fca-btns sv-cta-btns">
+                <Link href="/coach" className="btn sv-btn-book">
+                  <i className="fas fa-search" /> Find a Coach
+                </Link>
+              </div>
+            </div>
+            <div className="sv-fca-right">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500&auto=format&fit=crop&q=80"
+                alt="Yoga and wellness"
               />
             </div>
           </div>
