@@ -9,6 +9,7 @@ import { PageBanner } from "@/components/marketing/page-banner";
 import { RefreshPremiumStatus } from "@/components/refresh-premium-status";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { isSubscriptionRequired } from "@/config/practice";
+import { siteConfig } from "@/config/site";
 import { fetchCoachProfile, isApiSuccess } from "@/lib/api";
 import { premiumPaidDeepLink } from "@/lib/app-deep-link";
 
@@ -33,7 +34,7 @@ export default function PremiumSuccessPage({
   searchParams: SearchParams;
 }) {
   if (!isSubscriptionRequired()) {
-    redirect("/dashboard");
+    redirect(siteConfig.links.dashboard);
   }
 
   return (
@@ -41,7 +42,7 @@ export default function PremiumSuccessPage({
       <PageBanner
         crumbs={[
           { label: "Home", href: "/" },
-          { label: "Premium", href: "/premium" },
+          { label: "Premium", href: siteConfig.links.premium },
           { label: "Success" },
         ]}
         title="Premium"
@@ -156,18 +157,21 @@ async function PremiumSuccessBody({
           <Link
             href={
               coachLabel || params.coachId ?
-                `/premium?${new URLSearchParams({
+                `${siteConfig.links.premium}?${new URLSearchParams({
                   ...(params.coachId ? { coachId: params.coachId } : {}),
                   ...(coachLabel ? { coachCode: coachLabel } : {}),
                   ...(coachDisplayName ? { coachName: coachDisplayName } : {}),
                 }).toString()}`
-              : "/premium"
+              : siteConfig.links.premium
             }
             className="mc-btn-secondary w-full sm:w-auto"
           >
             Back to plans
           </Link>
-        : <Link href="/premium" className="mc-btn-secondary w-full sm:w-auto">
+        : <Link
+            href={siteConfig.links.premium}
+            className="mc-btn-secondary w-full sm:w-auto"
+          >
             Back to plans
           </Link>
         }

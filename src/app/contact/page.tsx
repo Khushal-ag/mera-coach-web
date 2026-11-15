@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { cacheLife } from "next/cache";
 
 import { ContactPageView } from "@/components/contact/contact-page";
+import { siteConfig } from "@/config/site";
 import { fetchCoachCategories } from "@/lib/api/master";
 import { publicPageMetadata } from "@/lib/seo";
 
@@ -9,7 +10,7 @@ export const metadata = publicPageMetadata({
   title: "Contact Us | Mera Coach",
   description:
     "Whether you're a coach ready to grow, a client seeking guidance, or a brand looking to partner, we'd love to hear from you.",
-  path: "/contact",
+  path: siteConfig.links.contact,
   absolute: true,
 });
 

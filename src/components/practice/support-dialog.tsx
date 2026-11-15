@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
+import { siteConfig } from "@/config/site";
 import { copyText } from "@/lib/clipboard";
 import {
   accountDeletionMailto,
@@ -120,7 +121,10 @@ export function SupportActions({ list = false }: { list?: boolean }) {
               {isDelete ? "Request deletion by email" : "Open email app"}
             </a>
             {isDelete ? null : (
-              <Link href="/contact" className="mc-dialog-secondary">
+              <Link
+                href={siteConfig.links.contact}
+                className="mc-dialog-secondary"
+              >
                 Contact page
               </Link>
             )}

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import type { CoachPublicListItem } from "@/types/coach";
 
 import { CoachListView } from "@/components/coach-directory/coach-list-view";
+import { siteConfig } from "@/config/site";
 import { COACHES_PER_PAGE } from "@/constants/coach-directory";
 import { fetchPublicCoaches, isApiSuccess } from "@/lib/api";
 import { fetchCoachCategories, fetchMasterOptions } from "@/lib/api/master";
@@ -14,7 +15,7 @@ export const metadata = publicPageMetadata({
   title: "Find a Coach in India | Mera Coach",
   description:
     "Browse verified health, fitness, yoga, nutrition and lifestyle coaches across India. Filter by category, city and rating, then contact a coach directly.",
-  path: "/coach",
+  path: siteConfig.links.coaches,
   absolute: true,
 });
 
@@ -135,7 +136,9 @@ async function CoachDirectoryContent({
     if (query.state) params.set("state", query.state);
     if (query.city) params.set("city", query.city);
     const qs = params.toString();
-    redirect(qs ? `/coach?${qs}` : "/coach");
+    redirect(
+      qs ? `${siteConfig.links.coaches}?${qs}` : siteConfig.links.coaches,
+    );
   }
 
   return <CoachListView {...data} query={query} />;

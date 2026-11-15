@@ -28,7 +28,7 @@ function stripTrailingSlash(url: string) {
 // Access NEXT_PUBLIC_* with static property names so Next can inline them
 // into both server and client bundles (dynamic process.env[name] is not inlined).
 const siteUrl = stripTrailingSlash(
-  readPublic(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://mera-coach.com",
+  readPublic(process.env.NEXT_PUBLIC_SITE_URL) ?? "https://www.mera-coach.com",
 );
 
 const apiBaseUrl = stripTrailingSlash(

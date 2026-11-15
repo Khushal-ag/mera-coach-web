@@ -755,7 +755,7 @@ export function CoachProfileMissing({ message }: { message?: string }) {
           style={{ fontSize: 48, color: "#ef4444", marginBottom: 16 }}
         />
         <h2>{message?.trim() ? message : "Coach not found."}</h2>
-        <a href="/coach" className="btn mt-3">
+        <a href={siteConfig.links.coaches} className="btn mt-3">
           Back to Coach List
         </a>
       </div>

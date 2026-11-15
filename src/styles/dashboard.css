@@ -1,10 +1,4 @@
-/* Scoped coach dashboard styles from meracoachweb. */
-
-/* =============================================================
-   CoachLayout.css  —  Post-login sidebar + header layout
-   Theme: Forest Green (#1b4332) + Gold (#c9882a)
-   Prefix: cl-
-   ============================================================= */
+/* Coach dashboard styles, scoped under .mc-dash. */
 
 /* ─── RESET & BASE ────────────────────────────────────────── */
 .mc-dash,
@@ -20,7 +14,6 @@
   --cl-sidebar-w: 252px;
   --cl-header-h: 64px;
   --cl-primary: #1b4332;
-  --cl-primary-dk: #0f2018;
   --cl-gold: #c9882a;
   --cl-gold-lt: #fdf3e0;
   --cl-red: #c04b2b;
@@ -647,10 +640,6 @@
   font-size: 12px;
 }
 
-/* Profile button + dropdown */
-
-/* Dropdown panel */
-
 /* ─── CONTENT AREA ────────────────────────────────────────── */
 .mc-dash .cl-content {
   flex: 1;
@@ -770,9 +759,6 @@
   color: var(--cl-primary);
   text-decoration: none;
 }
-.mc-dash .clt-breadcrumb a:hover {
-  text-decoration: underline;
-}
 .mc-dash .clt-breadcrumb i {
   font-size: 9px;
 }
@@ -782,14 +768,6 @@
     flex-direction: column;
   }
 }
-
-/* ─── Validation states — mc-validator.js ──────────────── */
-
-/* =============================================================
-   Dashboard.css  —  Coach Dashboard Page
-   Theme: Forest Green (#1b4332) + Gold (#c9882a)
-   Prefix: db-
-   ============================================================= */
 
 /* ─── PAGE HEADER ─────────────────────────────────────────── */
 .mc-dash .db-page-head {
@@ -1003,8 +981,6 @@
   font-size: 10px; /* was 11.5px → -15% */
   color: #8b6553;
 }
-
-/* ─── MAIN GRID (kept for reference, replaced by db-layout-grid) ── */
 
 /* ─── CAROUSEL ────────────────────────────────────────────── */
 .mc-dash .db-carousel-wrap {
@@ -1643,12 +1619,6 @@
   }
 }
 
-/* =============================================================
-   Clients.css — Client Management Page
-   Theme: Forest Green (#1b4332) + Gold (#c9882a)
-   Prefix: clt-
-   ============================================================= */
-
 /* ── Page Header ─────────────────────────────────────────────── */
 .mc-dash .clt-page-head {
   display: flex;
@@ -1682,16 +1652,6 @@
 }
 .mc-dash .clt-breadcrumb i {
   font-size: 10px;
-}
-
-/* ── Loading skeleton ────────────────────────────────────────── */
-@keyframes clt-shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
 }
 
 /* ── Card Shell ──────────────────────────────────────────────── */
@@ -2415,8 +2375,6 @@
   }
 }
 
-/* ── Self-contained 12-col grid (no Bootstrap dependency) ─ */
-
 /* ── Card & layout ──────────────────────────────────────── */
 .mc-dash .ac-card {
   border-radius: var(--cl-radius);
@@ -2447,8 +2405,6 @@
 .mc-dash .ac-card-title-diet {
   background: linear-gradient(135deg, var(--cl-gold) 0%, #e8a84c 100%);
 }
-
-/* ── Form controls ──────────────────────────────────────── */
 
 /* ── Buttons ────────────────────────────────────────────── */
 .mc-dash .btn {
@@ -2551,8 +2507,6 @@
   background: linear-gradient(to right, #2d6a4f, var(--cl-primary));
 }
 
-/* ── Multi-select dropdown ──────────────────────────────── */
-
 /* ── Food Picker ────────────────────────────────────────── */
 .mc-dash .tag-x {
   cursor: pointer;
@@ -2564,26 +2518,6 @@
 .mc-dash .tag-x:hover {
   color: #b42318;
 }
-
-/* ── Step nav bar ───────────────────────────────────────── */
-
-/* ── Modals ─────────────────────────────────────────────── */
-@keyframes ncModalIn {
-  from {
-    opacity: 0;
-    transform: scale(0.88) translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* flatpickr theme */
-
-/* ── BMI Panel (Step 4) ─────────────────────────────────── */
-
-/* ── Product Reco (Step 5) ──────────────────────────────── */
 
 /* diet saved banner */
 .mc-dash #dietSavedBanner {
@@ -2597,14 +2531,6 @@
   font-weight: 600;
   font-size: 14px;
 }
-
-/* Radio / checkbox helpers */
-
-/* ─── Ask AI row in food picker ─────────────────────────── */
-
-/* ─── BMI Detail (Step 4) ──────────────────────────────── */
-
-/* ─── AI Diet Plan (Step 5) ────────────────────────────── */
 
 /* BMI Health Report — scoped from BmiReport.cshtml */
 .mc-dash .bmi-report {
@@ -2924,14 +2850,6 @@
   line-height: 1.8;
 }
 .mc-dash .bmi-report .footer-card strong {
-  color: #c04b2b;
-}
-.mc-dash .bmi-report .error-card {
-  background: #fff1f2;
-  border: 1px solid #fecdd3;
-  border-radius: 16px;
-  padding: 28px;
-  text-align: center;
   color: #c04b2b;
 }
 @media (max-width: 900px) {
@@ -3287,7 +3205,6 @@
   border-radius: var(--cl-radius) var(--cl-radius) 0 0;
 }
 
-/* Change password */
 /* Form pages (edit profile, change password): one centred column, header and card on the same left edge. */
 .mc-dash .cl-form-page {
   max-width: 860px;

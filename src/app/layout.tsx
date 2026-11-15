@@ -17,7 +17,7 @@ const jsonLd = {
       alternateName: siteConfig.shortName,
       description: siteConfig.description,
       url: siteConfig.url,
-      inLanguage: "en-US",
+      inLanguage: "en-IN",
       publisher: {
         "@type": "Organization",
         name: siteConfig.publisher,
@@ -30,6 +30,7 @@ const jsonLd = {
       url: siteConfig.url,
       description: siteConfig.description,
       email: siteConfig.email,
+      areaServed: { "@type": "Country", name: "India" },
       logo: `${siteConfig.url}${siteConfig.brand.logoMark}`,
       image: `${siteConfig.url}${siteConfig.ogImage.url}`,
       sameAs: Object.values(env.social).filter(Boolean),
@@ -43,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <body
         className={cn(
           fonts.nunito.variable,
@@ -95,7 +96,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: "en_US",
+    locale: "en_IN",
     url: siteConfig.url,
     title: siteConfig.name,
     description: siteConfig.description,

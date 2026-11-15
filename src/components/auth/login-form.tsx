@@ -8,12 +8,14 @@ import type { FormEvent } from "react";
 
 import { useAuth } from "@/components/auth-provider";
 import { siteConfig } from "@/config/site";
+import { portrait, PORTRAITS } from "@/constants/images";
 import { useMounted } from "@/hooks/use-mounted";
 import { loginCoach } from "@/lib/api/auth";
 
 function safeNextPath(raw: string | null): string {
-  if (!raw) return "/dashboard";
-  if (!raw.startsWith("/") || raw.startsWith("//")) return "/dashboard";
+  if (!raw) return siteConfig.links.dashboard;
+  if (!raw.startsWith("/") || raw.startsWith("//"))
+    return siteConfig.links.dashboard;
   return raw;
 }
 
@@ -132,10 +134,7 @@ export function LoginForm() {
                   for my Indian lifestyle. 12 kg down in 4 months!&quot;
                 </p>
                 <div className="lg-testi-author">
-                  <img
-                    src="https://randomuser.me/api/portraits/women/44.jpg"
-                    alt="Priya Sharma"
-                  />
+                  <img src={portrait(PORTRAITS.client)} alt="Priya Sharma" />
                   <div>
                     <strong>Priya Sharma</strong>
                     <span>
@@ -238,7 +237,7 @@ export function LoginForm() {
                 </div>
                 <div className="lg-row">
                   <a
-                    href="/forgot-password"
+                    href={siteConfig.links.forgotPassword}
                     className="lg-forgot"
                     style={{ marginLeft: "auto" }}
                   >
@@ -264,7 +263,7 @@ export function LoginForm() {
 
               <p className="lg-register-link">
                 New to Mera Coach?{" "}
-                <a href="/register">
+                <a href={siteConfig.links.register}>
                   Create a free account <i className="fas fa-arrow-right" />
                 </a>
               </p>

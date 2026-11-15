@@ -7,6 +7,7 @@ import type { CoachCatalogPlan, CoachSuggestedPromo } from "@/types/premium";
 import { PremiumCheckoutAuth } from "@/components/premium-checkout-auth";
 import { PremiumPlansSkeleton } from "@/components/skeletons/premium-plans-skeleton";
 import { isSubscriptionRequired } from "@/config/practice";
+import { siteConfig } from "@/config/site";
 import { fetchPremiumPlans, firstApiError, isApiSuccess } from "@/lib/api";
 import { publicPageMetadata } from "@/lib/seo";
 
@@ -14,7 +15,7 @@ export const metadata = publicPageMetadata({
   title: "Premium | Mera Coach",
   description:
     "Grow your coaching business with Mera Coach Premium. Unlimited clients, packages, and coaching tools. Secure checkout on the website.",
-  path: "/premium",
+  path: siteConfig.links.premium,
   noindex: true,
   absolute: true,
 });
@@ -32,7 +33,7 @@ export default function PremiumPage({
   searchParams: SearchParams;
 }) {
   if (!isSubscriptionRequired()) {
-    redirect("/dashboard");
+    redirect(siteConfig.links.dashboard);
   }
 
   return (
@@ -137,7 +138,8 @@ async function PremiumCatalog({
       />
       <p className="rg-card-foot" style={{ marginTop: 24 }}>
         Pay Now in the app opens checkout for your account. On the web, sign in
-        first. New here? <Link href="/register">Start as a Coach</Link>.
+        first. New here?{" "}
+        <Link href={siteConfig.links.register}>Start as a Coach</Link>.
       </p>
     </div>
   );

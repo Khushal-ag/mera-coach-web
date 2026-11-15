@@ -1,4 +1,5 @@
-/** Where a notification should take the coach on the website. An unknown route opens the dashboard. */
+import { siteConfig } from "@/config/site"; /** Where a notification should take the coach on the website. An unknown route opens the dashboard. */
+
 export function notificationHref(route: string, refCode?: string): string {
   const code = (refCode ?? "").trim();
   switch (route) {
@@ -9,7 +10,7 @@ export function notificationHref(route: string, refCode?: string): string {
           `/dashboard/clients/${encodeURIComponent(code)}`
         : "/dashboard/clients";
     case "premium":
-      return "/premium";
+      return siteConfig.links.premium;
     case "packages":
       return "/dashboard/packages";
     case "posts":
@@ -17,7 +18,7 @@ export function notificationHref(route: string, refCode?: string): string {
     case "reviews":
       return "/dashboard/reviews";
     default:
-      return "/dashboard";
+      return siteConfig.links.dashboard;
   }
 }
 

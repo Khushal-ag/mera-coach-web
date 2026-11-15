@@ -1,6 +1,12 @@
 import type { CoachPublicListItem } from "@/types/coach";
 
-import { CAT_COUNT_COLOR, CAT_ICON_BG } from "@/constants/home";
+import {
+  CAT_COUNT_COLOR,
+  CAT_ICON_BG,
+  COACH_TYPE_STYLES,
+  DEFAULT_COACH_TYPE_STYLE,
+} from "@/constants/home";
+import { unsplash } from "@/constants/images";
 import { coachProfilePath } from "@/lib/coach/profile-path";
 
 export function categoryStyle(index: number) {
@@ -29,60 +35,11 @@ export function coachBio(desc: string, typeName: string) {
 }
 
 export function coachTypeStyle(typeName: string, idx = 0) {
-  const t = typeName.toLowerCase();
-
-  if (t.includes("gym") || t.includes("fitness") || t.includes("personal")) {
-    const imgs = [
-      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1581009137042-c552e485697a?w=600&auto=format&fit=crop&q=80",
-    ];
-    return { banner: imgs[idx % imgs.length] ?? imgs[0], color: "#c04b2b" };
-  }
-  if (t.includes("yoga") || t.includes("zumba")) {
-    const imgs = [
-      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=600&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=600&auto=format&fit=crop&q=80",
-    ];
-    return { banner: imgs[idx % imgs.length] ?? imgs[0], color: "#b07520" };
-  }
-  if (
-    t.includes("nutrition") ||
-    t.includes("diet") ||
-    t.includes("lifestyle")
-  ) {
-    const imgs = [
-      "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=600&auto=format&fit=crop&q=80",
-    ];
-    return { banner: imgs[idx % imgs.length] ?? imgs[0], color: "#c9882a" };
-  }
-  if (t.includes("weight") || t.includes("transform")) {
-    const imgs = [
-      "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=600&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&auto=format&fit=crop&q=80",
-    ];
-    return { banner: imgs[idx % imgs.length] ?? imgs[0], color: "#c04b2b" };
-  }
-  if (
-    t.includes("holistic") ||
-    t.includes("wellness") ||
-    t.includes("health")
-  ) {
-    const imgs = [
-      "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=600&auto=format&fit=crop&q=80",
-    ];
-    return { banner: imgs[idx % imgs.length] ?? imgs[0], color: "#2d6a4f" };
-  }
-  const def = [
-    "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1447452001602-7090c7ab2db3?w=600&auto=format&fit=crop&q=80",
-  ];
-  return { banner: def[idx % def.length] ?? def[0], color: "#1b4332" };
+  const name = typeName.toLowerCase();
+  const style =
+    COACH_TYPE_STYLES.find((row) =>
+      row.words.some((word) => name.includes(word)),
+    ) ?? DEFAULT_COACH_TYPE_STYLE;
+  const photo = style.banners[idx % style.banners.length] ?? style.banners[0];
+  return { banner: unsplash(photo), color: style.color };
 }

@@ -7,7 +7,6 @@ import {
   validateClientProfilePhoto,
   validateEmail,
   validateHeight,
-  validateMobile,
   validateRequired,
   validateWeight,
 } from "@/lib/validation";
@@ -50,10 +49,6 @@ describe("mobile", () => {
     expect(isValidMobile("98234567123")).toBe(false);
     expect(isValidMobile("5823456712")).toBe(false);
     expect(isValidMobile("")).toBe(false);
-  });
-  test("required flag controls the empty case", () => {
-    expect(validateMobile("")).not.toBeNull();
-    expect(validateMobile("  ", false)).toBeNull();
   });
 });
 

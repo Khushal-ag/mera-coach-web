@@ -104,7 +104,7 @@ bun dev                      # http://localhost:3000
 | Variable                            | Required | Purpose                                                                                       |
 | ----------------------------------- | -------- | --------------------------------------------------------------------------------------------- |
 | `NEXT_PUBLIC_API_BASE_URL`          | Yes      | API origin, no trailing slash. A production build fails if it is missing or not `https`        |
-| `NEXT_PUBLIC_SITE_URL`              | Advised  | Canonical site address for links, sitemap and sharing. Defaults to `https://mera-coach.com`    |
+| `NEXT_PUBLIC_SITE_URL`              | Advised  | Canonical site address for links, sitemap and sharing. Defaults to `https://www.mera-coach.com`, the address the apex domain redirects to    |
 | `NEXT_PUBLIC_IMAGE_HOSTS`           | No       | Extra hostnames for coach photos, such as a CDN. The API origin is allowed automatically       |
 | `NEXT_PUBLIC_SUBSCRIPTION_REQUIRED` | No       | `true` puts Add Client behind a premium plan; `false` lets every coach add clients             |
 | `NEXT_PUBLIC_PLAY_STORE_URL`         | No       | Google Play listing (`https`). The footer and home buttons open it; until set they show "Coming soon" |
@@ -142,8 +142,8 @@ Support email, WhatsApp, address and hours: edit `src/config/contact.ts`.
 src/
   app/                Routes. Server Components unless a page needs the browser
   components/         Site shell, feature components, practice/ (the dashboard), ui/
-  config/             Typed env and site settings
-  constants/          Shared labels and limits
+  config/             Typed env and site settings. `siteConfig.links` holds every page address
+  constants/          Page text and numbers (home*.ts, services-programs.ts) and every stock photo (images.ts)
   lib/api/            API client and one module per feature (coach, premium, showcase …)
   lib/                Auth session, media, coach profile paths, assessment helpers
   styles/             Design tokens and global styles

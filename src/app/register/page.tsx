@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { cacheLife } from "next/cache";
 
 import { RegisterForm } from "@/components/auth/register-form";
+import { siteConfig } from "@/config/site";
 import { fetchCoachCategories } from "@/lib/api/master";
 import { publicPageMetadata } from "@/lib/seo";
 
@@ -9,7 +10,7 @@ export const metadata = publicPageMetadata({
   title: "Register as a Coach | Mera Coach",
   description:
     "Create a free coach account on Mera Coach in a few minutes. Get a public profile, manage clients and receive enquiries from people looking for a coach.",
-  path: "/register",
+  path: siteConfig.links.register,
   absolute: true,
 });
 

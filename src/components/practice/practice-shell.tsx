@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { NotificationBell } from "@/components/practice/notification-bell";
 import { isSubscriptionRequired } from "@/config/practice";
+import { siteConfig } from "@/config/site";
 import { useSidebarCollapsed } from "@/hooks/use-sidebar-collapsed";
 import { fetchAuthedCoachProfile } from "@/lib/api/practice";
 import { ensurePremiumStatus } from "@/lib/auth/premium-status";
@@ -20,7 +21,7 @@ import { describeValidity } from "@/lib/validity";
 
 const navItems = [
   {
-    href: "/dashboard",
+    href: siteConfig.links.dashboard,
     label: "Dashboard",
     icon: "fas fa-th-large",
     exact: true,
@@ -277,7 +278,10 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                   </span>
                   <strong>{validity}</strong>
                   {needsRenewal ?
-                    <Link href="/premium" className="cl-validity-renew">
+                    <Link
+                      href={siteConfig.links.premium}
+                      className="cl-validity-renew"
+                    >
                       Renew now
                     </Link>
                   : null}
@@ -343,7 +347,10 @@ export function PracticeShell({ children }: { children: React.ReactNode }) {
                     : <strong>{validity}</strong>
                   </span>
                   {needsRenewal ?
-                    <Link href="/premium" className="cl-validity-renew">
+                    <Link
+                      href={siteConfig.links.premium}
+                      className="cl-validity-renew"
+                    >
                       Renew
                     </Link>
                   : null}

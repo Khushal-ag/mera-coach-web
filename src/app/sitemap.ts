@@ -3,36 +3,36 @@ import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
 import { fetchPublicCoaches, isApiSuccess } from "@/lib/api";
 
+const { links } = siteConfig;
+
+/** The home page is listed without a path, so its URL has no trailing slash. */
 const routes = [
   "",
-  "/coach",
-  "/bmi",
-  "/services",
-  "/register",
-  "/contact",
-  "/terms",
-  "/privacy",
+  links.coaches,
+  links.bmi,
+  links.services,
+  links.register,
+  links.contact,
+  links.terms,
+  links.privacy,
 ] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const lastModified = new Date();
   const staticRoutes: MetadataRoute.Sitemap = routes.map((route, index) => ({
     url: `${siteConfig.url}${route}`,
-    lastModified,
-    changeFrequency: route === "" || route === "/coach" ? "weekly" : "monthly",
+    changeFrequency:
+      route === "" || route === links.coaches ? "weekly" : "monthly",
     priority:
       index === 0 ? 1
-      : route === "/coach" ? 0.9
+      : route === links.coaches ? 0.9
       : 0.7,
   }));
 
-  return [...staticRoutes, ...(await publicCoachRoutes(lastModified))];
+  return [...staticRoutes, ...(await publicCoachRoutes())];
 }
 
 /** Public coach profiles. Anonymous API, same 60s cache as the directory. */
-async function publicCoachRoutes(
-  lastModified: Date,
-): Promise<MetadataRoute.Sitemap> {
+async function publicCoachRoutes(): Promise<MetadataRoute.Sitemap> {
   const seen = new Set<string>();
   const entries: MetadataRoute.Sitemap = [];
 
@@ -53,7 +53,6 @@ async function publicCoachRoutes(
         seen.add(slug);
         entries.push({
           url: `${siteConfig.url}/coach/${encodeURIComponent(slug)}`,
-          lastModified,
           changeFrequency: "weekly",
           priority: 0.6,
         });

@@ -2,6 +2,7 @@ import type { ValidityInfo } from "@/lib/validity";
 import type { CoachPost } from "@/types/showcase";
 
 import { isSubscriptionRequired } from "@/config/practice";
+import { siteConfig } from "@/config/site";
 import { DASHBOARD_CAROUSEL } from "@/constants/ui";
 
 export type SlideCta = {
@@ -81,7 +82,11 @@ export function buildDashboardSlides({
         expired ?
           "Renew to keep adding clients and keep your public page live."
         : "Renew before it ends so your clients, reports and public page stay available.",
-      cta: { href: "/premium", icon: "fas fa-sync-alt", label: "Renew now" },
+      cta: {
+        href: siteConfig.links.premium,
+        icon: "fas fa-sync-alt",
+        label: "Renew now",
+      },
       icon: "fas fa-crown",
     });
   }
@@ -285,7 +290,7 @@ export function buildDashboardSlides({
     em: "should be here?",
     text: "Refer a fellow coach to Mera Coach. We will reach out and help them get onboarded.",
     cta: {
-      href: "/contact",
+      href: siteConfig.links.contact,
       icon: "fas fa-paper-plane",
       label: "Send referral",
     },

@@ -137,6 +137,11 @@ for (const pattern of [
     hostname: "mera-coach.com",
     pathname: "/**",
   },
+  {
+    protocol: "https" as const,
+    hostname: "www.mera-coach.com",
+    pathname: "/**",
+  },
 ]) {
   const key = patternKey(pattern);
   if (seen.has(key)) continue;

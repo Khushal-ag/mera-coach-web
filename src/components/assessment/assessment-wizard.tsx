@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { WizardProps } from "./wizard/types";
 
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { siteConfig } from "@/config/site";
 import { PHASE_ICONS } from "@/constants/assessment";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +44,7 @@ export function AssessmentWizard(props: WizardProps) {
           <div>
             <h1 className="clt-page-title">{title}</h1>
             <nav className="clt-breadcrumb">
-              <Link href={crumbs?.[0]?.href ?? "/dashboard"}>
+              <Link href={crumbs?.[0]?.href ?? siteConfig.links.dashboard}>
                 <i className="fas fa-home" /> Home
               </Link>
               <i className="fas fa-chevron-right" />

@@ -1,13 +1,14 @@
 import { Suspense } from "react";
 
 import { ForgotPasswordForm } from "@/components/forgot-password-form";
+import { siteConfig } from "@/config/site";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
   title: "Forgot Password | Mera Coach",
   description:
     "Reset your Mera Coach account password with a code sent to your registered email address.",
-  path: "/forgot-password",
+  path: siteConfig.links.forgotPassword,
   noindex: true,
   absolute: true,
 });

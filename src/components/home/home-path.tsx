@@ -4,9 +4,15 @@ import { useEffect, useRef, useState } from "react";
 
 import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
+import type { PathId as Path } from "@/constants/home-platform";
 
-type Path = "coach" | "member";
+import {
+  PATH_CARDS,
+  PATH_HASH_RETRY,
+  PATH_SECTION,
+} from "@/constants/home-platform";
+import { unsplash } from "@/constants/images";
+import { cn } from "@/lib/utils";
 
 /** The section with this id inside the panels, and the path it belongs to (for links such as /#bmi). */
 function findInPanels(
@@ -48,6 +54,10 @@ export function HomePath({
     coach: null,
     member: null,
   });
+  const panels: Record<Path, ReactNode> = {
+    coach: coachPanel,
+    member: memberPanel,
+  };
 
   useEffect(() => {
     let retry: number | undefined;
@@ -57,13 +67,19 @@ export function HomePath({
       const found = findInPanels(panelsRef.current, id);
       if (!found) {
         // The section may still be streaming in, so look again for a moment.
-        if (attempt < 10)
-          retry = window.setTimeout(() => showHashTarget(attempt + 1), 200);
+        if (attempt < PATH_HASH_RETRY.attempts)
+          retry = window.setTimeout(
+            () => showHashTarget(attempt + 1),
+            PATH_HASH_RETRY.everyMs,
+          );
         return;
       }
       setPath(found.owner);
       // The panel is still hidden for this render, so scroll once it has opened.
-      window.setTimeout(() => found.element.scrollIntoView(), 100);
+      window.setTimeout(
+        () => found.element.scrollIntoView(),
+        PATH_HASH_RETRY.scrollDelayMs,
+      );
     };
     const onHashChange = () => {
       window.clearTimeout(retry);
@@ -108,188 +124,89 @@ export function HomePath({
         <div className="container">
           <div className="section-header">
             <div className="section-tag">
-              <i className="fas fa-compass" /> Who Are You Here For?
+              <i className="fas fa-compass" /> {PATH_SECTION.tag}
             </div>
-            <h2 className="section-title">Choose Your Path</h2>
-            <p className="section-subtitle">
-              Mera Coach serves both coaches and members. Pick your path and let
-              us do the rest.
-            </p>
+            <h2 className="section-title">{PATH_SECTION.title}</h2>
+            <p className="section-subtitle">{PATH_SECTION.subtitle}</p>
           </div>
           <div
             className="path-grid"
             role="tablist"
             aria-label="Choose your path"
           >
-            <div
-              className={cn(
-                "path-card path-card-coach",
-                path === "coach" && "is-active",
-              )}
-              role="presentation"
-              onClick={(event) => onCardClick(event, "coach")}
-            >
-              <div className="path-card-img">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=800&auto=format&fit=crop&q=85"
-                  alt="Coach with Nutrition"
-                />
-              </div>
-              <div className="path-overlay" />
-              <div className="path-content">
-                <div className="path-icon-wrap">
-                  <i className="fas fa-user-tie" />
+            {PATH_CARDS.map((card) => (
+              <div
+                key={card.id}
+                className={cn(
+                  `path-card path-card-${card.id}`,
+                  path === card.id && "is-active",
+                )}
+                role="presentation"
+                onClick={(event) => onCardClick(event, card.id)}
+              >
+                <div className="path-card-img">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={unsplash(card.photo, { width: 800, quality: 85 })}
+                    alt={card.photoAlt}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
-                <div className="path-pill path-pill-coach">
-                  <i className="fas fa-briefcase" /> For Coaches
+                <div className="path-overlay" />
+                <div className="path-content">
+                  <div className="path-icon-wrap">
+                    <i className={card.icon} />
+                  </div>
+                  <div className={`path-pill path-pill-${card.id}`}>
+                    <i className={card.pillIcon} /> {card.pill}
+                  </div>
+                  <h3>{card.title}</h3>
+                  <p>{card.description}</p>
+                  <ul className="path-features">
+                    {card.features.map((feature) => (
+                      <li key={feature}>
+                        <i className="fas fa-check-circle" /> {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    type="button"
+                    role="tab"
+                    id={`path-tab-${card.id}`}
+                    aria-selected={path === card.id}
+                    aria-controls={`path-panel-${card.id}`}
+                    tabIndex={path === card.id ? 0 : -1}
+                    ref={(node) => {
+                      tabs.current[card.id] = node;
+                    }}
+                    className={`path-cta path-cta-${card.id}`}
+                    onClick={() => choose(card.id)}
+                    onKeyDown={(event) => onKeyDown(event, card.id)}
+                  >
+                    <i className={card.ctaIcon} /> {card.ctaLabel}{" "}
+                    <i className="fas fa-arrow-down" />
+                  </button>
                 </div>
-                <h3>Built for Coaches</h3>
-                <p>
-                  Run, grow and scale your coaching practice, from client
-                  management to building your personal brand online.
-                </p>
-                <ul className="path-features">
-                  <li>
-                    <i className="fas fa-check-circle" /> Manage all clients
-                    from one dashboard
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Track health data
-                    &amp; client progress
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Capture &amp; convert
-                    incoming leads
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Your own business page
-                    / personal website
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Showcase client
-                    success stories
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Build your personal
-                    coaching brand
-                  </li>
-                </ul>
-                <button
-                  type="button"
-                  role="tab"
-                  id="path-tab-coach"
-                  aria-selected={path === "coach"}
-                  aria-controls="path-panel-coach"
-                  tabIndex={path === "coach" ? 0 : -1}
-                  ref={(node) => {
-                    tabs.current.coach = node;
-                  }}
-                  className="path-cta path-cta-coach"
-                  onClick={() => choose("coach")}
-                  onKeyDown={(event) => onKeyDown(event, "coach")}
-                >
-                  <i className="fas fa-rocket" /> Start as a Coach{" "}
-                  <i className="fas fa-arrow-down" />
-                </button>
               </div>
-            </div>
-            <div
-              className={cn(
-                "path-card path-card-member",
-                path === "member" && "is-active",
-              )}
-              role="presentation"
-              onClick={(event) => onCardClick(event, "member")}
-            >
-              <div className="path-card-img">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop&q=85"
-                  alt="Yoga Wellness"
-                />
-              </div>
-              <div className="path-overlay" />
-              <div className="path-content">
-                <div className="path-icon-wrap">
-                  <i className="fas fa-spa" />
-                </div>
-                <div className="path-pill path-pill-member">
-                  <i className="fas fa-user" /> For Members
-                </div>
-                <h3>Looking for a Coach?</h3>
-                <p>
-                  Find the right expert for your health and wellness goals.
-                  Connect, consult and transform your life today.
-                </p>
-                <ul className="path-features">
-                  <li>
-                    <i className="fas fa-check-circle" /> Explore 500+ verified
-                    coaches
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Filter by goal,
-                    category &amp; location
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> View real success
-                    stories first
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Connect directly &amp;
-                    start your journey
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Track progress with
-                    your coach
-                  </li>
-                  <li>
-                    <i className="fas fa-check-circle" /> Personalised plans,
-                    not generic advice
-                  </li>
-                </ul>
-                <button
-                  type="button"
-                  role="tab"
-                  id="path-tab-member"
-                  aria-selected={path === "member"}
-                  aria-controls="path-panel-member"
-                  tabIndex={path === "member" ? 0 : -1}
-                  ref={(node) => {
-                    tabs.current.member = node;
-                  }}
-                  className="path-cta path-cta-member"
-                  onClick={() => choose("member")}
-                  onKeyDown={(event) => onKeyDown(event, "member")}
-                >
-                  <i className="fas fa-search" /> Find a Coach{" "}
-                  <i className="fas fa-arrow-down" />
-                </button>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       <div className="path-panels" ref={panelsRef}>
-        <div
-          role="tabpanel"
-          id="path-panel-coach"
-          aria-labelledby="path-tab-coach"
-          data-path-panel="coach"
-          hidden={path !== "coach"}
-        >
-          {coachPanel}
-        </div>
-        <div
-          role="tabpanel"
-          id="path-panel-member"
-          aria-labelledby="path-tab-member"
-          data-path-panel="member"
-          hidden={path !== "member"}
-        >
-          {memberPanel}
-        </div>
+        {PATH_CARDS.map((card) => (
+          <div
+            key={card.id}
+            role="tabpanel"
+            id={`path-panel-${card.id}`}
+            aria-labelledby={`path-tab-${card.id}`}
+            data-path-panel={card.id}
+            hidden={path !== card.id}
+          >
+            {panels[card.id]}
+          </div>
+        ))}
       </div>
     </>
   );

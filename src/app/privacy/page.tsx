@@ -11,7 +11,7 @@ export const metadata = publicPageMetadata({
   title: "Privacy Policy | Mera Coach",
   description:
     "How Mera Coach collects, uses and protects your personal information, and the choices you have over your data.",
-  path: "/privacy",
+  path: siteConfig.links.privacy,
   absolute: true,
 });
 

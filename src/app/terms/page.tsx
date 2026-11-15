@@ -8,7 +8,7 @@ export const metadata = publicPageMetadata({
   title: "Terms of Service | Mera Coach",
   description:
     "The terms that apply when you use Mera Coach as a coach, client or visitor, including accounts, premium subscriptions, content and liability.",
-  path: "/terms",
+  path: siteConfig.links.terms,
   absolute: true,
 });
 

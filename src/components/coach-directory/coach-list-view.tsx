@@ -10,7 +10,9 @@ import type { CoachPublicListItem } from "@/types/coach";
 import { CoachPhoto } from "@/components/coach-photo";
 import { ListEmpty } from "@/components/list-empty";
 import { MenuSelect } from "@/components/ui/menu-select";
+import { siteConfig } from "@/config/site";
 import { COACHES_PER_PAGE } from "@/constants/coach-directory";
+import { COACH_COUNT_TEXT } from "@/constants/home";
 import { fetchMasterOptions } from "@/lib/api/master";
 import { coachProfilePath } from "@/lib/coach/profile-path";
 import { resolveMediaUrl } from "@/lib/media/media-url";
@@ -64,7 +66,7 @@ function pageHref(query: Query, page: number) {
   if (query.country) params.set("country", query.country);
   if (query.state) params.set("state", query.state);
   if (query.city) params.set("city", query.city);
-  return `/coach?${params}`;
+  return `${siteConfig.links.coaches}?${params}`;
 }
 
 /** States or cities for a parent place; nothing until a parent is chosen. */
@@ -154,7 +156,7 @@ export function CoachListView({
     setStates([]);
     setCities([]);
     setResetCount((count) => count + 1);
-    router.push("/coach");
+    router.push(siteConfig.links.coaches);
   }
 
   function selectCategory(code: string) {
@@ -215,8 +217,8 @@ export function CoachListView({
               Find Your <em>Perfect Coach</em>
             </h1>
             <p className="cl-banner-subtitle">
-              Browse 500+ verified coaches across Health, Fitness, Yoga,
-              Nutrition and Lifestyle. Your transformation starts here.
+              Browse {COACH_COUNT_TEXT} verified coaches across Health, Fitness,
+              Yoga, Nutrition and Lifestyle. Your transformation starts here.
             </p>
             <div className="cl-cat-pills">
               <button
@@ -253,7 +255,7 @@ export function CoachListView({
           <div className="cl-layout">
             <div className="cl-main">
               <form
-                action="/coach"
+                action={siteConfig.links.coaches}
                 className="cl-main-search"
                 id="searchForm"
                 key={`${query.search}-${resetCount}`}
@@ -311,7 +313,7 @@ export function CoachListView({
               </form>
 
               <form
-                action="/coach"
+                action={siteConfig.links.coaches}
                 id="filterForm"
                 className="cl-filter-panel"
                 key={`${query.coachTypeCode}|${query.country}|${query.state}|${query.city}|${query.search}-${resetCount}`}
@@ -828,7 +830,10 @@ export function CoachListView({
                       easily
                     </li>
                   </ul>
-                  <Link href="/register" className="cl-btn-join">
+                  <Link
+                    href={siteConfig.links.register}
+                    className="cl-btn-join"
+                  >
                     <i className="fas fa-rocket" /> Get Started Free
                   </Link>
                 </div>

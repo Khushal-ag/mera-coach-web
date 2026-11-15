@@ -2,6 +2,7 @@
 
 import type { RegisterFormController } from "./use-register-form";
 
+import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
 export function RegisterSuccessStep({
@@ -29,7 +30,7 @@ export function RegisterSuccessStep({
           <p className="rg-field-note">{followUp}</p>
         : null}
         <div className="rg-success-btns">
-          <a href="/coach-login" className="btn rg-btn-next">
+          <a href={siteConfig.links.coachLogin} className="btn rg-btn-next">
             <i className="fas fa-sign-in-alt" /> Sign In
           </a>
           <a href="/" className="btn rg-btn-back">

@@ -18,6 +18,7 @@ import {
 } from "@/components/practice/dashboard-slides";
 import { DashboardCarouselSkeleton } from "@/components/skeletons/dashboard-skeleton";
 import { AlertBanner } from "@/components/ui/alert-banner";
+import { siteConfig } from "@/config/site";
 import { DASHBOARD_CAROUSEL } from "@/constants/ui";
 import { useOpenAddClient } from "@/hooks/use-open-add-client";
 import {
@@ -228,7 +229,7 @@ export function DashboardHomeView() {
         <div>
           <h1 className="db-page-title">Dashboard</h1>
           <nav className="db-breadcrumb">
-            <Link href="/dashboard">Home</Link>
+            <Link href={siteConfig.links.dashboard}>Home</Link>
             <i className="fas fa-chevron-right" />
             <span>Dashboard</span>
           </nav>

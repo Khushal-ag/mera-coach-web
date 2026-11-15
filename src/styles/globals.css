@@ -26,14 +26,8 @@
   --mc-header-bottom: #2c1810;
   --mc-accent-ink: #2c1810;
   --mc-explore-canvas: #fdf8f2;
-  --mc-explore-panel: #ffffff;
-  --mc-home-canvas: #1b4332;
-  --mc-auth-cta: #c04b2b;
-  --mc-auth-cta-start: #9e3b1f;
-  --mc-greeting: #8b6553;
   --mc-destructive: #dc2626;
   --mc-destructive-soft: #fef2f2;
-  --mc-whatsapp: #25d366;
   --mc-disabled-bg: #f5ede0;
 
   --ink: #2c1810;
@@ -50,7 +44,6 @@
 
   --mc-gradient: linear-gradient(145deg, #1b2f1f 0%, #1b4332 40%, #2d3a1a 100%);
   --mc-shadow-sm: 0 2px 8px rgba(44, 24, 16, 0.06);
-  --mc-shadow-lg: 0 20px 60px rgba(44, 24, 16, 0.12);
 }
 
 @theme inline {
@@ -202,7 +195,7 @@
     box-shadow: 0 8px 28px rgba(201, 136, 42, 0.45);
   }
 
-  /* Gold call to action from the old site (hero coach CTA, BMI). */
+  /* Gold call to action (hero coach CTA, BMI). */
   .mc-btn-hero {
     background-color: var(--mc-accent);
     font-family: var(--font-display);
@@ -547,27 +540,6 @@
     .mc-btn-secondary:active,
     .mc-field-dark:focus,
     .mc-field-dark:focus-visible,
-    .mc-press:active {
-      transform: none;
-    }
-
-    .mc-skeleton {
-      animation: none;
-    }
-  }
-
-  @keyframes mc-enter {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
     .mc-press:active {
       transform: none;
     }

@@ -2,6 +2,7 @@
 
 import type { RegisterFormController } from "./use-register-form";
 
+import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
 export function RegisterProfileStep({
@@ -147,8 +148,8 @@ export function RegisterProfileStep({
               onChange={(event) => setAgreed(event.target.checked)}
             />
             <span className="rg-checkbox" />I agree to the{" "}
-            <a href="/terms">Terms of Service</a> and{" "}
-            <a href="/privacy">Privacy Policy</a> of Mera Coach.
+            <a href={siteConfig.links.terms}>Terms of Service</a> and{" "}
+            <a href={siteConfig.links.privacy}>Privacy Policy</a> of Mera Coach.
           </label>
         </div>
       </div>

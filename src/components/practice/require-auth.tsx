@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { useAuth } from "@/components/auth-provider";
 import { DashboardShellSkeleton } from "@/components/skeletons/dashboard-skeleton";
+import { siteConfig } from "@/config/site";
 import { useMounted } from "@/hooks/use-mounted";
 
 /**
@@ -23,7 +24,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!mounted || !ready) return;
     if (session) return;
-    const next = encodeURIComponent(pathname || "/dashboard");
+    const next = encodeURIComponent(pathname || siteConfig.links.dashboard);
     router.replace(`/coach-login?next=${next}`);
   }, [mounted, ready, session, router, pathname]);
 

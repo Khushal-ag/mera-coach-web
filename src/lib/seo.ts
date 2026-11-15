@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
 
 /**
- * Consumer-page metadata. Root layout no longer forces every URL to
- * canonical `/`, so each public page sets its own canonical and share card.
+ * Metadata for the public pages. Each page sets its own canonical address and
+ * share card.
  */
 export function publicPageMetadata({
   title,

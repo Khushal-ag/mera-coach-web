@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 import { MenuSelect } from "@/components/ui/menu-select";
+import { siteConfig } from "@/config/site";
 import {
   BMI_BANDS,
   BMI_EXPLANATIONS,
@@ -534,7 +535,7 @@ export function HomeBmi() {
                       wellness coach will contact you shortly.
                     </p>
                     <Link
-                      href="/coach"
+                      href={siteConfig.links.coaches}
                       className="btn btn-gold bmi-lead-btn"
                       style={{ marginTop: 12 }}
                     >

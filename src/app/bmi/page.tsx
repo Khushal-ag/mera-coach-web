@@ -4,13 +4,14 @@ import Link from "next/link";
 import { BmiCalculator } from "@/components/bmi-calculator";
 import { PageBanner } from "@/components/marketing/page-banner";
 import { photography } from "@/config/photography";
+import { siteConfig } from "@/config/site";
 import { publicPageMetadata } from "@/lib/seo";
 
 export const metadata = publicPageMetadata({
   title: "BMI Calculator",
   description:
     "Check your BMI in seconds on Mera Coach, then share your details so a coach can call you back. Free, no commitment.",
-  path: "/bmi",
+  path: siteConfig.links.bmi,
 });
 
 const points = [
@@ -55,7 +56,10 @@ export default function BmiPage() {
             </ul>
             <p className="text-sm text-ink-muted">
               Prefer to browse first?{" "}
-              <Link href="/coach" className="font-semibold text-mc-secondary">
+              <Link
+                href={siteConfig.links.coaches}
+                className="font-semibold text-mc-secondary"
+              >
                 Find a Coach
               </Link>
             </p>

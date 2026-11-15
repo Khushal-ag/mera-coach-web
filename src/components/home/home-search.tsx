@@ -8,6 +8,7 @@ import type { FormEvent } from "react";
 import type { MasterOption } from "@/lib/api/master";
 
 import { MenuSelect } from "@/components/ui/menu-select";
+import { siteConfig } from "@/config/site";
 
 export function HomeSearch({ categories }: { categories: MasterOption[] }) {
   const router = useRouter();
@@ -20,7 +21,9 @@ export function HomeSearch({ categories }: { categories: MasterOption[] }) {
     if (category.trim()) params.set("category", category.trim());
     if (search.trim()) params.set("search", search.trim());
     const query = params.toString();
-    router.push(query ? `/coach?${query}` : "/coach");
+    router.push(
+      query ? `${siteConfig.links.coaches}?${query}` : siteConfig.links.coaches,
+    );
   }
 
   return (

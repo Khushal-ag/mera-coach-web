@@ -1,5 +1,7 @@
 /** Copy for the home page "Coach Stories" carousel. */
 
+import { portrait, PORTRAITS } from "@/constants/images";
+
 export const STORY_TEMPLATES = [
   {
     badge: "📈 3x more client enquiries",
@@ -44,48 +46,42 @@ export const FALLBACK_STORIES = [
     coachName: "Rahul Sharma",
     coachCode: "rahul-sharma",
     label: "Fitness Trainer, Delhi",
-    avatar:
-      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=600&fit=crop&crop=faces&q=80",
+    avatar: portrait(PORTRAITS.rahul, 600),
     rating: 5,
   },
   {
     coachName: "Priya Mehta",
     coachCode: "priya-mehta",
     label: "Yoga Trainer, Mumbai",
-    avatar:
-      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&h=600&fit=crop&crop=faces&q=80",
+    avatar: portrait(PORTRAITS.priya, 600),
     rating: 5,
   },
   {
     coachName: "Dr. Ananya Singh",
     coachCode: "dr-ananya-singh",
     label: "Clinical Nutritionist, Bangalore",
-    avatar:
-      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=600&fit=crop&crop=faces&q=80",
+    avatar: portrait(PORTRAITS.ananya, 600),
     rating: 5,
   },
   {
     coachName: "Vikram Nair",
     coachCode: "vikram-nair",
     label: "Health Coach, Pune",
-    avatar:
-      "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=600&fit=crop&crop=faces&q=80",
+    avatar: portrait(PORTRAITS.vikram, 600),
     rating: 5,
   },
   {
     coachName: "Sunita Rao",
     coachCode: "sunita-rao",
     label: "Women's Health Expert, Chennai",
-    avatar:
-      "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=600&h=600&fit=crop&crop=faces&q=80",
+    avatar: portrait(PORTRAITS.sunita, 600),
     rating: 5,
   },
   {
     coachName: "Arjun Kapoor",
     coachCode: "arjun-kapoor",
     label: "Lifestyle Mentor, Hyderabad",
-    avatar:
-      "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&h=600&fit=crop&crop=faces&q=80",
+    avatar: portrait(PORTRAITS.arjun, 600),
     rating: 5,
   },
 ];

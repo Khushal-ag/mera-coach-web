@@ -149,7 +149,10 @@ export function SiteHeader() {
                     <i className="fas fa-crown" aria-hidden /> Premium
                   </Link>
                 : null}
-                <Link href="/dashboard" className="btn btn-primary">
+                <Link
+                  href={siteConfig.links.dashboard}
+                  className="btn btn-primary"
+                >
                   <i className="fas fa-th-large" aria-hidden /> Dashboard
                 </Link>
                 <button
@@ -166,10 +169,16 @@ export function SiteHeader() {
                 </button>
               </>
             : <>
-                <Link href="/coach-login" className="btn btn-outline">
+                <Link
+                  href={siteConfig.links.coachLogin}
+                  className="btn btn-outline"
+                >
                   Login
                 </Link>
-                <Link href="/register" className="btn btn-primary">
+                <Link
+                  href={siteConfig.links.register}
+                  className="btn btn-primary"
+                >
                   <i className="fas fa-user-plus" /> Join Free
                 </Link>
               </>
@@ -227,7 +236,11 @@ export function SiteHeader() {
                 <i className="fas fa-crown" aria-hidden /> Premium
               </Link>
             : null}
-            <Link href="/dashboard" className="btn btn-primary" onClick={close}>
+            <Link
+              href={siteConfig.links.dashboard}
+              className="btn btn-primary"
+              onClick={close}
+            >
               <i className="fas fa-th-large" aria-hidden /> Dashboard
             </Link>
             <button
@@ -243,17 +256,21 @@ export function SiteHeader() {
           </div>
         : <div className="mobile-actions">
             <Link
-              href="/coach-login"
+              href={siteConfig.links.coachLogin}
               className="btn btn-outline"
               onClick={close}
             >
               Login
             </Link>
-            <Link href="/register" className="btn btn-primary" onClick={close}>
+            <Link
+              href={siteConfig.links.register}
+              className="btn btn-primary"
+              onClick={close}
+            >
               <i className="fas fa-user-plus" aria-hidden /> Join Free
             </Link>
             <Link
-              href="/register"
+              href={siteConfig.links.register}
               className="btn btn-secondary"
               onClick={close}
             >

@@ -139,8 +139,9 @@ export function CoachPhoto({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={resolved}
-        alt={shown ? alt : ""}
+        alt={alt}
         decoding="async"
+        loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "auto"}
         draggable={false}
         ref={(node) => {

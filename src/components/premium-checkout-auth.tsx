@@ -15,6 +15,7 @@ import { useAuth } from "@/components/auth-provider";
 import { PremiumActiveView } from "@/components/premium-active-view";
 import { RefreshPremiumStatus } from "@/components/refresh-premium-status";
 import { PremiumCheckoutSkeleton } from "@/components/skeletons/premium-plans-skeleton";
+import { siteConfig } from "@/config/site";
 import { useMounted } from "@/hooks/use-mounted";
 import {
   fetchCoachPaymentHistory,
@@ -64,7 +65,7 @@ export function PremiumCheckoutAuth({
   const fromApp = initialCoachId > 0 || Boolean(initialCoachCode.trim());
   const returnPath = useMemo(() => {
     const qs = searchParams.toString();
-    return qs ? `/premium?${qs}` : "/premium";
+    return qs ? `${siteConfig.links.premium}?${qs}` : siteConfig.links.premium;
   }, [searchParams]);
   const loginHref = `/coach-login?next=${encodeURIComponent(returnPath)}`;
 

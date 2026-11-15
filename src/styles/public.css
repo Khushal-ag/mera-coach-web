@@ -1,5 +1,4 @@
-/* Ported from meracoachweb site.css and the homepage head styles.
-   Scoped under .mc-public so other Next.js pages keep their own layout. */
+/* Marketing-site styles. Scoped under .mc-public so other pages keep their own layout. */
 /* ===== CSS VARIABLES ===== */
 .mc-public {
   --primary: #c04b2b;
@@ -17,6 +16,9 @@
   --border: #e5d5c5;
   --white: #ffffff;
   --bg-light: #fdf8f2;
+  --bg-sand: #f5ede0;
+  --gold-dark: #b07520;
+  --ink: #1c1c1c;
   --bg-green: #fceee9;
   --gradient: linear-gradient(145deg, #1b2f1f 0%, #1b4332 40%, #2d3a1a 100%);
   --shadow-sm: 0 2px 8px rgba(44, 24, 16, 0.06);
@@ -111,7 +113,7 @@
 }
 
 .mc-public .btn-gold:hover {
-  background: #b07520;
+  background: var(--gold-dark);
   transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(201, 136, 42, 0.38);
 }
@@ -389,7 +391,7 @@
 
 .mc-public .hero-title em {
   font-style: normal;
-  color: #c9882a;
+  color: var(--gold);
 }
 
 .mc-public .hero-subtitle {
@@ -569,7 +571,7 @@
 /* ===== SEARCH SECTION ===== */
 .mc-public .search-section {
   padding: 0;
-  background: var(--bg-light);
+  background: var(--bg-sand); /* same as .choose-path, so no cream line shows between them */
 }
 
 .mc-public .search-box {
@@ -579,7 +581,7 @@
   overflow: visible;
   display: flex;
   align-items: stretch;
-  border: 1px solid var(--border);
+  border: none; /* a border here left a pale ring around the Search button; the shadow outlines the bar */
   max-width: 860px;
   margin: -36px auto 0;
   position: relative;
@@ -588,7 +590,6 @@
 }
 
 .mc-public .search-box:focus-within {
-  border-color: var(--primary);
   box-shadow:
     var(--shadow-lg),
     0 0 0 3px rgba(192, 75, 43, 0.15);
@@ -675,7 +676,7 @@
   height: 100%;
   min-height: 58px;
   border: none;
-  border-radius: 15px 0 0 15px;
+  border-radius: 16px 0 0 16px;
   background: #fff;
   padding: 18px 16px;
 }
@@ -685,7 +686,7 @@
   outline: none;
 }
 .mc-public .search-box > button {
-  border-radius: 0 15px 15px 0;
+  border-radius: 0 16px 16px 0;
 }
 .mc-public .ui-select-chevron {
   color: var(--dark);
@@ -843,36 +844,6 @@
 }
 
 /* ===== BMI TEASER ===== */
-.mc-public .bmi-teaser {
-  padding: 96px 0;
-  background: var(--bg-light);
-}
-
-.mc-public .bmi-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
-  align-items: center;
-}
-
-.mc-public .bmi-content .section-tag {
-  background: var(--gold-light);
-  color: var(--gold);
-}
-
-.mc-public .bmi-content .section-title {
-  color: var(--dark);
-}
-.mc-public .bmi-content .section-subtitle {
-  color: var(--text-light);
-}
-
-.mc-public .bmi-features {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin: 28px 0;
-}
 
 .mc-public .bmi-feature {
   display: flex;
@@ -882,65 +853,6 @@
   background: #fff;
   border-radius: 12px;
   border: 1px solid var(--border);
-}
-
-.mc-public .bmi-feature i {
-  color: var(--primary);
-  font-size: 18px;
-  width: 20px;
-}
-.mc-public .bmi-feature span {
-  font-size: 15px;
-  color: var(--text);
-  font-weight: 500;
-}
-
-.mc-public .bmi-calculator {
-  background: var(--dark2);
-  border-radius: var(--radius-xl);
-  padding: 36px;
-  box-shadow: 0 20px 60px rgba(27, 67, 50, 0.35);
-}
-
-.mc-public .bmi-calculator h3 {
-  font-family: var(--font-poppins), sans-serif;
-  font-size: 22px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 6px;
-}
-
-.mc-public .bmi-calculator > p {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 24px;
-}
-
-.mc-public .bmi-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.mc-public .bmi-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.mc-public .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.mc-public .form-group label {
-  font-family: var(--font-poppins), sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.55);
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
 }
 
 .mc-public .form-group input,
@@ -1092,19 +1004,6 @@
 
 .mc-public .bmi-ht-ft-row input {
   flex: 1;
-}
-
-.mc-public .form-group input::placeholder {
-  color: rgba(255, 255, 255, 0.35);
-}
-.mc-public .form-group select option {
-  background: var(--dark2);
-  color: #fff;
-}
-.mc-public .form-group input:focus,
-.mc-public .form-group select:focus {
-  border-color: var(--gold);
-  background: rgba(255, 255, 255, 0.12);
 }
 
 /* Full-width result panel below bmi-grid */
@@ -1285,7 +1184,7 @@
 
 /* ===== CONTACT PAGE ===== */
 .mc-public .contact-hero {
-  background: linear-gradient(135deg, var(--secondary) 0%, #2d6a4f 100%);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
   padding: 112px 24px 60px; /* 72px navbar + 40px gap, like the other pages */
   text-align: center;
   overflow: visible;
@@ -1832,7 +1731,6 @@
 .mc-public .trust-strip {
   background: var(--dark2);
   padding: 40px 0;
-  margin-top: 56px;
 }
 
 .mc-public .stats-row {
@@ -1873,7 +1771,7 @@
 /* ===== CATEGORIES ===== */
 .mc-public .categories {
   padding: 96px 0;
-  background: var(--bg-light);
+  background: var(--bg-sand);
 }
 
 .mc-public .category-grid {
@@ -1938,7 +1836,7 @@
 }
 
 .mc-public .cat-icon.purple-bg i {
-  color: #b07520;
+  color: var(--gold-dark);
 }
 
 .mc-public .cat-icon.blue-bg {
@@ -1946,7 +1844,7 @@
 }
 
 .mc-public .cat-icon.blue-bg i {
-  color: #2d6a4f;
+  color: var(--secondary-dark);
 }
 
 .mc-public .cat-icon.pink-bg {
@@ -1954,7 +1852,7 @@
 }
 
 .mc-public .cat-icon.pink-bg i {
-  color: #c04b2b;
+  color: var(--primary);
 }
 
 .mc-public .cat-icon.yellow-bg {
@@ -1962,7 +1860,7 @@
 }
 
 .mc-public .cat-icon.yellow-bg i {
-  color: #c9882a;
+  color: var(--gold);
 }
 
 .mc-public .category-card h4 {
@@ -1989,7 +1887,7 @@
 /* ===== HOW IT WORKS ===== */
 .mc-public .how-it-works {
   padding: 96px 0;
-  background: #f5ede0;
+  background: var(--bg-sand);
 }
 
 .mc-public .steps-grid {
@@ -2197,7 +2095,7 @@
 }
 
 .mc-public .coach-meta .star {
-  color: #c9882a;
+  color: var(--gold);
 }
 
 .mc-public .coach-bio {
@@ -2250,8 +2148,6 @@
   font-size: 13px;
 }
 
-/* ===== WHY MERA COACH ===== */
-
 /* ===== WELLNESS PROGRAMS ===== */
 .mc-public .programs {
   padding: 96px 0;
@@ -2275,7 +2171,7 @@
 /* ===== TESTIMONIALS ===== */
 .mc-public .testimonials {
   padding: 96px 0;
-  background: #f5ede0;
+  background: var(--bg-sand);
   position: relative;
   overflow: hidden;
 }
@@ -2377,7 +2273,7 @@
 }
 
 .mc-public .testimonial-stars i {
-  color: #c9882a;
+  color: var(--gold);
   font-size: 14px;
 }
 
@@ -2819,7 +2715,7 @@
     0 0 0 0.1em rgba(255, 255, 255, 0.12),
     inset 0 0 0 0.1em rgba(255, 255, 255, 0.06);
   overflow: hidden;
-  color: #1c1c1c;
+  color: var(--ink);
   font-family: var(--font-poppins), sans-serif;
   animation: apdFloat 6s ease-in-out infinite;
 }
@@ -2847,7 +2743,7 @@
   justify-content: space-between;
   font-size: 1.05em;
   font-weight: 600;
-  color: #1c1c1c;
+  color: var(--ink);
   transition: color 0.4s;
 }
 .mc-public .apd-status-light {
@@ -3030,7 +2926,7 @@
   font-family: var(--font-montserrat), var(--font-poppins), sans-serif;
   font-size: 1.45em;
   font-weight: 700;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-sub {
   margin: 0.2em 0 0;
@@ -3061,7 +2957,7 @@
   font-family: var(--font-montserrat), var(--font-poppins), sans-serif;
   font-size: 1.7em;
   line-height: 1.05;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-stat-ico {
   display: grid;
@@ -3076,7 +2972,7 @@
   font-family: var(--font-montserrat), var(--font-poppins), sans-serif;
   font-size: 1.05em;
   line-height: 1.2;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-stat small {
   font-size: 0.82em;
@@ -3169,7 +3065,7 @@
   font-family: var(--font-montserrat), var(--font-poppins), sans-serif;
   font-size: 1.1em;
   line-height: 1.2;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-yt-copy small {
   display: block;
@@ -3214,7 +3110,7 @@
   font-size: 0.95em;
   font-weight: 600;
   line-height: 1.3;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-yt-dots {
   display: flex;
@@ -3299,7 +3195,7 @@
   font-size: 1.7em;
   font-weight: 700;
   line-height: 1.25;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-uline {
   display: block;
@@ -3323,7 +3219,7 @@
   font-size: 1.7em;
   font-weight: 700;
   line-height: 1.25;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-sec span {
   display: block;
@@ -3364,7 +3260,7 @@
   margin-bottom: 0.4em;
   font-size: 1em;
   font-weight: 600;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-f label i {
   color: #dc2626;
@@ -3434,7 +3330,7 @@
 .mc-public .apd-pill-pick {
   background: #eceeed;
   border-color: #1c3d30;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-foot {
   position: absolute;
@@ -3504,7 +3400,7 @@
 .mc-public .apd-tile > span {
   font-size: 1em;
   font-weight: 600;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-tile small {
   font-size: 0.8em;
@@ -3632,7 +3528,7 @@
   border-radius: 0.95em;
   background: #e7f6ef;
   font-size: 1em;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-opts p {
   margin: 0;
@@ -3760,7 +3656,6 @@
   cursor: pointer;
 }
 
-/* ── per-screen timelines (replay each time a screen becomes active) ── */
 /* dashboard */
 .mc-public .is-active .apd-topbar {
   animation: apdDrop 0.6s ease backwards;
@@ -3998,11 +3893,6 @@
     opacity: 0;
   }
 }
-@keyframes apdFillW {
-  from {
-    width: 0;
-  }
-}
 @keyframes apdScrollForm {
   0%,
   42% {
@@ -4132,7 +4022,7 @@
   color: rgba(255, 255, 255, 0.3);
 }
 .mc-public .app-notify-input:focus {
-  border-color: #c04b2b;
+  border-color: var(--primary);
 }
 .mc-public .app-notify-btn {
   background: var(--primary);
@@ -4193,7 +4083,7 @@
 /* ===== COACH CTA ===== */
 .mc-public .coach-cta {
   padding: 96px 0;
-  background: #f5ede0;
+  background: var(--bg-sand);
 }
 
 .mc-public .coach-cta-inner {
@@ -4258,7 +4148,7 @@
 }
 
 .mc-public .cta-perk i {
-  color: #c9882a;
+  color: var(--gold);
   font-size: 16px;
 }
 
@@ -4690,7 +4580,7 @@
     border-bottom: 1px solid var(--border);
   }
   .mc-public .ui-select-bar .ui-select-btn {
-    border-radius: 11px 11px 0 0;
+    border-radius: 12px 12px 0 0;
   }
 
   .mc-public .search-box input {
@@ -4763,7 +4653,7 @@
 /* ── Everything You Need ─────────────────────────────────────── */
 .mc-public .features-section {
   padding: 80px 0;
-  background: linear-gradient(160deg, #0c1a10 0%, #1b4332 55%, #163527 100%);
+  background: linear-gradient(160deg, #0c1a10 0%, var(--secondary) 55%, #163527 100%);
 }
 .mc-public .features-section .section-tag {
   background: rgba(201, 136, 42, 0.15);
@@ -4798,7 +4688,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(to right, #c9882a, #e8a84c);
+  background: linear-gradient(to right, var(--gold), #e8a84c);
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
@@ -4823,19 +4713,19 @@
 }
 .mc-public .fi-green {
   background: rgba(27, 67, 50, 0.1);
-  color: #1b4332;
+  color: var(--secondary);
 }
 .mc-public .fi-gold {
   background: rgba(201, 136, 42, 0.12);
-  color: #c9882a;
+  color: var(--gold);
 }
 .mc-public .fi-blue {
   background: rgba(45, 106, 79, 0.09);
-  color: #1b4332;
+  color: var(--secondary);
 }
 .mc-public .fi-purple {
   background: rgba(124, 58, 237, 0.09);
-  color: #b07520;
+  color: var(--gold-dark);
 }
 .mc-public .fi-red {
   background: rgba(220, 38, 38, 0.09);
@@ -4863,11 +4753,11 @@
 /* ── Choose Your Path ────────────────────────────────────────── */
 .mc-public .choose-path {
   padding: 80px 0;
-  background: #f5ede0;
+  background: var(--bg-sand);
 }
 .mc-public .choose-path .section-tag {
   background: rgba(27, 67, 50, 0.08);
-  color: #1b4332;
+  color: var(--secondary);
   border: 1px solid rgba(27, 67, 50, 0.18);
 }
 .mc-public .choose-path .section-title {
@@ -4923,7 +4813,7 @@
   background: linear-gradient(
     to right,
     #0c1a10 0%,
-    #1b4332 28%,
+    var(--secondary) 28%,
     rgba(27, 67, 50, 0.88) 48%,
     rgba(27, 67, 50, 0.35) 68%,
     rgba(27, 67, 50, 0.05) 85%,
@@ -5049,7 +4939,7 @@
   width: fit-content;
 }
 .mc-public .path-cta-coach {
-  background: linear-gradient(135deg, #c9882a, #e8a84c);
+  background: linear-gradient(135deg, var(--gold), #e8a84c);
   color: #fff;
   box-shadow: 0 5px 18px rgba(201, 136, 42, 0.42);
 }
@@ -5131,9 +5021,9 @@
   user-select: none;
 }
 .mc-public .car-arrow:hover {
-  background: #1b4332;
+  background: var(--secondary);
   color: #fff;
-  border-color: #1b4332;
+  border-color: var(--secondary);
   box-shadow:
     0 4px 0 #0f2018,
     0 1px 6px rgba(0, 0, 0, 0.12);
@@ -5165,7 +5055,7 @@
   transition: all 0.25s ease;
 }
 .mc-public .car-dot.car-dot-active {
-  background: #1b4332;
+  background: var(--secondary);
   width: 24px;
   border-radius: 4px;
 }
@@ -5208,8 +5098,8 @@
   }
 }
 
-/* Headings on the old site are Poppins. Tailwind's base layer loses to
-   this unlayered sheet, so set the family here. */
+/* Headings are Poppins. Tailwind's base layer loses to this unlayered sheet,
+   so set the family here. */
 .mc-public h1,
 .mc-public h2,
 .mc-public h3,
@@ -5246,7 +5136,7 @@
   font-family: inherit;
 }
 
-/* Ported from meracoachweb/wwwroot/css/Services.css. Scoped under .mc-public. */
+/* Services page. */
 .mc-public .sv-pc-features,
 .mc-public .sv-tc-list,
 .mc-public .sv-qn-list {
@@ -5254,12 +5144,6 @@
   margin: 0;
   padding: 0;
 }
-/* =============================================================
-   Services.css  —  Services / Platform Features Page
-   Theme: Forest Green (#1b4332) + Gold (#c9882a) + Red (#c04b2b)
-   Prefix: sv-
-   ============================================================= */
-
 /* ─────────────────────────────────────────────────────────────
    1. HERO BANNER
 ───────────────────────────────────────────────────────────── */
@@ -5391,7 +5275,7 @@
   box-shadow: 0 8px 28px rgba(201, 136, 42, 0.4) !important;
 }
 .mc-public .sv-btn-book:hover {
-  background: #b07520 !important;
+  background: var(--gold-dark) !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 12px 36px rgba(201, 136, 42, 0.5) !important;
 }
@@ -5597,12 +5481,6 @@
   color: var(--secondary);
 }
 
-.mc-public .sv-prog-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
-}
-
 .mc-public .sv-prog-card {
   background: #fff;
   border-radius: var(--radius-xl);
@@ -5635,13 +5513,13 @@
   pointer-events: none;
 }
 .mc-public .sv-pc-green {
-  background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
 }
 .mc-public .sv-pc-gold {
-  background: linear-gradient(135deg, #b07520 0%, #c9882a 100%);
+  background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%);
 }
 .mc-public .sv-pc-red {
-  background: linear-gradient(135deg, #9e3b1f 0%, #c04b2b 100%);
+  background: linear-gradient(135deg, #9e3b1f 0%, var(--primary) 100%);
 }
 
 .mc-public .sv-pc-icon-wrap {
@@ -5766,7 +5644,7 @@
   box-shadow: 0 8px 24px rgba(201, 136, 42, 0.32) !important;
 }
 .mc-public .sv-pcbtn-gold:hover {
-  background: #b07520 !important;
+  background: var(--gold-dark) !important;
   transform: translateY(-2px) !important;
 }
 
@@ -5791,12 +5669,6 @@
 .mc-public .sv-platform .section-title em {
   font-style: normal;
   color: var(--gold);
-}
-
-.mc-public .sv-tag-green {
-  background: var(--secondary-light) !important;
-  color: var(--secondary) !important;
-  border: 1px solid rgba(27, 67, 50, 0.15) !important;
 }
 
 .mc-public .sv-tools-grid {
@@ -5858,7 +5730,7 @@
   background: linear-gradient(90deg, var(--secondary), var(--secondary-dark));
 }
 .mc-public .sv-tca-gold {
-  background: linear-gradient(90deg, #b07520, var(--gold));
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold));
 }
 .mc-public .sv-tca-red {
   background: linear-gradient(90deg, var(--primary-dark), var(--primary));
@@ -5898,7 +5770,7 @@
   box-shadow: 0 8px 20px rgba(27, 67, 50, 0.3);
 }
 .mc-public .sv-tci-gold {
-  background: linear-gradient(135deg, #b07520, var(--gold));
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
   box-shadow: 0 8px 20px rgba(201, 136, 42, 0.35);
 }
 .mc-public .sv-tci-red {
@@ -5974,54 +5846,6 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
-   5 & 6. DEEP-DIVE SPLIT SECTIONS
-───────────────────────────────────────────────────────────── */
-
-/* Flip layout for nutrition section */
-
-/* Tag variants */
-
-/* Text column */
-
-/* Solid CTA buttons for deep-dive */
-
-/* ── Mockup card ── */
-
-/* Mockup traffic-light header */
-
-/* Workout plan rows */
-
-/* Stats footer inside mockup */
-
-/* Meal plan rows */
-
-/* Floating stat cards */
-
-/* ─────────────────────────────────────────────────────────────
-   7. CLIENT MANAGEMENT TOOLS (dark section)
-───────────────────────────────────────────────────────────── */
-
-/* Full-width profiles card */
-
-/* Feature grid inside full card */
-
-/* Two-column grid for Health + Reports */
-
-/* Health metrics bars */
-
-/* Report items list */
-
-/* ─────────────────────────────────────────────────────────────
-   8. HOW IT WORKS
-───────────────────────────────────────────────────────────── */
-
-/* Dashed connector line */
-
-/* ─────────────────────────────────────────────────────────────
-   9. PLATFORM STATS
-───────────────────────────────────────────────────────────── */
-
-/* ─────────────────────────────────────────────────────────────
    10. FINAL CTA
 ───────────────────────────────────────────────────────────── */
 .mc-public .sv-final-cta,
@@ -6076,11 +5900,6 @@
   line-height: 1.18;
   margin-bottom: 16px;
 }
-.mc-public .sv-fca-left h2 em,
-.mc-public .sv-cta-text h2 em {
-  font-style: normal;
-  color: var(--gold) !important;
-}
 
 .mc-public .sv-fca-left p,
 .mc-public .sv-cta-text p {
@@ -6117,9 +5936,6 @@
   .mc-public .sv-hero-title {
     font-size: 44px;
   }
-  .mc-public .sv-prog-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .mc-public .sv-tools-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -6132,9 +5948,6 @@
   }
   .mc-public .sv-icon-grid {
     max-width: 100%;
-  }
-  .mc-public .sv-prog-grid {
-    grid-template-columns: 1fr;
   }
   .mc-public .sv-tools-grid {
     grid-template-columns: 1fr;
@@ -6169,13 +5982,6 @@
     font-size: 28px;
   }
 }
-
-/* Ported from CoachList.css */
-/* =============================================================
-   CoachList.css  —  Coach Listing Page
-   Theme: Forest Green (#1b4332) + Gold (#c9882a)
-   Inherits CSS variables from Site.css
-   ============================================================= */
 
 /* ─────────────────────────────────────────────────────────────
    BANNER
@@ -6634,16 +6440,16 @@
 
 /* Badge colour variants */
 .mc-public .cl-card-badge.badge-yoga {
-  background: #b07520;
+  background: var(--gold-dark);
 }
 .mc-public .cl-card-badge.badge-nutrition {
   background: var(--gold);
 }
 .mc-public .cl-card-badge.badge-women {
-  background: #c04b2b;
+  background: var(--primary);
 }
 .mc-public .cl-card-badge.badge-lifestyle {
-  background: #2d6a4f;
+  background: var(--secondary-dark);
 }
 .mc-public .cl-card-badge.badge-senior {
   background: var(--secondary-dark);
@@ -6675,16 +6481,16 @@
 
 /* Specialty colour variants */
 .mc-public .cl-coach-specialty.spec-yoga {
-  color: #b07520;
+  color: var(--gold-dark);
 }
 .mc-public .cl-coach-specialty.spec-nutrition {
-  color: #c9882a;
+  color: var(--gold);
 }
 .mc-public .cl-coach-specialty.spec-women {
-  color: #c04b2b;
+  color: var(--primary);
 }
 .mc-public .cl-coach-specialty.spec-lifestyle {
-  color: #2d6a4f;
+  color: var(--secondary-dark);
 }
 .mc-public .cl-coach-specialty.spec-senior {
   color: var(--secondary-dark);
@@ -6712,7 +6518,7 @@
 }
 
 .mc-public .cl-star {
-  color: #c9882a;
+  color: var(--gold);
 }
 
 .mc-public .cl-coach-bio {
@@ -6748,7 +6554,7 @@
 /* Tag colour variants */
 .mc-public .cl-tag.tag-yoga {
   background: #fdf3e0;
-  color: #b07520;
+  color: var(--gold-dark);
 }
 .mc-public .cl-tag.tag-nutrition {
   background: #fffbeb;
@@ -6756,11 +6562,11 @@
 }
 .mc-public .cl-tag.tag-women {
   background: #fceee9;
-  color: #c04b2b;
+  color: var(--primary);
 }
 .mc-public .cl-tag.tag-lifestyle {
   background: #eaf4ee;
-  color: #2d6a4f;
+  color: var(--secondary-dark);
 }
 .mc-public .cl-tag.tag-senior {
   background: var(--secondary-light);
@@ -6922,24 +6728,6 @@
   font-size: 14px;
 }
 
-.mc-public .cl-widget-body {
-  padding: 18px 20px;
-}
-
-/* ── Filter Pills Widget ── */
-
-/* Coloured pill variants */
-
-/* ─────────────────────────────────────────────────────────────
-   BLOG WIDGET
-───────────────────────────────────────────────────────────── */
-
-/* Thumbnail */
-
-/* Text block */
-
-/* View All button row */
-
 /* ─────────────────────────────────────────────────────────────
    BECOME A COACH — CTA WIDGET
 ───────────────────────────────────────────────────────────── */
@@ -7062,10 +6850,6 @@
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
 }
 
-/* ─────────────────────────────────────────────────────────────
-   RESPONSIVE
-───────────────────────────────────────────────────────────── */
-
 /* 1100px — squeeze layout slightly */
 @media (max-width: 1100px) {
   .mc-public .cl-layout {
@@ -7125,32 +6909,11 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   FILTER WIDGET  (sidebar)
-═══════════════════════════════════════════════════════════ */
-.mc-public .cl-filter-widget {
-  width: 100%;
-}
-
-.mc-public .cl-filter-body {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 18px 18px 20px;
-}
-
 /* ── Field block ── */
 .mc-public .cl-ff {
   display: flex;
   flex-direction: column;
   gap: 5px;
-}
-
-/* ── Country + State row ── */
-.mc-public .cl-ff-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
 }
 
 /* ── Label ── */
@@ -7165,15 +6928,6 @@
 .mc-public .cl-ff-label i {
   color: var(--secondary);
   margin-right: 4px;
-}
-
-/* ── Select ── */
-
-/* ── Divider ── */
-.mc-public .cl-ff-divider {
-  height: 1px;
-  background: var(--border);
-  margin: 2px 0;
 }
 
 /* ── Pills ── */
@@ -7272,29 +7026,10 @@
   pointer-events: none;
 }
 
-/* ── No-photo placeholder for dynamic coach cards ── */
-.mc-public .cl-card-img-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-  color: #94a3b8;
-  font-size: 72px;
-}
-
 .mc-public .cl-cta-perks {
   list-style: none;
   padding: 0;
 }
-
-/* Ported from meracoachweb CoachProfile.css */
-/* =============================================================
-   CoachProfile.css  —  Coach Landing / Profile Page
-   Theme: Forest Green (#1b4332) + Gold (#c9882a)
-   Inherits CSS variables from Site.css
-   ============================================================= */
 
 /* ─────────────────────────────────────────────────────────────
    0. CUSTOM MODAL
@@ -7360,7 +7095,7 @@
 }
 .mc-public .mc-modal-body ul {
   text-align: left;
-  color: #c04b2b;
+  color: var(--primary);
 }
 .mc-public .mc-modal-btn {
   background: var(--gradient);
@@ -7647,8 +7382,6 @@
   max-width: 520px;
 }
 
-/* Specialty tags */
-
 /* CTA buttons */
 .mc-public .cp-hero-ctas {
   display: flex;
@@ -7665,7 +7398,7 @@
 }
 
 .mc-public .cp-btn-book:hover {
-  background: #b07520 !important;
+  background: var(--gold-dark) !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 12px 36px rgba(201, 136, 42, 0.5) !important;
 }
@@ -7763,17 +7496,6 @@
 }
 
 /* ── QR Modal ── */
-
-@keyframes qrFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.92) translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
 
 .mc-public #profileQrCode {
   position: relative;
@@ -8037,13 +7759,6 @@
   margin: 0;
 }
 
-.mc-public .cp-offer-meta {
-  margin: 0;
-  color: var(--primary);
-  font-weight: 700;
-  font-size: 14px;
-}
-
 .mc-public .cp-offer-body p {
   margin: 0;
   color: var(--text-light);
@@ -8220,7 +7935,7 @@
 }
 
 .mc-public .cp-cf-submit:hover {
-  background: #b07520 !important;
+  background: var(--gold-dark) !important;
   transform: translateY(-3px) !important;
   box-shadow: 0 16px 44px rgba(201, 136, 42, 0.55) !important;
 }
@@ -8582,24 +8297,6 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* ── Carousel shell ── */
-
-/* ── Side arrow buttons ── */
-
-/* ── Dots bar ── */
-
-/* ── Base card ── */
-
-/* Quote icon */
-
-/* Stars */
-
-/* Quote text — matches section-subtitle (17px) */
-
-/* Avatar + name row */
-
-/* Before / After strip */
-
 /* ─────────────────────────────────────────────────────────────
    SIDEBAR WIDGETS
 ───────────────────────────────────────────────────────────── */
@@ -8666,10 +8363,6 @@
   padding: 18px 20px;
 }
 
-/* Book Widget */
-
-/* Quick Info Widget */
-
 /* Packages and events in the sidebar */
 .mc-public .cp-sb-offers {
   display: flex;
@@ -8735,10 +8428,6 @@
   font-size: 12px;
   color: var(--text-light);
 }
-
-/* ─────────────────────────────────────────────────────────────
-   7. FINAL CTA
-───────────────────────────────────────────────────────────── */
 
 /* ─────────────────────────────────────────────────────────────
    RESPONSIVE
@@ -8873,13 +8562,6 @@
   }
 }
 
-/* Ported from meracoachweb Login.css */
-/* =============================================================
-   Login.css  —  Login Page  (Card-centred layout)
-   Theme: Forest Green (#1b4332) + Gold (#c9882a)
-   Prefix: lg-
-   ============================================================= */
-
 /* ─────────────────────────────────────────────────────────────
    PAGE — full-height centering container, equal top/bottom margin
 ───────────────────────────────────────────────────────────── */
@@ -8891,7 +8573,7 @@
       Visual bottom gap = padding-bottom               =              40px
       Both gaps are always equal.
     */
-  background-color: #f5ede0;
+  background-color: var(--bg-sand);
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c9882a' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
 
   display: flex;
@@ -8958,7 +8640,7 @@
    LEFT PANEL — Branding (compact to match right-panel height)
 ───────────────────────────────────────────────────────────── */
 .mc-public .lg-panel-left {
-  background: linear-gradient(160deg, #0f2018 0%, #1b4332 55%, #0f2018 100%);
+  background: linear-gradient(160deg, #0f2018 0%, var(--secondary) 55%, #0f2018 100%);
   position: relative;
   overflow: hidden;
   padding: 28px 32px;
@@ -9345,8 +9027,6 @@
   color: var(--secondary);
 }
 
-/* Field hint — no reserved space, shows only when needed */
-
 /* Remember + Forgot row */
 .mc-public .lg-row {
   display: flex;
@@ -9400,10 +9080,6 @@
   align-items: center;
   gap: 7px;
 }
-
-/* Divider */
-
-/* Social buttons — side by side */
 
 /* Register & coach links */
 .mc-public .lg-register-link {
@@ -9472,17 +9148,9 @@
   }
 }
 
-/* Ported from meracoachweb Register.css */
-/* =============================================================
-   Register.css  —  Coach Registration Page (3-step form)
-   Theme: Forest Green (#1b4332) + Gold (#c9882a)
-   Prefix: rg-
-   ============================================================= */
-
 /* ─── PAGE ────────────────────────────────────────────────── */
-.mc-public .rg-page,
-.mc-public .rg-shell {
-  background-color: #f5ede0;
+.mc-public .rg-page {
+  background-color: var(--bg-sand);
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c9882a' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
   padding-top: 112px; /* 72px navbar + 40px gap */
   padding-bottom: 40px; /* same 40px gap */
@@ -9510,7 +9178,7 @@
 
 /* ─── CARD HEADER ─────────────────────────────────────────── */
 .mc-public .rg-card-head {
-  background: linear-gradient(145deg, #1b2f1f 0%, #1b4332 45%, #2d3a1a 100%);
+  background: linear-gradient(145deg, #1b2f1f 0%, var(--secondary) 45%, #2d3a1a 100%);
   padding: 28px 36px 0;
   position: relative;
   overflow: hidden;
@@ -9722,7 +9390,7 @@
   background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
 }
 .mc-public .rg-sh-gold {
-  background: linear-gradient(135deg, #b07520, var(--gold));
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
 }
 .mc-public .rg-sh-red {
   background: linear-gradient(135deg, var(--primary-dark), var(--primary));
@@ -9849,8 +9517,6 @@
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(192, 75, 43, 0.1);
 }
-
-/* Custom select wrapper */
 
 /* Char counter */
 .mc-public .rg-char-count {
@@ -10009,7 +9675,7 @@
   box-shadow: 0 6px 20px rgba(201, 136, 42, 0.35) !important;
 }
 .mc-public .rg-btn-submit:hover:not(:disabled) {
-  background: #b07520 !important;
+  background: var(--gold-dark) !important;
   transform: translateY(-1px) !important;
 }
 .mc-public .rg-btn-submit:disabled {
@@ -10177,10 +9843,6 @@
   font-size: 10px;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   INTRO PANEL
-───────────────────────────────────────────────────────────── */
-
 /* Top heading */
 .mc-public .rg-intro-head {
   text-align: center;
@@ -10328,7 +9990,7 @@
   box-shadow: 0 6px 16px rgba(27, 67, 50, 0.28);
 }
 .mc-public .rg-is-gold {
-  background: linear-gradient(135deg, #b07520, var(--gold));
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
   box-shadow: 0 6px 16px rgba(201, 136, 42, 0.3);
 }
 .mc-public .rg-is-red {
@@ -10400,7 +10062,7 @@
   background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
 }
 .mc-public .rg-ii-gold {
-  background: linear-gradient(135deg, #b07520, var(--gold));
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
 }
 .mc-public .rg-ii-red {
   background: linear-gradient(135deg, var(--primary-dark), var(--primary));
@@ -10431,8 +10093,6 @@
   color: var(--secondary);
   font-weight: 700;
 }
-
-/* 7th item spans both columns so it doesn't sit alone */
 
 /* Tags inside checklist items */
 .mc-public .rg-ii-tag {
@@ -10495,8 +10155,6 @@
   font-size: 12px;
 }
 
-/* ─── STEP 1 ELEMENTS ────────────────────────────────────── */
-
 /* Email-password info note (Step 1) */
 .mc-public .rg-info-note {
   display: flex;
@@ -10552,7 +10210,7 @@
   gap: 10px !important;
 }
 .mc-public .rg-btn-register:hover {
-  background: #b07520 !important;
+  background: var(--gold-dark) !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 10px 28px rgba(201, 136, 42, 0.42) !important;
 }
@@ -10683,11 +10341,6 @@
 .mc-public .rg-grid > * {
   min-width: 0;
 }
-@media (max-width: 900px) {
-  .mc-public .cl-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 .mc-public .cl-filter-controls {
   flex-wrap: wrap;
   min-width: 0;
@@ -10745,7 +10398,7 @@
   color: #c9d6cf !important;
 }
 
-/* Preserve bright accents, gold elements, and dark/custom sections per legacy UI */
+/* Keep the bright accents, gold elements and dark sections as designed. */
 .mc-public .features-section .section-tag {
   background: rgba(201, 136, 42, 0.15) !important;
   color: #e8a84c !important;
@@ -10759,7 +10412,7 @@
 }
 .mc-public .choose-path .section-tag {
   background: rgba(27, 67, 50, 0.08) !important;
-  color: #1b4332 !important;
+  color: var(--secondary) !important;
   border: 1px solid rgba(27, 67, 50, 0.18) !important;
 }
 .mc-public .choose-path .section-subtitle {
@@ -10814,7 +10467,7 @@
 }
 .mc-public .bmi-content .section-tag {
   background: #fdf3e0 !important;
-  color: #c9882a !important;
+  color: var(--gold) !important;
   border: 1px solid rgba(201, 136, 42, 0.25) !important;
 }
 .mc-public .cp-cf-tag {
@@ -11320,7 +10973,7 @@ html {
   }
 }
 .mc-public .mobile-nav a.btn-secondary {
-  background: var(--secondary, #1b4332);
+  background: var(--secondary, var(--secondary));
   color: #fff;
   border: none;
 }
@@ -11341,7 +10994,7 @@ html {
   justify-content: space-between;
   gap: 16px;
   padding: 20px 22px 18px;
-  background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
   color: #fff;
 }
 .mc-public .cp-pkg-title {
@@ -11427,21 +11080,6 @@ html {
   aspect-ratio: 1;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-}
-
-/* Gallery photos carry a short tag saying what the photo is for */
-.mc-public .cp-gallery-item {
-  margin: 0;
-  min-width: 0;
-}
-
-.mc-public .cp-gallery-tag {
-  margin-top: 6px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--text-dark, #1c1c1c);
-  overflow-wrap: anywhere;
 }
 
 /* Success stories sit on the green testimonials band. */
@@ -11564,15 +11202,6 @@ html {
 }
 .mc-public .cl-top-list li + li .cl-top-item {
   border-top: 1px solid var(--border);
-}
-.mc-public .cl-top-rank {
-  flex: none;
-  width: 20px;
-  color: var(--gold);
-  font-family: var(--font-poppins), sans-serif;
-  font-size: 14px;
-  font-weight: 800;
-  text-align: center;
 }
 .mc-public .cl-top-avatar {
   position: relative;
@@ -11900,8 +11529,6 @@ html {
   cursor: pointer;
 }
 
-/* ===== Website updates: Choose Your Path tabs, platform benefit groups ===== */
-
 /* The panels under Choose Your Path: leave room for the sticky header when a card scrolls them into view. */
 .mc-public .path-panels {
   scroll-margin-top: 72px;
@@ -12033,8 +11660,6 @@ html {
   margin-top: 36px;
 }
 
-/* ===== Website updates: services page tabs and member block ===== */
-
 /* The hero tiles link to the programme or tool they describe. */
 .mc-public a.sv-ic-card {
   color: inherit;
@@ -12088,7 +11713,7 @@ html {
   padding-top: 0;
 }
 .mc-public .sv-member-cta .sv-cta-inner {
-  background: linear-gradient(135deg, #8f3a1d 0%, #c04b2b 55%, #e0833a 100%);
+  background: linear-gradient(135deg, #8f3a1d 0%, var(--primary) 55%, #e0833a 100%);
 }
 .mc-public .sv-member-cta .sv-cta-text h2 em {
   color: #ffe3b3 !important;
@@ -12185,7 +11810,7 @@ html {
   gap: 0.35em;
   font-size: 1.05em;
   font-weight: 800;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-nrow-read .apd-ntitle {
   font-weight: 600;
@@ -12225,7 +11850,7 @@ html {
   font-size: 0.98em;
   font-weight: 700;
   line-height: 1.35;
-  color: #1c1c1c;
+  color: var(--ink);
 }
 .mc-public .apd-nrest {
   margin-top: 0.2em;
@@ -12278,4 +11903,49 @@ html {
 }
 .mc-public .is-active .apd-npill {
   animation: apdPopIn 0.5s 1.5s ease backwards;
+}
+
+/* section rhythm: the 96px bands are too tall once the screen narrows */
+@media (max-width: 1024px) {
+  .mc-public .how-it-works,
+  .mc-public .featured-coaches,
+  .mc-public .categories,
+  .mc-public .bmi-teaser,
+  .mc-public .testimonials,
+  .mc-public .blog,
+  .mc-public .coach-cta,
+  .mc-public .sv-platform {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+}
+@media (max-width: 768px) {
+  .mc-public .choose-path,
+  .mc-public .features-section,
+  .mc-public .how-it-works,
+  .mc-public .featured-coaches,
+  .mc-public .categories,
+  .mc-public .bmi-teaser,
+  .mc-public .testimonials,
+  .mc-public .blog,
+  .mc-public .coach-cta,
+  .mc-public .sv-platform {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+}
+
+/* Hero "Top Coaches" card text. */
+.mc-public .float-top-title {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 14px;
+  color: var(--dark);
+}
+.mc-public .float-top-note {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-light);
 }

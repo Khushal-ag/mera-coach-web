@@ -10,6 +10,7 @@ import { PracticePageHeader } from "@/components/practice/page-header";
 import { AlertBanner } from "@/components/ui/alert-banner";
 import { SUPPORT_EMAIL } from "@/config/contact";
 import { FREE_CLIENT_LIMIT, isSubscriptionRequired } from "@/config/practice";
+import { siteConfig } from "@/config/site";
 import { ADD_CLIENT_PREMIUM_HREF } from "@/constants/routes";
 import { fetchAuthedCoachProfile, fetchClientList } from "@/lib/api/practice";
 import { ensurePremiumStatus } from "@/lib/auth/premium-status";
@@ -96,7 +97,7 @@ export function AddClientView() {
         <PracticePageHeader
           title="New Client"
           crumbs={[
-            { label: "Home", href: "/dashboard" },
+            { label: "Home", href: siteConfig.links.dashboard },
             { label: "Clients", href: "/dashboard/clients" },
             { label: "Add client" },
           ]}
@@ -122,7 +123,7 @@ export function AddClientView() {
         <PracticePageHeader
           title="New Client"
           crumbs={[
-            { label: "Home", href: "/dashboard" },
+            { label: "Home", href: siteConfig.links.dashboard },
             { label: "Clients", href: "/dashboard/clients" },
             { label: "Add client" },
           ]}
@@ -140,7 +141,10 @@ export function AddClientView() {
           >
             Try again
           </button>
-          <Link href="/dashboard" className="mc-btn-secondary w-full sm:w-auto">
+          <Link
+            href={siteConfig.links.dashboard}
+            className="mc-btn-secondary w-full sm:w-auto"
+          >
             Back to dashboard
           </Link>
         </div>

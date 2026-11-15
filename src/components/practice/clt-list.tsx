@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 import { MenuSelect } from "@/components/ui/menu-select";
+import { siteConfig } from "@/config/site";
 import { pageWindow } from "@/lib/pagination";
 
 export function CltPageHead({
@@ -20,7 +21,7 @@ export function CltPageHead({
       <div>
         <h1 className="clt-page-title">{title}</h1>
         <nav className="clt-breadcrumb">
-          <Link href="/dashboard">
+          <Link href={siteConfig.links.dashboard}>
             <i className="fas fa-home" /> Home
           </Link>
           <i className="fas fa-chevron-right" />

@@ -7,6 +7,7 @@ import { AuthProvider } from "@/components/auth-provider";
 import { ScrollTop } from "@/components/scroll-top";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { siteConfig } from "@/config/site";
 
 function HeaderFallback() {
   return (
@@ -16,7 +17,7 @@ function HeaderFallback() {
 
 function MarketingChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isPractice = pathname.startsWith("/dashboard");
+  const isPractice = pathname.startsWith(siteConfig.links.dashboard);
 
   if (isPractice) {
     return <>{children}</>;
@@ -24,17 +25,17 @@ function MarketingChrome({ children }: { children: React.ReactNode }) {
 
   const flushNav =
     pathname === "/" ||
-    pathname === "/services" ||
-    pathname === "/coach" ||
+    pathname === siteConfig.links.services ||
+    pathname === siteConfig.links.coaches ||
     pathname.startsWith("/coach/") ||
-    pathname === "/coach-login" ||
-    pathname === "/register" ||
-    pathname === "/contact" ||
-    pathname === "/privacy" ||
-    pathname === "/terms" ||
-    pathname === "/premium" ||
+    pathname === siteConfig.links.coachLogin ||
+    pathname === siteConfig.links.register ||
+    pathname === siteConfig.links.contact ||
+    pathname === siteConfig.links.privacy ||
+    pathname === siteConfig.links.terms ||
+    pathname === siteConfig.links.premium ||
     pathname === "/feedback" ||
-    pathname === "/forgot-password";
+    pathname === siteConfig.links.forgotPassword;
 
   return (
     <div className="flex min-h-dvh flex-col bg-paper text-ink">

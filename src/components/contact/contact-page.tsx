@@ -19,6 +19,7 @@ import {
   SUPPORT_EMAIL,
 } from "@/config/contact";
 import { REGISTER_SHARE_TEXT } from "@/constants/contact";
+import { COACH_COUNT_TEXT } from "@/constants/home";
 import { submitCoachEnquiry } from "@/lib/api/coach";
 import { firstApiError, isApiSuccess } from "@/lib/api/normalize";
 import { copyText } from "@/lib/clipboard";
@@ -289,7 +290,8 @@ export function ContactPageView({ coachTypes }: { coachTypes: string[] }) {
                   <i className="fas fa-check-circle" /> Setup in 5 mins
                 </div>
                 <div className="contact-trust-chip">
-                  <i className="fas fa-check-circle" /> 500+ coaches
+                  <i className="fas fa-check-circle" /> {COACH_COUNT_TEXT}{" "}
+                  coaches
                 </div>
               </div>
             </div>

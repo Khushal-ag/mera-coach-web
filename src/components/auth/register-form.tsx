@@ -2,6 +2,8 @@
 
 import type { MasterOption } from "@/lib/api/master";
 
+import { siteConfig } from "@/config/site";
+import { COACH_COUNT_TEXT } from "@/constants/home";
 import { cn } from "@/lib/utils";
 
 import { CropDialog } from "./register/crop-dialog";
@@ -33,8 +35,8 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
               <div>
                 <h1>Register as a Coach</h1>
                 <p>
-                  Join 500+ verified coaches on India&apos;s leading wellness
-                  platform
+                  Join {COACH_COUNT_TEXT} verified coaches on India&apos;s
+                  leading wellness platform
                 </p>
               </div>
             </div>
@@ -100,7 +102,7 @@ export function RegisterForm({ categories }: { categories: MasterOption[] }) {
 
           <div className="rg-card-foot">
             Already registered?{" "}
-            <a href="/coach-login">
+            <a href={siteConfig.links.coachLogin}>
               Sign in to your account <i className="fas fa-arrow-right" />
             </a>
           </div>

@@ -73,13 +73,13 @@ export function SiteFooter() {
               <h4 aria-level={3}>Platform</h4>
               <ul>
                 <li>
-                  <Link href="/coach">Find a Coach</Link>
+                  <Link href={siteConfig.links.coaches}>Find a Coach</Link>
                 </li>
                 <li>
-                  <Link href="/services">Features</Link>
+                  <Link href={siteConfig.links.services}>Features</Link>
                 </li>
                 <li>
-                  <Link href="/bmi">BMI Calculator</Link>
+                  <Link href={siteConfig.links.bmi}>BMI Calculator</Link>
                 </li>
                 <li>
                   <Link href="/#stories">Coach Stories</Link>
@@ -90,17 +90,19 @@ export function SiteFooter() {
               <h4 aria-level={3}>For Coaches</h4>
               <ul>
                 <li>
-                  <Link href="/register">Become a Coach</Link>
+                  <Link href={siteConfig.links.register}>Become a Coach</Link>
                 </li>
                 <li>
-                  <Link href="/coach-login">Coach Login</Link>
+                  <Link href={siteConfig.links.coachLogin}>Coach Login</Link>
                 </li>
                 <li>
-                  <Link href="/dashboard">Coach Dashboard</Link>
+                  <Link href={siteConfig.links.dashboard}>Coach Dashboard</Link>
                 </li>
                 {showSubscriptionPlans ?
                   <li>
-                    <Link href="/premium">Subscription Plans</Link>
+                    <Link href={siteConfig.links.premium}>
+                      Subscription Plans
+                    </Link>
                   </li>
                 : null}
               </ul>
@@ -109,16 +111,13 @@ export function SiteFooter() {
               <h4 aria-level={3}>Company</h4>
               <ul>
                 <li>
-                  <Link href="/#about">About Us</Link>
+                  <Link href={siteConfig.links.contact}>Contact Us</Link>
                 </li>
                 <li>
-                  <Link href="/contact">Contact Us</Link>
+                  <Link href={siteConfig.links.terms}>Terms of Service</Link>
                 </li>
                 <li>
-                  <Link href="/terms">Terms of Service</Link>
-                </li>
-                <li>
-                  <Link href="/privacy">Privacy Policy</Link>
+                  <Link href={siteConfig.links.privacy}>Privacy Policy</Link>
                 </li>
               </ul>
             </div>
@@ -167,8 +166,8 @@ export function SiteFooter() {
               healthier India.
             </p>
             <div className="footer-bottom-links">
-              <Link href="/privacy">Privacy Policy</Link>
-              <Link href="/terms">Terms of Service</Link>
+              <Link href={siteConfig.links.privacy}>Privacy Policy</Link>
+              <Link href={siteConfig.links.terms}>Terms of Service</Link>
               <a href="/sitemap.xml">Sitemap</a>
             </div>
           </div>

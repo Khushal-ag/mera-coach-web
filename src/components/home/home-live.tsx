@@ -15,6 +15,8 @@ import {
 } from "@/components/home/present";
 import { ListEmpty } from "@/components/list-empty";
 import { Stars } from "@/components/stars";
+import { siteConfig } from "@/config/site";
+import { HOME_CAROUSEL_MS, HOME_COACH_COUNT } from "@/constants/home";
 import { FALLBACK_STORIES, STORY_TEMPLATES } from "@/constants/home-stories";
 import { fetchPublicCoaches, isApiSuccess } from "@/lib/api";
 import { fetchCoachCategories } from "@/lib/api/master";
@@ -38,7 +40,12 @@ function CoachCard({
     <div className="coach-card">
       <div className="coach-card-banner">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={banner} alt={coach.coachTypeName} />
+        <img
+          src={banner}
+          alt={coach.coachTypeName}
+          loading="lazy"
+          decoding="async"
+        />
         <span
           className="coach-category-badge"
           style={{ background: style.color }}
@@ -115,7 +122,10 @@ async function loadCoaches(page: number) {
   "use cache";
   cacheLife("minutes");
   try {
-    const response = await fetchPublicCoaches({ page, pageSize: 6 });
+    const response = await fetchPublicCoaches({
+      page,
+      pageSize: HOME_COACH_COUNT,
+    });
     if (isApiSuccess(response)) return response.responseObj?.items ?? [];
   } catch {
     return [];
@@ -210,7 +220,7 @@ export async function HomeFeaturedCoaches() {
           <ListEmpty title="No coaches found." icon="fas fa-user-tie" />
         : <HomeCarousel
             total={coaches.length}
-            interval={3500}
+            interval={HOME_CAROUSEL_MS.coaches}
             label="coaches"
             trackClass="coaches-grid"
           >
@@ -224,7 +234,7 @@ export async function HomeFeaturedCoaches() {
           </HomeCarousel>
         }
         <div style={{ textAlign: "center", marginTop: 32 }}>
-          <Link href="/coach" className="btn btn-outline">
+          <Link href={siteConfig.links.coaches} className="btn btn-outline">
             <i className="fas fa-th-large" /> Browse All Coaches
           </Link>
         </div>
@@ -237,7 +247,7 @@ export async function HomeStories() {
   const coaches = await loadCoaches(2);
   const items =
     coaches.length > 0 ?
-      coaches.slice(0, 6).map((c, i) => {
+      coaches.slice(0, HOME_COACH_COUNT).map((c, i) => {
         const tpl = STORY_TEMPLATES[i % STORY_TEMPLATES.length]!;
         const avatar = resolveMediaUrl(c.profile_Pic_Url);
         const label = [c.coachTypeName, c.city_Cd].filter(Boolean).join(", ");
@@ -277,7 +287,7 @@ export async function HomeStories() {
         </div>
         <HomeCarousel
           total={items.length}
-          interval={4000}
+          interval={HOME_CAROUSEL_MS.stories}
           label="stories"
           trackClass="testimonials-grid"
         >
@@ -307,6 +317,8 @@ export async function HomeStories() {
                     className="testimonial-avatar"
                     src={story.avatar}
                     alt={story.coachName}
+                    loading="lazy"
+                    decoding="async"
                   />
                 : <div
                     className="testimonial-avatar"

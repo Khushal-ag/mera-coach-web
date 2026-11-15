@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { siteConfig } from "@/config/site";
 import { requestForgotPassword, resetCoachPassword } from "@/lib/api/practice";
 import { PASSWORD_RULE, passwordPolicyError } from "@/lib/password";
 
@@ -68,7 +69,7 @@ export function ForgotPasswordForm() {
     setBusy(true);
     try {
       await resetCoachPassword({ token: digits, newPassword });
-      router.replace("/coach-login");
+      router.replace(siteConfig.links.coachLogin);
     } catch (err) {
       setError(
         err instanceof Error ?
@@ -173,7 +174,7 @@ export function ForgotPasswordForm() {
           Back to email / mobile
         </button>
         <p className="lg-register-link">
-          <Link href="/coach-login">Back to sign in</Link>
+          <Link href={siteConfig.links.coachLogin}>Back to sign in</Link>
         </p>
       </form>
     );
@@ -206,7 +207,7 @@ export function ForgotPasswordForm() {
         {busy ? "Sending code" : "Send reset code"}
       </button>
       <p className="lg-register-link">
-        <Link href="/coach-login">Back to sign in</Link>
+        <Link href={siteConfig.links.coachLogin}>Back to sign in</Link>
       </p>
     </form>
   );

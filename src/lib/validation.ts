@@ -27,14 +27,6 @@ export function validateRequired(value: string, label: string): string | null {
   return value.trim() ? null : `${label} is required.`;
 }
 
-export function validateMobile(value: string, required = true): string | null {
-  const trimmed = value.trim();
-  if (!trimmed) return required ? "Mobile number is required." : null;
-  return isValidMobile(trimmed) ? null : (
-      "Please enter a valid 10-digit mobile number (starting with 6-9)."
-    );
-}
-
 export function validateEmail(value: string, required = false): string | null {
   const trimmed = value.trim();
   if (!trimmed) return required ? "Email address is required." : null;
