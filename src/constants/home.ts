@@ -88,6 +88,9 @@ export const COACH_CTA = {
   imageAlt: "Coach Dashboard",
 } as const;
 
+/** Shown on a category that is in the list but not live yet. It goes away when the category is switched on. */
+export const COMING_SOON_LABEL = "Coming Soon";
+
 export const BLOG_SECTION = {
   tag: "Wellness Blog",
   title: "Tips, Insights & Wellness Wisdom",

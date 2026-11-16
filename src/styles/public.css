@@ -1781,6 +1781,8 @@
 }
 
 .mc-public .category-card {
+  display: flex;
+  flex-direction: column;
   background: white;
   border-radius: var(--radius);
   padding: 28px 20px;
@@ -1791,17 +1793,17 @@
   box-shadow: var(--shadow-sm);
 }
 
-.mc-public .category-card:hover {
+.mc-public a.category-card:hover {
   border-color: var(--primary);
   transform: translateY(-6px);
   box-shadow: var(--shadow-md);
 }
 
-.mc-public .category-card:hover .cat-icon {
+.mc-public a.category-card:hover .cat-icon {
   background: var(--primary);
 }
 
-.mc-public .category-card:hover .cat-icon i {
+.mc-public a.category-card:hover .cat-icon i {
   color: white;
 }
 
@@ -1875,13 +1877,14 @@
   font-size: 12px;
   color: var(--text-light);
   line-height: 1.5;
+  margin-bottom: 10px;
 }
 
 .mc-public .category-card .cat-count {
   font-size: 12px;
   color: var(--primary);
   font-weight: 600;
-  margin-top: 10px;
+  margin-top: auto;
 }
 
 /* ===== HOW IT WORKS ===== */
@@ -11948,4 +11951,25 @@ html {
   margin-top: 6px;
   font-size: 12px;
   color: var(--text-light);
+}
+
+/* A category that is listed but not live yet: not a link, no hover lift, and a "Coming Soon" tag. */
+.mc-public .category-card-soon {
+  cursor: default;
+}
+.mc-public .category-card-soon .cat-icon,
+.mc-public .category-card-soon h4,
+.mc-public .category-card-soon p {
+  opacity: 0.6;
+}
+.mc-public .cat-soon-tag {
+  align-self: center;
+  margin-top: auto;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: var(--gold-light);
+  color: var(--gold-dark);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }

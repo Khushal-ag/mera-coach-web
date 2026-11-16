@@ -16,10 +16,14 @@ import {
 import { ListEmpty } from "@/components/list-empty";
 import { Stars } from "@/components/stars";
 import { siteConfig } from "@/config/site";
-import { HOME_CAROUSEL_MS, HOME_COACH_COUNT } from "@/constants/home";
+import {
+  COMING_SOON_LABEL,
+  HOME_CAROUSEL_MS,
+  HOME_COACH_COUNT,
+} from "@/constants/home";
 import { FALLBACK_STORIES, STORY_TEMPLATES } from "@/constants/home-stories";
 import { fetchPublicCoaches, isApiSuccess } from "@/lib/api";
-import { fetchCoachCategories } from "@/lib/api/master";
+import { fetchCoachCategories, isLiveOption } from "@/lib/api/master";
 import { resolveMediaUrl } from "@/lib/media/media-url";
 
 function CoachCard({
@@ -115,7 +119,8 @@ function CoachCard({
 async function loadCategories() {
   "use cache";
   cacheLife("hours");
-  return fetchCoachCategories();
+  // Includes the categories that are not live yet; the search box below leaves them out.
+  return fetchCoachCategories({ includeInactive: true });
 }
 
 async function loadCoaches(page: number) {
@@ -135,7 +140,7 @@ async function loadCoaches(page: number) {
 
 export async function HomeSearchSection() {
   const categories = await loadCategories();
-  return <HomeSearch categories={categories} />;
+  return <HomeSearch categories={categories.filter(isLiveOption)} />;
 }
 
 export async function HomeCategories() {
@@ -161,12 +166,8 @@ export async function HomeCategories() {
           {categories.length > 0 ?
             categories.map((category, index) => {
               const style = categoryStyle(index);
-              return (
-                <Link
-                  key={category.code}
-                  href={`/coach?category=${encodeURIComponent(category.code)}`}
-                  className="category-card"
-                >
+              const body = (
+                <>
                   <div className={`cat-icon ${style.iconBg}`.trim()}>
                     <i className={category.iconClass || "fas fa-user-tie"} />
                   </div>
@@ -175,14 +176,30 @@ export async function HomeCategories() {
                     {category.description ||
                       "Expert coaching tailored to your goals"}
                   </p>
-                  <div
-                    className="cat-count"
-                    style={{ color: style.countColor }}
-                  >
-                    Find Coaches ›
-                  </div>
-                </Link>
+                </>
               );
+              // A category that is not live yet has no coaches to find, so it is a card, not a link.
+              return isLiveOption(category) ?
+                  <Link
+                    key={category.code}
+                    href={`${siteConfig.links.coaches}?category=${encodeURIComponent(category.code)}`}
+                    className="category-card"
+                  >
+                    {body}
+                    <div
+                      className="cat-count"
+                      style={{ color: style.countColor }}
+                    >
+                      Find Coaches ›
+                    </div>
+                  </Link>
+                : <div
+                    key={category.code}
+                    className="category-card category-card-soon"
+                  >
+                    {body}
+                    <div className="cat-soon-tag">{COMING_SOON_LABEL}</div>
+                  </div>;
             })
           : <p
               style={{

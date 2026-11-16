@@ -9,7 +9,14 @@ export type MasterOption = {
   label: string;
   iconClass?: string;
   description?: string;
+  /** False for a category that is not live yet. Only sent when the list is asked for with `includeInactive`. */
+  isActive?: boolean;
 };
+
+/** Everything except an explicitly inactive row counts as live. */
+export function isLiveOption(option: MasterOption) {
+  return option.isActive !== false;
+}
 
 /** Master rows from the API; exported for tests. */
 export function normalizeMasterItems(payload: unknown): MasterOption[] {
@@ -30,11 +37,13 @@ export function normalizeMasterItems(payload: unknown): MasterOption[] {
       const description = String(
         pick(r, "description", "Description") ?? "",
       ).trim();
+      const isActive = pick(r, "isActive", "IsActive");
       return {
         code,
         label,
         ...(iconClass ? { iconClass } : {}),
         ...(description ? { description } : {}),
+        ...(typeof isActive === "boolean" ? { isActive } : {}),
       } satisfies MasterOption;
     })
     .filter((x): x is MasterOption => x != null);
@@ -46,12 +55,15 @@ export async function fetchMasterItems(params: {
   itemType?: string;
   filterText?: string;
   ParamCode?: string;
+  /** Coach types only: also return the categories that are not live yet. */
+  includeInactive?: boolean;
 }): Promise<GenericResponse<MasterOption[]>> {
   const query = new URLSearchParams();
   if (params.ParamCode) query.set("ParamCode", params.ParamCode);
   if (params.ItemType) query.set("ItemType", params.ItemType);
   if (params.itemType) query.set("itemType", params.itemType);
   if (params.filterText) query.set("filterText", params.filterText);
+  if (params.includeInactive) query.set("includeInactive", "true");
   const response = await apiFetch<unknown>(`/Master/GetMasterItem?${query}`, {
     next: { revalidate: 3600 },
     skipAuth: true,
@@ -152,9 +164,15 @@ export function resolveParamLabels(
     .join(", ");
 }
 
-export async function fetchCoachCategories(): Promise<MasterOption[]> {
+/** The live categories. With `includeInactive`, the ones that are not live yet come too, flagged `isActive: false`. */
+export async function fetchCoachCategories({
+  includeInactive = false,
+}: { includeInactive?: boolean } = {}): Promise<MasterOption[]> {
   try {
-    const res = await fetchMasterItems({ ItemType: "CoachType" });
+    const res = await fetchMasterItems({
+      ItemType: "CoachType",
+      includeInactive,
+    });
     return res.responseObj ?? [];
   } catch {
     return [];
