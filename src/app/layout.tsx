@@ -1,3 +1,5 @@
+import { Analytics } from "@vercel/analytics/next";
+
 import type { Metadata, Viewport } from "next";
 
 import "@/styles/globals.css";
@@ -58,6 +60,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <SiteShell>{children}</SiteShell>
+        <Analytics />
       </body>
     </html>
   );
