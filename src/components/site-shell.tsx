@@ -18,8 +18,9 @@ function HeaderFallback() {
 function MarketingChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isPractice = pathname.startsWith(siteConfig.links.dashboard);
+  const isAdmin = pathname.startsWith(siteConfig.links.admin);
 
-  if (isPractice) {
+  if (isPractice || isAdmin) {
     return <>{children}</>;
   }
 

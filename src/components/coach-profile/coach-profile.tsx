@@ -19,6 +19,7 @@ import {
   SuccessStories,
 } from "@/components/coach-profile/coach-showcase";
 import { ExpandableBio } from "@/components/coach-profile/expandable-bio";
+import { RecommendedAds } from "@/components/coach-profile/recommended-ads";
 import { ListEmpty } from "@/components/list-empty";
 import { Stars } from "@/components/stars";
 import { MenuSelect } from "@/components/ui/menu-select";
@@ -426,45 +427,15 @@ export function CoachProfileView({ coach }: { coach: CoachProfileDetails }) {
                 whatsappUrl={whatsappUrl}
                 onEnquire={enquireAbout}
               />
-              <div className="cp-sb-widget cp-sb-badge">
-                <div className="cp-sbw-head">
-                  <i className="fas fa-medal" /> Platform Recognition
-                </div>
-                <div className="cp-sbw-body cp-badge-body">
-                  <div className="cp-badge-item">
-                    <i className="fas fa-crown cp-badge-icon gold" />
-                    <div>
-                      <strong>Top Coach 2025</strong>
-                      <span>Mera Coach Verified</span>
-                    </div>
-                  </div>
-                  <div className="cp-badge-item">
-                    <i className="fas fa-shield-alt cp-badge-icon green" />
-                    <div>
-                      <strong>100% Verified</strong>
-                      <span>All credentials checked</span>
-                    </div>
-                  </div>
-                  <div className="cp-badge-item">
-                    <i className="fas fa-star cp-badge-icon gold" />
-                    <div>
-                      <strong>Premium Coach</strong>
-                      <span>
-                        {coach.rating > 0 ?
-                          `${ratingLabel} / 5 Rating`
-                        : "New on Mera Coach"}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="cp-badge-item">
-                    <i className="fas fa-bolt cp-badge-icon green" />
-                    <div>
-                      <strong>Fast Responder</strong>
-                      <span>Replies within 24 hours</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <RecommendedAds
+                coachCode={coach.coachCode}
+                coachName={coach.coachName}
+                ratingText={
+                  coach.rating > 0 ?
+                    `${ratingLabel} / 5 Rating`
+                  : "New on Mera Coach"
+                }
+              />
             </aside>
           </div>
         </div>

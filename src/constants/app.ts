@@ -7,5 +7,8 @@ export const ANDROID_PACKAGE = "com.henchsolutions.meracoach";
 
 export const SESSION_STORAGE_KEY = "meracoach_coach_session";
 
+/** Separate from coach session so admin ops never collide with practice login. */
+export const ADMIN_SESSION_STORAGE_KEY = "meracoach_admin_session";
+
 /** Remembers whether the coach collapsed the dashboard sidebar. */
 export const SIDEBAR_COLLAPSED_KEY = "meracoach_sidebar_collapsed";

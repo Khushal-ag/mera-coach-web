@@ -71,7 +71,7 @@ export async function apiFetch<T>(
     );
   }
 
-  let body: GenericResponse<T> | null = null;
+  let body: GenericResponse<T> | null;
   try {
     body = normalizeApiBody<T>(await res.json());
   } catch {
