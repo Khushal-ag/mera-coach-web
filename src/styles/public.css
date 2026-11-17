@@ -8392,6 +8392,46 @@
   margin: 0;
 }
 
+/* Badge Widget */
+.mc-public .cp-badge-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mc-public .cp-badge-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mc-public .cp-badge-icon {
+  font-size: 20px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.mc-public .cp-badge-icon.gold {
+  color: var(--gold);
+}
+.mc-public .cp-badge-icon.green {
+  color: var(--secondary-dark);
+}
+
+.mc-public .cp-badge-item strong {
+  display: block;
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.mc-public .cp-badge-item span {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
 /* Recommended-by ads */
 .mc-public .cp-ads-body {
   display: flex;
