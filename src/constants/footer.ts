@@ -7,3 +7,10 @@ export const FOOTER_SOCIALS = [
   { key: "youtube", label: "YouTube", icon: "fab fa-youtube" },
   { key: "linkedin", label: "LinkedIn", icon: "fab fa-linkedin-in" },
 ] as const;
+
+/** The company behind the product, named under the copyright line. */
+export const PARENT_COMPANY = {
+  name: "Hench Solutions",
+  url: "https://henchsolutions.com/",
+  host: "henchsolutions.com",
+} as const;

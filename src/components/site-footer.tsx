@@ -12,7 +12,7 @@ import {
 import { env } from "@/config/env";
 import { isSubscriptionRequired } from "@/config/practice";
 import { siteConfig } from "@/config/site";
-import { FOOTER_SOCIALS } from "@/constants/footer";
+import { FOOTER_SOCIALS, PARENT_COMPANY } from "@/constants/footer";
 
 export function SiteFooter() {
   const showSubscriptionPlans = isSubscriptionRequired();
@@ -160,11 +160,23 @@ export function SiteFooter() {
             </div>
           </div>
           <div className="footer-bottom">
-            <p>
-              &#169; 2026 Mera Coach. All rights reserved. Made with{" "}
-              <i className="fas fa-heart" style={{ color: "#ef4444" }} /> for a
-              healthier India.
-            </p>
+            <div>
+              <p>
+                &#169; 2026 Mera Coach. All rights reserved. Made with{" "}
+                <i className="fas fa-heart" style={{ color: "#ef4444" }} /> for
+                a healthier India.
+              </p>
+              <p className="footer-parent">
+                Mera Coach is a product of{" "}
+                <a href={PARENT_COMPANY.url} target="_blank" rel="noopener">
+                  {PARENT_COMPANY.name}
+                </a>
+                . Visit:{" "}
+                <a href={PARENT_COMPANY.url} target="_blank" rel="noopener">
+                  {PARENT_COMPANY.host}
+                </a>
+              </p>
+            </div>
             <div className="footer-bottom-links">
               <Link href={siteConfig.links.privacy}>Privacy Policy</Link>
               <Link href={siteConfig.links.terms}>Terms of Service</Link>

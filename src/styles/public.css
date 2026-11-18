@@ -4354,6 +4354,21 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
+.mc-public .footer-parent {
+  margin-top: 6px;
+}
+
+.mc-public .footer-parent a {
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: var(--transition);
+}
+
+.mc-public .footer-parent a:hover {
+  color: var(--primary);
+}
+
 .mc-public .footer-bottom-links {
   display: flex;
   gap: 20px;
